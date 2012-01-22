@@ -6,19 +6,37 @@
 // microhttpd
 #include <microhttpd.h>
 
-// LuaBind
-#include "luabind/luabind.hpp"
+// Lua
+extern "C" {
+#include "lua.h"
+#include "lualib.h"
+#include "lauxlib.h"
+}
+
+#include "LuaFuncs.h"
+#include "HandelConnection.h"
 
 using namespace std;
 
+CConnectionHandler ch;
 
 int Connection(void *cls, struct MHD_Connection *connection, const char *url, const char *method, const char *version, const char *upload_data, size_t *upload_data_size, void **con_cls)
 {
-	const char *page  = "<html><body>Hello, browser!</body></html>";
-
+	connection_t con;
+	con.method = method;
+	con.url = url;
+	con.version = version;
+	
+	con.response = "";
+	con.errcode = MHD_HTTP_OK;
+	
+	// Now we setup our struct, we can pass it to the handeler
+	ch.Handel(&con);
+	
+	const char *page  = con.response.c_str();
 	struct MHD_Response* response = MHD_create_response_from_buffer (strlen (page), (void*) page, MHD_RESPMEM_MUST_COPY);
 
-	int ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
+	int ret = MHD_queue_response (connection, con.errcode, response);
 	MHD_destroy_response (response);
 
 	return ret;

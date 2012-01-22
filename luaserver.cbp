@@ -16,6 +16,7 @@
 				</Compiler>
 				<Linker>
 					<Add library="microhttpd" />
+					<Add library="lua51" />
 				</Linker>
 			</Target>
 			<Target title="Release">
@@ -29,6 +30,7 @@
 				<Linker>
 					<Add option="-s" />
 					<Add library="microhttpd" />
+					<Add library="lua51" />
 				</Linker>
 			</Target>
 		</Build>
@@ -36,6 +38,10 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="src/HandelConnection.cpp" />
+		<Unit filename="src/HandelConnection.h" />
+		<Unit filename="src/LuaFuncs.cpp" />
+		<Unit filename="src/LuaFuncs.h" />
 		<Unit filename="src/main.cpp" />
 		<Extensions>
 			<code_completion />
