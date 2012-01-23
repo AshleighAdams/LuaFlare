@@ -1,5 +1,5 @@
 
-function main( con )
+function main_old( con )
 	
 	local write = function(text, ...)
 		con.response = con.response .. string.format(tostring(text), ...)
@@ -24,9 +24,18 @@ function main( con )
 		write("<br/>%s = %s", k, v)
 	end
 	
-	con.response_headers = {}
 	con.response_headers["Content-Type"] = "text/html"
 	con.response_headers["Server"] = "luaserver"
 	return con
 end
 
+function main( con )
+	con.response = nil -- Tell it to check response_file instead, just saves CPU
+	con.errcode = nil -- So it's not overidden (the response file result)
+	
+	con.response_file = "testimg.png"
+	
+	con.response_headers["Content-Type"] = "image/png"
+	
+	return con
+end

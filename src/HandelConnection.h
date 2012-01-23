@@ -17,6 +17,8 @@ typedef std::unordered_map<std::string, std::string> ResponseHeadersMap;
 struct todo_t
 {
 	ResponseHeadersMap response_headers;
+	char* FileDataInstead;
+	int FileDataLength;
 };
 
 

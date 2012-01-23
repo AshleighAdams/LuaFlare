@@ -31,11 +31,21 @@ int Connection(void *cls, struct MHD_Connection *connection, const char *url, co
 	con.errcode = MHD_HTTP_OK;
 	
 	todo_t todo;
+	todo.FileDataInstead = 0;
 	// Now we setup our struct, we can pass it to the handeler
 	ch.Handel(&con, connection, todo);
 	
 	const char *page  = con.response.c_str();
-	struct MHD_Response* response = MHD_create_response_from_buffer (strlen (page), (void*)page, MHD_RESPMEM_MUST_COPY);
+	
+	struct MHD_Response* response;
+	
+	if(todo.FileDataInstead)
+	{
+		response = MHD_create_response_from_buffer (todo.FileDataLength, (void*)todo.FileDataInstead, MHD_RESPMEM_MUST_COPY);
+		delete [] todo.FileDataInstead; // How does this know the size of the array?
+	}
+	else
+		response = MHD_create_response_from_buffer (strlen (page), (void*)page, MHD_RESPMEM_MUST_COPY);
 	
 	for(auto it = todo.response_headers.begin(); it != todo.response_headers.end(); it++)
 		MHD_add_response_header(response, it->first.c_str(), it->second.c_str());

@@ -1,5 +1,9 @@
 #include "HandelConnection.h"
 #include <functional>
+#include <iostream>
+#include <fstream>
+
+using namespace std;
 
 CConnectionHandler::CConnectionHandler()
 {
@@ -119,7 +123,10 @@ void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon
 	lua_newtable(l);
 	lua_rawset(l, -3);
 	
-	
+	lua_pushstring(l, "response_headers");
+	lua_newtable(l);
+	lua_rawset(l, -3);
+		
 	MHD_KeyValueIterator itt_key = &SetLuaConnectionValues;
 	
 	while(g_pLs)
@@ -152,9 +159,40 @@ void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon
 
 			if(lua_isstring(l, -1))
 				connection->response = lua_tostring(l, -1);
-			
 		}
 		lua_pop(l, 1); // "response"
+		
+		lua_pushstring(l, "response_file");
+		{
+			lua_gettable(l, -2);
+
+			if(lua_isstring(l, -1))
+			{
+				const char* filename = lua_tostring(l, -1);
+				
+				ifstream ifs(filename, ios::binary);
+				
+				if(ifs.is_open())
+				{
+					ifs.seekg(0, ios::end);
+					int filesize = ifs.tellg();
+					ifs.seekg(0, ios::beg);
+
+					char* contents = new char[filesize];
+					ifs.read(contents, filesize);
+					
+					ifs.close();
+					todo.FileDataInstead = contents;
+					todo.FileDataLength = filesize;
+					
+					connection->errcode = MHD_HTTP_OK;
+				}else{
+					connection->errcode = MHD_HTTP_NOT_FOUND; // con.errcode will overide this, so if you want it to use this, set it to nil
+				}
+			}
+			
+		}
+		lua_pop(l, 1); // "response_file"
 		
 		lua_pushstring(l, "errcode");
 		{
