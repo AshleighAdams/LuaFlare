@@ -24,7 +24,46 @@ CConnectionHandler::~CConnectionHandler()
 	lua_close(l);
 }
 
-typedef int(*KeysFn)(void *cls, enum MHD_ValueKind kind, const char *key, const char *value);
+lua_State* g_pLs = 0;
+
+int SetLuaConnectionValues(void *cls, enum MHD_ValueKind kind, const char *key, const char *value)
+{
+	const char* type;
+	
+	switch(kind)
+	{
+	case MHD_GET_ARGUMENT_KIND:
+		type = "GET";
+		break;
+	case MHD_HEADER_KIND:
+		type = "HEADER";
+		break;
+	case MHD_COOKIE_KIND:
+		type = "COOKIE";
+		break;
+	case MHD_POSTDATA_KIND:
+		type = "POST";
+		break;
+	case MHD_RESPONSE_HEADER_KIND:
+		type = "RHEADER";
+		break;
+	case MHD_FOOTER_KIND:
+		type = "FOOTER";
+		break;
+	default:
+		return MHD_YES;
+	}
+	
+	lua_pushstring(g_pLs, type);
+	lua_gettable(g_pLs, -2);
+		lua_pushstring(g_pLs, key);
+		lua_pushstring(g_pLs, value);
+		lua_rawset(g_pLs, -3);
+	lua_pop(g_pLs, 1); // "response"
+	
+	
+	return MHD_YES;
+}
 
 void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon)
 {
@@ -55,25 +94,48 @@ void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon
 	lua_pushstring(l, connection->response.c_str());
 	lua_rawset(l, -3);
 	
-	//lua_pushstring(l, "GET");
-	//lua_newtable(l);
-	//lua_rawset(l, -3);
+	lua_pushstring(l, "GET");
+	lua_newtable(l);
+	lua_rawset(l, -3);
+	
+	lua_pushstring(l, "HEADER");
+	lua_newtable(l);
+	lua_rawset(l, -3);
+	
+	lua_pushstring(l, "COOKIE");
+	lua_newtable(l);
+	lua_rawset(l, -3);
+	
+	lua_pushstring(l, "POST");
+	lua_newtable(l);
+	lua_rawset(l, -3);
+	
+	lua_pushstring(l, "RHEADER");
+	lua_newtable(l);
+	lua_rawset(l, -3);
+	
+	lua_pushstring(l, "FOOTER");
+	lua_newtable(l);
+	lua_rawset(l, -3);
 	
 	
-	KeysFn pKeysFunc = [&](void *cls, enum MHD_ValueKind kind, const char *key, const char *value)
-	{
-		printf("\t%s\t%s (MTHD = %i)\n", key, value, kind);
-		return MHD_YES;
-	};
+	MHD_KeyValueIterator itt_key = &SetLuaConnectionValues;
 	
-	MHD_KeyValueIterator itt_key = pKeysFunc;
-
+	while(g_pLs)
+		usleep(0010000); // 0.01 seconds
+	
+	
+	g_pLs = l;
+	
 	// Now lets make it call our lambada
-	MHD_get_connection_values(mhdcon, MHD_HEADER_KIND, itt_key, NULL);
-	MHD_get_connection_values(mhdcon, MHD_COOKIE_KIND, itt_key, NULL);
-	MHD_get_connection_values(mhdcon, MHD_POSTDATA_KIND, itt_key, NULL);
-	MHD_get_connection_values(mhdcon, MHD_GET_ARGUMENT_KIND, itt_key, NULL);
+	MHD_get_connection_values(mhdcon, MHD_HEADER_KIND, 				itt_key, NULL);
+	MHD_get_connection_values(mhdcon, MHD_COOKIE_KIND, 				itt_key, NULL);
+	MHD_get_connection_values(mhdcon, MHD_POSTDATA_KIND, 			itt_key, NULL);
+	MHD_get_connection_values(mhdcon, MHD_GET_ARGUMENT_KIND, 		itt_key, NULL);
+	MHD_get_connection_values(mhdcon, MHD_FOOTER_KIND, 				itt_key, NULL);
+	MHD_get_connection_values(mhdcon, MHD_RESPONSE_HEADER_KIND, 	itt_key, NULL);
 	
+	g_pLs = 0;
 	
 	// 1 argument, 1 result
 	if (lua_pcall(l, 1, 1, 0)) 
