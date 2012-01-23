@@ -1,41 +1,56 @@
+dofile("mimes.lua")
 
-function main_old( con )
-	
+function main( con )
+	local log = function(text, ...)
+		local comp = string.format(tostring(text), ...)
+		
+		Print(comp)
+		
+		local f = io.open("log.txt","a")
+		f:write(comp)
+		f:close()
+	end
+
 	local write = function(text, ...)
 		con.response = con.response .. string.format(tostring(text), ...)
 	end
-
-	Print(con.method .. " " .. con.url .. "\n")
 	
-	write("Hello, sorry Dave, I can't serve \"%s\" to you.<br/>", con.url)
+	log("%s %s\n", con.method, con.url)
 	
-	write("<br/>Headers:")
-	for k,v in pairs(con.HEADER) do
-		write("<br/>%s = %s", k, v)
+	local extra = {}
+	extra.ext = ""
+	
+	local urlpos = #con.url
+	
+	if string.sub(con.url, urlpos, urlpos) == '/' then
+		con.url = con.url .. "index.lua"
 	end
 	
-	write("<br/><br/>GET:")
-	for k,v in pairs(con.GET) do
-		write("<br/>%s = %s", k, v)
+	while urlpos > 0 do -- Lets figgure out what the extension is
+		local char = string.sub(con.url, urlpos, urlpos)
+		
+		if char == '/' then -- Is it a dir? well shit
+			extra.ext = ""
+			break
+		elseif char == '.' then
+			break
+		end
+		
+		extra.ext = char .. extra.ext
+		urlpos = urlpos - 1
 	end
 	
-	write("<br/><br/>POST:")
-	for k,v in pairs(con.POST) do
-		write("<br/>%s = %s", k, v)
+	if extra.ext == "lua" then
+		dofile("www" .. con.url) -- If this fails, stack is increased by 1 D:
+	else
+		con.errcode = nil
+		con.response = nil
+		con.response_file = "www" .. con.url
 	end
 	
-	con.response_headers["Content-Type"] = "text/html"
+	
+	con.response_headers["Content-Type"] = MimeTypes[extra.ext] or "unknown"
 	con.response_headers["Server"] = "luaserver"
 	return con
 end
 
-function main( con )
-	con.response = nil -- Tell it to check response_file instead, just saves CPU
-	con.errcode = nil -- So it's not overidden (the response file result)
-	
-	con.response_file = "testimg.png"
-	
-	con.response_headers["Content-Type"] = "image/png"
-	
-	return con
-end
