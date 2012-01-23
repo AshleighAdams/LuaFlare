@@ -23,3 +23,8 @@ GET /favicon.ico
 GET /test.html
 GET /testimg.png
 GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /test.html
+GET /testimg.png
+GET /favicon.ico
