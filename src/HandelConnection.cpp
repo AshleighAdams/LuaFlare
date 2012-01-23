@@ -24,8 +24,9 @@ CConnectionHandler::~CConnectionHandler()
 	lua_close(l);
 }
 
-lua_State* g_pLs = 0;
 
+// This was going to be a lambada but, well, I guess not as you cant pass a labada function that captures a var to a funciton pointer...........
+lua_State* g_pLs = 0;
 int SetLuaConnectionValues(void *cls, enum MHD_ValueKind kind, const char *key, const char *value)
 {
 	const char* type;
@@ -54,18 +55,17 @@ int SetLuaConnectionValues(void *cls, enum MHD_ValueKind kind, const char *key, 
 		return MHD_YES;
 	}
 	
-	lua_pushstring(g_pLs, type);
-	lua_gettable(g_pLs, -2);
-		lua_pushstring(g_pLs, key);
+	lua_pushstring(g_pLs, type); 		// Push the string
+	lua_gettable(g_pLs, -2);			// Get the table the corrosponds to it, and put it on the stack
+		lua_pushstring(g_pLs, key);		// Push key and value to the stack
 		lua_pushstring(g_pLs, value);
-		lua_rawset(g_pLs, -3);
-	lua_pop(g_pLs, 1); // "response"
-	
+		lua_rawset(g_pLs, -3);			// Tell lua to add them to the table
+	lua_pop(g_pLs, 1); 					// I don't recall which this pops (table or string(type)); it's one of them...
 	
 	return MHD_YES;
 }
 
-void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon)
+void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon, todo_t& todo)
 {
 	if(Failed)
 		return;
@@ -77,7 +77,8 @@ void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon
 		return;
 	}
 	
-	lua_newtable(l);
+	lua_newtable(l); // con table
+	
 	lua_pushstring(l, "url");
 	lua_pushstring(l, connection->url.c_str());
 	lua_rawset(l, -3);
@@ -141,18 +142,43 @@ void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon
 	if (lua_pcall(l, 1, 1, 0)) 
 	{
 		printf("error running function `main': %s\n", lua_tostring(l, -1));
+		connection->response = "Lua error!";
+		connection->errcode = MHD_HTTP_INTERNAL_SERVER_ERROR;
 		return;
-	}
-	
-	lua_pushstring(l, "response");
-	{
-		lua_gettable(l, -2);
+	}else{
+		lua_pushstring(l, "response");
+		{
+			lua_gettable(l, -2);
 
-		if(lua_isstring(l, -1))
-			connection->response = lua_tostring(l, -1);
+			if(lua_isstring(l, -1))
+				connection->response = lua_tostring(l, -1);
+			
+		}
+		lua_pop(l, 1); // "response"
 		
+		lua_pushstring(l, "errcode");
+		{
+			lua_gettable(l, -2);
+
+			if(lua_isnumber(l, -1))
+				connection->errcode = (int)lua_tonumber(l, -1);
+		}
+		lua_pop(l, 1);
+		
+		lua_pushstring(l, "response_headers");
+		{
+			lua_gettable(l, -2);
+
+			lua_pushnil(l);
+
+			while(lua_next(l, -2) != 0)
+			{
+				todo.response_headers.insert(ResponseHeadersMap::value_type(lua_tostring(l, -2), lua_tostring(l, -1)));
+				lua_pop(l, 1);
+			}
+		}
+		lua_pop(l, 1); // "response"
 	}
-	lua_pop(l, 1); // "response"
 	
 	lua_pop(l, 1); // The retun table
 	

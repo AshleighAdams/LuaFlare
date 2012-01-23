@@ -30,12 +30,18 @@ int Connection(void *cls, struct MHD_Connection *connection, const char *url, co
 	con.response = "";
 	con.errcode = MHD_HTTP_OK;
 	
+	todo_t todo;
 	// Now we setup our struct, we can pass it to the handeler
-	ch.Handel(&con, connection);
+	ch.Handel(&con, connection, todo);
 	
 	const char *page  = con.response.c_str();
-	struct MHD_Response* response = MHD_create_response_from_buffer (strlen (page), (void*) page, MHD_RESPMEM_MUST_COPY);
-
+	struct MHD_Response* response = MHD_create_response_from_buffer (strlen (page), (void*)page, MHD_RESPMEM_MUST_COPY);
+	
+	for(auto it = todo.response_headers.begin(); it != todo.response_headers.end(); it++)
+	{
+		MHD_add_response_header(response, it->first.c_str(), it->second.c_str());
+	}
+	
 	int ret = MHD_queue_response (connection, con.errcode, response);
 	MHD_destroy_response (response);
 
