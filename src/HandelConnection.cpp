@@ -1,11 +1,14 @@
 #include "HandelConnection.h"
+#include <functional>
 
 CConnectionHandler::CConnectionHandler()
 {
 	Failed = false;
 	
 	l = lua_open();
-		
+	
+	luaL_openlibs(l);
+	
 	lua_pushcfunction(l, l_Print);
 	lua_setglobal(l, "Print");
 	
@@ -21,7 +24,9 @@ CConnectionHandler::~CConnectionHandler()
 	lua_close(l);
 }
 
-void CConnectionHandler::Handel(connection_t* connection)
+typedef int(*KeysFn)(void *cls, enum MHD_ValueKind kind, const char *key, const char *value);
+
+void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon)
 {
 	if(Failed)
 		return;
@@ -50,6 +55,26 @@ void CConnectionHandler::Handel(connection_t* connection)
 	lua_pushstring(l, connection->response.c_str());
 	lua_rawset(l, -3);
 	
+	//lua_pushstring(l, "GET");
+	//lua_newtable(l);
+	//lua_rawset(l, -3);
+	
+	
+	KeysFn pKeysFunc = [&](void *cls, enum MHD_ValueKind kind, const char *key, const char *value)
+	{
+		printf("\t%s\t%s (MTHD = %i)\n", key, value, kind);
+		return MHD_YES;
+	};
+	
+	MHD_KeyValueIterator itt_key = pKeysFunc;
+
+	// Now lets make it call our lambada
+	MHD_get_connection_values(mhdcon, MHD_HEADER_KIND, itt_key, NULL);
+	MHD_get_connection_values(mhdcon, MHD_COOKIE_KIND, itt_key, NULL);
+	MHD_get_connection_values(mhdcon, MHD_POSTDATA_KIND, itt_key, NULL);
+	MHD_get_connection_values(mhdcon, MHD_GET_ARGUMENT_KIND, itt_key, NULL);
+	
+	
 	// 1 argument, 1 result
 	if (lua_pcall(l, 1, 1, 0)) 
 	{
@@ -63,9 +88,13 @@ void CConnectionHandler::Handel(connection_t* connection)
 
 		if(lua_isstring(l, -1))
 			connection->response = lua_tostring(l, -1);
+		
 	}
 	lua_pop(l, 1); // "response"
 	
 	lua_pop(l, 1); // The retun table
-	printf("Stack is at: %i\n", lua_gettop(l));
+	
+	int stackpos = lua_gettop(l);
+	if(stackpos)
+		printf("WARNING: stack not at 0 (%i)\n", stackpos);
 }

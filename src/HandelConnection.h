@@ -15,7 +15,7 @@ class CConnectionHandler
 public:
 	CConnectionHandler();
 	~CConnectionHandler();
-	void Handel(connection_t* connection);
+	void Handel(connection_t* connection, MHD_Connection* mhdcon);
 	
 	bool Failed;
 protected:

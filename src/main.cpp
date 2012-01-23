@@ -31,7 +31,7 @@ int Connection(void *cls, struct MHD_Connection *connection, const char *url, co
 	con.errcode = MHD_HTTP_OK;
 	
 	// Now we setup our struct, we can pass it to the handeler
-	ch.Handel(&con);
+	ch.Handel(&con, connection);
 	
 	const char *page  = con.response.c_str();
 	struct MHD_Response* response = MHD_create_response_from_buffer (strlen (page), (void*) page, MHD_RESPMEM_MUST_COPY);
