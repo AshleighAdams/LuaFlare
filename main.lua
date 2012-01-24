@@ -69,15 +69,21 @@ function main( con )
 			log("Lua error: " .. err .. "\n")
 		else
 			local ne = {} -- the new enviroment, you can also isolate cirtain things here!, such as disallow io, require, ect..
-			local _g = _G
+			local scriptenv = _G
 			
-			_g.con = con
+			scriptenv.con = con
+			scriptenv.GET = con.GET
+			scriptenv.POST = con.POST
+			scriptenv.COOKIE = con.COOKIE
+			scriptenv.write = con.write
+			scriptenv.writef = con.writef
+			scriptenv.log = con.log
 			
 			local indexf = function(t, k)
-				return _g[k]
+				return scriptenv[k]
 			end
 			
-			setmetatable(ne, {__index = indexf}) -- You can replace 'indexf' with '_g'
+			setmetatable(ne, {__index = indexf})
 			setfenv(f, ne)
 			
 			local status, ret = pcall(f)

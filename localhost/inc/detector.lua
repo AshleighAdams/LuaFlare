@@ -4,18 +4,18 @@ function Site()
 	
 	ret.write_header = function(title)
 		con.writef([[
-			<html>
-				<head>
-					<title>%s</title>
-				</head>
-				<body>
-		]], Escape(title))
+<html>
+	<head>
+		<title>%s</title>
+	</head>
+	<body>
+		]], EscapeHTML(title))
 	end
 	
 	ret.write_footer = function()
 		con.writef([[
-				</body>
-			</html>
+	</body>
+</html>
 		]])
 	end
 	

@@ -12,7 +12,7 @@ int l_Print(lua_State* L)
 	return 0;
 }
 
-int l_Escape(lua_State* L)
+int l_EscapeHTML(lua_State* L)
 {
 	string in = luaL_checkstring(L, 1);
 	
@@ -28,7 +28,7 @@ int l_Escape(lua_State* L)
             case '<':  buf.append("&lt;");		break;
             case '>':  buf.append("&gt;");		break;
            
-           default:   buf.append(1, in[pos]);	break;
+			default:   buf.append(1, in[pos]);	break;
         }
     }
     in.swap(buf);
@@ -37,21 +37,37 @@ int l_Escape(lua_State* L)
 	return 1;
 }
 
-void PrintTable(lua_State *L)
+void PrintTable(lua_State *L, int Depth)
 {
-    lua_pushnil(L);
-
+	char* tabs = new char[Depth + 1);
+	
+	for(int i = 0; i < Depth; i++)
+		tabs[i] = '\t';
+	tabs[Depth] = '\0';
+	
+	lua_pushnil(L);
+	
     while(lua_next(L, -2) != 0)
     {
         if(lua_isstring(L, -1))
-          printf("%s = %s\n", lua_tostring(L, -2), lua_tostring(L, -1));
+          printf("%s%s = %s\n", tabs, lua_tostring(L, -2), lua_tostring(L, -1));
         else if(lua_isnumber(L, -1))
-          printf("%s = %d\n", lua_tostring(L, -2), lua_tonumber(L, -1));
+          printf("%s%s = %d\n", tabs, lua_tostring(L, -2), lua_tonumber(L, -1));
         else if(lua_istable(L, -1))
-          PrintTable(L);
+		{
+			printf("%s%s:\n", tabs, lua_tostring(L, -2));
+			PrintTable(L, Depth + 1); // TODO: Refrence to self
+		}
 
         lua_pop(L, 1);
     }
+    
+    delete [] tabs;
+}
+
+int l_PrintTable(lua_State *L)
+{
+    return 0;
 }
 
 int l_DirExists(lua_State *L)

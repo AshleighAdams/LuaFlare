@@ -16,8 +16,8 @@ CConnectionHandler::CConnectionHandler()
 	lua_pushcfunction(l, l_Print);
 	lua_setglobal(l, "Print");
 	
-	lua_pushcfunction(l, l_Escape);
-	lua_setglobal(l, "Escape");
+	lua_pushcfunction(l, l_EscapeHTML);
+	lua_setglobal(l, "EscapeHTML");
 	
 	lua_pushcfunction(l, l_DirExists);
 	lua_setglobal(l, "DirExists");

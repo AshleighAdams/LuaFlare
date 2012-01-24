@@ -189,3 +189,32 @@ GET /favicon.ico
 GET /
 GET /favicon.ico
 GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+Lua error: localhost/inc/detector.lua:6: attempt to index global 'con' (a nil value)
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+Lua error: localhost/index.lua:2: attempt to call global 'dofile' (a nil value)
+GET /favicon.ico
+GET /
+Lua error: localhost/index.lua:2: attempt to call global 'dofile' (a nil value)
+GET /favicon.ico
+GET /
+GET /favicon.ico
