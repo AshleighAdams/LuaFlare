@@ -40,3 +40,83 @@ GET /favicon.ico
 GET /test.lua
 GET /test.lua
 GET /favicon.ico
+GET /test.lua
+GET /favicon.ico
+Lua error: localhost/404.lua:3: attempt to call field 'writenf' (a nil value)
+GET /test.lua
+GET /favicon.ico
+Lua error: localhost/404.lua:3: attempt to call field 'writenf' (a nil value)
+GET /test.lua
+GET /favicon.ico
+Lua error: localhost/404.lua:3: attempt to call field 'writenf' (a nil value)
+GET /test.lua
+GET /favicon.ico
+Lua error: localhost/404.lua:3: attempt to call field 'writenf' (a nil value)
+GET /test.lua
+GET /favicon.ico
+Lua error: localhost/404.lua:3: attempt to call field 'writenf' (a nil value)
+POST /test.lua
+GET /favicon.ico
+Lua error: localhost/404.lua:3: attempt to call field 'writenf' (a nil value)
+POST /test.lua
+GET /favicon.ico
+Lua error: localhost/404.lua:3: attempt to call field 'writenf' (a nil value)
+POST /test.lua
+GET /favicon.ico
+Lua error: localhost/404.lua:3: attempt to call field 'writenf' (a nil value)
+POST /test.lua
+GET /favicon.ico
+Lua error: localhost/404.lua:3: attempt to call field 'writenf' (a nil value)
+POST /test.lua
+GET /favicon.ico
+Lua error: localhost/404.lua:3: attempt to call field 'writenf' (a nil value)
+POST /test.lua
+GET /favicon.ico
+Lua error: localhost/404.lua:3: attempt to call field 'writenf' (a nil value)
+POST /test.lua
+GET /favicon.ico
+Lua error: localhost/404.lua:3: attempt to call field 'writenf' (a nil value)
+POST /test.lua
+GET /favicon.ico
+Lua error: localhost/404.lua:3: attempt to call field 'writenf' (a nil value)
+POST /test.lua
+GET /favicon.ico
+GET /test.lua
+GET /favicon.ico
+POST /test.lua
+GET /favicon.ico
+GET /favicon.ico
+GET /test.lua
+GET /favicon.ico
+GET /test.lua
+GET /favicon.ico
+GET /test.lua
+GET /favicon.ico
+GET /test.lua
+GET /favicon.ico
+GET /test.lua
+GET /favicon.ico
+GET /test.lua
+GET /favicon.ico
+GET /test.lua
+GET /favicon.ico
+GET /test.lua
+GET /favicon.ico
+GET /test.lua
+GET /favicon.ico
+GET /test.lua
+GET /favicon.ico
+GET /test.lua
+GET /favicon.ico
+GET /test.lua
+GET /favicon.ico
+GET /test.luas
+GET /favicon.ico
+GET /test.luas
+GET /favicon.ico
+GET /test.lua
+GET /favicon.ico
+GET /test.lua
+GET /favicon.ico
+GET /test.lua
+GET /favicon.ico

@@ -17,6 +17,7 @@ typedef std::unordered_map<std::string, std::string> ResponseHeadersMap;
 struct todo_t
 {
 	ResponseHeadersMap response_headers;
+	ResponseHeadersMap set_cookies;
 	char* FileDataInstead;
 	int FileDataLength;
 };

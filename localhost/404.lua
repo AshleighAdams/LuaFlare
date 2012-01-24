@@ -1,45 +1,29 @@
 -- Eh, something went wrong
 
-con.writenf([[
+con.write([[
+<!DOCTYPE html>
 <html>
 	<head>
-		<title>luaserver</title>
-		<style>
-			div.main{
-				margin-left:auto;
-				margin-right:auto;
-				margin-top:100px;
-				margin-bottom:auto;
-				
-				width: 800px;
-			}
-			div.title{
-				text-align: center;
-				color: #a1a1a1;
-				font-size: 200%;
-				padding: 10px;
-				float: left;
-				#border-right: 1px solid #a1a1a1;
-				height: 50%;
-			}
-			div.explain{
-				padding-top: 100px;
-			}
-		</style>
+		<title>404</title>
 	</head>
 	<body>
-		<div class="main">
-			<div class="title">
-				404 - File Not Found
-			</div>
-			<div class="explain">
-				The file you are searching for can not be found
-			</div>
-			<br/>
-			
+		<style>
+			body{
+				background-color: #f1f1f1;
+			       
+				padding: 50px;
+			}
+		</style>
+	       
+		<div style="margin: 0px auto; width: 128px;">
+			<span style="font-size: 80px; font-style: italic; color: #3e3e3e; font-family: 'Trebuchet MS'; text-shadow: #ebebeb 0px 1px 0px;">404</span>
+		</div>
+	       
+		<div style="padding: 15px; 0px; background-color: #ffffff; width: 128px; margin: 0px auto; box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 25px;">
+			<span style="font-size: 18px; font-style: italic; color: #3e3e3e; font-family: 'Trebuchet MS';">Page not found</span>
 		</div>
 	</body>
-<html>
-<!-- luaserver -->
+</html>
+<!-- 404 page created by ddrl -->
 ]])
 con.errcode = 404

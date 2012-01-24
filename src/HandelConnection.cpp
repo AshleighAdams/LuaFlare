@@ -126,10 +126,14 @@ void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon
 	lua_pushstring(l, "response_headers");
 	lua_newtable(l);
 	lua_rawset(l, -3);
+	
+	lua_pushstring(l, "set_cookies");
+	lua_newtable(l);
+	lua_rawset(l, -3);
 		
 	MHD_KeyValueIterator itt_key = &SetLuaConnectionValues;
 	
-	while(g_pLs)
+	while(g_pLs) // Lock it, no other way, inc lambadas
 		usleep(0010000); // 0.01 seconds
 	
 	
@@ -215,7 +219,21 @@ void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon
 				lua_pop(l, 1);
 			}
 		}
-		lua_pop(l, 1); // "response"
+		lua_pop(l, 1); // "response_headers"
+		
+		lua_pushstring(l, "set_cookies");
+		{
+			lua_gettable(l, -2);
+
+			lua_pushnil(l);
+
+			while(lua_next(l, -2) != 0)
+			{
+				todo.set_cookies.insert(ResponseHeadersMap::value_type(lua_tostring(l, -2), lua_tostring(l, -1)));
+				lua_pop(l, 1);
+			}
+		}
+		lua_pop(l, 1); // "set_cookies"
 	}
 	
 	lua_pop(l, 1); // The retun table

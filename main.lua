@@ -16,16 +16,16 @@ function main( con )
 		f:close()
 	end
 
-	con.write = function(text, ...)
+	con.writef = function(text, ...)
 		con.response = con.response .. string.format(tostring(text), ...)
 	end
 	
-	con.writenf = function(text)
+	con.write = function(text)
 		con.response = con.response .. tostring(text)
 	end
 	
 	log = con.log
-	write = con.write
+	write = con.writef
 	
 	log("%s %s\n", con.method, con.url)
 	
