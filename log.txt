@@ -1,0 +1,42 @@
+GET /
+GET /favicon.ico
+GET /test.html
+GET /testimg.png
+GET /test.lua
+GET /favicon.ico
+GET /test.lua
+Lua error: www/test.lua:15: bad argument #1 to 'pairs' (table expected, got nil)
+GET /favicon.ico
+GET /test.lua
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+Lua error: cannot open localhost:8080/404.lua: No such file or directory
+GET /favicon.ico
+Lua error: cannot open localhost:8080/404.lua: No such file or directory
+GET /
+Lua error: cannot open [A-z0-9.]+/404.lua: No such file or directory
+GET /favicon.ico
+Lua error: cannot open [A-z0-9.]+/404.lua: No such file or directory
+GET /
+Lua error: cannot open localhost/404.lua: No such file or directory
+GET /favicon.ico
+Lua error: cannot open localhost/404.lua: No such file or directory
+GET /
+Lua error: cannot open localhost/404.lua: No such file or directory
+GET /favicon.ico
+Lua error: cannot open localhost/404.lua: No such file or directory
+GET /
+GET /favicon.ico
+GET /test.lua
+GET /favicon.ico
+GET /test.lua
+GET /test.lua
+GET /favicon.ico

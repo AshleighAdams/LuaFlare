@@ -12,7 +12,7 @@ con.write([[
 			<td>Value</td>
 		</tr>
 ]])
-for k,v in pairs(con.GET) do
+for k,v in pairs(con.HEADER) do
 	con.write([[
 			<tr>
 				<td>%s</td>

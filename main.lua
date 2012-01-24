@@ -32,13 +32,16 @@ function main( con )
 	local extra = {}
 	extra.ext = ""
 	
+	local server = con.HEADER.Host or "www"
+	server = string.match(server, "[A-z0-9\.]+") -- Remove the port, if present
+	
 	local urlpos = #con.url
 	
 	if string.sub(con.url, urlpos, urlpos) == '/' then
 		con.url = con.url .. "index.lua"
 	end
 	
-	if not file_exists("www" .. con.url) then
+	if not file_exists(server .. con.url) then
 		con.url = "/404.lua"
 	end
 	
@@ -61,7 +64,7 @@ function main( con )
 	
 	
 	if extra.ext == "lua" then
-		local f, err = loadfile("www" .. con.url)
+		local f, err = loadfile(server .. con.url)
 		if not f then
 			log("Lua error: " .. err .. "\n")
 		else
@@ -86,7 +89,7 @@ function main( con )
 	else
 		con.errcode = nil
 		con.response = nil
-		con.response_file = "www" .. con.url
+		con.response_file = server .. con.url
 	end
 	
 	
