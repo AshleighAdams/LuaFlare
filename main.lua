@@ -1,7 +1,7 @@
 dofile("mimes.lua")
 
 function main( con )
-	local log = function(text, ...)
+	con.log = function(text, ...)
 		local comp = string.format(tostring(text), ...)
 		
 		Print(comp)
@@ -11,9 +11,12 @@ function main( con )
 		f:close()
 	end
 
-	local write = function(text, ...)
+	con.write = function(text, ...)
 		con.response = con.response .. string.format(tostring(text), ...)
 	end
+	
+	log = con.log
+	write = con.write
 	
 	log("%s %s\n", con.method, con.url)
 	
@@ -41,7 +44,22 @@ function main( con )
 	end
 	
 	if extra.ext == "lua" then
-		dofile("www" .. con.url) -- If this fails, stack is increased by 1 D:
+		local f, err = loadfile("www" .. con.url)
+		if not f then
+			log("Lua error: " .. err .. "\n")
+		else
+			local ne = {} -- the new enviroment, you can also isolate cirtain things here!, such as disallow io, require, ect..
+			local _g = _G
+			_g.con = con
+			setmetatable(ne, {__index = _g})
+			setfenv(f, ne)
+			
+			local status, ret = pcall(f)
+			if not status then
+				log("Lua error: %s\n", ret)
+				write("Lua error: %s\n", ret)
+			end
+		end
 	else
 		con.errcode = nil
 		con.response = nil

@@ -28,3 +28,35 @@ GET /favicon.ico
 GET /test.html
 GET /testimg.png
 GET /favicon.ico
+GET /
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /test.html
+GET /testimg.png
+GET /favicon.ico
+GET /test.lua
+Lua error: cannot open www/test.lua: No such file or directoryGET /favicon.ico
+GET /test.lua
+GET /favicon.ico
+GET /test.lua
+GET /favicon.ico
+GET /test.lua
+GET /favicon.ico
+GET /test.lua
+GET /favicon.ico
+GET /test.lua
+GET /favicon.ico
+GET /test.lua
+Lua error: /test.lua : www/test.lua:3: attempt to call global 'luaerror' (a nil value)
+GET /favicon.ico
+GET /test.lua
+Lua error: www/test.lua:3: attempt to call global 'luaerror' (a nil value)
+GET /favicon.ico
+GET /test.lua
+Lua error: www/test.lua:3: attempt to call global 'luaerror' (a nil value)
+GET /favicon.ico
+GET /test.lua
+Lua error: www/test.lua:3: attempt to call global 'luaerror' (a nil value)
+GET /favicon.ico
