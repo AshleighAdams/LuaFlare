@@ -16,6 +16,12 @@ CConnectionHandler::CConnectionHandler()
 	lua_pushcfunction(l, l_Print);
 	lua_setglobal(l, "Print");
 	
+	lua_pushcfunction(l, l_Escape);
+	lua_setglobal(l, "Escape");
+	
+	lua_pushcfunction(l, l_DirExists);
+	lua_setglobal(l, "DirExists");
+	
 	if( luaL_loadfile(l, "main.lua") || lua_pcall(l, 0, 0, 0))
 	{
 		printf("error: %s", lua_tostring(l, -1));

@@ -144,3 +144,48 @@ GET /test.lua
 GET /favicon.ico
 GET /test.lua
 GET /favicon.ico
+GET /test.lua
+GET /favicon.ico
+GET /test.html
+GET /testimg.png
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /test.lua
+GET /favicon.ico
+GET /
+Lua error: cannot open detector.lua: No such file or directory
+GET /favicon.ico
+GET /
+Lua error: cannot open inc/detector.lua: No such file or directory
+GET /favicon.ico
+GET /
+Lua error: localhost/index.lua:6: attempt to index global 'site' (a nil value)
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+Lua error: localhost/index.lua:13: attempt to call global 'hi_im_a_lua_error' (a nil value)
+GET /favicon.ico
+GET /
+Lua error: localhost/index.lua:13: attempt to call global 'hi_im_a_lua_error' (a nil value)
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /favicon.ico

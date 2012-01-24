@@ -21,6 +21,7 @@ struct connection_t
 };
 
 extern int l_Print(lua_State*);
+extern int l_Escape(lua_State* L);
 extern int l_DirExists(lua_State *L);
 extern int l_FileExists(lua_State *L);
 
