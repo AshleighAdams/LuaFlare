@@ -56,4 +56,4 @@ con.write([[
 	</body>
 <html>]])
 
-con.set_cookies["urmom"] = "urdad"
+con.set_cookies["remove"] = "urdad; path=/; expires=Thu, Jan 01 1970 00:00:00 UTC; "
