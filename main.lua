@@ -5,6 +5,22 @@ function file_exists(name)
    if f~=nil then io.close(f) return true else return false end
 end
 
+local lua = [[
+This is a simple test :D
+<?lua
+writef("%i\n", 1337)
+write("this is a simple?> string!\n")
+write(]] .. "[[" .. [[ok, now it's time for this!\]] .. "]]" .. [[)
+
+write("Well, what about this\"? ?> ")
+-- ?>
+?>]]
+
+local compiled = ParseLuaString(lua)
+
+Print(string.format("From:\n\n%s\n\nTo:\n\n%s\n", lua, compiled))
+
+
 function main( con )
 	con.log = function(text, ...)
 		local comp = string.format(tostring(text), ...)

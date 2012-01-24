@@ -2,12 +2,13 @@
 #include <stdio.h>
 #include <sys/stat.h>
 #include <string>
+#include <iostream>
 using namespace std;
 
 int l_Print(lua_State* L)
 {
 	const char* str = luaL_checkstring(L, 1);
-	printf(str);
+	cout << str;
 	
 	return 0;
 }
@@ -39,7 +40,7 @@ int l_EscapeHTML(lua_State* L)
 
 void PrintTable(lua_State *L, int Depth)
 {
-	char* tabs = new char[Depth + 1);
+	char* tabs = new char[Depth + 1];
 	
 	for(int i = 0; i < Depth; i++)
 		tabs[i] = '\t';
@@ -85,3 +86,137 @@ int l_FileExists(lua_State *L)
 {
 	return 0;
 }
+
+#define PARSEMODE_OUTOFLUA 0
+#define PARSEMODE_INLUA 1
+#define PARSEMODE_INCOMMENT 2
+
+// <?lua ?> support
+
+int l_ParseLuaString(lua_State* L)
+{
+	string inlua = luaL_checkstring(L, 1);
+	string outlua;
+	
+	outlua.reserve(inlua.size());
+
+	int parsemode = PARSEMODE_OUTOFLUA;
+	
+	outlua += "write([[";
+	
+	unsigned int i = 0;
+	while(i < inlua.length())
+	{
+		if(parsemode == PARSEMODE_OUTOFLUA)
+		{
+			while(i < inlua.length())
+			{
+				char x = inlua[i];
+				if(x == '<' && inlua[i+1] == '?' && inlua[i+2] == 'l' && inlua[i+3] == 'u' && inlua[i+4] == 'a')
+				{
+					i += 5;
+					outlua += "]])";
+					parsemode = PARSEMODE_INLUA;
+					break; // New parse mode!
+				}
+				else if(x == ']' && inlua[i+1] == ']')
+				{
+					outlua += "\\93\\93";
+					i += 2;
+				}
+				else
+				{
+					outlua += x;
+					i++;
+				}
+			}
+		}
+		else if(parsemode == PARSEMODE_INLUA)
+		{
+			while(i < inlua.length())
+			{
+				char x = inlua[i];
+				
+				if(x == '?' && inlua[i+1] == '>')
+				{
+					parsemode = PARSEMODE_OUTOFLUA;
+					outlua += "write([[";
+					i+= 2;
+					break;
+				}
+				else if(x == '"' || x == '\'' || (x == '[' && inlua[i+1] == '[') )
+				{
+					char exitnode = x;
+					if(x == '[') exitnode = ']';
+					
+					if(exitnode == ']')
+					{
+						i++;
+						outlua+= "[[";
+					}
+					else outlua += x;
+					
+					i++;
+					if(x == ']') i++;
+					
+					while(i < inlua.length())
+					{
+						char y = inlua[i];
+						
+						if(inlua[i-1] == '\\' && exitnode != ']')
+						{
+							printf("Escaped char %c\n", x);
+							outlua += x;
+							i++;
+							continue;
+						}
+						
+						outlua += y;
+						
+						if(y == exitnode)
+						{
+							i++;
+							if(y == ']')
+							{
+								outlua += "]";
+								i++;
+							}
+							break;
+						}
+						
+						i++;
+					}
+				}
+				else if(x == '-' && inlua[i+1] == '-' && i < inlua.length() - 1) // -1 on len to prevent crash if file ends with "-"
+				{
+					// comments
+					outlua += "--";
+					i+= 2;
+					while(i < inlua.length())
+					{
+						char y = inlua[i];
+						outlua += y;
+						
+						if(y == '\n' || y == '\r')
+							break;
+						
+						i++;
+					}
+				}
+				else
+				{
+					outlua += x;
+					i++;
+				}
+			}
+		}
+		
+	}
+	
+	outlua += "]])";
+	
+	lua_pushstring(L, outlua.c_str());
+	
+	return 1;
+}
+

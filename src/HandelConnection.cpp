@@ -22,6 +22,9 @@ CConnectionHandler::CConnectionHandler()
 	lua_pushcfunction(l, l_DirExists);
 	lua_setglobal(l, "DirExists");
 	
+	lua_pushcfunction(l, l_ParseLuaString);
+	lua_setglobal(l, "ParseLuaString");
+	
 	if( luaL_loadfile(l, "main.lua") || lua_pcall(l, 0, 0, 0))
 	{
 		printf("error: %s", lua_tostring(l, -1));
