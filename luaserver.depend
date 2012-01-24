@@ -15,14 +15,14 @@
 	"LuaFuncs.h"
 	<stdio.h>
 
-1327272804 /home/C0BRA/Projects/luaserver/src/LuaFuncs.h
+1327404442 /home/C0BRA/Projects/luaserver/src/LuaFuncs.h
 	<string>
 	<microhttpd.h>
 	"lua.h"
 	"lualib.h"
 	"lauxlib.h"
 
-1327352625 source:/home/C0BRA/Projects/luaserver/src/HandelConnection.cpp
+1327353097 source:/home/C0BRA/Projects/luaserver/src/HandelConnection.cpp
 	"HandelConnection.h"
 	<functional>
 	<iostream>

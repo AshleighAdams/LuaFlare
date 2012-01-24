@@ -60,3 +60,97 @@ GET /favicon.ico
 GET /test.lua
 Lua error: www/test.lua:3: attempt to call global 'luaerror' (a nil value)
 GET /favicon.ico
+GET /test.lua
+GET /favicon.ico
+GET /test.lua
+GET /favicon.ico
+GET /test.lua
+GET /favicon.ico
+GET /test.lua
+GET /favicon.ico
+GET /test.lua
+GET /favicon.ico
+GET /test.lua
+GET /favicon.ico
+GET /test.lua
+GET /favicon.ico
+GET /test.lua
+GET /favicon.ico
+GET /test.lua
+GET /favicon.ico
+GET /test.lua
+GET /favicon.ico
+GET /test.lua
+Lua error: www/test.lua:27: attempt to call global 'dostring' (a nil value)
+GET /favicon.ico
+GET /test.lua
+GET /favicon.ico
+GET /test.lua
+Lua error: www/test.lua:27: attempt to call global 'dostring' (a nil value)
+GET /favicon.ico
+GET /test.lua
+Lua error: www/test.lua:30: attempt to call global 'dostring' (a nil value)
+GET /favicon.ico
+GET /test.lua
+GET /favicon.ico
+GET /test.lua
+Lua error: [string "con.write("poop")"]:1: attempt to index global 'con' (a nil value)
+GET /favicon.ico
+GET /test.lua
+Lua error: [string "con.write("poop")"]:1: attempt to index global 'con' (a nil value)
+GET /favicon.ico
+GET /test.lua
+Lua error: [string "con.write("poop")"]:1: attempt to index global 'con' (a nil value)
+GET /favicon.ico
+GET /test.lua
+Lua error: [string "con.write("poop")"]:1: attempt to index global 'con' (a nil value)
+GET /favicon.ico
+GET /test.lua
+Lua error: [string "con.write("poop")"]:1: attempt to index global 'con' (a nil value)
+GET /favicon.ico
+GET /test.lua
+Lua error: [string "con.write("poop")"]:1: attempt to index global 'con' (a nil value)
+GET /favicon.ico
+GET /test.lua
+GET /favicon.ico
+GET /test.lua
+Lua error: www/test.lua:28: attempt to call a nil value
+GET /favicon.ico
+GET /test.lua
+Lua error: www/test.lua:28: attempt to call a nil value
+GET /favicon.ico
+GET /test.lua
+Lua error: www/test.lua:15: attempt to call global 'pairs' (a table value)
+GET /favicon.ico
+GET /test.lua
+Lua error: www/test.lua:28: attempt to call a nil value
+GET /favicon.ico
+GET /test.lua
+Lua error: www/test.lua:28: attempt to call a nil value
+GET /favicon.ico
+GET /test.lua
+Lua error: www/test.lua:28: attempt to call a nil value
+GET /favicon.ico
+GET /test.lua
+Lua error: www/test.lua:28: attempt to call a nil value
+GET /favicon.ico
+GET /test.lua
+Lua error: www/test.lua:28: '<name>' expected near '('
+GET /favicon.ico
+GET /test.lua
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /test.html
+GET /testimg.png
+GET /favicon.ico
+GET /index.lua
+GET /favicon.ico
+GET /index.lua
+GET /favicon.ico
+GET /404.lua
+GET /404.lua
+GET /404.lua
+GET /404.lua
+GET /404.lua
+GET /404.lua

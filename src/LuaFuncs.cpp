@@ -1,5 +1,7 @@
 #include "LuaFuncs.h"
 #include <stdio.h>
+#include <sys/stat.h>
+
 
 int l_Print(lua_State* L)
 {
@@ -25,4 +27,20 @@ void PrintTable(lua_State *L)
 
         lua_pop(L, 1);
     }
+}
+
+int l_DirExists(lua_State *L)
+{
+	const char* str = luaL_checkstring(L, 1);
+	
+	struct stat st;
+	bool exists = stat(str, &st) == 0;
+	
+	lua_pushboolean(L, exists);
+	return 1;
+}
+
+int l_FileExists(lua_State *L)
+{
+	return 0;
 }
