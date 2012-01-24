@@ -20,8 +20,14 @@ function main( con )
 		con.response = con.response .. string.format(tostring(text), ...)
 	end
 	
+	con.writenf = function(text)
+		con.response = con.response .. tostring(text)
+	end
+	
 	log = con.log
 	write = con.write
+	
+	log("%s %s\n", con.method, con.url)
 	
 	local extra = {}
 	extra.ext = ""
@@ -37,8 +43,6 @@ function main( con )
 	end
 	
 	local urlpos = #con.url -- Update this
-	
-	log("%s %s\n", con.method, con.url)
 	
 	while urlpos > 0 do -- Lets figgure out what the extension is
 		local char = string.sub(con.url, urlpos, urlpos)
