@@ -69,7 +69,11 @@ function main( con )
 			log("Lua error: " .. err .. "\n")
 		else
 			local ne = {} -- the new enviroment, you can also isolate cirtain things here!, such as disallow io, require, ect..
-			local scriptenv = _G
+			local scriptenv = {}
+			
+			for k,v in pairs(_G) do
+				scriptenv[k] = v
+			end
 			
 			scriptenv.con = con
 			scriptenv.GET = con.GET
@@ -79,11 +83,20 @@ function main( con )
 			scriptenv.writef = con.writef
 			scriptenv.log = con.log
 			
-			local indexf = function(t, k)
-				return scriptenv[k]
+			scriptenv.loadfile = nil
+			scriptenv.dofile = nil
+			
+			scriptenv.include = function(file)
+				local incf,err = loadfile(server .. "/" .. file)
+				if err then
+					Print(err .. "\n")
+				else
+					setfenv(incf, ne)
+					incf()
+				end
 			end
 			
-			setmetatable(ne, {__index = indexf})
+			setmetatable(ne, {__index = scriptenv})
 			setfenv(f, ne)
 			
 			local status, ret = pcall(f)

@@ -218,3 +218,62 @@ Lua error: localhost/index.lua:2: attempt to call global 'dofile' (a nil value)
 GET /favicon.ico
 GET /
 GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+Lua error: localhost/inc/detector.lua:6: attempt to index global 'con' (a nil value)
+GET /favicon.ico
+GET /
+Lua error: localhost/inc/detector.lua:6: attempt to index global 'con' (a nil value)
+GET /favicon.ico
+GET /
+Lua error: localhost/inc/detector.lua:6: attempt to index global 'con' (a nil value)
+GET /favicon.ico
+GET /
+Lua error: localhost/index.lua:2: attempt to call global 'dofile' (a nil value)
+GET /favicon.ico
+Lua error: localhost/404.lua:3: attempt to index global 'con' (a nil value)
+GET /
+Lua error: localhost/inc/detector.lua:6: attempt to index global 'con' (a nil value)
+GET /favicon.ico
+GET /
+Lua error: localhost/inc/detector.lua:6: attempt to index global 'con' (a nil value)
+GET /favicon.ico
+GET /
+Lua error: localhost/index.lua:4: attempt to call global 'Site' (a nil value)
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+Lua error: localhost/index.lua:4: attempt to call global 'Site' (a nil value)
+GET /favicon.ico
+GET /
+Lua error: localhost/index.lua:2: stack overflow
+GET /favicon.ico
+GET /
+Lua error: localhost/index.lua:2: stack overflow
+GET /favicon.ico
+GET /
+Lua error: main.lua:91: bad argument #1 to 'setfenv' (number expected, got nil)
+GET /favicon.ico
+GET /
+Lua error: localhost/index.lua:4: attempt to call global 'Site' (a nil value)
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico

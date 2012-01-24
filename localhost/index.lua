@@ -1,11 +1,11 @@
 
-dofile("localhost/inc/detector.lua")
+include("inc/detector.lua")
 
 site = Site()
 
-site.write_header(con.GET.title or "N/A")
+site.write_header(GET.title or "N/A")
 
-con.write("Hello, world!\n")
+writef("Hello, %s!\n", EscapeHTML(GET.name) or "Anon")
 
 site.write_footer()
 
