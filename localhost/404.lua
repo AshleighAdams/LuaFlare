@@ -25,5 +25,5 @@
 <!--[[ 404 page created by ddrl ]]-->
 
 <?lua
-con.errcode = 404
+con.errcode = HTTP_NOTFOUND
 ?>

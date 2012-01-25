@@ -16,5 +16,5 @@ local TestTable = {
 	}
 }
 
-PrintTable(TestTable, "border=1")
+PrintTable(TestTable)
 ?>

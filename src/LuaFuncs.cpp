@@ -102,7 +102,7 @@ int l_ParseLuaString(lua_State* L)
 
 	int parsemode = PARSEMODE_OUTOFLUA;
 	
-	outlua += "write([[";
+	outlua += "write(false,[[";
 	
 	unsigned int i = 0;
 	while(i < inlua.length())

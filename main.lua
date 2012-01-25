@@ -1,4 +1,5 @@
 dofile("mimes.lua")
+dofile("statuscodes.lua")
 
 function file_exists(name)
    local f=io.open(name,"r")
@@ -129,6 +130,7 @@ function main( con )
 				local incf,err = loadfile_parselua(server .. "/" .. file)
 				if err then
 					Print(err .. "\n")
+					con.write(err)
 				else
 					setfenv(incf, ne)
 					incf()
