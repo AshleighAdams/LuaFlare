@@ -1,6 +1,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <string>
+#include <sstream>
 #include <cstring>
 
 // microhttpd
@@ -19,6 +20,8 @@ extern "C" {
 using namespace std;
 
 CConnectionHandler ch;
+
+int Port;
 
 int Connection(void *cls, struct MHD_Connection *connection, const char *url, const char *method, const char *version, const char *upload_data, size_t *upload_data_size, void **con_cls)
 {
@@ -63,15 +66,24 @@ int Connection(void *cls, struct MHD_Connection *connection, const char *url, co
 }
 
 
-int main ()
+int main (int argc, char* argv[])
 {
 	printf("Loading luaserver... ");
 	
-	struct MHD_Daemon *daemon = MHD_start_daemon (MHD_USE_SELECT_INTERNALLY, 8080, NULL, NULL, &Connection, NULL, MHD_OPTION_END);
+	if(argc > 3 || argc < 2)
+	{
+		printf("\t [Fail]\nNo port\n!");
+		return 1;
+	}
+	
+	string sport = argv[1];
+	istringstream ( sport ) >> Port;
+		
+	struct MHD_Daemon *daemon = MHD_start_daemon (MHD_USE_SELECT_INTERNALLY, Port, NULL, NULL, &Connection, NULL, MHD_OPTION_END);
 		
 	if(!daemon)
 	{
-		printf("\t [Fail]\n Please check nothing else is using the same port!");
+		printf("\t [Fail]\nPlease check nothing else is using the same port!\n");
 		return 1;
 	}
 	
