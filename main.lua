@@ -78,8 +78,9 @@ function main( con )
 	local extra = {}
 	extra.ext = ""
 	
-	local server = con.HEADER.Host or "www"
+	local server = con.HEADER.Host or "default"
 	server = string.match(server, "[A-z0-9\.]+") -- Remove the port, if present
+	server = "www/" .. server
 	
 	local urlpos = #con.url
 	
@@ -106,8 +107,6 @@ function main( con )
 		extra.ext = char .. extra.ext
 		urlpos = urlpos - 1
 	end
-	
-	
 	
 	if extra.ext == "lua" then
 		local f, err = loadfile_parselua(server .. con.url)
