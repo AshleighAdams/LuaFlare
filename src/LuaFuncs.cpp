@@ -23,13 +23,13 @@ int l_EscapeHTML(lua_State* L)
     {
         switch(in[pos])
         {
-            case '&':  buf.append("&amp;");		break;
-            case '\"': buf.append("&quot;");	break;
-            case '\'': buf.append("&apos;");	break;
-            case '<':  buf.append("&lt;");		break;
-            case '>':  buf.append("&gt;");		break;
-           
-			default:   buf.append(1, in[pos]);	break;
+			case '&':	buf.append("&amp;");		break;
+			case '\"':	buf.append("&quot;");	break;
+			case '\'':	buf.append("&apos;");	break;
+			case '<':	buf.append("&lt;");		break;
+			case '>':	buf.append("&gt;");		break;
+
+			default:	buf.append(1, in[pos]);	break;
         }
     }
     in.swap(buf);

@@ -1,8 +1,9 @@
 # depslib dependency file v1.0
-1327409232 source:/home/C0BRA/Projects/luaserver/src/main.cpp
+1327496266 source:/home/C0BRA/Projects/luaserver/src/main.cpp
 	<iostream>
 	<stdio.h>
 	<string>
+	<sstream>
 	<cstring>
 	<microhttpd.h>
 	"lua.h"
