@@ -9,13 +9,17 @@ end
 function loadfile_parselua(name)
 	local f = io.open(name, r)
 	if not f then
-		error("Cannot include " .. name)
+		return false, "Can't open file \"" .. name .. "\""
 	end
 	
 	local lua = f:read("*a")
 	io.close(f)
 	
-	lua = ParseLuaString(lua)
+	lua, err = ParseLuaString(lua)
+	
+	if not lua then
+		return false, name .. ":EOF: " .. err
+	end
 	--Print(lua .. "\n")
 	
 	return loadstring(lua, name)
@@ -107,8 +111,9 @@ function main( con )
 	
 	if extra.ext == "lua" then
 		local f, err = loadfile_parselua(server .. con.url)
-		if not f then
-			log("Lua error: " .. err .. "\n")
+		if err then
+			log("Lua error: %s\n", err)
+			write("Lua error: %s\n", err)
 		else
 			local ne = {} -- the new enviroment, you can also isolate cirtain things here!, such as disallow io, require, ect..
 			local scriptenv = {}
@@ -131,8 +136,8 @@ function main( con )
 			scriptenv.include = function(file)
 				local incf,err = loadfile_parselua(server .. "/" .. file)
 				if err then
-					Print(err .. "\n")
-					con.write(err)
+					log("%s\n", err)
+					write("Lua error: %s\n", err)
 				else
 					setfenv(incf, ne)
 					incf()

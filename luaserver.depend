@@ -12,11 +12,12 @@
 	"LuaFuncs.h"
 	"HandelConnection.h"
 
-1327493521 source:/home/C0BRA/Projects/luaserver/src/LuaFuncs.cpp
+1327499876 source:/home/C0BRA/Projects/luaserver/src/LuaFuncs.cpp
 	"LuaFuncs.h"
 	<stdio.h>
 	<sys/stat.h>
 	<string>
+	<sstream>
 	<iostream>
 
 1327442658 /home/C0BRA/Projects/luaserver/src/LuaFuncs.h

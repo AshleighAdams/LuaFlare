@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <sys/stat.h>
 #include <string>
+#include <sstream>
 #include <iostream>
 using namespace std;
 
@@ -123,10 +124,11 @@ int l_ParseLuaString(lua_State* L)
 	outlua.reserve(inlua.size());
 
 	int parsemode = PARSEMODE_OUTOFLUA;
-	
+	unsigned int inluastart = 0;
 	outlua += "write(false,[[";
 	
 	unsigned int i = 0;
+	
 	while(i < inlua.length())
 	{
 		if(parsemode == PARSEMODE_OUTOFLUA)
@@ -136,6 +138,7 @@ int l_ParseLuaString(lua_State* L)
 				char x = inlua[i];
 				if(x == '<' && inlua[i+1] == '?' && inlua[i+2] == 'l' && inlua[i+3] == 'u' && inlua[i+4] == 'a')
 				{
+					inluastart = i;
 					i += 5;
 					outlua += "]])";
 					parsemode = PARSEMODE_INLUA;
@@ -239,8 +242,48 @@ int l_ParseLuaString(lua_State* L)
 	
 	outlua += "]])";
 	
-	lua_pushstring(L, outlua.c_str());
+	if(parsemode == PARSEMODE_INLUA)
+	{
+		string offendingline = "";
+		int linecount = 1;
+		
+		for(i = 0; i < inluastart; i++)
+		{
+			char x = inlua[i];
+			if(x == '\r' && inlua[i+1] == '\n' && i < inluastart - 1)
+			{
+				linecount++;
+				i++;
+			}
+			else if(x == '\r')
+				linecount++;
+			else if(x == '\n')
+				linecount++;
+		}
+		
+		while(i < inlua.length())
+		{
+			char x = inlua[i];
+			if(x == '\n' || x == '\r')
+				break;
+			i++;
+			offendingline += x;
+		}
+		
+		
+		printf("Got line string\n");
+		
+		stringstream ss;
+		ss << linecount;
+		
+		string error = "'?>' expected near '" + offendingline + "' (line " + ss.str() + ")";
+		
+		lua_pushnil(L);
+		lua_pushstring(L, error.c_str());
+		return 2;
+	}
 	
+	lua_pushstring(L, outlua.c_str());
 	return 1;
 }
 
