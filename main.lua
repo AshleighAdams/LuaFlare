@@ -28,8 +28,10 @@ function main( con )
 		Print(comp)
 		
 		local f = io.open("log.txt","a")
-		f:write(comp)
-		f:close()
+		if f then
+			f:write(comp)
+			f:close()
+		end
 	end
 
 	con.writef = function(escape, text, ...)

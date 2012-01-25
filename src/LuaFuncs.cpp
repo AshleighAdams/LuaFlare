@@ -92,7 +92,29 @@ int l_FileExists(lua_State *L)
 #define PARSEMODE_INCOMMENT 2
 
 // <?lua ?> support
+/*
+This function basically turns:
 
+Hello, <b><?lua write(GET.NAME or Unknown)?></b>.
+
+Into:
+
+write(false, [[Hello, <b>]])write(GET.NAME or Unknown)write(false,[[</b>.]])
+
+It must not break under comments, strings or any other conditions like:
+
+	-- Hello, ?>/<?lua world.
+	func("Hello, ?>/<?lua world")
+	func('Hello, ?>/<?lua world')
+	func([[Hello, ?>/<?lua world]])
+	
+Escaping must work too:
+	
+	func("Just testing \") something")
+	And this must work too:
+	
+	lua = [[ This is a test \]]
+*/
 int l_ParseLuaString(lua_State* L)
 {
 	string inlua = luaL_checkstring(L, 1);
@@ -167,7 +189,7 @@ int l_ParseLuaString(lua_State* L)
 					{
 						char y = inlua[i];
 						
-						if(y == '\\')
+						if(y == '\\' && exitnode != ']') // Escape the next char, but only if we're not in a literal string
 						{
 							outlua += y;
 							outlua += inlua[i+1];
