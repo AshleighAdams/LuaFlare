@@ -5,21 +5,21 @@ function file_exists(name)
    if f~=nil then io.close(f) return true else return false end
 end
 
-local lua = [[
-This is a simple test :D
-<?lua
-writef("%i\n", 1337)
-write("this is a simple?> string!\n")
-write(]] .. "[[" .. [[ok, now it's time for this!\]] .. "]]" .. [[)
-
-write("Well, what about this\"? ?> ")
--- ?>
-?>]]
-
-local compiled = ParseLuaString(lua)
-
-Print(string.format("From:\n\n%s\n\nTo:\n\n%s\n", lua, compiled))
-
+function loadfile_parselua(name)
+	local f = io.open(name, r)
+	if not f then
+		io.close(f)
+		return false, "Cannot open " .. name
+	end
+	
+	local lua = f:read("*a")
+	io.close(f)
+	
+	lua = ParseLuaString(lua)
+	--Print(lua .. "\n")
+	
+	return loadstring(lua, name)
+end
 
 function main( con )
 	con.log = function(text, ...)
@@ -80,7 +80,7 @@ function main( con )
 	
 	
 	if extra.ext == "lua" then
-		local f, err = loadfile(server .. con.url)
+		local f, err = loadfile_parselua(server .. con.url)
 		if not f then
 			log("Lua error: " .. err .. "\n")
 		else
@@ -103,7 +103,7 @@ function main( con )
 			scriptenv.dofile = nil
 			
 			scriptenv.include = function(file)
-				local incf,err = loadfile(server .. "/" .. file)
+				local incf,err = loadfile_parselua(server .. "/" .. file)
 				if err then
 					Print(err .. "\n")
 				else

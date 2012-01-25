@@ -124,6 +124,11 @@ int l_ParseLuaString(lua_State* L)
 					outlua += "\\93\\93";
 					i += 2;
 				}
+				else if(x == '[' && inlua[i+1] == '[')
+				{
+					outlua += "\\91\\91";
+					i += 2;
+				}
 				else
 				{
 					outlua += x;
@@ -147,10 +152,9 @@ int l_ParseLuaString(lua_State* L)
 				else if(x == '"' || x == '\'' || (x == '[' && inlua[i+1] == '[') )
 				{
 					char exitnode = x;
-					if(x == '[') exitnode = ']';
-					
-					if(exitnode == ']')
+					if(x == '[')
 					{
+						exitnode = ']';
 						i++;
 						outlua+= "[[";
 					}
@@ -163,19 +167,19 @@ int l_ParseLuaString(lua_State* L)
 					{
 						char y = inlua[i];
 						
-						if(inlua[i-1] == '\\' && exitnode != ']')
+						if(y == '\\')
 						{
-							printf("Escaped char %c\n", x);
-							outlua += x;
-							i++;
+							outlua += y;
+							outlua += inlua[i+1];
+							i += 2;
 							continue;
 						}
 						
 						outlua += y;
+						i++;
 						
 						if(y == exitnode)
 						{
-							i++;
 							if(y == ']')
 							{
 								outlua += "]";
@@ -183,8 +187,6 @@ int l_ParseLuaString(lua_State* L)
 							}
 							break;
 						}
-						
-						i++;
 					}
 				}
 				else if(x == '-' && inlua[i+1] == '-' && i < inlua.length() - 1) // -1 on len to prevent crash if file ends with "-"

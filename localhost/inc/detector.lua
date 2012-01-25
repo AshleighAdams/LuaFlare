@@ -1,4 +1,4 @@
-
+<?lua
 function Site()
 	local ret = {}
 	
@@ -21,3 +21,4 @@ function Site()
 	
 	return ret
 end
+?>

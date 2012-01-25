@@ -317,3 +317,105 @@ GET /
 GET /favicon.ico
 GET /
 GET /favicon.ico
+GET /
+GET /favicon.ico
+Lua error: [string "localhost/404.lua"]:3: nesting of [[...]] is deprecated near '['
+GET /
+Lua error: [string "localhost/index.lua"]:4: attempt to call global 'Site' (a nil value)
+GET /favicon.ico
+Lua error: [string "localhost/404.lua"]:3: nesting of [[...]] is deprecated near '['
+GET /
+Lua error: [string "localhost/index.lua"]:8: bad argument #1 to 'EscapeHTML' (string expected, got nil)
+GET /favicon.ico
+Lua error: [string "localhost/404.lua"]:3: nesting of [[...]] is deprecated near '['
+GET /
+Lua error: [string "localhost/index.lua"]:8: bad argument #1 to 'EscapeHTML' (string expected, got nil)
+GET /favicon.ico
+Lua error: [string "localhost/404.lua"]:3: nesting of [[...]] is deprecated near '['
+GET /
+Lua error: [string "localhost/index.lua"]:8: bad argument #1 to 'EscapeHTML' (string expected, got nil)
+GET /favicon.ico
+GET /
+Lua error: [string "localhost/index.lua"]:8: bad argument #1 to 'EscapeHTML' (string expected, got nil)
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+Lua error: [string "localhost/index.lua"]:11: unexpected symbol near '?'
+GET /favicon.ico
+GET /
+Lua error: [string "localhost/index.lua"]:11: unexpected symbol near '?'
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+Lua error: [string "localhost/index.lua"]:11: unexpected symbol near '?'
+GET /favicon.ico
+GET /
+Lua error: [string "localhost/index.lua"]:4: ')' expected (to close '(' at line 2) near 'site'
+GET /favicon.ico
+GET /
+Lua error: [string "localhost/index.lua"]:4: ')' expected (to close '(' at line 2) near 'site'
+GET /favicon.ico
+GET /
+Lua error: [string "localhost/index.lua"]:4: ')' expected (to close '(' at line 2) near 'site'
+GET /favicon.ico
+GET /
+Lua error: [string "localhost/index.lua"]:4: ')' expected (to close '(' at line 2) near 'site'
+GET /favicon.ico
+GET /
+Lua error: [string "localhost/index.lua"]:4: ')' expected (to close '(' at line 2) near 'site'
+GET /favicon.ico
+GET /
+Lua error: [string "localhost/index.lua"]:8: ')' expected (to close '(' at line 6) near 'writef'
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico

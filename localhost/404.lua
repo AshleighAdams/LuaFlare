@@ -1,6 +1,4 @@
--- Eh, something went wrong
 
-con.write([[
 <!DOCTYPE html>
 <html>
 	<head>
@@ -25,5 +23,7 @@ con.write([[
 	</body>
 </html>
 <!-- 404 page created by ddrl -->
-]])
+
+<?lua
 con.errcode = 404
+?>
