@@ -145,7 +145,7 @@ int l_ParseLuaString(lua_State* L)
 				if(x == '?' && inlua[i+1] == '>')
 				{
 					parsemode = PARSEMODE_OUTOFLUA;
-					outlua += "write([[";
+					outlua += "write(false, [[";
 					i+= 2;
 					break;
 				}

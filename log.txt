@@ -488,3 +488,17 @@ GET /favicon.ico
 GET /favicon.ico
 GET /
 GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+Lua error: main.lua:42: bad argument #1 to 'format' (string expected, got boolean)
+GET /favicon.ico
+GET /
+Lua error: main.lua:58: attempt to concatenate local 'escape' (a boolean value)
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico

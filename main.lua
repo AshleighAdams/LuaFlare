@@ -31,12 +31,36 @@ function main( con )
 		f:close()
 	end
 
-	con.writef = function(text, ...)
-		con.response = con.response .. string.format(tostring(text), ...)
+	con.writef = function(escape, text, ...)
+		if (type(escape) == type(false) and escape) or type(escape) ~= type(false) then
+			if type(escape) ~= type(false) then
+				con.write(string.format(escape, text, ...))
+			else
+				con.write(escape, string.format(escape, text, ...))
+			end
+		else
+			if type(escape) ~= type(false) then
+				con.write(escape, string.format(escape, text, ...))
+			else
+				con.write(escape, string.format(text, ...))
+			end
+		end
 	end
 	
-	con.write = function(text)
-		con.response = con.response .. tostring(text)
+	con.write = function(escape, text)
+		if (type(escape) == type(false) and escape) or type(escape) ~= type(false) then
+			if type(escape) ~= type(false) then
+				con.response = con.response .. EscapeHTML(escape)
+			else
+				con.response = con.response .. EscapeHTML(text)
+			end
+		else
+			if type(escape) ~= type(false) then
+				con.response = con.response .. escape
+			else
+				con.response = con.response .. text
+			end
+		end
 	end
 	
 	log = con.log

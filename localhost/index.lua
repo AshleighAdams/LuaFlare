@@ -1,4 +1,4 @@
-Hello, <?lua write(EscapeHTML(GET.name or "Anonymous")) ?>.  How are you doing?
+Hello, <?lua write(GET.name or "Anonymous") ?>.  How are you doing?
 <br/>
 <br/>
 Would you like to see my table?
