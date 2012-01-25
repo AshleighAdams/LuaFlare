@@ -485,3 +485,6 @@ GET /favicon.ico
 GET /
 Lua error: [string "localhost/index.lua"]:1: unfinished string near '"Anonymous)) ?>.  How are you doing?'
 GET /favicon.ico
+GET /favicon.ico
+GET /
+GET /favicon.ico

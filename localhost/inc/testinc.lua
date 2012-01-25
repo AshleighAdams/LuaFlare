@@ -10,10 +10,10 @@ local function m_PrintTable(tbl, donetbls, depth)
 	
 	for k,v in pairs(tbl) do
 		if type (v) == "table" then
-			writef("<tr>%s<td>%s:</td><td>%s</td></tr>\n", tabs, tostring(k), tostring(v))
+			writef("<tr>%s<td>%s:</td><td>%s</td></tr>\n", tabs, EscapeHTML(tostring(k)), EscapeHTML(tostring(v)))
 			m_PrintTable(tbl[k], donetbls, depth + 1)
 		else
-			writef("<tr>%s<td>%s</td><td>%s</td></tr>\n", tabs, tostring(k), tostring(v))
+			writef("<tr>%s<td>%s</td><td>%s</td></tr>\n", tabs, EscapeHTML(tostring(k)), EscapeHTML(tostring(v)))
 		end
 	end
 end
