@@ -2012,3 +2012,46 @@ GET /404.lua
 GET /favicon.ico
 GET /404.lua
 GET /favicon.ico
+GET /404.lua
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /favicon.ico
+GET /
+Lua error: [string "localhost/inc/testinc.lua"]:12: bad argument #1 to 'pairs' (table expected, got function)
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+Lua error: [string "localhost/index.lua"]:20: unexpected symbol near '<'
+GET /favicon.ico
+GET /
+Lua error: [string "localhost/index.lua"]:20: unexpected symbol near '<'
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+Lua error: [string "localhost/inc/testinc.lua"]:12: bad argument #1 to 'pairs' (table expected, got string)
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico

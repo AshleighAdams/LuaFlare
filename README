@@ -1,1 +1,20 @@
-Will resume later, but right now I'm in dependancy hell with shitty Ubuntu; probably going to move to Fedora.
+Depends on:
+
+lua51
+libmicrohttpd
+
+To compile, you need the development packages too (x-dev).
+
+
+luaserver is a lightweight http server which uses lua for its scripting
+language rather than using something such as php, perl or python.
+
+lauch with luaserver port [mainlua]
+
+The `mainlua' feild defaults to "main.lua" if not specified.  The main
+lua file is responsible for controling how the binary handels the
+request, so it would be possible to have a structure such as:
+	/myprofile/comments?page=1
+without /myprofile/comments/index.lua existing and can be fully dynamic,
+such as query an SQL server for the page contents (if any).
+
