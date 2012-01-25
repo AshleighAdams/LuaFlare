@@ -1,3 +1,6 @@
+package.path = "./mods/?.lua;./mods/?;" .. package.path
+package.cpath = "./mods/?.so;./mods/?.dll;" .. package.cpath
+
 dofile("includes/mimes.lua")
 dofile("includes/statuscodes.lua")
 

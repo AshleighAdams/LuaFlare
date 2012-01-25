@@ -12,6 +12,7 @@ CConnectionHandler::CConnectionHandler()
 	l = lua_open();
 	
 	luaL_openlibs(l);
+	//LoadMods(l);
 	
 	lua_pushcfunction(l, l_Print);
 	lua_setglobal(l, "Print");

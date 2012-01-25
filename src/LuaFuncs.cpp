@@ -4,7 +4,43 @@
 #include <string>
 #include <sstream>
 #include <iostream>
+
+#include <dirent.h>
+
 using namespace std;
+
+void LoadMods(lua_State* L, string sdir)
+{
+	DIR *dir;
+	struct dirent *ent;
+	dir = opendir (sdir.c_str());
+	if (dir != NULL)
+	{
+		while ((ent = readdir (dir)) != NULL)
+		{
+			if(ent->d_type == DT_DIR)
+			{
+				if(string(ent->d_name) == "..") continue;
+				if(string(ent->d_name) == ".") continue;
+				string newdir = sdir + ent->d_name + "/";
+				
+				LoadMods(L, newdir);
+			}
+			else
+			{
+				string lfile = sdir + ent->d_name;
+				printf ("Loading %s\n", lfile.c_str());
+				
+			}
+		}
+		closedir (dir);
+	}
+}
+
+void LoadMods(lua_State* L)
+{
+	LoadMods(L, "mods/");
+}
 
 int l_Print(lua_State* L)
 {
