@@ -8,8 +8,7 @@ end
 function loadfile_parselua(name)
 	local f = io.open(name, r)
 	if not f then
-		io.close(f)
-		return false, "Cannot open " .. name
+		error("Cannot include " .. name)
 	end
 	
 	local lua = f:read("*a")

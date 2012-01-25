@@ -22,7 +22,7 @@
 		</div>
 	</body>
 </html>
-<!-- 404 page created by ddrl -->
+<!--[[ 404 page created by ddrl ]]-->
 
 <?lua
 con.errcode = 404

@@ -419,3 +419,69 @@ GET /
 GET /favicon.ico
 GET /
 GET /favicon.ico
+GET /
+Lua error: main.lua:11: bad argument #1 to 'close' (FILE* expected, got nil)
+GET /favicon.ico
+GET /
+Lua error: [string "localhost/index.lua"]:10: attempt to call global 'PrintTable' (a nil value)
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+Lua error: main.lua:11: Cannot include localhost/inc/testincs.lua
+GET /favicon.ico
+GET /
+Lua error: main.lua:11: Cannot include localhost/inc/testincs.lua
+GET /favicon.ico
+GET /
+Lua error: main.lua:39: stack overflow
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /favicon.ico
+GET /
+Lua error: [string "localhost/inc/testinc.lua"]:9: table index is nil
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+Lua error: [string "localhost/index.lua"]:1: unfinished string near '"Anonymous)) ?>.  How are you doing?'
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+GET /favicon.ico
+GET /
+Lua error: [string "localhost/index.lua"]:1: unfinished string near '"Anonymous)) ?>.  How are you doing?'
+GET /favicon.ico
+GET /
+Lua error: [string "localhost/index.lua"]:1: unfinished string near '"Anonymous)) ?>.  How are you doing?'
+GET /favicon.ico

@@ -1,11 +1,20 @@
+Hello, <?lua write(EscapeHTML(GET.name or "Anonymous")) ?>.  How are you doing?
+<br/>
+<br/>
+Would you like to see my table?
+
 <?lua
-include("inc/detector.lua")
+include("inc/testinc.lua")
 
-site = Site()
+local TestTable = {
+	TestNumber = 123,
+	TestString = "Hello, world!",
+	TestFunc = function() end,
+	TestTable2 = {
+		Does_this_work = true,
+		Well = "it sure does!"
+	}
+}
 
-site.write_header(GET.title or "N/A")
-
-writef("Hello, %s!\n", EscapeHTML(GET.name or "Anon"))
-
-site.write_footer()
+PrintTable(TestTable, "border=1")
 ?>
