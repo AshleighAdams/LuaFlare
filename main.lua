@@ -79,7 +79,7 @@ function main( con )
 	extra.ext = ""
 	
 	local server = con.HEADER.Host or "default"
-	server = string.gsub(server, "[\.\.]+", "") -- Remove any ..'s to stop directory transversing
+	server = string.gsub(server, [[\.\.]], "") -- Remove any ..'s to stop directory transversing
 	server = string.match(server, "[A-z0-9\.]+") -- Remove the port, if present
 	server = "www/" .. server
 	
