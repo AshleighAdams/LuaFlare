@@ -6,7 +6,8 @@ Depends on:
 lua51
 libmicrohttpd
 
-To compile, you need the development packages too (x-dev).
+To compile, you need the development packages too.
+Link against microhttpd, lua and rt
 
 
 luaserver is a lightweight http server which uses lua for its scripting

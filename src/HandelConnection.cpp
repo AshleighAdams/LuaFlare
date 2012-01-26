@@ -14,6 +14,9 @@ CConnectionHandler::CConnectionHandler()
 	luaL_openlibs(l);
 	//LoadMods(l);
 	
+	lua_pushcfunction(l, l_GetCurrentTime);
+	lua_setglobal(l, "GetCurrentTime");
+	
 	lua_pushcfunction(l, l_Print);
 	lua_setglobal(l, "Print");
 	
@@ -92,6 +95,10 @@ void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon
 	}
 	
 	lua_newtable(l); // con table
+	
+	lua_pushstring(l, "starttime");
+	lua_pushnumber(l, GetCurrentTime());
+	lua_rawset(l, -3);
 	
 	lua_pushstring(l, "url");
 	lua_pushstring(l, connection->url.c_str());

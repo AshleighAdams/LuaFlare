@@ -29,6 +29,8 @@ function loadfile_parselua(name)
 end
 
 function main( con )
+	local st = GetCurrentTime()
+	
 	con.log = function(text, ...)
 		local comp = string.format(tostring(text), ...)
 		
@@ -173,6 +175,7 @@ function main( con )
 	
 	con.response_headers["Content-Type"] = MimeTypes[extra.ext] or "unknown"
 	con.response_headers["Server"] = "luaserver"
+	
 	return con
 end
 

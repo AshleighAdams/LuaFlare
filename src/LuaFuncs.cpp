@@ -6,8 +6,103 @@
 #include <iostream>
 
 #include <dirent.h>
-
+#include <time.h>
 using namespace std;
+
+
+
+
+
+#ifdef WINDOWS // We need a standard for this...
+/*
+	Thanks to Carl Staelin for this snippet
+	http://stackoverflow.com/questions/5404277/porting-clock-gettime-to-windows
+*/
+#define CLOCKS_PER_SEC 0
+LARGE_INTEGER getFILETIMEoffset()
+{
+	SYSTEMTIME s;
+	FILETIME f;
+	LARGE_INTEGER t;
+
+	s.wYear = 1970;
+	s.wMonth = 1;
+	s.wDay = 1;
+	s.wHour = 0;
+	s.wMinute = 0;
+	s.wSecond = 0;
+	s.wMilliseconds = 0;
+	SystemTimeToFileTime( &s, &f );
+	t.QuadPart = f.dwHighDateTime;
+	t.QuadPart <<= 32;
+	t.QuadPart |= f.dwLowDateTime;
+	return t;
+}
+
+int ::clock_gettime( int X, struct timeval* tv )
+{
+	LARGE_INTEGER		   t;
+	FILETIME				f;
+	double				  microseconds;
+	static LARGE_INTEGER	offset;
+	static double		   frequencyToMicroseconds;
+	static int			  initialized = 0;
+	static BOOL			 usePerformanceCounter = 0;
+
+	if ( !initialized )
+	{
+		LARGE_INTEGER performanceFrequency;
+		initialized = 1;
+		usePerformanceCounter = QueryPerformanceFrequency( &performanceFrequency );
+		if ( usePerformanceCounter )
+		{
+			QueryPerformanceCounter( &offset );
+			frequencyToMicroseconds = ( double )performanceFrequency.QuadPart / 1000000.;
+		}
+		else
+		{
+			offset = getFILETIMEoffset();
+			frequencyToMicroseconds = 10.;
+		}
+	}
+	if ( usePerformanceCounter )
+		QueryPerformanceCounter( &t );
+	else
+	{
+		GetSystemTimeAsFileTime( &f );
+		t.QuadPart = f.dwHighDateTime;
+		t.QuadPart <<= 32;
+		t.QuadPart |= f.dwLowDateTime;
+	}
+
+	t.QuadPart -= offset.QuadPart;
+	microseconds = ( double )t.QuadPart / frequencyToMicroseconds;
+	t.QuadPart = microseconds;
+	tv->tv_sec = t.QuadPart / 1000000;
+	tv->tv_usec = t.QuadPart % 1000000;
+	return 0;
+}
+#endif // WINDOWS
+
+int l_GetCurrentTime(lua_State* L)
+{
+	struct timespec now;
+	clock_gettime( CLOCK_MONOTONIC, &now );
+
+	double dbl = (( double )( now.tv_nsec / CLOCKS_PER_SEC ) / 1000.0 + ( double )now.tv_sec);
+	
+	lua_pushnumber(L, dbl);
+	return 1;
+}
+double GetCurrentTime()
+{
+	struct timespec now;
+	clock_gettime( CLOCK_MONOTONIC, &now );
+
+	return (( double )( now.tv_nsec / CLOCKS_PER_SEC ) / 1000.0 + ( double )now.tv_sec);
+}
+
+
 
 void LoadMods(lua_State* L, string sdir)
 {
@@ -182,14 +277,29 @@ int l_ParseLuaString(lua_State* L)
 				}
 				else if(x == ']') 	// Major bloody hack D:
 				{					// No other way, you can't put a ] in a literal string
-					
-					outlua += "]] .. \"]\" .. [[";
-					i += 1;
+					if(inlua[i+1] == ']')
+					{
+						outlua += "]] .. \"]]\" .. [[";
+						i += 2;
+					}
+					else
+					{
+						outlua += "]] .. \"]\" .. [[";
+						i += 1;
+					}
 				}
 				else if(x == '[')
 				{
-					outlua += "]] .. \"[\" .. [[";
-					i += 1;
+					if(inlua[i+1] == '[')
+					{
+						outlua += "]] .. \"[[\" .. [[";
+						i += 2;
+					}
+					else
+					{
+						outlua += "]] .. \"[\" .. [[";
+						i += 1;
+					}
 				}
 				else
 				{
@@ -246,7 +356,7 @@ int l_ParseLuaString(lua_State* L)
 							{
 								if(inlua[i] != ']')
 									continue;
-								outlua += "]";
+								outlua += "]\n";
 								i++;
 							}
 							break;
