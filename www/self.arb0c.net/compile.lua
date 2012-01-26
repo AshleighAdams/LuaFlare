@@ -1,4 +1,8 @@
-
+<html>
+	<head>
+		<title>Lua compiling test page</title>
+	</head>
+	</body>
 <?lua
 local deflua = [[Well, this is a test.
 <br/>
@@ -22,29 +26,42 @@ write(z)
 ?>]]
 ?>
 
-<form action="compile.lua" method="GET">
-	<textarea name="lua" wrap="off" rows=20 cols=100>
+		<form action="compile.lua" method="GET">
+			<textarea name="lua" wrap="off" rows=20 cols=100>
+
 <?lua write(GET.lua or deflua) ?>
-	</textarea>
-	<br/>
-	<input type="submit" />
-</form>
+			
+			</textarea>
+			<br/>
+			<input type="submit" />
+		</form>
 
-<br/>
+		<br/>
 
-<pre>
-<?lua
+		<pre>
+		
+		<?lua
 
-if GET.lua then
-	local lua, err = ParseLuaString(GET.lua)
-	
-	if not lua then
-		write("string:EOF: " .. err)
-	else
-		lua = EscapeHTML(lua)
-		write(false, lua)
-	end
-end
+		if GET.lua then
+			local lua, err = ParseLuaString(GET.lua)
+			
+			if not lua then
+				write("string:EOF: " .. err)
+			else
+				lua = EscapeHTML(lua)
+				write(false, lua)
+			end
+		end
 
-?>
-</pre>
+		?>
+		</pre>
+		<center>
+			<br/>The counter below needs a better profiling function, it's just not accurate enough!
+			<br/>This page took
+				<?lua
+					local mt = tostring(GetMicroTime())
+					writef("%s micro seconds (0.000%s seconds)", mt, mt)
+				?> to create and execute.
+		</center>
+	</body>
+<html>

@@ -17,6 +17,13 @@ CConnectionHandler::CConnectionHandler()
 	lua_pushcfunction(l, l_GetCurrentTime);
 	lua_setglobal(l, "GetCurrentTime");
 	
+	lua_pushcfunction(l, l_ResetMicroTime);
+	lua_setglobal(l, "ResetMicroTime");
+	
+	lua_pushcfunction(l, l_MicroTime);
+	lua_setglobal(l, "GetMicroTime");
+	
+	
 	lua_pushcfunction(l, l_Print);
 	lua_setglobal(l, "Print");
 	

@@ -23,6 +23,9 @@ struct connection_t
 extern int l_GetCurrentTime(lua_State* L);
 extern double GetCurrentTime();
 
+extern int l_ResetMicroTime(lua_State* L);
+extern int l_MicroTime(lua_State* L);
+
 extern int l_Print(lua_State*);
 extern int l_EscapeHTML(lua_State* L);
 extern int l_DirExists(lua_State *L);

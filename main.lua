@@ -29,7 +29,7 @@ function loadfile_parselua(name)
 end
 
 function main( con )
-	local st = GetCurrentTime()
+	ResetMicroTime()
 	
 	con.log = function(text, ...)
 		local comp = string.format(tostring(text), ...)

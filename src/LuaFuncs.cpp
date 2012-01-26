@@ -94,6 +94,7 @@ int l_GetCurrentTime(lua_State* L)
 	lua_pushnumber(L, dbl);
 	return 1;
 }
+
 double GetCurrentTime()
 {
 	struct timespec now;
@@ -102,7 +103,26 @@ double GetCurrentTime()
 	return (( double )( now.tv_nsec / CLOCKS_PER_SEC ) / 1000.0 + ( double )now.tv_sec);
 }
 
+unsigned long GetMicroTime()
+{
+	struct timeval tv;
+	gettimeofday(&tv,NULL);
+	return 1000000*(tv.tv_sec)+(tv.tv_usec);
+}
 
+unsigned long From = 0;
+
+int l_ResetMicroTime(lua_State* L)
+{
+	From = GetMicroTime();
+	return 0;
+}
+
+int l_MicroTime(lua_State* L)
+{
+	lua_pushnumber(L, (double)(GetMicroTime() - From));
+	return 1;
+}
 
 void LoadMods(lua_State* L, string sdir)
 {
