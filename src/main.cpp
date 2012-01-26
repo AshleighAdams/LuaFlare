@@ -78,8 +78,13 @@ int main (int argc, char* argv[])
 	
 	string sport = argv[1];
 	istringstream ( sport ) >> Port;
-		
-	struct MHD_Daemon *daemon = MHD_start_daemon (MHD_USE_SELECT_INTERNALLY, Port, NULL, NULL, &Connection, NULL, MHD_OPTION_END);
+	
+	//MHD_USE_SELECT_INTERNALLY
+	struct MHD_Daemon *daemon = MHD_start_daemon(MHD_USE_SELECT_INTERNALLY | MHD_USE_THREAD_PER_CONNECTION, Port, NULL, NULL, &Connection, NULL, 
+		MHD_OPTION_PER_IP_CONNECTION_LIMIT, 	(unsigned int)4,
+		MHD_OPTION_CONNECTION_LIMIT, 			(unsigned int)30,
+		MHD_OPTION_CONNECTION_TIMEOUT, 			(unsigned int)10,
+	MHD_OPTION_END);
 		
 	if(!daemon)
 	{

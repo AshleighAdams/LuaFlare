@@ -56,12 +56,25 @@ write(z)
 		?>
 		</pre>
 		<center>
-			<br/>The counter below needs a better profiling function, it's just not accurate enough!
+			
+			<?lua
+			if GET.loops then
+				local l = tonumber(GET.loops)
+				if l > 10000000 then
+					write("loop capped to 10000000")
+					l = 10000000
+				end
+				for i = 0, l do end
+			else
+				?> <br/>Add the param "loops" to create an artificial loop <?lua
+			end
+			?>
 			<br/>This page took
-				<?lua
-					local mt = tostring(GetMicroTime())
-					writef("%s micro seconds (0.000%s seconds)", mt, mt)
-				?> to create and execute.
+			<?lua
+				local mt = GetMicroTime()
+				local s = mt / 1000000
+				writef("%s micro seconds (%s seconds)", tostring(mt), tostring(s))
+			?> to create and execute.
 		</center>
 	</body>
 <html>
