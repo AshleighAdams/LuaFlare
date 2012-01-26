@@ -172,7 +172,7 @@ int l_ParseLuaString(lua_State* L)
 			while(i < inlua.length())
 			{
 				char x = inlua[i];
-				if(x == '<' && inlua[i+1] == '?' && inlua[i+2] == 'l' && inlua[i+3] == 'u' && inlua[i+4] == 'a')
+				if((i < inlua.length() - 4) && x == '<' && inlua[i+1] == '?' && inlua[i+2] == 'l' && inlua[i+3] == 'u' && inlua[i+4] == 'a')
 				{
 					inluastart = i;
 					i += 5;
@@ -180,15 +180,16 @@ int l_ParseLuaString(lua_State* L)
 					parsemode = PARSEMODE_INLUA;
 					break; // New parse mode!
 				}
-				else if(x == ']' && inlua[i+1] == ']')
-				{
-					outlua += "\\93\\93";
-					i += 2;
+				else if(x == ']') 	// Major bloody hack D:
+				{					// No other way, you can't put a ] in a literal string
+					
+					outlua += "]] .. \"]\" .. [[";
+					i += 1;
 				}
-				else if(x == '[' && inlua[i+1] == '[')
+				else if(x == '[')
 				{
-					outlua += "\\91\\91";
-					i += 2;
+					outlua += "]] .. \"[\" .. [[";
+					i += 1;
 				}
 				else
 				{
@@ -243,6 +244,8 @@ int l_ParseLuaString(lua_State* L)
 						{
 							if(y == ']')
 							{
+								if(inlua[i] != ']')
+									continue;
 								outlua += "]";
 								i++;
 							}
@@ -255,13 +258,30 @@ int l_ParseLuaString(lua_State* L)
 					// comments
 					outlua += "--";
 					i+= 2;
+					
+					bool multiline = false;
+					
+					if(inlua[i] == '[' && inlua[i+1] == '[' )
+					{
+						outlua += "[[";
+						i+= 2;
+						multiline = true;
+					}
+					
 					while(i < inlua.length())
 					{
 						char y = inlua[i];
 						outlua += y;
 						
-						if(y == '\n' || y == '\r')
+						if(!multiline && (y == '\n' || y == '\r'))
 							break;
+							
+						if(multiline && y == ']' && inlua[i + 1] == ']')
+						{
+							outlua += "]";
+							i+=2;
+							break;
+						}
 						
 						i++;
 					}
@@ -305,9 +325,7 @@ int l_ParseLuaString(lua_State* L)
 			i++;
 			offendingline += x;
 		}
-		
-		
-		printf("Got line string\n");
+		// now we have the line number and line
 		
 		stringstream ss;
 		ss << linecount;

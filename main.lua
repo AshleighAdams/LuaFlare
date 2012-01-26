@@ -15,10 +15,10 @@ function loadfile_parselua(name)
 		return false, "Can't open file \"" .. name .. "\""
 	end
 	
-	local lua = f:read("*a")
+	local lua_html = f:read("*a")
 	io.close(f)
 	
-	lua, err = ParseLuaString(lua)
+	local lua, err = ParseLuaString(lua_html)
 	
 	if not lua then
 		return false, name .. ":EOF: " .. err
@@ -116,7 +116,7 @@ function main( con )
 		local f, err = loadfile_parselua(server .. con.url)
 		if err then
 			log("Lua error: %s\n", err)
-			write("Lua error: %s\n", err)
+			write("Lua error.  Check log for details\n")
 		else
 			local ne = {} -- the new enviroment, you can also isolate cirtain things here!, such as disallow io, require, ect..
 			local scriptenv = {}
@@ -140,10 +140,17 @@ function main( con )
 				local incf,err = loadfile_parselua(server .. "/" .. file)
 				if err then
 					log("%s\n", err)
-					write("Lua error: %s\n", err)
+					write("Lua error.  See log for details\n")
+					con.errcode = HTTP_INTERNALSERVERERROR
 				else
 					setfenv(incf, ne)
-					incf()
+					local status, ret = pcall(incf)
+					
+					if not status then
+						log("Lua error: %s\n", ret)
+						write("Lua error.  Check log for details")
+						con.errcode = HTTP_INTERNALSERVERERROR
+					end
 				end
 			end
 			
@@ -153,7 +160,8 @@ function main( con )
 			local status, ret = pcall(f)
 			if not status then
 				log("Lua error: %s\n", ret)
-				write("Lua error: %s\n", ret)
+				write("Lua error.  Check log for details\n")
+				con.errcode = HTTP_INTERNALSERVERERROR
 			end
 		end
 	else

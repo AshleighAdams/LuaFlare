@@ -19,3 +19,22 @@ local TestTable = {
 PrintTable(TestTable)
 
 ?>
+
+
+Well, this is a test.
+<br/>
+[[ This string should perform ]] fine.
+<br/>
+<?lua
+
+
+-- None of these ?>
+--[[
+ ?> will <? lua break it\]
+]]
+
+local x = [[ just testing ]]
+local y = "Escapes \" also work"
+local z = [[And escaping \]in here won't break anything]]
+write(z)
+?>
