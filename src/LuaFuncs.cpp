@@ -85,6 +85,8 @@ int ::clock_gettime( int X, struct timeval* tv )
 
 int l_GetCurrentTime(lua_State* L)
 {
+
+	
 	struct timespec now;
 	clock_gettime( CLOCK_MONOTONIC, &now );
 
@@ -113,18 +115,24 @@ unsigned long From = 0;
 
 int l_ResetMicroTime(lua_State* L)
 {
+
+	
 	From = GetMicroTime();
 	return 0;
 }
 
 int l_MicroTime(lua_State* L)
 {
+
+	
 	lua_pushnumber(L, (double)(GetMicroTime() - From));
 	return 1;
 }
 
 void LoadMods(lua_State* L, string sdir)
 {
+
+	
 	DIR *dir;
 	struct dirent *ent;
 	dir = opendir (sdir.c_str());
@@ -158,6 +166,7 @@ void LoadMods(lua_State* L)
 
 int l_Print(lua_State* L)
 {
+
 	const char* str = luaL_checkstring(L, 1);
 	cout << str;
 	
@@ -166,6 +175,7 @@ int l_Print(lua_State* L)
 
 int l_EscapeHTML(lua_State* L)
 {
+
 	string in = luaL_checkstring(L, 1);
 	
 	string buf;
@@ -219,11 +229,13 @@ void PrintTable(lua_State *L, int Depth)
 
 int l_PrintTable(lua_State *L)
 {
+
 	return 0;
 }
 
 int l_DirExists(lua_State *L)
 {
+
 	const char* str = luaL_checkstring(L, 1);
 	
 	struct stat st;
@@ -235,6 +247,7 @@ int l_DirExists(lua_State *L)
 
 int l_FileExists(lua_State *L)
 {
+
 	return 0;
 }
 
@@ -268,6 +281,8 @@ Escaping must work too:
 */
 int l_ParseLuaString(lua_State* L)
 {
+
+	
 	string inlua = luaL_checkstring(L, 1);
 	string outlua;
 	
@@ -479,6 +494,8 @@ int g_LastRand;
 
 int l_GenerateSessionID(lua_State* L)
 {
+
+	
 	if(!g_RandSeedOffset)
 		g_RandSeedOffset = new unsigned long;
 	
@@ -520,4 +537,20 @@ int l_GenerateSessionID(lua_State* L)
 	
 	lua_pushstring(L, res);
 	return 1;
+}
+
+int LockCount = 0;
+
+LuaAPILock::LuaAPILock()
+{
+	int mine = LockCount;
+	LockCount++;
+	
+	while(LockCount > mine && LockCount != 1) // If it's one, we are the only ones waiting
+		;
+}
+
+LuaAPILock::~LuaAPILock()
+{
+	LockCount--;
 }

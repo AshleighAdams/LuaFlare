@@ -93,49 +93,49 @@ int SetLuaConnectionValues(void *cls, enum MHD_ValueKind kind, const char *key, 
 }
 
 #define CREATE_EMPTY_TABLE(name) \
-	lua_pushstring(l, name); \
-	lua_newtable(l); \
-	lua_rawset(l, -3) \
+	lua_pushstring(L, name); \
+	lua_newtable(L); \
+	lua_rawset(L, -3) \
 
 void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon, todo_t& todo)
 {
 	if(Failed)
 		return;
-
-	lua_getglobal(l, "main");
-	if(!lua_isfunction(l,-1))
+	
+	lua_State* L = lua_newthread(l);
+	
+	lua_getglobal(L, "main");
+	if(!lua_isfunction(L,-1))
 	{
-		lua_pop(l,1);
+		lua_pop(L,1);
 		return;
 	}
+		
+	lua_newtable(L); // con table
 	
-	lua_checkstack(l, 20);
+	lua_pushstring(L, "starttime");
+	lua_pushnumber(L, GetCurrentTime());
+	lua_rawset(L, -3);
 	
-	lua_newtable(l); // con table
+	lua_pushstring(L, "url");
+	lua_pushstring(L, connection->url.c_str());
+	lua_rawset(L, -3);
 	
-	lua_pushstring(l, "starttime");
-	lua_pushnumber(l, GetCurrentTime());
-	lua_rawset(l, -3);
+	lua_pushstring(L, "method");
+	lua_pushstring(L, connection->method.c_str());
+	lua_rawset(L, -3);
 	
-	lua_pushstring(l, "url");
-	lua_pushstring(l, connection->url.c_str());
-	lua_rawset(l, -3);
+	lua_pushstring(L, "version");
+	lua_pushstring(L, connection->version.c_str());
+	lua_rawset(L, -3);
 	
-	lua_pushstring(l, "method");
-	lua_pushstring(l, connection->method.c_str());
-	lua_rawset(l, -3);
+	lua_pushstring(L, "response");
+	lua_pushstring(L, connection->response.c_str());
+	lua_rawset(L, -3);
 	
-	lua_pushstring(l, "version");
-	lua_pushstring(l, connection->version.c_str());
-	lua_rawset(l, -3);
-	
-	lua_pushstring(l, "response");
-	lua_pushstring(l, connection->response.c_str());
-	lua_rawset(l, -3);
-	
-	lua_pushstring(l, "ip");
-	lua_pushstring(l, connection->ip.c_str());
-	lua_rawset(l, -3);
+	lua_pushstring(L, "ip");
+	lua_pushstring(L, connection->ip.c_str());
+	lua_rawset(L, -3);
 	
 	CREATE_EMPTY_TABLE("GET");
 	CREATE_EMPTY_TABLE("HEADER");
@@ -148,45 +148,45 @@ void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon
 	
 	MHD_KeyValueIterator itt_key = &SetLuaConnectionValues;
 	
-	while(g_pLs) // Lock it, no other way, inc lambadas
-		usleep(0010000); // 0.01 seconds
+	{
+		LuaAPILock lock;
+		g_pLs = L;
+		MHD_get_connection_values(mhdcon, MHD_HEADER_KIND, 				itt_key, NULL);
+		MHD_get_connection_values(mhdcon, MHD_COOKIE_KIND, 				itt_key, NULL);
+		MHD_get_connection_values(mhdcon, MHD_POSTDATA_KIND, 			itt_key, NULL);
+		MHD_get_connection_values(mhdcon, MHD_GET_ARGUMENT_KIND, 		itt_key, NULL);
+		MHD_get_connection_values(mhdcon, MHD_FOOTER_KIND, 				itt_key, NULL);
+		MHD_get_connection_values(mhdcon, MHD_RESPONSE_HEADER_KIND, 	itt_key, NULL);
+	}
 	
-	g_pLs = l;
-	
-	// Now lets make it call our lambada
-	MHD_get_connection_values(mhdcon, MHD_HEADER_KIND, 				itt_key, NULL);
-	MHD_get_connection_values(mhdcon, MHD_COOKIE_KIND, 				itt_key, NULL);
-	MHD_get_connection_values(mhdcon, MHD_POSTDATA_KIND, 			itt_key, NULL);
-	MHD_get_connection_values(mhdcon, MHD_GET_ARGUMENT_KIND, 		itt_key, NULL);
-	MHD_get_connection_values(mhdcon, MHD_FOOTER_KIND, 				itt_key, NULL);
-	MHD_get_connection_values(mhdcon, MHD_RESPONSE_HEADER_KIND, 	itt_key, NULL);
-	
-	g_pLs = 0;
 	
 	// 1 argument, 1 result
-	if (lua_pcall(l, 1, 1, 0)) 
+	// The lock is removed so that many threads can run at the same time.
+	if (lua_pcall(L, 1, 1, 0)) 
 	{
-		printf("error running function `main': %s\n", lua_tostring(l, -1));
+		printf("error running function `main': %s\n", lua_tostring(L, -1));
 		connection->response = "Lua error!";
 		connection->errcode = MHD_HTTP_INTERNAL_SERVER_ERROR;
 		return;
-	}else{
-		lua_pushstring(l, "response");
+	}
+	else
+	{
+		lua_pushstring(L, "response");
 		{
-			lua_gettable(l, -2);
+			lua_gettable(L, -2);
 
-			if(lua_isstring(l, -1))
-				connection->response = lua_tostring(l, -1);
+			if(lua_isstring(L, -1))
+				connection->response = lua_tostring(L, -1);
 		}
-		lua_pop(l, 1); // "response"
+		lua_pop(L, 1); // "response"
 		
-		lua_pushstring(l, "response_file");
+		lua_pushstring(L, "response_file");
 		{
-			lua_gettable(l, -2);
+			lua_gettable(L, -2);
 
-			if(lua_isstring(l, -1))
+			if(lua_isstring(L, -1))
 			{
-				const char* filename = lua_tostring(l, -1);
+				const char* filename = lua_tostring(L, -1);
 				
 				ifstream ifs(filename, ios::binary);
 				
@@ -210,47 +210,47 @@ void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon
 			}
 			
 		}
-		lua_pop(l, 1); // "response_file"
+		lua_pop(L, 1); // "response_file"
 		
-		lua_pushstring(l, "errcode");
+		lua_pushstring(L, "errcode");
 		{
-			lua_gettable(l, -2);
+			lua_gettable(L, -2);
 
-			if(lua_isnumber(l, -1))
-				connection->errcode = (int)lua_tonumber(l, -1);
+			if(lua_isnumber(L, -1))
+				connection->errcode = (int)lua_tonumber(L, -1);
 		}
-		lua_pop(l, 1);
+		lua_pop(L, 1);
 		
-		lua_pushstring(l, "response_headers");
+		lua_pushstring(L, "response_headers");
 		{
-			lua_gettable(l, -2);
+			lua_gettable(L, -2);
 
 			lua_pushnil(l);
 
-			while(lua_next(l, -2) != 0)
+			while(lua_next(L, -2) != 0)
 			{
-				todo.response_headers.insert(ResponseHeadersMap::value_type(lua_tostring(l, -2), lua_tostring(l, -1)));
-				lua_pop(l, 1);
+				todo.response_headers.insert(ResponseHeadersMap::value_type(lua_tostring(L, -2), lua_tostring(L, -1)));
+				lua_pop(L, 1);
 			}
 		}
-		lua_pop(l, 1); // "response_headers"
+		lua_pop(L, 1); // "response_headers"
 		
-		lua_pushstring(l, "set_cookies");
+		lua_pushstring(L, "set_cookies");
 		{
-			lua_gettable(l, -2);
+			lua_gettable(L, -2);
 
 			lua_pushnil(l);
 
-			while(lua_next(l, -2) != 0)
+			while(lua_next(L, -2) != 0)
 			{
-				todo.set_cookies.insert(ResponseHeadersMap::value_type(lua_tostring(l, -2), lua_tostring(l, -1)));
-				lua_pop(l, 1);
+				todo.set_cookies.insert(ResponseHeadersMap::value_type(lua_tostring(L, -2), lua_tostring(L, -1)));
+				lua_pop(L, 1);
 			}
 		}
-		lua_pop(l, 1); // "set_cookies"
+		lua_pop(L, 1); // "set_cookies"
 	}
 	
-	lua_pop(l, 1); // The retun table
+	lua_pop(L, 1); // The retun table
 	
 	int stackpos = lua_gettop(l);
 	if(stackpos)

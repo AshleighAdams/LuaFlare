@@ -155,6 +155,9 @@ function table.load( sfile )
 	if err then return _,err
 	end
 	tables = tables()
+	
+	if #tables == nil then return nil end
+	
 	for idx = 1,#tables do
 		local tolinkv,tolinki = {},{}
 		for i,v in pairs( tables[idx] ) do

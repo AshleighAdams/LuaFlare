@@ -24,6 +24,9 @@ extern "C" {
 #include "LuaFuncs.h"
 #include "HandelConnection.h"
 
+// For those horrific segfaults
+#include <segvcatch.h>
+
 using namespace std;
 
 CConnectionHandler ch;
@@ -47,7 +50,15 @@ int Connection(void *cls, struct MHD_Connection *connection, const char *url, co
 	todo_t todo;
 	todo.FileDataInstead = 0;
 	// Now we setup our struct, we can pass it to the handeler
-	ch.Handel(&con, connection, todo);
+	
+	try
+	{
+		ch.Handel(&con, connection, todo);
+	}
+	catch(...)
+	{
+		printf("Exception happend\n");
+	}
 	
 	const char *page  = con.response.c_str();
 	
@@ -84,16 +95,17 @@ int main (int argc, char* argv[])
 	if(argc > 3 || argc < 2)
 	{
 		printf("\t [Fail]\nNo port\n!");
-		return 1;
+		Port = 8081;
+		//return 1;
 	}
 	
-	string sport = argv[1];
-	istringstream ( sport ) >> Port;
+	//string sport = argv[1];
+	//istringstream ( sport ) >> Port;
 	
 	//MHD_USE_SELECT_INTERNALLY
 	struct MHD_Daemon *daemon = MHD_start_daemon(MHD_USE_SELECT_INTERNALLY | MHD_USE_THREAD_PER_CONNECTION, Port, NULL, NULL, &Connection, NULL, 
 		MHD_OPTION_PER_IP_CONNECTION_LIMIT, 	(unsigned int)4,
-		MHD_OPTION_CONNECTION_LIMIT, 			(unsigned int)30,
+		MHD_OPTION_CONNECTION_LIMIT, 			(unsigned int)40,
 		MHD_OPTION_CONNECTION_TIMEOUT, 			(unsigned int)10,
 	MHD_OPTION_END);
 		

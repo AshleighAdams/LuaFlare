@@ -37,4 +37,11 @@ extern int l_GenerateSessionID(lua_State* L);
 
 extern void LoadMods(lua_State* L);
 
+class LuaAPILock
+{
+public:
+	LuaAPILock();
+	~LuaAPILock();
+};
+
 #endif // LUA_FUNCS_H

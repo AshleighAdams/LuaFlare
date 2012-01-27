@@ -19,7 +19,7 @@ local deflua = [[Well, this is a test.
 local x = ]] .. "[[" .. [[ just testing ]] .. "]]" .. [[
 
 local y = "Escapes \" also work"
-local z = ]] .. "[[" .. [[And escaping \]in here won't break anything]] .. "]]" .. [[
+local z = ]] .. "[[" .. [[And escaping \]in here will not break anything]] .. "]]" .. [[
 
 write(z)
 
@@ -66,7 +66,7 @@ write(z)
 					local l = tonumber(GET.loops)
 					if l > 10000000 then
 						write("loop capped to 10000000")
-						l = 10000000
+						--l = 10000000
 					end
 					for i = 0, l do end
 				else
