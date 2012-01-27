@@ -79,7 +79,7 @@ function main( con )
 	log = con.log
 	write = con.writef
 	
-	log("%s %s\n", con.method, con.url)
+	log("%s %s %s\n", con.ip, con.method, con.url)
 	
 	local extra = {}
 	extra.ext = ""

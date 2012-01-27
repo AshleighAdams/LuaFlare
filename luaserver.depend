@@ -22,14 +22,14 @@
 	<dirent.h>
 	<time.h>
 
-1327593534 /home/C0BRA/Projects/luaserver/src/LuaFuncs.h
+1327672165 /home/C0BRA/Projects/luaserver/src/LuaFuncs.h
 	<string>
 	<microhttpd.h>
 	"lua.h"
 	"lualib.h"
 	"lauxlib.h"
 
-1327593702 source:/home/C0BRA/Projects/luaserver/src/HandelConnection.cpp
+1327672198 source:/home/C0BRA/Projects/luaserver/src/HandelConnection.cpp
 	"HandelConnection.h"
 	<functional>
 	<iostream>

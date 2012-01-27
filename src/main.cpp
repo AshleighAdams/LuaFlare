@@ -7,6 +7,13 @@
 // microhttpd
 #include <microhttpd.h>
 
+// Some stuff to display the IP
+#include <sys/socket.h>
+#include <net/route.h>
+#include <net/if.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
 // Lua
 extern "C" {
 #include "lua.h"
@@ -33,6 +40,10 @@ int Connection(void *cls, struct MHD_Connection *connection, const char *url, co
 	con.response = "";
 	con.errcode = MHD_HTTP_OK;
 	
+	struct sockaddr *so;
+	so = MHD_get_connection_info(connection, MHD_CONNECTION_INFO_CLIENT_ADDRESS)->client_addr;
+	con.ip = inet_ntoa( ((sockaddr_in*)so)->sin_addr );
+		
 	todo_t todo;
 	todo.FileDataInstead = 0;
 	// Now we setup our struct, we can pass it to the handeler

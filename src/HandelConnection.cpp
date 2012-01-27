@@ -128,6 +128,10 @@ void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon
 	lua_pushstring(l, connection->response.c_str());
 	lua_rawset(l, -3);
 	
+	lua_pushstring(l, "ip");
+	lua_pushstring(l, connection->ip.c_str());
+	lua_rawset(l, -3);
+	
 	CREATE_EMPTY_TABLE("GET");
 	CREATE_EMPTY_TABLE("HEADER");
 	CREATE_EMPTY_TABLE("COOKIE");
@@ -141,7 +145,6 @@ void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon
 	
 	while(g_pLs) // Lock it, no other way, inc lambadas
 		usleep(0010000); // 0.01 seconds
-	
 	
 	g_pLs = l;
 	

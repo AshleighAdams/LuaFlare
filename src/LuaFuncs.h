@@ -17,6 +17,7 @@ struct connection_t
 	std::string method;
 	std::string version;
 	std::string response;
+	std::string ip;
 	int errcode;
 };
 
