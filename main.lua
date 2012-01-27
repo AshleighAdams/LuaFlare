@@ -33,6 +33,7 @@ function main( con )
 	
 	con.log = function(text, ...)
 		local comp = string.format(tostring(text), ...)
+		comp = string.format("[%s] %s", os.date(), comp)
 		
 		Print(comp)
 		
