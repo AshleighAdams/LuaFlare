@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1327682071 source:/home/C0BRA/Projects/luaserver/src/main.cpp
+1327682957 source:/home/C0BRA/Projects/luaserver/src/main.cpp
 	<iostream>
 	<stdio.h>
 	<string>

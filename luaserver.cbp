@@ -17,6 +17,7 @@
 				<Linker>
 					<Add library="microhttpd" />
 					<Add library="lua" />
+					<Add library="rt" />
 				</Linker>
 			</Target>
 			<Target title="Release">
@@ -31,6 +32,7 @@
 					<Add option="-s" />
 					<Add library="microhttpd" />
 					<Add library="lua" />
+					<Add library="rt" />
 				</Linker>
 			</Target>
 		</Build>
