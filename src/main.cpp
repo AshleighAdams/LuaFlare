@@ -94,13 +94,14 @@ int main (int argc, char* argv[])
 	
 	if(argc > 3 || argc < 2)
 	{
-		printf("\t [Fail]\nNo port\n!");
 		Port = 8081;
 		//return 1;
 	}
-	
-	//string sport = argv[1];
-	//istringstream ( sport ) >> Port;
+	else
+	{
+		string sport = argv[1];
+		istringstream ( sport ) >> Port;
+	}
 	
 	//MHD_USE_SELECT_INTERNALLY
 	struct MHD_Daemon *daemon = MHD_start_daemon(MHD_USE_SELECT_INTERNALLY | MHD_USE_THREAD_PER_CONNECTION, Port, NULL, NULL, &Connection, NULL, 

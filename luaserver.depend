@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1327702126 source:/home/C0BRA/Projects/luaserver/src/main.cpp
+1327703059 source:/home/C0BRA/Projects/luaserver/src/main.cpp
 	<iostream>
 	<stdio.h>
 	<string>
@@ -36,7 +36,7 @@
 	"lualib.h"
 	"lauxlib.h"
 
-1327702635 source:/home/C0BRA/Projects/luaserver/src/HandelConnection.cpp
+1327704710 source:/home/C0BRA/Projects/luaserver/src/HandelConnection.cpp
 	"HandelConnection.h"
 	<functional>
 	<iostream>

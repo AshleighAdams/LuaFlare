@@ -23,7 +23,6 @@ CConnectionHandler::CConnectionHandler()
 	lua_pushcfunction(l, l_MicroTime);
 	lua_setglobal(l, "GetMicroTime");
 	
-	
 	lua_pushcfunction(l, l_Print);
 	lua_setglobal(l, "Print");
 	
@@ -39,10 +38,9 @@ CConnectionHandler::CConnectionHandler()
 	lua_pushcfunction(l, l_GenerateSessionID);
 	lua_setglobal(l, "GenerateSessionID");
 	
-	if( luaL_loadfile(l, "main.lua") || lua_pcall(l, 0, 0, 0))
+	if(luaL_loadfile(l, "main.lua") || lua_pcall(l, 0, 0, 0))
 	{
 		printf("error: %s", lua_tostring(l, -1));
-		Failed = true;
 		return;
 	}
 }
@@ -99,15 +97,24 @@ int SetLuaConnectionValues(void *cls, enum MHD_ValueKind kind, const char *key, 
 
 void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon, todo_t& todo)
 {
-	if(Failed)
-		return;
-	
 	lua_State* L = lua_newthread(l);
-	
+
+    lua_pushvalue( l, -1 );
+	int ref = luaL_ref(l, LUA_REGISTRYINDEX);
+
+    lua_newtable(L);
+    lua_pushvalue(L, -1);
+    lua_setmetatable(L, -2); //Set itself as metatable
+    lua_pushvalue(L, LUA_GLOBALSINDEX);
+    lua_setfield(L, -2, "__index");
+    lua_setfenv(L, -2);
+    lua_pop(L, 1);
+    
 	lua_getglobal(L, "main");
 	if(!lua_isfunction(L,-1))
 	{
 		lua_pop(L,1);
+		luaL_unref(l, LUA_REGISTRYINDEX, ref);
 		return;
 	}
 		
@@ -251,6 +258,8 @@ void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon
 	}
 	
 	lua_pop(L, 1); // The retun table
+	
+	lua_close(L);
 	
 	int stackpos = lua_gettop(l);
 	if(stackpos)
