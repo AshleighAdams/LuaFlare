@@ -89,6 +89,11 @@ int SetLuaConnectionValues(void *cls, enum MHD_ValueKind kind, const char *key, 
 	return MHD_YES;
 }
 
+#define CREATE_EMPTY_TABLE(name) \
+	lua_pushstring(l, name); \
+	lua_newtable(l); \
+	lua_rawset(l, -3) \
+
 void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon, todo_t& todo)
 {
 	if(Failed)
@@ -123,38 +128,15 @@ void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon
 	lua_pushstring(l, connection->response.c_str());
 	lua_rawset(l, -3);
 	
-	lua_pushstring(l, "GET");
-	lua_newtable(l);
-	lua_rawset(l, -3);
+	CREATE_EMPTY_TABLE("GET");
+	CREATE_EMPTY_TABLE("HEADER");
+	CREATE_EMPTY_TABLE("COOKIE");
+	CREATE_EMPTY_TABLE("POST");
+	CREATE_EMPTY_TABLE("RHEADER");
+	CREATE_EMPTY_TABLE("FOOTER");
+	CREATE_EMPTY_TABLE("response_headers");
+	CREATE_EMPTY_TABLE("set_cookies");
 	
-	lua_pushstring(l, "HEADER");
-	lua_newtable(l);
-	lua_rawset(l, -3);
-	
-	lua_pushstring(l, "COOKIE");
-	lua_newtable(l);
-	lua_rawset(l, -3);
-	
-	lua_pushstring(l, "POST");
-	lua_newtable(l);
-	lua_rawset(l, -3);
-	
-	lua_pushstring(l, "RHEADER");
-	lua_newtable(l);
-	lua_rawset(l, -3);
-	
-	lua_pushstring(l, "FOOTER");
-	lua_newtable(l);
-	lua_rawset(l, -3);
-	
-	lua_pushstring(l, "response_headers");
-	lua_newtable(l);
-	lua_rawset(l, -3);
-	
-	lua_pushstring(l, "set_cookies");
-	lua_newtable(l);
-	lua_rawset(l, -3);
-		
 	MHD_KeyValueIterator itt_key = &SetLuaConnectionValues;
 	
 	while(g_pLs) // Lock it, no other way, inc lambadas
