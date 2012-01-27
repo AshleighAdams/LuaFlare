@@ -36,6 +36,9 @@ CConnectionHandler::CConnectionHandler()
 	lua_pushcfunction(l, l_ParseLuaString);
 	lua_setglobal(l, "ParseLuaString");
 	
+	lua_pushcfunction(l, l_GenerateSessionID);
+	lua_setglobal(l, "GenerateSessionID");
+	
 	if( luaL_loadfile(l, "main.lua") || lua_pcall(l, 0, 0, 0))
 	{
 		printf("error: %s", lua_tostring(l, -1));
@@ -105,6 +108,8 @@ void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon
 		lua_pop(l,1);
 		return;
 	}
+	
+	lua_checkstack(l, 20);
 	
 	lua_newtable(l); // con table
 	

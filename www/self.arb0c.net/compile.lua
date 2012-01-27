@@ -58,16 +58,20 @@ write(z)
 		<center>
 			
 			<?lua
-			if GET.loops then
-				local l = tonumber(GET.loops)
-				if l > 10000000 then
-					write("loop capped to 10000000")
-					l = 10000000
+				SESSION.TimesSeen = (SESSION.TimesSeen or 0) + 1
+				
+				writef(false, "I have seen you %s times<br/>", tostring(SESSION.TimesSeen))
+				
+				if GET.loops then
+					local l = tonumber(GET.loops)
+					if l > 10000000 then
+						write("loop capped to 10000000")
+						l = 10000000
+					end
+					for i = 0, l do end
+				else
+					?> <br/>Add the param "loops" to create an artificial loop <?lua
 				end
-				for i = 0, l do end
-			else
-				?> <br/>Add the param "loops" to create an artificial loop <?lua
-			end
 			?>
 			<br/>This page took
 			<?lua

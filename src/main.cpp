@@ -84,6 +84,7 @@ int main (int argc, char* argv[])
 	if(argc > 3 || argc < 2)
 	{
 		printf("\t [Fail]\nNo port\n!");
+		Port = 8081;
 		return 1;
 	}
 	

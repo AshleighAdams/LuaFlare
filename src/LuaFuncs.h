@@ -32,6 +32,7 @@ extern int l_EscapeHTML(lua_State* L);
 extern int l_DirExists(lua_State *L);
 extern int l_FileExists(lua_State *L);
 extern int l_ParseLuaString(lua_State* L);
+extern int l_GenerateSessionID(lua_State* L);
 
 
 extern void LoadMods(lua_State* L);

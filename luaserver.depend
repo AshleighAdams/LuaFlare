@@ -1,18 +1,23 @@
 # depslib dependency file v1.0
-1327596553 source:/home/C0BRA/Projects/luaserver/src/main.cpp
+1327682071 source:/home/C0BRA/Projects/luaserver/src/main.cpp
 	<iostream>
 	<stdio.h>
 	<string>
 	<sstream>
 	<cstring>
 	<microhttpd.h>
+	<sys/socket.h>
+	<net/route.h>
+	<net/if.h>
+	<netinet/in.h>
+	<arpa/inet.h>
 	"lua.h"
 	"lualib.h"
 	"lauxlib.h"
 	"LuaFuncs.h"
 	"HandelConnection.h"
 
-1327593620 source:/home/C0BRA/Projects/luaserver/src/LuaFuncs.cpp
+1327676480 source:/home/C0BRA/Projects/luaserver/src/LuaFuncs.cpp
 	"LuaFuncs.h"
 	<stdio.h>
 	<sys/stat.h>
@@ -21,15 +26,16 @@
 	<iostream>
 	<dirent.h>
 	<time.h>
+	<random>
 
-1327672165 /home/C0BRA/Projects/luaserver/src/LuaFuncs.h
+1327673602 /home/C0BRA/Projects/luaserver/src/LuaFuncs.h
 	<string>
 	<microhttpd.h>
 	"lua.h"
 	"lualib.h"
 	"lauxlib.h"
 
-1327672198 source:/home/C0BRA/Projects/luaserver/src/HandelConnection.cpp
+1327682306 source:/home/C0BRA/Projects/luaserver/src/HandelConnection.cpp
 	"HandelConnection.h"
 	<functional>
 	<iostream>

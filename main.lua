@@ -3,6 +3,8 @@ package.cpath = "./mods/?.so;./mods/?.dll;" .. package.cpath
 
 dofile("includes/mimes.lua")
 dofile("includes/statuscodes.lua")
+dofile("includes/util.lua")
+dofile("includes/savetabletofile.lua")
 
 function file_exists(name)
    local f=io.open(name,"r")
@@ -81,6 +83,8 @@ function main( con )
 	
 	log("%s %s %s\n", con.ip, con.method, con.url)
 	
+	LoadSession(con)
+	
 	local extra = {}
 	extra.ext = ""
 	
@@ -132,6 +136,7 @@ function main( con )
 			scriptenv.GET = con.GET
 			scriptenv.POST = con.POST
 			scriptenv.COOKIE = con.COOKIE
+			scriptenv.SESSION = con.SESSION
 			scriptenv.write = con.write
 			scriptenv.writef = con.writef
 			scriptenv.log = con.log
@@ -173,6 +178,7 @@ function main( con )
 		con.response_file = server .. con.url
 	end
 	
+	HandelSession(con)
 	
 	con.response_headers["Content-Type"] = MimeTypes[extra.ext] or "unknown"
 	con.response_headers["Server"] = "luaserver"
@@ -180,3 +186,67 @@ function main( con )
 	return con
 end
 
+local sessionlen = 100 -- 100 in length should be sufficient
+function LoadSession(con)
+	con.SESSION = {}
+	
+	if not con.COOKIE.luasession or string.find(con.COOKIE.luasession, "deleted", 1, true) then
+		con.SesWasNil = true
+		return
+	end
+	
+	local sessid = ""
+	
+	for i = 1, sessionlen do
+		local b = string.byte(con.COOKIE.luasession, i) or 0
+		if 		(b >= 48 and b < 48+10) or
+				(b >= 65 and b < 65+26) or
+				(b >= 97 and b < 97+26) then
+			sessid = sessid .. string.char(b)
+		else
+			sessid = nil
+			break
+		end
+	end
+	
+	if not sessid then
+		con.log("Warning: malformed luasession cookie: %s\n", con.COOKIE.luasession)
+		con.set_cookies.luasession = "deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
+		con.COOKIE.luasession = nil
+		con.SesWasNil = true
+		return
+	end
+		
+	con.COOKIE.luasession = sessid
+	con.SESSION = table.load("sessions/" .. sessid .. ".txt")
+	
+	if not con.SESSION then
+		con.set_cookies.luasession = "deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
+		con.COOKIE.luasession = nil
+		con.SesWasNil = true
+		con.SESSION = {}
+	end
+end
+
+function HandelSession(con)
+	if con.COOKIE.luasession and not con.SESSION then
+		os.remove("sessions/" .. con.COOKIE.luasession .. ".txt")
+		con.set_cookies.luasession = "deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
+	elseif con.SESSION and con.SesWasNil and table.Count(con.SESSION) > 0 then -- Create a session
+		con.SESSION.LastSeen = os.time()
+		
+		local sessionid = GenerateSessionID(sessionlen)
+		local f = io.open("sessions/" .. sessionid .. ".txt", "w")
+		if f then
+			f:close()
+			table.save(con.SESSION, "sessions/" .. sessionid .. ".txt")
+			log("Created session \"%s\" for %s\n", sessionid, con.ip)
+			con.set_cookies.luasession = sessionid .. "; path=/;"
+		else
+			log("Failed to create session \"%s\" for %s\n", sessionid, con.ip)
+		end
+	elseif con.SESSION and not con.SesWasNil and con.COOKIE.luasession then
+		con.SESSION.LastSeen = os.time()
+		table.save(con.SESSION, "sessions/" .. con.COOKIE.luasession .. ".txt")
+	end
+end

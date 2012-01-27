@@ -9,9 +9,8 @@
 #include <time.h>
 using namespace std;
 
-
-
-
+// For the session string
+#include <random>
 
 #ifdef WINDOWS // We need a standard for this...
 /*
@@ -471,3 +470,54 @@ int l_ParseLuaString(lua_State* L)
 	return 1;
 }
 
+unsigned long* g_RandSeedOffset = 0;
+int g_LastRand;
+
+#define RENEW_SEED() \
+	*g_RandSeedOffset+= g_LastRand; \
+	engine.seed((unsigned long)g_RandSeedOffset + GetMicroTime() + *g_RandSeedOffset)
+
+int l_GenerateSessionID(lua_State* L)
+{
+	if(!g_RandSeedOffset)
+		g_RandSeedOffset = new unsigned long;
+	
+	int len = (int)luaL_checkint(L, 1);
+	
+	char* res = new char[len+1];
+	res[len] = '\0';
+	
+	uniform_int_distribution<int> distro(0, 255);
+	uniform_int_distribution<int> switch_distro(0, 2); // 0 = number, 1 = lowercase, 2 = upper case
+	
+	mt19937 engine;
+	
+	RENEW_SEED();
+	
+	int rand;
+	
+	for(int i = 0; i < len; i++)
+	{
+		RENEW_SEED();
+		rand = distro(engine);
+		g_LastRand += rand;
+		
+		switch(switch_distro(engine))
+		{
+		case 0:
+			rand = 48 + (rand % 10);
+		break;
+		case 1:
+			rand = 97 + (rand % 26);
+		break;
+		case 2:
+			rand = 65 + (rand % 26);
+		break;
+		}
+		
+		res[i] = (char)rand;
+	}
+	
+	lua_pushstring(L, res);
+	return 1;
+}

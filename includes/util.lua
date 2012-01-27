@@ -1,10 +1,16 @@
-write(false,[[]])
-local function m_PrintTable(tbl, donetbls, depth)
+function table.Count(tbl)
+	local c = 0
+	for k,v in pairs(tbl) do
+		c = c + 1
+	end
+	return c
+end
+
+local function m_PrintTable(tbl, donetbls, depth, writef)
 	donetbls = donetbls or {}
 	depth = depth or 0
 	
 	if donetbls[tbl] then return end -- prevent stack overflows
-
 	
 	donetbls[tbl] = true
 	local tabs = string.rep("<td></td>", depth)
@@ -12,7 +18,7 @@ local function m_PrintTable(tbl, donetbls, depth)
 	for k,v in pairs(tbl) do
 		if type (v) == "table" then
 			writef(false, "<tr>%s<td>%s:</td><td>%s</td></tr>\n", tabs, EscapeHTML(tostring(k)), EscapeHTML(tostring(v)))
-			m_PrintTable(tbl[k], donetbls, depth + 1)
+			m_PrintTable(tbl[k], donetbls, depth + 1, writef)
 		elseif type(v) == "function" then
 			local funcname = tostring(v)
 			local info = debug.getinfo(v)
@@ -30,11 +36,10 @@ local function m_PrintTable(tbl, donetbls, depth)
 	end
 end
 
-function PrintTable(tbl, metadata)
+function PrintTable(tbl, metadata, con)
+	con = con or _G.con
+	local writef = con.writef
 	writef(false, "<table %s >\n", metadata or "")
-	m_PrintTable(tbl)
-	write(false, "</table>\n")
+	m_PrintTable(tbl, {}, 0, writef)
+	writef(false, "</table>\n")
 end
-
-write(false, [[
-]])
