@@ -14,7 +14,7 @@
 	"LuaFuncs.h"
 	"HandelConnection.h"
 
-1327778452 source:/home/C0BRA/Projects/luaserver/src/LuaFuncs.cpp
+1327778563 source:/home/C0BRA/Projects/luaserver/src/LuaFuncs.cpp
 	"LuaFuncs.h"
 	<stdio.h>
 	<sys/stat.h>
@@ -26,7 +26,7 @@
 	<unordered_map>
 	<random>
 
-1327778088 /home/C0BRA/Projects/luaserver/src/LuaFuncs.h
+1327780716 /home/C0BRA/Projects/luaserver/src/LuaFuncs.h
 	<string>
 	<microhttpd.h>
 	<boost/thread.hpp>
@@ -34,8 +34,9 @@
 	"lua.h"
 	"lualib.h"
 	"lauxlib.h"
+	"Luacreator.h"
 
-1327778194 source:/home/C0BRA/Projects/luaserver/src/HandelConnection.cpp
+1327780535 source:/home/C0BRA/Projects/luaserver/src/HandelConnection.cpp
 	"HandelConnection.h"
 	<functional>
 	<iostream>
@@ -71,4 +72,23 @@
 	"lauxlib.h"
 	"lualib.h"
 	"luajit.h"
+
+1327780746 /home/C0BRA/Projects/luaserver/src/Luacreator.h
+	"LuaFuncs.h"
+
+1327778563 /home/C0BRA/Projects/luaserver/src/LuaFuncs.cpp
+	"LuaFuncs.h"
+	<stdio.h>
+	<sys/stat.h>
+	<string>
+	<sstream>
+	<iostream>
+	<dirent.h>
+	<time.h>
+	<unordered_map>
+	<random>
+
+1327780755 source:/home/C0BRA/Projects/luaserver/src/Luacreator.cpp
+	"HandelConnection.h"
+	"Luacreator.h"
 

@@ -23,6 +23,9 @@ extern "C" {
 }
 #define LUAJITSETUP(L)
 #endif
+
+#include "Luacreator.h"
+
 struct connection_t
 {
 	std::string url;
@@ -32,6 +35,7 @@ struct connection_t
 	std::string ip;
 	int errcode;
 };
+
 
 extern int l_GetCurrentTime(lua_State* L);
 extern double GetCurrentTime();

@@ -21,8 +21,7 @@ if not SESSION.name then
 				</form>
 <?lua
 else
-	SESSION.TimesSeen = SESSION.TimesSeen or 1
-	SESSION.TimesSeen = SESSION.TimesSeen + 1
+	SESSION.TimesSeen = (SESSION.TimesSeen or 1) + 1
 	writef(false, "Hello, %s; I last seen you %s seconds ago, I have also seen you %s times.<br/>\n", SESSION.name, os.time() - (SESSION.LastSeen or os.time()), SESSION.TimesSeen)
 end
 ?>

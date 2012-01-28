@@ -5,47 +5,6 @@
 
 using namespace std;
 
-lua_State* GetState()
-{
-	lua_State* l = lua_open();
-	
-	LUAJITSETUP(l);
-	
-	luaL_openlibs(l);
-	//LoadMods(l);
-	
-	lua_pushcfunction(l, l_GetCurrentTime);
-	lua_setglobal(l, "GetCurrentTime");
-	
-	lua_pushcfunction(l, l_ResetMicroTime);
-	lua_setglobal(l, "ResetMicroTime");
-	
-	lua_pushcfunction(l, l_MicroTime);
-	lua_setglobal(l, "GetMicroTime");
-	
-	lua_pushcfunction(l, l_Print);
-	lua_setglobal(l, "Print");
-	
-	lua_pushcfunction(l, l_EscapeHTML);
-	lua_setglobal(l, "EscapeHTML");
-	
-	lua_pushcfunction(l, l_DirExists);
-	lua_setglobal(l, "DirExists");
-	
-	lua_pushcfunction(l, l_ParseLuaString);
-	lua_setglobal(l, "ParseLuaString");
-	
-	lua_pushcfunction(l, l_GenerateSessionID);
-	lua_setglobal(l, "GenerateSessionID");
-	
-	if(luaL_loadfile(l, "main.lua") || lua_pcall(l, 0, 0, 0))
-	{
-		printf("error: %s\n", lua_tostring(l, -1));
-		return 0;
-	}
-	return l;
-}
-
 CConnectionHandler::CConnectionHandler()
 {
 	
@@ -95,66 +54,17 @@ int SetLuaConnectionValues(void *cls, enum MHD_ValueKind kind, const char *key, 
 	return MHD_YES;
 }
 
-#define CREATE_EMPTY_TABLE(name) \
-	lua_pushstring(L, name); \
-	lua_newtable(L); \
-	lua_rawset(L, -3) \
-
 void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon, todo_t& todo)
 {
-	lua_State* L = GetState();
-	
-	if(!L)
+	LuaCreator LC;
+
+	if(!LC.TrySetup(connection, mhdcon, todo))
 	{
 		connection->errcode = MHD_HTTP_INTERNAL_SERVER_ERROR;
 		return;
 	}
 	
-	l_ResetMicroTime(L);
-	
-	lua_getglobal(L, "main");
-	if(!lua_isfunction(L,-1))
-	{
-		lua_pop(L,1);
-		MicroTime_Free(L);
-		lua_close(L);
-		return;
-	}
-		
-	lua_newtable(L); // con table
-	
-	lua_pushstring(L, "starttime");
-	lua_pushnumber(L, GetCurrentTime());
-	lua_rawset(L, -3);
-	
-	lua_pushstring(L, "url");
-	lua_pushstring(L, connection->url.c_str());
-	lua_rawset(L, -3);
-	
-	lua_pushstring(L, "method");
-	lua_pushstring(L, connection->method.c_str());
-	lua_rawset(L, -3);
-	
-	lua_pushstring(L, "version");
-	lua_pushstring(L, connection->version.c_str());
-	lua_rawset(L, -3);
-	
-	lua_pushstring(L, "response");
-	lua_pushstring(L, connection->response.c_str());
-	lua_rawset(L, -3);
-	
-	lua_pushstring(L, "ip");
-	lua_pushstring(L, connection->ip.c_str());
-	lua_rawset(L, -3);
-	
-	CREATE_EMPTY_TABLE("GET");
-	CREATE_EMPTY_TABLE("HEADER");
-	CREATE_EMPTY_TABLE("COOKIE");
-	CREATE_EMPTY_TABLE("POST");
-	CREATE_EMPTY_TABLE("RHEADER");
-	CREATE_EMPTY_TABLE("FOOTER");
-	CREATE_EMPTY_TABLE("response_headers");
-	CREATE_EMPTY_TABLE("set_cookies");
+	lua_State* L = LC.GetState();
 	
 	MHD_KeyValueIterator itt_key = &SetLuaConnectionValues;
 	
@@ -177,8 +87,6 @@ void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon
 		printf("error running function `main': %s\n", lua_tostring(L, -1));
 		connection->response = "Lua error!";
 		connection->errcode = MHD_HTTP_INTERNAL_SERVER_ERROR;
-		MicroTime_Free(L);
-		lua_close(L);
 		return;
 	}
 	else
@@ -264,10 +172,7 @@ void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon
 	
 	lua_pop(L, 1); // The retun table
 	
-	MicroTime_Free(L);
-	
 	int stackpos = lua_gettop(L);
-	lua_close(L);
 	if(stackpos)
 		printf("WARNING: stack not at 0 (%i)\n", stackpos);
 }
