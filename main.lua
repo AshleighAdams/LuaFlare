@@ -31,12 +31,10 @@ function loadfile_parselua(name)
 end
 
 function main( con )
-
-	con.log = function(text, ...)
+	con.log = function(text, ...)		
+		local comp = string.format(tostring(text), ...)
+		comp = string.format("[%s] %s", os.date(), comp)
 		Lock(function()
-			local comp = string.format(tostring(text), ...)
-			comp = string.format("[%s] %s", os.date(), comp)
-			
 			Print(comp)
 			
 			local f = io.open("log.txt","a")
@@ -84,7 +82,9 @@ function main( con )
 	
 	log("%s %s %s\n", con.ip, con.method, con.url)
 	
-	LoadSession(con)
+	Lock(function()
+		LoadSession(con)
+	end)
 	
 	local extra = {}
 	extra.ext = ""
@@ -179,7 +179,9 @@ function main( con )
 		con.response_file = server .. con.url
 	end
 	
-	HandelSession(con)
+	Lock(function()
+		HandelSession(con)
+	end)
 	
 	con.response_headers["Content-Type"] = MimeTypes[extra.ext] or "unknown"
 	con.response_headers["Server"] = "luaserver"
