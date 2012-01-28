@@ -9,6 +9,8 @@ lua_State* GetState()
 {
 	lua_State* l = lua_open();
 	
+	LUAJITSETUP(l);
+	
 	luaL_openlibs(l);
 	//LoadMods(l);
 	
@@ -38,7 +40,7 @@ lua_State* GetState()
 	
 	if(luaL_loadfile(l, "main.lua") || lua_pcall(l, 0, 0, 0))
 	{
-		printf("error: %s", lua_tostring(l, -1));
+		printf("error: %s\n", lua_tostring(l, -1));
 		return 0;
 	}
 	return l;
@@ -105,7 +107,6 @@ void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon
 	if(!L)
 	{
 		connection->errcode = MHD_HTTP_INTERNAL_SERVER_ERROR;
-		lua_close(L);
 		return;
 	}
 	

@@ -2,12 +2,6 @@
 #ifndef HANDEL_CON_H
 #define HANDEL_CON_H
 
-extern "C" {
-#include "lua.h"
-#include "lualib.h"
-#include "lauxlib.h"
-}
-
 #include "LuaFuncs.h"
 
 #include <unordered_map>

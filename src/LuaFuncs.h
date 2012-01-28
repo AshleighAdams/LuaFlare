@@ -5,12 +5,23 @@
 #include <string>
 #include <microhttpd.h>
 
+#define LUAJIT
+
+#ifdef LUAJIT
+
+//#include "luajit.h"
+#include "lua.hpp"
+
+#define LUAJITSETUP(L) luaJIT_setmode(L, 0, LUAJIT_MODE_ON)
+
+#else
 extern "C" {
 #include "lua.h"
 #include "lualib.h"
 #include "lauxlib.h"
 }
-
+#define LUAJITSETUP(L)
+#endif
 struct connection_t
 {
 	std::string url;

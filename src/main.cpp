@@ -14,13 +14,6 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-// Lua
-extern "C" {
-#include "lua.h"
-#include "lualib.h"
-#include "lauxlib.h"
-}
-
 #include "LuaFuncs.h"
 #include "HandelConnection.h"
 
