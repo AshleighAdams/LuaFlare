@@ -24,9 +24,6 @@ extern "C" {
 #include "LuaFuncs.h"
 #include "HandelConnection.h"
 
-// For those horrific segfaults
-#include <segvcatch.h>
-
 using namespace std;
 
 CConnectionHandler ch;

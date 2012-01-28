@@ -5,9 +5,9 @@
 
 using namespace std;
 
-CConnectionHandler::CConnectionHandler()
+lua_State* GetState()
 {
-	l = lua_open();
+	lua_State* l = lua_open();
 	
 	luaL_openlibs(l);
 	//LoadMods(l);
@@ -39,12 +39,17 @@ CConnectionHandler::CConnectionHandler()
 	if(luaL_loadfile(l, "main.lua") || lua_pcall(l, 0, 0, 0))
 	{
 		printf("error: %s", lua_tostring(l, -1));
-		return;
+		return 0;
 	}
+	return l;
+}
+
+CConnectionHandler::CConnectionHandler()
+{
+	
 }
 CConnectionHandler::~CConnectionHandler()
 {
-	lua_close(l);
 }
 
 
@@ -95,29 +100,19 @@ int SetLuaConnectionValues(void *cls, enum MHD_ValueKind kind, const char *key, 
 
 void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon, todo_t& todo)
 {
-	int ref;
-	lua_State* L;
+	lua_State* L = GetState();
+	
+	if(!L)
 	{
-		LuaAPILock lock;
-		L = lua_newthread(l);
-		
-		lua_pushvalue( l, -1 );
-		ref = luaL_ref(l, LUA_REGISTRYINDEX);
-
-		lua_newtable(L);
-		lua_pushvalue(L, -1);
-		lua_setmetatable(L, -2); //Set itself as metatable
-		lua_pushvalue(L, LUA_GLOBALSINDEX);
-		lua_setfield(L, -2, "__index");
-		lua_setfenv(L, -2);
-		lua_pop(L, 1);
+		connection->errcode = MHD_HTTP_INTERNAL_SERVER_ERROR;
+		lua_close(L);
+		return;
 	}
 	
 	lua_getglobal(L, "main");
 	if(!lua_isfunction(L,-1))
 	{
 		lua_pop(L,1);
-		luaL_unref(l, LUA_REGISTRYINDEX, ref);
 		return;
 	}
 		
@@ -177,7 +172,7 @@ void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon
 		printf("error running function `main': %s\n", lua_tostring(L, -1));
 		connection->response = "Lua error!";
 		connection->errcode = MHD_HTTP_INTERNAL_SERVER_ERROR;
-		luaL_unref(l, LUA_REGISTRYINDEX, ref);
+		lua_close(L);
 		return;
 	}
 	else
@@ -263,9 +258,8 @@ void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon
 	
 	lua_pop(L, 1); // The retun table
 	
-	luaL_unref(l, LUA_REGISTRYINDEX, ref);
-	
-	int stackpos = lua_gettop(l);
+	int stackpos = lua_gettop(L);
+	lua_close(L);
 	if(stackpos)
 		printf("WARNING: stack not at 0 (%i)\n", stackpos);
 }
