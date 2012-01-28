@@ -57,4 +57,6 @@ extern void LoadMods(lua_State* L);
 #define LOCK boost::mutex::scoped_lock l(*GetLock())
 extern boost::mutex* GetLock();
 
+extern int l_Lock(lua_State* L);
+
 #endif // LUA_FUNCS_H

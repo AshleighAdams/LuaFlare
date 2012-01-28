@@ -33,16 +33,18 @@ end
 function main( con )
 
 	con.log = function(text, ...)
-		local comp = string.format(tostring(text), ...)
-		comp = string.format("[%s] %s", os.date(), comp)
-		
-		Print(comp)
-		
-		local f = io.open("log.txt","a")
-		if f then
-			f:write(comp)
-			f:close()
-		end
+		Lock(function()
+			local comp = string.format(tostring(text), ...)
+			comp = string.format("[%s] %s", os.date(), comp)
+			
+			Print(comp)
+			
+			local f = io.open("log.txt","a")
+			if f then
+				f:write(comp)
+				f:close()
+			end
+		end)
 	end
 
 	con.writef = function(escape, text, ...)
@@ -234,7 +236,7 @@ function HandelSession(con)
 	if con.COOKIE.luasession and not con.SESSION then
 		os.remove("sessions/" .. con.COOKIE.luasession .. ".txt")
 		con.set_cookies.luasession = "deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
-	elseif con.SESSION and con.SesWasNil and table.Count(con.SESSION) then -- Create a session
+	elseif con.SESSION and con.SesWasNil and table.Count(con.SESSION) > 0 then -- Create a session
 		con.SESSION.LastSeen = os.time()
 		
 		local sessionid = GenerateSessionID(sessionlen)
@@ -247,7 +249,7 @@ function HandelSession(con)
 		else
 			log("Failed to create session \"%s\" for %s\n", sessionid, con.ip)
 		end
-	elseif con.SESSION and con.COOKIE.luasession then
+	elseif con.SESSION and con.COOKIE.luasession and table.Count(con.SESSION) > 0 then
 		con.SESSION.LastSeen = os.time()
 		table.save(con.SESSION, "sessions/" .. con.COOKIE.luasession .. ".txt")
 	end

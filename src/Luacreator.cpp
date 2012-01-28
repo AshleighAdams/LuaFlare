@@ -37,6 +37,9 @@ LuaCreator::LuaCreator()
 	lua_pushcfunction(m_L, l_GenerateSessionID);
 	lua_setglobal(m_L, "GenerateSessionID");
 	
+	lua_pushcfunction(m_L, l_Lock);
+	lua_setglobal(m_L, "Lock");
+	
 	if(luaL_loadfile(m_L, "main.lua") || lua_pcall(m_L, 0, 0, 0))
 	{
 		printf("error: %s\n", lua_tostring(m_L, -1));
@@ -55,9 +58,9 @@ LuaCreator::LuaCreator()
 bool LuaCreator::TrySetup(connection_t* connection, MHD_Connection* mhdcon, todo_t& todo)
 {
 	lua_getglobal(m_L, "main");
-	if(!lua_isfunction(m_L,-1))
+	if(!lua_isfunction(m_L, -1))
 	{
-		lua_pop(m_L,1);
+		lua_pop(m_L, 1);
 		return false;
 	}
 	

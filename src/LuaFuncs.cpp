@@ -548,3 +548,28 @@ boost::mutex* GetLock()
 {
 	return &lock;
 }
+
+
+// This function allows the lua state to lock other states out, so if they wanted to read a file or something at the same time as another state, nothing bad will happen
+// Takes a function, and will call it when it is ready
+boost::mutex lualock;
+int l_Lock(lua_State* L)
+{
+	boost::mutex::scoped_lock l(lualock);
+	
+	if(!lua_isfunction(L, 1))
+	{
+		lua_pushboolean(L, false);
+		return 1;
+	}
+	
+	if(!lua_pcall(L, 0, 0, 0))
+	{
+		lua_pushboolean(L, false);
+		lua_pushstring(L, lua_tostring(L, -1));
+		return 2;
+	}
+	
+	lua_pushboolean(L, true);
+	return 1;
+}
