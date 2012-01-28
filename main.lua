@@ -31,6 +31,7 @@ function loadfile_parselua(name)
 end
 
 function main( con )
+	-- This isn't thread safe, but who cares :V
 	ResetMicroTime()
 	
 	con.log = function(text, ...)
@@ -187,8 +188,21 @@ function main( con )
 end
 
 local sessionlen = 100 -- 100 in length should be sufficient
+
+function NewSessTable(con)
+	local ret = {}
+	local meta = {}
+	local conref = con
+	meta.__newindex = function(what, key, value)
+		conref.SESSION_CHANGED = true
+		rawset(what, key, value)
+	end
+	setmetatable(ret, meta)
+	return ret
+end
+
 function LoadSession(con)
-	con.SESSION = {}
+	con.SESSION = NewSessTable(con)
 	
 	if not con.COOKIE.luasession or string.find(con.COOKIE.luasession, "deleted", 1, true) then
 		con.SesWasNil = true
@@ -224,7 +238,7 @@ function LoadSession(con)
 		con.set_cookies.luasession = "deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
 		con.COOKIE.luasession = nil
 		con.SesWasNil = true
-		con.SESSION = {}
+		con.SESSION = NewSessTable(con)
 	end
 end
 
@@ -232,7 +246,7 @@ function HandelSession(con)
 	if con.COOKIE.luasession and not con.SESSION then
 		os.remove("sessions/" .. con.COOKIE.luasession .. ".txt")
 		con.set_cookies.luasession = "deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
-	elseif con.SESSION and con.SesWasNil and table.Count(con.SESSION) > 0 then -- Create a session
+	elseif con.SESSION and con.SesWasNil and con.SESSION_CHANGED then -- Create a session
 		con.SESSION.LastSeen = os.time()
 		
 		local sessionid = GenerateSessionID(sessionlen)
@@ -245,7 +259,7 @@ function HandelSession(con)
 		else
 			log("Failed to create session \"%s\" for %s\n", sessionid, con.ip)
 		end
-	elseif con.SESSION and not con.SesWasNil and con.COOKIE.luasession then
+	elseif con.SESSION and con.SESSION_CHANGED and con.COOKIE.luasession then
 		con.SESSION.LastSeen = os.time()
 		table.save(con.SESSION, "sessions/" .. con.COOKIE.luasession .. ".txt")
 	end

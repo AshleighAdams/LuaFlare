@@ -23,10 +23,7 @@ public:
 	CConnectionHandler();
 	~CConnectionHandler();
 	void Handel(connection_t* connection, MHD_Connection* mhdcon, todo_t& todo);
-	
-	bool Failed;
 protected:
-	lua_State* l;
 };
 
 #endif // HANDEL_CON_H
