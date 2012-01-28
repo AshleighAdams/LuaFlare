@@ -552,11 +552,14 @@ boost::mutex* GetLock()
 
 // This function allows the lua state to lock other states out, so if they wanted to read a file or something at the same time as another state, nothing bad will happen
 // Takes a function, and will call it when it is ready
+
+typedef std::unordered_map<lua_State*, bool> L2B;
+L2B LockedStates;
+
 boost::mutex lualock;
-int l_Lock(lua_State* L)
+
+int DoAction(lua_State* L)
 {
-	boost::mutex::scoped_lock l(lualock);
-	
 	if(!lua_isfunction(L, 1))
 	{
 		lua_pushboolean(L, false);
@@ -572,4 +575,30 @@ int l_Lock(lua_State* L)
 	
 	lua_pushboolean(L, true);
 	return 1;
+}
+
+void SetupLock(lua_State* L)
+{
+	LockedStates[L] = false;
+}
+
+void FreeLock(lua_State* L)
+{
+	LockedStates.erase(L);
+}
+
+int l_Lock(lua_State* L)
+{
+	if(LockedStates[L])
+	{
+		return DoAction(L);
+	}
+	else
+	{
+		boost::mutex::scoped_lock l(lualock);
+		LockedStates[L] = true;
+		int ret = DoAction(L);
+		LockedStates[L] = false;
+		return ret;
+	}
 }

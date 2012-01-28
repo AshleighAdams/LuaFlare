@@ -38,7 +38,7 @@ LuaCreator::LuaCreator()
 	lua_setglobal(m_L, "GenerateSessionID");
 	
 	lua_pushcfunction(m_L, l_Lock);
-	lua_setglobal(m_L, "Lock");
+	lua_setglobal(m_L, "Lock"); // ModLock and not Lock so the main.lua can change it, set it to a func that calls the func, that way it prevents locking in a lock
 	
 	if(luaL_loadfile(m_L, "main.lua") || lua_pcall(m_L, 0, 0, 0))
 	{
@@ -47,6 +47,7 @@ LuaCreator::LuaCreator()
 	}
 	
 	l_ResetMicroTime(m_L); // For the load time shit
+	SetupLock(m_L);
 }
 
 
@@ -114,6 +115,7 @@ LuaCreator::~LuaCreator()
 		return;
 	
 	MicroTime_Free(m_L);
+	FreeLock(m_L);
 	
 	lua_close(m_L);
 	// Free the lua state here
