@@ -7,8 +7,6 @@ using namespace std;
 
 CConnectionHandler::CConnectionHandler()
 {
-	Failed = false;
-	
 	l = lua_open();
 	
 	luaL_openlibs(l);
@@ -97,19 +95,24 @@ int SetLuaConnectionValues(void *cls, enum MHD_ValueKind kind, const char *key, 
 
 void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon, todo_t& todo)
 {
-	lua_State* L = lua_newthread(l);
+	int ref;
+	lua_State* L;
+	{
+		LuaAPILock lock;
+		L = lua_newthread(l);
+		
+		lua_pushvalue( l, -1 );
+		ref = luaL_ref(l, LUA_REGISTRYINDEX);
 
-    lua_pushvalue( l, -1 );
-	int ref = luaL_ref(l, LUA_REGISTRYINDEX);
-
-    lua_newtable(L);
-    lua_pushvalue(L, -1);
-    lua_setmetatable(L, -2); //Set itself as metatable
-    lua_pushvalue(L, LUA_GLOBALSINDEX);
-    lua_setfield(L, -2, "__index");
-    lua_setfenv(L, -2);
-    lua_pop(L, 1);
-    
+		lua_newtable(L);
+		lua_pushvalue(L, -1);
+		lua_setmetatable(L, -2); //Set itself as metatable
+		lua_pushvalue(L, LUA_GLOBALSINDEX);
+		lua_setfield(L, -2, "__index");
+		lua_setfenv(L, -2);
+		lua_pop(L, 1);
+	}
+	
 	lua_getglobal(L, "main");
 	if(!lua_isfunction(L,-1))
 	{
@@ -174,6 +177,7 @@ void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon
 		printf("error running function `main': %s\n", lua_tostring(L, -1));
 		connection->response = "Lua error!";
 		connection->errcode = MHD_HTTP_INTERNAL_SERVER_ERROR;
+		luaL_unref(l, LUA_REGISTRYINDEX, ref);
 		return;
 	}
 	else
@@ -232,7 +236,7 @@ void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon
 		{
 			lua_gettable(L, -2);
 
-			lua_pushnil(l);
+			lua_pushnil(L);
 
 			while(lua_next(L, -2) != 0)
 			{
@@ -246,7 +250,7 @@ void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon
 		{
 			lua_gettable(L, -2);
 
-			lua_pushnil(l);
+			lua_pushnil(L);
 
 			while(lua_next(L, -2) != 0)
 			{
@@ -259,7 +263,7 @@ void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon
 	
 	lua_pop(L, 1); // The retun table
 	
-	lua_close(L);
+	luaL_unref(l, LUA_REGISTRYINDEX, ref);
 	
 	int stackpos = lua_gettop(l);
 	if(stackpos)
