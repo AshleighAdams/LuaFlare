@@ -9,7 +9,7 @@
 ?>
 <html>
 	<head>
-		<title>Lua compiling test page</title>
+		<title>Hurp Derp (Don't break your F5 key)</title>
 	</head>
 	<body>
 <?lua

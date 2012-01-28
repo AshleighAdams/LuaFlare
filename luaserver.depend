@@ -25,15 +25,16 @@
 	<time.h>
 	<random>
 
-1327755670 /home/C0BRA/Projects/luaserver/src/LuaFuncs.h
+1327773704 /home/C0BRA/Projects/luaserver/src/LuaFuncs.h
 	<string>
 	<microhttpd.h>
+	<boost/thread.hpp>
 	"lua.hpp"
 	"lua.h"
 	"lualib.h"
 	"lauxlib.h"
 
-1327756349 source:/home/C0BRA/Projects/luaserver/src/HandelConnection.cpp
+1327761048 source:/home/C0BRA/Projects/luaserver/src/HandelConnection.cpp
 	"HandelConnection.h"
 	<functional>
 	<iostream>

@@ -155,7 +155,7 @@ void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon
 	MHD_KeyValueIterator itt_key = &SetLuaConnectionValues;
 	
 	{
-		LuaAPILock lock;
+		LOCK;
 		g_pLs = L;
 		MHD_get_connection_values(mhdcon, MHD_HEADER_KIND, 				itt_key, NULL);
 		MHD_get_connection_values(mhdcon, MHD_COOKIE_KIND, 				itt_key, NULL);

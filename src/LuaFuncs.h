@@ -4,6 +4,7 @@
 
 #include <string>
 #include <microhttpd.h>
+#include <boost/thread.hpp>
 
 #define LUAJIT
 
@@ -48,11 +49,7 @@ extern int l_GenerateSessionID(lua_State* L);
 
 extern void LoadMods(lua_State* L);
 
-class LuaAPILock
-{
-public:
-	LuaAPILock();
-	~LuaAPILock();
-};
+#define LOCK boost::mutex::scoped_lock l(*GetLock())
+extern boost::mutex* GetLock();
 
 #endif // LUA_FUNCS_H

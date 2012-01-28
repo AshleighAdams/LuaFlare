@@ -85,8 +85,6 @@ int ::clock_gettime( int X, struct timeval* tv )
 
 int l_GetCurrentTime(lua_State* L)
 {
-
-	
 	struct timespec now;
 	clock_gettime( CLOCK_MONOTONIC, &now );
 
@@ -539,18 +537,8 @@ int l_GenerateSessionID(lua_State* L)
 	return 1;
 }
 
-int LockCount = 0;
-
-LuaAPILock::LuaAPILock()
+boost::mutex lock;
+boost::mutex* GetLock()
 {
-	int mine = LockCount;
-	LockCount++;
-	
-	while(LockCount > mine && LockCount != 1) // If it's one, we are the only ones waiting
-		;
-}
-
-LuaAPILock::~LuaAPILock()
-{
-	LockCount--;
+	return &lock;
 }
