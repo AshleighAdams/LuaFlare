@@ -38,6 +38,7 @@ extern double GetCurrentTime();
 
 extern int l_ResetMicroTime(lua_State* L);
 extern int l_MicroTime(lua_State* L);
+extern void MicroTime_Free(lua_State* L);
 
 extern int l_Print(lua_State*);
 extern int l_EscapeHTML(lua_State* L);

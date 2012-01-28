@@ -7,6 +7,9 @@
 
 #include <dirent.h>
 #include <time.h>
+
+#include <unordered_map>
+
 using namespace std;
 
 // For the session string
@@ -102,6 +105,9 @@ double GetCurrentTime()
 	return (( double )( now.tv_nsec / CLOCKS_PER_SEC ) / 1000.0 + ( double )now.tv_sec);
 }
 
+typedef std::unordered_map<lua_State*, unsigned long> L2UL;
+L2UL ListedStates;
+
 unsigned long GetMicroTime()
 {
 	struct timeval tv;
@@ -109,22 +115,21 @@ unsigned long GetMicroTime()
 	return 1000000*(tv.tv_sec)+(tv.tv_usec);
 }
 
-unsigned long From = 0;
-
 int l_ResetMicroTime(lua_State* L)
-{
-
-	
-	From = GetMicroTime();
+{	
+	ListedStates[L] = GetMicroTime();
 	return 0;
 }
 
 int l_MicroTime(lua_State* L)
 {
-
-	
-	lua_pushnumber(L, (double)(GetMicroTime() - From));
+	lua_pushnumber(L, (double)(GetMicroTime() - ListedStates[L]));
 	return 1;
+}
+
+void MicroTime_Free(lua_State* L)
+{
+	ListedStates.erase(L);
 }
 
 void LoadMods(lua_State* L, string sdir)

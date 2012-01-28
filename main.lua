@@ -31,9 +31,7 @@ function loadfile_parselua(name)
 end
 
 function main( con )
-	-- This isn't thread safe, but who cares :V
-	ResetMicroTime()
-	
+
 	con.log = function(text, ...)
 		local comp = string.format(tostring(text), ...)
 		comp = string.format("[%s] %s", os.date(), comp)

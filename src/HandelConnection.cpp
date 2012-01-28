@@ -110,10 +110,14 @@ void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon
 		return;
 	}
 	
+	l_ResetMicroTime(L);
+	
 	lua_getglobal(L, "main");
 	if(!lua_isfunction(L,-1))
 	{
 		lua_pop(L,1);
+		MicroTime_Free(L);
+		lua_close(L);
 		return;
 	}
 		
@@ -173,6 +177,7 @@ void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon
 		printf("error running function `main': %s\n", lua_tostring(L, -1));
 		connection->response = "Lua error!";
 		connection->errcode = MHD_HTTP_INTERNAL_SERVER_ERROR;
+		MicroTime_Free(L);
 		lua_close(L);
 		return;
 	}
@@ -258,6 +263,8 @@ void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon
 	}
 	
 	lua_pop(L, 1); // The retun table
+	
+	MicroTime_Free(L);
 	
 	int stackpos = lua_gettop(L);
 	lua_close(L);
