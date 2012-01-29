@@ -5,10 +5,3 @@
 *.a
 *.*~
 log.txt
-/www/mcinst.co.uk
-/sessions
-/mods/socket
-/mods/mime
-/mods/l2n12.lua
-/mods/mime.lua
-/mods/socket.lua
