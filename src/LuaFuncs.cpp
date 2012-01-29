@@ -561,18 +561,19 @@ int DoAction(lua_State* L)
 {
 	if(!lua_isfunction(L, 1))
 	{
-		lua_pushboolean(L, false);
-		return 1;
+		lua_pushboolean(L, true);
+		lua_pushstring(L, "Arg not func");
+		return 2;
 	}
 	
-	if(!lua_pcall(L, 0, 0, 0))
+	if(lua_pcall(L, 0, 0, 0))
 	{
-		lua_pushboolean(L, false);
+		lua_pushboolean(L, true);
 		lua_pushstring(L, lua_tostring(L, -1));
 		return 2;
 	}
 	
-	lua_pushboolean(L, true);
+	lua_pushboolean(L, false);
 	return 1;
 }
 
@@ -601,3 +602,4 @@ int l_Lock(lua_State* L)
 		return ret;
 	}
 }
+

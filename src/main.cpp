@@ -17,6 +17,8 @@
 #include "LuaFuncs.h"
 #include "HandelConnection.h"
 
+#include <unordered_map>
+
 using namespace std;
 
 CConnectionHandler ch;
@@ -76,7 +78,6 @@ int Connection(void *cls, struct MHD_Connection *connection, const char *url, co
 
 	return ret;
 }
-
 
 int main (int argc, char* argv[])
 {

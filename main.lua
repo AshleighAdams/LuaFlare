@@ -32,7 +32,7 @@ end
 
 function main( con )
 	con.log = function(text, ...)		
-		local comp = string.format(tostring(text), ...)
+		local comp = string.format(tostring(text) or "", ...)
 		comp = string.format("[%s] %s", os.date(), comp)
 		Lock(function()
 			Print(comp)
@@ -144,8 +144,8 @@ function main( con )
 			scriptenv.writef = con.writef
 			scriptenv.log = con.log
 			
-			scriptenv.loadfile = nil
-			scriptenv.dofile = nil
+			--scriptenv.loadfile = nil
+			--scriptenv.dofile = nil
 			
 			scriptenv.include = function(file)
 				local incf,err = loadfile_parselua(server .. "/" .. file)

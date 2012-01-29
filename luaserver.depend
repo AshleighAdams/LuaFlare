@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1327755321 source:/home/C0BRA/Projects/luaserver/src/main.cpp
+1327848551 source:/home/C0BRA/Projects/luaserver/src/main.cpp
 	<iostream>
 	<stdio.h>
 	<string>
@@ -13,6 +13,7 @@
 	<arpa/inet.h>
 	"LuaFuncs.h"
 	"HandelConnection.h"
+	<unordered_map>
 
 1327842955 source:/home/C0BRA/Projects/luaserver/src/LuaFuncs.cpp
 	"LuaFuncs.h"
@@ -36,7 +37,7 @@
 	"lauxlib.h"
 	"Luacreator.h"
 
-1327843678 source:/home/C0BRA/Projects/luaserver/src/HandelConnection.cpp
+1327845485 source:/home/C0BRA/Projects/luaserver/src/HandelConnection.cpp
 	"HandelConnection.h"
 	<functional>
 	<iostream>

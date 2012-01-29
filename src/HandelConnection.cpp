@@ -128,8 +128,6 @@ void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon
 		
 		connection->errcode = (int)LC.GetNumberFromTable("errcode");
 		
-		
-		
 		lua_pushstring(L, "response_headers");
 		{
 			LC.ItterateTable([&](string k, string v)
