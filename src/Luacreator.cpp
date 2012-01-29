@@ -2,6 +2,8 @@
 
 #include "Luacreator.h"
 
+using namespace std;
+
 LuaCreator::LuaCreator()
 {
 	m_L = 0;
@@ -125,5 +127,53 @@ LuaCreator::~LuaCreator()
 lua_State* LuaCreator::GetState()
 {
 	return m_L;
+}
+
+string LuaCreator::GetStringFromTable(string key)
+{
+	string ret;
+	lua_pushstring(m_L, key.c_str());
+	
+		lua_gettable(m_L, -2);
+		if(lua_isstring(m_L, -1))
+			ret = lua_tostring(m_L, -1);
+		else
+			ret = "";
+	
+	lua_pop(m_L, 1);
+	return ret;
+}
+
+double LuaCreator::GetNumberFromTable(string key)
+{
+	int ret;
+	lua_pushstring(m_L, key.c_str());
+	
+		lua_gettable(m_L, -2);
+		if(lua_isnumber(m_L, -1))
+			ret = lua_tonumber(m_L, -1);
+		else
+			ret = 0;
+	
+	lua_pop(m_L, 1);
+	return ret;
+}
+
+
+void LuaCreator::ItterateTable(function<void(string k, string v)> callback)
+{
+	lua_gettable(m_L, -2);
+
+	lua_pushnil(m_L);
+	
+	string k,v;
+	
+	while(lua_next(m_L, -2) != 0)
+	{
+		k = lua_tostring(m_L, -2);
+		v = lua_tostring(m_L, -1);
+		lua_pop(m_L, 1);
+		callback(k, v);
+	}
 }
 

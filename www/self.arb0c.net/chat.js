@@ -16,7 +16,7 @@ function Update()
 {
 	var url = "/chatapi.lua?action=getnewmsgs"
 	$.get(url, function(response) {
-		document.getElementById("chatbox").value += response;
+		document.getElementById("chatbox").innerHTML += response;
 		document.getElementById("chatbox").scrollTop = document.getElementById("chatbox").scrollHeight;
 	});
 	setTimeout("Update()", 500);
@@ -26,7 +26,7 @@ function UpdateStart()
 {
 	var url = "/chatapi.lua?action=getallmsgs"
 	$.get(url, function(response) {
-		document.getElementById("chatbox").value += response;
+		document.getElementById("chatbox").innerHTML += response;
 		document.getElementById("chatbox").scrollTop = document.getElementById("chatbox").scrollHeight;
 	});
 	setTimeout("Update()", 500);

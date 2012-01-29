@@ -134,8 +134,6 @@ void MicroTime_Free(lua_State* L)
 
 void LoadMods(lua_State* L, string sdir)
 {
-
-	
 	DIR *dir;
 	struct dirent *ent;
 	dir = opendir (sdir.c_str());
@@ -201,6 +199,7 @@ int l_EscapeHTML(lua_State* L)
 	lua_pushstring(L, in.c_str());
 	return 1;
 }
+
 
 void PrintTable(lua_State *L, int Depth)
 {

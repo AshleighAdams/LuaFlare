@@ -91,15 +91,9 @@ void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon
 	}
 	else
 	{
-		lua_pushstring(L, "response");
-		{
-			lua_gettable(L, -2);
-
-			if(lua_isstring(L, -1))
-				connection->response = lua_tostring(L, -1);
-		}
-		lua_pop(L, 1); // "response"
+		connection->response = LC.GetStringFromTable("response");
 		
+		// TODO: Clean this bit up
 		lua_pushstring(L, "response_file");
 		{
 			lua_gettable(L, -2);
@@ -132,40 +126,26 @@ void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon
 		}
 		lua_pop(L, 1); // "response_file"
 		
-		lua_pushstring(L, "errcode");
-		{
-			lua_gettable(L, -2);
-
-			if(lua_isnumber(L, -1))
-				connection->errcode = (int)lua_tonumber(L, -1);
-		}
-		lua_pop(L, 1);
+		connection->errcode = (int)LC.GetNumberFromTable("errcode");
+		
+		
 		
 		lua_pushstring(L, "response_headers");
 		{
-			lua_gettable(L, -2);
-
-			lua_pushnil(L);
-
-			while(lua_next(L, -2) != 0)
+			LC.ItterateTable([&](string k, string v)
 			{
-				todo.response_headers.insert(ResponseHeadersMap::value_type(lua_tostring(L, -2), lua_tostring(L, -1)));
-				lua_pop(L, 1);
-			}
+				todo.response_headers.insert(ResponseHeadersMap::value_type(k, v));
+			});
 		}
 		lua_pop(L, 1); // "response_headers"
 		
+		
 		lua_pushstring(L, "set_cookies");
 		{
-			lua_gettable(L, -2);
-
-			lua_pushnil(L);
-
-			while(lua_next(L, -2) != 0)
+			LC.ItterateTable([&](string k, string v)
 			{
-				todo.set_cookies.insert(ResponseHeadersMap::value_type(lua_tostring(L, -2), lua_tostring(L, -1)));
-				lua_pop(L, 1);
-			}
+				todo.set_cookies.insert(ResponseHeadersMap::value_type(k, v));
+			});
 		}
 		lua_pop(L, 1); // "set_cookies"
 	}
