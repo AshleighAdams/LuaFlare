@@ -80,7 +80,9 @@ function main( con )
 	log = con.log
 	write = con.writef
 	
-	log("%s %s %s\n", con.ip, con.method, con.url)
+	if con.url ~= "/chatapi.lua" then
+		log("%s %s %s\n", con.ip, con.method, con.url)
+	end
 	
 	Lock(function()
 		LoadSession(con)
@@ -183,7 +185,9 @@ function main( con )
 		HandelSession(con)
 	end)
 	
-	con.response_headers["Content-Type"] = MimeTypes[extra.ext] or "unknown"
+	if not con.response_headers["Content-Type"] then
+		con.response_headers["Content-Type"] = MimeTypes[extra.ext] or "unknown"
+	end
 	con.response_headers["Server"] = "luaserver"
 	
 	return con
