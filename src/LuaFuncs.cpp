@@ -564,13 +564,17 @@ boost::mutex* GetPrecacheLock()
 // Takes a function, and will call it when it is ready
 
 typedef std::unordered_map<lua_State*, bool> L2B;
-L2B LockedStates;
 
-boost::mutex lualock;
+struct lockdata_t
+{
+	L2B LockedStates;
+	boost::mutex mutex;
+};
+
 
 int DoAction(lua_State* L)
 {
-	if(!lua_isfunction(L, 1))
+	if(!lua_isfunction(L, -1))
 	{
 		lua_pushboolean(L, true);
 		lua_pushstring(L, "Arg not func");
@@ -588,28 +592,45 @@ int DoAction(lua_State* L)
 	return 1;
 }
 
+#define MAX_LOCK 64 // 64 should be enough
+lockdata_t lockdata[MAX_LOCK]; 
+
+L2B LockedStates;
+boost::mutex lualock;
+
 void SetupLock(lua_State* L)
 {
-	LockedStates[L] = false;
+	for(lockdata_t& ld : lockdata)
+		ld.LockedStates[L] = false;
 }
 
 void FreeLock(lua_State* L)
 {
-	LockedStates.erase(L);
+	for(lockdata_t& ld : lockdata)
+		ld.LockedStates.erase(L);
 }
 
 int l_Lock(lua_State* L)
 {
-	if(LockedStates[L])
+	int x = luaL_checkint(L, 1);
+	if(x < 0 || x > MAX_LOCK)
 	{
-		return DoAction(L);
+		lua_pushstring(L, "Lock out of range");
+		lua_error(L);
+		return 0;
 	}
+	
+	lockdata_t& ld = lockdata[x];
+	if(ld.LockedStates[L])
+		return DoAction(L);
 	else
 	{
-		boost::mutex::scoped_lock l(lualock);
-		LockedStates[L] = true;
+		boost::mutex::scoped_lock l(ld.mutex);
+		
+		ld.LockedStates[L] = true;
 		int ret = DoAction(L);
-		LockedStates[L] = false;
+		ld.LockedStates[L] = false;
+		
 		return ret;
 	}
 }

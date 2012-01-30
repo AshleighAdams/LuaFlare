@@ -2,7 +2,7 @@
 	if GET.name then
 		SESSION.name = EscapeHTML(GET.name)
 ?>
-<script>document.location = "/test.lua";</script>
+<script>document.location = "/";</script>
 <?lua
 		return
 	end
@@ -15,7 +15,7 @@
 <?lua
 if not SESSION.name then
 ?>
-				<form action="/test.lua">
+				<form action="/">
 					Enter your name: <input type="text" name="name"/>
 					<input type="submit"/>
 				</form>

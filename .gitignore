@@ -1,5 +1,6 @@
 /bin
 /obj
+/sessions
 *.exe
 *.obj
 *.a

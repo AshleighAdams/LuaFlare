@@ -23,8 +23,11 @@ LuaCreator::LuaCreator()
 	#ifdef PRECACHE
 	{
 		PC_LOCK;
+		
 		m_L = g_PreCachedStates[g_GetPCpos];
+		g_PreCachedStates[g_GetPCpos] = 0; // Discard it // TODO: Can we reuse these?
 		g_GetPCpos++;
+		
 		if(g_GetPCpos >= PRECACHE_SIZE)
 			g_GetPCpos = 0;
 		if(m_L)
@@ -244,12 +247,10 @@ void PrecacheLuaStates()
 	{
 		if(g_PCpos >= PRECACHE_SIZE || g_PCpos < 0)
 			g_PCpos = 0;
-		
 		if(g_PCpos == g_GetPCpos)
 			break;
-		{
-			g_PreCachedStates[g_PCpos] = CreateState();
-			g_PCpos++;
-		}
+		
+		g_PreCachedStates[g_PCpos] = CreateState(); // We don't need to show errors here as the precache creation will fail flat out
+		g_PCpos++;									// and will attempt to create one at request time thus regenerating the error and displaying it
 	}
 }

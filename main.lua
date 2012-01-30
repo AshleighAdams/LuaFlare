@@ -6,6 +6,9 @@ dofile("includes/statuscodes.lua")
 dofile("includes/util.lua")
 dofile("includes/savetabletofile.lua")
 
+LOCK_SESSION	= 0
+LOCK_LOG		= 1
+
 function file_exists(name)
    local f=io.open(name,"r")
    if f~=nil then io.close(f) return true else return false end
@@ -34,7 +37,7 @@ function main( con )
 	con.log = function(text, ...)		
 		local comp = string.format(tostring(text) or "", ...)
 		comp = string.format("[%s] %s", os.date(), comp)
-		Lock(function()
+		Lock(LOCK_LOG, function()
 			Print(comp)
 			
 			local f = io.open("log.txt","a")
@@ -84,7 +87,7 @@ function main( con )
 		log("%s %s %s\n", con.ip, con.method, con.url)
 	end
 	
-	Lock(function()
+	Lock(LOCK_SESSION, function()
 		LoadSession(con)
 	end)
 	
@@ -181,7 +184,7 @@ function main( con )
 		con.response_file = server .. con.url
 	end
 	
-	Lock(function()
+	Lock(LOCK_SESSION, function()
 		HandelSession(con)
 	end)
 	
