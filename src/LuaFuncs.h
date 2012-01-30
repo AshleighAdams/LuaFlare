@@ -43,6 +43,8 @@ extern double GetCurrentTime();
 extern int l_ResetMicroTime(lua_State* L);
 extern int l_MicroTime(lua_State* L);
 extern void MicroTime_Free(lua_State* L);
+extern unsigned long GetMicroTime();// some nice functions to have outside of this module
+extern void ResetMicroTime(lua_State* L, unsigned long Time);
 
 extern int l_Print(lua_State*);
 extern int l_EscapeHTML(lua_State* L);
@@ -55,7 +57,9 @@ extern int l_GenerateSessionID(lua_State* L);
 extern void LoadMods(lua_State* L);
 
 #define LOCK boost::mutex::scoped_lock l(*GetLock())
+#define PC_LOCK boost::mutex::scoped_lock l(*GetPrecacheLock())
 extern boost::mutex* GetLock();
+extern boost::mutex* GetPrecacheLock();
 
 extern void SetupLock(lua_State* L);
 extern void FreeLock(lua_State* L);

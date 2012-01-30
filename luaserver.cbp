@@ -13,10 +13,11 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-g" />
+					<Add directory="/usr/local/include/luajit-2.0" />
 				</Compiler>
 				<Linker>
 					<Add library="microhttpd" />
-					<Add library="lua" />
+					<Add library="luajit-2.0" />
 					<Add library="rt" />
 				</Linker>
 			</Target>
@@ -27,11 +28,12 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add directory="/usr/local/include/luajit-2.0" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
 					<Add library="microhttpd" />
-					<Add library="lua" />
+					<Add library="luajit-2.0" />
 					<Add library="rt" />
 				</Linker>
 			</Target>
@@ -44,6 +46,8 @@
 		<Unit filename="src/HandelConnection.h" />
 		<Unit filename="src/LuaFuncs.cpp" />
 		<Unit filename="src/LuaFuncs.h" />
+		<Unit filename="src/Luacreator.cpp" />
+		<Unit filename="src/Luacreator.h" />
 		<Unit filename="src/main.cpp" />
 		<Extensions>
 			<code_completion />

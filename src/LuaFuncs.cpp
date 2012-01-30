@@ -121,6 +121,11 @@ int l_ResetMicroTime(lua_State* L)
 	return 0;
 }
 
+void ResetMicroTime(lua_State* L, unsigned long Time)
+{	
+	ListedStates[L] = Time;
+}
+
 int l_MicroTime(lua_State* L)
 {
 	lua_pushnumber(L, (double)(GetMicroTime() - ListedStates[L]));
@@ -546,6 +551,12 @@ boost::mutex lock;
 boost::mutex* GetLock()
 {
 	return &lock;
+}
+
+boost::mutex pc_lock;
+boost::mutex* GetPrecacheLock()
+{
+	return &pc_lock;
 }
 
 

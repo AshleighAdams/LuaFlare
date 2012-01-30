@@ -4,51 +4,50 @@
 
 using namespace std;
 
+// Eh can't be arsed to move it above
+lua_State* CreateState(string* err = 0, bool cached = true);
+
+lua_State* g_PreCachedStates[PRECACHE_SIZE];
+int g_PCpos = 0;
+int g_GetPCpos = 0;
+bool First = true;
+
+using namespace std;
+
 LuaCreator::LuaCreator()
 {
-	m_L = 0;
+	m_Failed = false;
+	unsigned long msstart = GetMicroTime();
 	
-	m_L = lua_open();
-	
-	LUAJITSETUP(m_L);
-	
-	luaL_openlibs(m_L);
-	//LoadMods(l);
-	
-	lua_pushcfunction(m_L, l_GetCurrentTime);
-	lua_setglobal(m_L, "GetCurrentTime");
-	
-	lua_pushcfunction(m_L, l_ResetMicroTime);
-	lua_setglobal(m_L, "ResetMicroTime");
-	
-	lua_pushcfunction(m_L, l_MicroTime);
-	lua_setglobal(m_L, "GetMicroTime");
-	
-	lua_pushcfunction(m_L, l_Print);
-	lua_setglobal(m_L, "Print");
-	
-	lua_pushcfunction(m_L, l_EscapeHTML);
-	lua_setglobal(m_L, "EscapeHTML");
-	
-	lua_pushcfunction(m_L, l_DirExists);
-	lua_setglobal(m_L, "DirExists");
-	
-	lua_pushcfunction(m_L, l_ParseLuaString);
-	lua_setglobal(m_L, "ParseLuaString");
-	
-	lua_pushcfunction(m_L, l_GenerateSessionID);
-	lua_setglobal(m_L, "GenerateSessionID");
-	
-	lua_pushcfunction(m_L, l_Lock);
-	lua_setglobal(m_L, "Lock"); // ModLock and not Lock so the main.lua can change it, set it to a func that calls the func, that way it prevents locking in a lock
-	
-	if(luaL_loadfile(m_L, "main.lua") || lua_pcall(m_L, 0, 0, 0))
+	// Attempt to load one from the prebuilt cache
+	#ifdef PRECACHE
 	{
-		printf("error: %s\n", lua_tostring(m_L, -1));
+		PC_LOCK;
+		m_L = g_PreCachedStates[g_GetPCpos];
+		g_GetPCpos++;
+		if(g_GetPCpos >= PRECACHE_SIZE)
+			g_GetPCpos = 0;
+		if(m_L)
+		{
+			ResetMicroTime(m_L, msstart); // More accurate than setting it after lua state created (that takes about ~1ms, so we precache it)
+			SetupLock(m_L);
+			return; // Woop, we got one from the cache!
+		}
+	}
+	#endif
+	
+	string err;
+	m_L = CreateState(&err, false);
+	
+	if(!m_L)
+	{
+		printf("error: %s\n", err.c_str());
+		m_Failed = true;
 		return;
 	}
 	
-	l_ResetMicroTime(m_L); // For the load time shit
+	// We do this now because the destructer will be called and resources need to be freed
+	ResetMicroTime(m_L, msstart);
 	SetupLock(m_L);
 }
 
@@ -60,6 +59,9 @@ LuaCreator::LuaCreator()
 
 bool LuaCreator::TrySetup(connection_t* connection, MHD_Connection* mhdcon, todo_t& todo)
 {
+	if(m_Failed)
+		return false;
+	
 	lua_getglobal(m_L, "main");
 	if(!lua_isfunction(m_L, -1))
 	{
@@ -177,3 +179,77 @@ void LuaCreator::ItterateTable(function<void(string k, string v)> callback)
 	}
 }
 
+lua_State* CreateState(string* err, bool cached)
+{
+	lua_State* m_L = lua_open();
+	
+	LUAJITSETUP(m_L);
+	
+	luaL_openlibs(m_L);
+	//LoadMods(l);
+	
+	lua_pushcfunction(m_L, l_GetCurrentTime);
+	lua_setglobal(m_L, "GetCurrentTime");
+	
+	lua_pushcfunction(m_L, l_ResetMicroTime);
+	lua_setglobal(m_L, "ResetMicroTime");
+	
+	lua_pushcfunction(m_L, l_MicroTime);
+	lua_setglobal(m_L, "GetMicroTime");
+	
+	lua_pushcfunction(m_L, l_Print);
+	lua_setglobal(m_L, "Print");
+	
+	lua_pushcfunction(m_L, l_EscapeHTML);
+	lua_setglobal(m_L, "EscapeHTML");
+	
+	lua_pushcfunction(m_L, l_DirExists);
+	lua_setglobal(m_L, "DirExists");
+	
+	lua_pushcfunction(m_L, l_ParseLuaString);
+	lua_setglobal(m_L, "ParseLuaString");
+	
+	lua_pushcfunction(m_L, l_GenerateSessionID);
+	lua_setglobal(m_L, "GenerateSessionID");
+	
+	lua_pushcfunction(m_L, l_Lock);
+	lua_setglobal(m_L, "Lock"); // ModLock and not Lock so the main.lua can change it, set it to a func that calls the func, that way it prevents locking in a lock
+	
+	lua_pushboolean(m_L, cached);
+	lua_setglobal(m_L, "PRECACHED");
+	
+	if(luaL_loadfile(m_L, "main.lua") || lua_pcall(m_L, 0, 0, 0))
+	{
+		if(err) // If they want to get a string to see if it cimnpleted then let them know what went wrong
+			*err = lua_tostring(m_L, -1);
+		return 0;
+	}
+	return m_L;
+}
+
+void PrecacheLuaStates()
+{
+	if(First)
+	{
+		for(int i = 0; i< PRECACHE_SIZE; i++)
+			g_PreCachedStates[i] = CreateState();
+		g_PCpos = 0;
+		g_GetPCpos = 0;
+		First = false;
+	}
+	
+	PC_LOCK;
+	
+	while(true)
+	{
+		if(g_PCpos >= PRECACHE_SIZE || g_PCpos < 0)
+			g_PCpos = 0;
+		
+		if(g_PCpos == g_GetPCpos)
+			break;
+		{
+			g_PreCachedStates[g_PCpos] = CreateState();
+			g_PCpos++;
+		}
+	}
+}

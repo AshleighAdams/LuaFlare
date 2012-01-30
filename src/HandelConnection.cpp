@@ -57,7 +57,7 @@ int SetLuaConnectionValues(void *cls, enum MHD_ValueKind kind, const char *key, 
 void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon, todo_t& todo)
 {
 	LuaCreator LC;
-
+	
 	if(!LC.TrySetup(connection, mhdcon, todo))
 	{
 		connection->errcode = MHD_HTTP_INTERNAL_SERVER_ERROR;

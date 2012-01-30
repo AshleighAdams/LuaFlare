@@ -111,7 +111,8 @@ int main (int argc, char* argv[])
 	
 	while(true)
 	{
-		getchar();
+		usleep(100000); // 10ms
+		PrecacheLuaStates();
 	}
 
 	MHD_stop_daemon (daemon);
