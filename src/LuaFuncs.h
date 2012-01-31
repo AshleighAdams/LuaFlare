@@ -11,7 +11,7 @@
 #ifdef LUAJIT
 
 //#include "luajit.h"
-#include "lua.hpp"
+#include "luajit-2.0/lua.hpp"
 
 #define LUAJITSETUP(L) luaJIT_setmode(L, 0, LUAJIT_MODE_ON)
 

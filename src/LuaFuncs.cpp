@@ -287,10 +287,9 @@ Escaping must work too:
 	
 	lua = [[ This is a test \]]
 */
+
 int l_ParseLuaString(lua_State* L)
 {
-
-	
 	string inlua = luaL_checkstring(L, 1);
 	string outlua;
 	
