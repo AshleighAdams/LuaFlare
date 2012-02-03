@@ -206,6 +206,9 @@ lua_State* CreateState(string* err, bool cached)
 	lua_pushcfunction(m_L, l_EscapeHTML);
 	lua_setglobal(m_L, "EscapeHTML");
 	
+	lua_pushcfunction(m_L, l_EscapeURI);
+	lua_setglobal(m_L, "EscapeURI");
+	
 	lua_pushcfunction(m_L, l_DirExists);
 	lua_setglobal(m_L, "DirExists");
 	

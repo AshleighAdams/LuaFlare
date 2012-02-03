@@ -24,6 +24,10 @@ else
 	SESSION.TimesSeen = (SESSION.TimesSeen or 1) + 1
 	writef(false, "Hello, %s; I last seen you %s seconds ago, I have also seen you %s times.<br/>\n", SESSION.name, os.time() - (SESSION.LastSeen or os.time()), SESSION.TimesSeen)
 end
+
+if GET.encodethispls then
+	write(EscapeURI(GET.encodethispls))
+end
 ?>
 		<center>
 			<br/>This page took

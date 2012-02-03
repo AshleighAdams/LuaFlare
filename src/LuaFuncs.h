@@ -48,6 +48,7 @@ extern void ResetMicroTime(lua_State* L, unsigned long Time);
 
 extern int l_Print(lua_State*);
 extern int l_EscapeHTML(lua_State* L);
+extern int l_EscapeURI(lua_State* L);
 extern int l_DirExists(lua_State *L);
 extern int l_FileExists(lua_State *L);
 extern int l_ParseLuaString(lua_State* L);
