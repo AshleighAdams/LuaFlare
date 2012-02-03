@@ -206,6 +206,49 @@ int l_EscapeHTML(lua_State* L)
 }
 
 
+int l_EscapeURI(lua_State* L)
+{
+
+	string in = luaL_checkstring(L, 1);
+	
+	string buf;
+	buf.reserve(in.size());
+	for(size_t pos = 0; pos != in.size(); ++pos)
+	{
+		switch(in[pos])
+		{
+			case '%':	buf.append("%25");		break;
+			case '<':	buf.append("%3C");		break;
+			case '>':	buf.append("%3E");		break;
+			case '#':	buf.append("%23");		break;
+			case '{':	buf.append("%7B");		break;
+			case '}':	buf.append("%7D");		break;
+			case '|':	buf.append("%7C");		break;
+			case '\\':	buf.append("%5C");		break;
+			case '^':	buf.append("%5E");		break;
+			case '~':	buf.append("%7E");		break;
+			case '[':	buf.append("%5B");		break;
+			case ']':	buf.append("%5D");		break;
+			case '`':	buf.append("%60");		break;
+			case ';':	buf.append("%3B");		break;
+			case '/':	buf.append("%2F");		break;
+			case '?':	buf.append("%3F");		break;
+			case ':':	buf.append("%3A");		break;
+			case '@':	buf.append("%40");		break;
+			case '=':	buf.append("%3D");		break;
+			case '&':	buf.append("%26");		break;
+			case '$':	buf.append("%24");		break;
+
+			default:	buf.append(1, in[pos]);	break;
+		}
+	}
+	in.swap(buf);
+	
+	lua_pushstring(L, in.c_str());
+	return 1;
+}
+
+
 void PrintTable(lua_State *L, int Depth)
 {
 	char* tabs = new char[Depth + 1];
