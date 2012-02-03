@@ -218,6 +218,7 @@ int l_EscapeURI(lua_State* L)
 		switch(in[pos])
 		{
 			case '%':	buf.append("%25");		break;
+			case ' ':	buf.append("%20");		break;
 			case '<':	buf.append("%3C");		break;
 			case '>':	buf.append("%3E");		break;
 			case '#':	buf.append("%23");		break;
