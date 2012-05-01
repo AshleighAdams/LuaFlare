@@ -71,6 +71,11 @@ void CConnectionHandler::Handel(ServerConnection* pConnection)
 	{
 		const char* resp = LC.GetStringFromTable("response");
 		unsigned int strlength = strlen(resp);
+		
+		//pConnection->pData = (unsigned char*)resp;		
+		//pConnection->DataLength = strlength;
+		//pConnection->DataIsConstant = true;
+		
 		pConnection->pData = new unsigned char[strlength];		
 		pConnection->DataLength = strlength;
 		pConnection->DataIsConstant = false;

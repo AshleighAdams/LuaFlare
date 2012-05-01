@@ -44,6 +44,8 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="src\Configor.cpp" />
+		<Unit filename="src\Configor.h" />
 		<Unit filename="src\HandelConnection.cpp" />
 		<Unit filename="src\HandelConnection.h" />
 		<Unit filename="src\LuaFuncs.cpp" />
