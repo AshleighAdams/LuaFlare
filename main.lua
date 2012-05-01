@@ -34,7 +34,7 @@ function loadfile_parselua(name)
 end
 
 function main( con )
-	con.log = function(text, ...)		
+	con.log = function(text, ...)
 		local comp = string.format(tostring(text) or "", ...)
 		comp = string.format("[%s] %s", os.date(), comp)
 		Lock(LOCK_LOG, function()
@@ -83,10 +83,8 @@ function main( con )
 	log = con.log
 	write = con.writef
 	
-	if con.url ~= "/chatapi.lua" then
-		log("%s %s %s\n", con.ip, con.method, con.url)
-	end
-	
+	--log("%s %s %s\n", con.ip, con.method, con.url)
+		
 	Lock(LOCK_SESSION, function()
 		LoadSession(con)
 	end)

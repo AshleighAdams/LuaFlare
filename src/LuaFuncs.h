@@ -10,8 +10,10 @@
 
 #ifdef LUAJIT
 
+#include <lua.hpp>
+
 //#include "luajit.h"
-#include "luajit-2.0/lua.hpp"
+//#include "luajit-2.0/lua.hpp"
 
 #define LUAJITSETUP(L) luaJIT_setmode(L, 0, LUAJIT_MODE_ON)
 
@@ -35,10 +37,18 @@ struct connection_t
 	std::string ip;
 	int errcode;
 };
-
+#ifdef GetCurrentTime
+#define FU_LS
+#undef GetCurrentTime
+#endif
 
 extern int l_GetCurrentTime(lua_State* L);
 extern double GetCurrentTime();
+
+#ifdef FU_LS
+#define GetCurrentTime() GetTickCount()
+#undef GetCurrentTime
+#endif
 
 extern int l_ResetMicroTime(lua_State* L);
 extern int l_MicroTime(lua_State* L);

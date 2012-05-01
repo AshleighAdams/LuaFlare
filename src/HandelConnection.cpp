@@ -3,6 +3,8 @@
 #include <iostream>
 #include <fstream>
 
+#include "LuaServerInterface.h"
+
 using namespace std;
 
 CConnectionHandler::CConnectionHandler()
@@ -14,84 +16,67 @@ CConnectionHandler::~CConnectionHandler()
 }
 
 
-// This was going to be a lambada but, well, I guess not as you cant pass a labada function that captures a var to a funciton pointer...........
-lua_State* g_pLs = 0;
-int SetLuaConnectionValues(void *cls, enum MHD_ValueKind kind, const char *key, const char *value)
+inline void AddToTable(lua_State* L, const char* Name, string Key, string Value)
 {
-	const char* type;
-	
-	switch(kind)
-	{
-	case MHD_GET_ARGUMENT_KIND:
-		type = "GET";
-		break;
-	case MHD_HEADER_KIND:
-		type = "HEADER";
-		break;
-	case MHD_COOKIE_KIND:
-		type = "COOKIE";
-		break;
-	case MHD_POSTDATA_KIND:
-		type = "POST";
-		break;
-	case MHD_RESPONSE_HEADER_KIND:
-		type = "RHEADER";
-		break;
-	case MHD_FOOTER_KIND:
-		type = "FOOTER";
-		break;
-	default:
-		return MHD_YES;
-	}
-	
-	lua_pushstring(g_pLs, type); 		// Push the string
-	lua_gettable(g_pLs, -2);			// Get the table the corrosponds to it, and put it on the stack
-		lua_pushstring(g_pLs, key);		// Push key and value to the stack
-		lua_pushstring(g_pLs, value);
-		lua_rawset(g_pLs, -3);			// Tell lua to add them to the table
-	lua_pop(g_pLs, 1); 					// I don't recall which this pops (table or string(type)); it's one of them...
-	
-	return MHD_YES;
+	lua_pushstring(L, Name); 				// Push the string
+	lua_gettable(L, -2);					// Get the table the corrosponds to it, and put it on the stack
+		lua_pushstring(L, Key.c_str());		// Push key and value to the stack
+		lua_pushstring(L, Value.c_str());
+		lua_rawset(L, -3);					// Tell lua to add them to the table
+	lua_pop(L, 1); 							// I don't recall which this pops (table or string(type)); it's one of them...
 }
 
-void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon, todo_t& todo)
+void CConnectionHandler::Handel(ServerConnection* pConnection)
 {
 	LuaCreator LC;
 	
-	if(!LC.TrySetup(connection, mhdcon, todo))
+	if(!LC.TrySetup(pConnection))
 	{
-		connection->errcode = MHD_HTTP_INTERNAL_SERVER_ERROR;
+		pConnection->ErrorCode = 501;
 		return;
 	}
 	
 	lua_State* L = LC.GetState();
 	
-	MHD_KeyValueIterator itt_key = &SetLuaConnectionValues;
+	for(auto it = pConnection->Headers.begin(); it != pConnection->Headers.end(); it++)
+		AddToTable(L, "HEADER", it->first, it->second);
+		
+	for(auto it = pConnection->GETParams.begin(); it != pConnection->GETParams.end(); it++)
+		AddToTable(L, "GET", it->first, it->second);
 	
-	{
-		LOCK;
-		g_pLs = L;
-		MHD_get_connection_values(mhdcon, MHD_HEADER_KIND, 				itt_key, NULL);
-		MHD_get_connection_values(mhdcon, MHD_COOKIE_KIND, 				itt_key, NULL);
-		MHD_get_connection_values(mhdcon, MHD_POSTDATA_KIND, 			itt_key, NULL);
-		MHD_get_connection_values(mhdcon, MHD_GET_ARGUMENT_KIND, 		itt_key, NULL);
-		MHD_get_connection_values(mhdcon, MHD_FOOTER_KIND, 				itt_key, NULL);
-		MHD_get_connection_values(mhdcon, MHD_RESPONSE_HEADER_KIND, 	itt_key, NULL);
-	}
+	for(auto it = pConnection->POSTParams.begin(); it != pConnection->POSTParams.end(); it++)
+		AddToTable(L, "POST", it->first, it->second);
 	
+	for(auto it = pConnection->Cookies.begin(); it != pConnection->Cookies.end(); it++)
+		AddToTable(L, "COOKIE", it->first, it->second);
 	
 	// 1 argument, 1 result
 	// The lock is removed so that many threads can run at the same time.
 	if (lua_pcall(L, 1, 1, 0)) 
 	{
 		printf("error running function `main': %s\n", lua_tostring(L, -1));
-		connection->response = "Lua error!";
-		connection->errcode = MHD_HTTP_INTERNAL_SERVER_ERROR;
+		
+		const char* reason = "Lua error!";
+		
+		size_t len = strlen(reason);
+		
+		pConnection->DataLength = len;
+		pConnection->pData = new unsigned char[len];
+		memcpy(pConnection->pData, reason, len);
+		
+		pConnection->ErrorCode = 501;
 		return;
 	}
 	else
 	{
-		connection->response = LC.GetStringFromTable("response");
+		const char* resp = LC.GetStringFromTable("response");
+		unsigned int strlength = strlen(resp);
+		pConnection->pData = new unsigned char[strlength];		
+		pConnection->DataLength = strlength;
+		pConnection->DataIsConstant = false;
+		
+		// Copy the data to our new string (the lua one is not garrunteed to be in memory
+		memcpy(pConnection->pData, resp, strlength);
 		
 		// TODO: Clean this bit up
 		lua_pushstring(L, "response_file");
@@ -107,32 +92,35 @@ void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon
 				if(ifs.is_open())
 				{
 					ifs.seekg(0, ios::end);
-					int filesize = ifs.tellg();
+					unsigned int filesize = ifs.tellg();
 					ifs.seekg(0, ios::beg);
 
 					char* contents = new char[filesize];
 					ifs.read(contents, filesize);
 					
 					ifs.close();
-					todo.FileDataInstead = contents;
-					todo.FileDataLength = filesize;
 					
-					connection->errcode = MHD_HTTP_OK;
+					pConnection->pData = (unsigned char*)contents;
+					pConnection->DataLength = filesize;
+					pConnection->DataIsConstant = false;
+					
+					pConnection->ErrorCode = 200;
 				}else{
-					connection->errcode = MHD_HTTP_NOT_FOUND; // con.errcode will overide this, so if you want it to use this, set it to nil
+					pConnection->ErrorCode = 404; // con.errcode will overide this, so if you want it to use this, set it to nil
 				}
 			}
 			
 		}
 		lua_pop(L, 1); // "response_file"
 		
-		connection->errcode = (int)LC.GetNumberFromTable("errcode");
+		pConnection->ErrorCode = (unsigned int)LC.GetNumberFromTable("errcode");
 		
 		lua_pushstring(L, "response_headers");
 		{
 			LC.ItterateTable([&](string k, string v)
 			{
-				todo.response_headers.insert(ResponseHeadersMap::value_type(k, v));
+				pConnection->ResponseHeaders[k] = v;
+				//pConnection->ResponseHeaders.insert(ResponseHeadersMap::value_type(k, v));
 			});
 		}
 		lua_pop(L, 1); // "response_headers"
@@ -142,7 +130,7 @@ void CConnectionHandler::Handel(connection_t* connection, MHD_Connection* mhdcon
 		{
 			LC.ItterateTable([&](string k, string v)
 			{
-				todo.set_cookies.insert(ResponseHeadersMap::value_type(k, v));
+				pConnection->SetCookies[k] = v;
 			});
 		}
 		lua_pop(L, 1); // "set_cookies"

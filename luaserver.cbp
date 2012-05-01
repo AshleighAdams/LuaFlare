@@ -7,34 +7,36 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
-				<Option output="bin/Debug/luaserver" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/Debug/" />
+				<Option output="bin\luaserver" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\D" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-g" />
-					<Add directory="/usr/local/include/luajit-2.0" />
+					<Add directory="\usr\local\include\luajit-2.0" />
 				</Compiler>
 				<Linker>
-					<Add library="microhttpd" />
-					<Add library="luajit-5.1" />
-					<Add library="rt" />
+					<Add library="lua51" />
+					<Add library="libboost_filesystem" />
+					<Add library="libboost_system" />
+					<Add directory="C:\SDK\boost\libs" />
 				</Linker>
 			</Target>
 			<Target title="Release">
-				<Option output="bin/Release/luaserver" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/Release/" />
+				<Option output="bin\luaserver" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\R" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
-					<Add directory="/usr/local/include/luajit-2.0" />
+					<Add directory="\usr\local\include\luajit-2.0" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
-					<Add library="microhttpd" />
-					<Add library="luajit-5.1" />
-					<Add library="rt" />
+					<Add library="lua51" />
+					<Add library="libboost_filesystem" />
+					<Add library="libboost_system" />
+					<Add directory="C:\SDK\boost\libs" />
 				</Linker>
 			</Target>
 		</Build>
@@ -42,13 +44,15 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
-		<Unit filename="src/HandelConnection.cpp" />
-		<Unit filename="src/HandelConnection.h" />
-		<Unit filename="src/LuaFuncs.cpp" />
-		<Unit filename="src/LuaFuncs.h" />
-		<Unit filename="src/Luacreator.cpp" />
-		<Unit filename="src/Luacreator.h" />
-		<Unit filename="src/main.cpp" />
+		<Unit filename="src\HandelConnection.cpp" />
+		<Unit filename="src\HandelConnection.h" />
+		<Unit filename="src\LuaFuncs.cpp" />
+		<Unit filename="src\LuaFuncs.h" />
+		<Unit filename="src\LuaServerInterface.h" />
+		<Unit filename="src\Luacreator.cpp" />
+		<Unit filename="src\Luacreator.h" />
+		<Unit filename="src\dirent_fix.h" />
+		<Unit filename="src\main.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />

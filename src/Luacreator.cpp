@@ -60,7 +60,7 @@ LuaCreator::LuaCreator()
 	lua_newtable(m_L); \
 	lua_rawset(m_L, -3) \
 
-bool LuaCreator::TrySetup(connection_t* connection, MHD_Connection* mhdcon, todo_t& todo)
+bool LuaCreator::TrySetup(ServerConnection* pConnection)
 {
 	if(m_Failed)
 		return false;
@@ -75,7 +75,6 @@ bool LuaCreator::TrySetup(connection_t* connection, MHD_Connection* mhdcon, todo
 	if(!lua_checkstack(m_L, 5)) // 5 should be enough
 		return false;
 	
-	
 	lua_newtable(m_L); // con table
 	
 	lua_pushstring(m_L, "starttime");
@@ -83,23 +82,23 @@ bool LuaCreator::TrySetup(connection_t* connection, MHD_Connection* mhdcon, todo
 	lua_rawset(m_L, -3);
 	
 	lua_pushstring(m_L, "url");
-	lua_pushstring(m_L, connection->url.c_str());
+	lua_pushstring(m_L, pConnection->RequestedFile.c_str());
 	lua_rawset(m_L, -3);
 	
 	lua_pushstring(m_L, "method");
-	lua_pushstring(m_L, connection->method.c_str());
+	lua_pushstring(m_L, pConnection->Method.c_str());
 	lua_rawset(m_L, -3);
 	
 	lua_pushstring(m_L, "version");
-	lua_pushstring(m_L, connection->version.c_str());
+	lua_pushstring(m_L, pConnection->VersionString.c_str());
 	lua_rawset(m_L, -3);
 	
 	lua_pushstring(m_L, "response");
-	lua_pushstring(m_L, connection->response.c_str());
+	lua_pushstring(m_L, "");
 	lua_rawset(m_L, -3);
 	
 	lua_pushstring(m_L, "ip");
-	lua_pushstring(m_L, connection->ip.c_str());
+	lua_pushstring(m_L, pConnection->IP.c_str());
 	lua_rawset(m_L, -3);
 	
 	CREATE_EMPTY_TABLE("GET");
@@ -134,10 +133,10 @@ lua_State* LuaCreator::GetState()
 	return m_L;
 }
 
-string LuaCreator::GetStringFromTable(string key)
+const char* LuaCreator::GetStringFromTable(const char* key)
 {
-	string ret;
-	lua_pushstring(m_L, key.c_str());
+	const char* ret = 0;
+	lua_pushstring(m_L, key);
 	
 		lua_gettable(m_L, -2);
 		if(lua_isstring(m_L, -1))

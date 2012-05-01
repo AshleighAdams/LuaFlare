@@ -8,117 +8,123 @@
 #include <microhttpd.h>
 
 // Some stuff to display the IP
-#include <sys/socket.h>
-#include <net/route.h>
-#include <net/if.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
+//#include <sys/socket.h>
+//#include <net/route.h>
+//#include <net/if.h>
+//#include <netinet/in.h>
+//#include <arpa/inet.h>
+
+#include <iostream>
 
 #include "LuaFuncs.h"
 #include "HandelConnection.h"
 
 #include <unordered_map>
 
+#include "LuaServerInterface.h"
+
+#if defined _WIN32 || defined _WIN64
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
+
 using namespace std;
 
 CConnectionHandler ch;
 
-int Port;
+typedef ILuaServerInterface*(*FnGetInterface)(void);
 
-int Connection(void *cls, struct MHD_Connection *connection, const char *url, const char *method, const char *version, const char *upload_data, size_t *upload_data_size, void **con_cls)
+ILuaServerInterface* GetInterface()
 {
-	connection_t con;
-	con.method = method;
-	con.url = url;
-	con.version = version;
+	FnGetInterface pGetInterface = 0;
 	
-	con.response = "";
-	con.errcode = MHD_HTTP_OK;
-	
-	struct sockaddr *so;
-	so = MHD_get_connection_info(connection, MHD_CONNECTION_INFO_CLIENT_ADDRESS)->client_addr;
-	con.ip = inet_ntoa( ((sockaddr_in*)so)->sin_addr );
-		
-	todo_t todo;
-	todo.FileDataInstead = 0;
-	// Now we setup our struct, we can pass it to the handeler
-	
-	try
+#if defined _WIN32 || defined _WIN64
+	HMODULE hand = LoadLibrary("luaserver-interface-default.dll");
+	if(!hand)
 	{
-		ch.Handel(&con, connection, todo);
+		cout << "Could not load `luaserver-interface-default.dll'\n";
+		return 0;
 	}
-	catch(...)
+	pGetInterface = (FnGetInterface)GetProcAddress(hand, "GetInterface");
+	if(!pGetInterface)
 	{
-		printf("Exception happend\n");
+		cout << "Could not find export `GetInterface' from `luaserver-interface-default.dll'\n";
+		return 0;
 	}
-	
-	const char *page  = con.response.c_str();
-	
-	struct MHD_Response* response;
-	
-	if(todo.FileDataInstead)
-	{
-		response = MHD_create_response_from_buffer (todo.FileDataLength, (void*)todo.FileDataInstead, MHD_RESPMEM_MUST_COPY);
-		delete [] todo.FileDataInstead; // How does this know the size of the array?
-	}
-	else
-		response = MHD_create_response_from_buffer (strlen (page), (void*)page, MHD_RESPMEM_MUST_COPY);
-	
-	for(auto it = todo.response_headers.begin(); it != todo.response_headers.end(); it++)
-		MHD_add_response_header(response, it->first.c_str(), it->second.c_str());
-	
-	for(auto it = todo.set_cookies.begin(); it != todo.set_cookies.end(); it++)
-	{
-		string cookie = it->first + "=" + it->second;
-		MHD_add_response_header(response, "Set-Cookie", cookie.c_str());
-	}
-	
-	int ret = MHD_queue_response (connection, con.errcode, response);
-	MHD_destroy_response (response);
-
-	return ret;
+#else
+	cout << "Not yet implemented for Linux\n";
+	return 0;
+#endif
+	return pGetInterface();
 }
+
+#include "boost/filesystem/operations.hpp"
+#include "boost/filesystem/path.hpp"
+#include <iostream>
+#include <sstream>
 
 int main (int argc, char* argv[])
 {
+	{
+		string inpath = string(argv[0]) + "/../../";
+		boost::filesystem::path full_path( boost::filesystem::initial_path<boost::filesystem::path>() );
+		full_path = boost::filesystem::system_complete( boost::filesystem::path( inpath ) );
+		
+		stringstream ss;
+		ss << full_path;
+		
+		string tmp = ss.str();
+		tmp = tmp.substr(1, tmp.length() - 2);
+		const char* g_pWorkingDIR = tmp.c_str();
+#if defined _WIN32 || defined _WIN64
+		SetCurrentDirectory(g_pWorkingDIR);
+#else
+#endif
+		
+	}
+	    
 	printf("Loading luaserver... ");
 	
+	unsigned long Port;
 	if(argc > 3 || argc < 2)
-	{
 		Port = 8081;
-		//return 1;
-	}
 	else
 	{
 		string sport = argv[1];
 		istringstream ( sport ) >> Port;
 	}
 	
-	//MHD_USE_SELECT_INTERNALLY
-	struct MHD_Daemon *daemon = MHD_start_daemon(MHD_USE_SELECT_INTERNALLY | MHD_USE_THREAD_PER_CONNECTION, Port, NULL, NULL, &Connection, NULL, 
-		MHD_OPTION_PER_IP_CONNECTION_LIMIT, 	(unsigned int)4,
-		MHD_OPTION_CONNECTION_LIMIT, 			(unsigned int)40,
-		MHD_OPTION_CONNECTION_TIMEOUT, 			(unsigned int)10,
-	MHD_OPTION_END);
-		
-	if(!daemon)
+	ILuaServerInterface* pInterface = GetInterface();
+	
+	FnNewConnection pNewConnection = [&](ServerConnection* pConnection)
+	{
+		ch.Handel(pConnection);
+	};
+	
+	if(!pInterface)
+	{
+		printf("\t [Fail]\nFailed to get interface!\n");
+		return 1;
+	}
+	
+	pInterface->SetCallback(pNewConnection);
+	
+	if(!pInterface->Init(Port))
 	{
 		printf("\t [Fail]\nPlease check nothing else is using the same port!\n");
 		return 1;
 	}
-	
-	printf("\t [OK]\n");
-	
+
+	printf("\t (%s) [OK]\n", pInterface->GetInterfaceName());
+
 	while(true)
 	{
-		usleep(100000); // 10ms
+		usleep(10000); // 1ms, 1000 precaches per second * (PRECACHE_SIZE (16))
 		PrecacheLuaStates();
 	}
-
-	MHD_stop_daemon (daemon);
 	return 0;
 }
 
-	
-	
-	
+
+
+

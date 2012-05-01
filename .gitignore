@@ -6,4 +6,5 @@ luaserver
 *.obj
 *.a
 *.*~
+*.dll
 log.txt

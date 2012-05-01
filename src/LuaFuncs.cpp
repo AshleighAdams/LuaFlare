@@ -5,7 +5,15 @@
 #include <sstream>
 #include <iostream>
 
+#ifdef _WIN32
+extern "C"
+{
+#include "dirent_fix.h"
+}
+#else
 #include <dirent.h>
+#endif
+
 #include <time.h>
 
 #include <unordered_map>
@@ -15,12 +23,13 @@ using namespace std;
 // For the session string
 #include <random>
 
-#ifdef WINDOWS // We need a standard for this...
+#ifdef _WIN32 // We need a standard for this...
 /*
 	Thanks to Carl Staelin for this snippet
 	http://stackoverflow.com/questions/5404277/porting-clock-gettime-to-windows
 */
-#define CLOCKS_PER_SEC 0
+
+//#define CLOCKS_PER_SEC 0
 LARGE_INTEGER getFILETIMEoffset()
 {
 	SYSTEMTIME s;
@@ -41,7 +50,7 @@ LARGE_INTEGER getFILETIMEoffset()
 	return t;
 }
 
-int ::clock_gettime( int X, struct timeval* tv )
+int clock_gettime( int X, struct timeval* tv )
 {
 	LARGE_INTEGER		   t;
 	FILETIME				f;
@@ -84,15 +93,22 @@ int ::clock_gettime( int X, struct timeval* tv )
 	tv->tv_usec = t.QuadPart % 1000000;
 	return 0;
 }
+
+
+#define CLOCK_REALTIME	0
+#define CLOCK_VIRTUAL	1
+#define CLOCK_PROF	2
+#define	CLOCK_MONOTONIC	3
+
 #endif // WINDOWS
 
 int l_GetCurrentTime(lua_State* L)
 {
 	struct timespec now;
-	clock_gettime( CLOCK_MONOTONIC, &now );
+	clock_gettime(CLOCK_MONOTONIC, (timeval*)&now);
 
 	double dbl = (( double )( now.tv_nsec / CLOCKS_PER_SEC ) / 1000.0 + ( double )now.tv_sec);
-	
+
 	lua_pushnumber(L, dbl);
 	return 1;
 }
@@ -100,7 +116,7 @@ int l_GetCurrentTime(lua_State* L)
 double GetCurrentTime()
 {
 	struct timespec now;
-	clock_gettime( CLOCK_MONOTONIC, &now );
+	clock_gettime( CLOCK_MONOTONIC, (timeval*)&now );
 
 	return (( double )( now.tv_nsec / CLOCKS_PER_SEC ) / 1000.0 + ( double )now.tv_sec);
 }
@@ -116,13 +132,13 @@ unsigned long GetMicroTime()
 }
 
 int l_ResetMicroTime(lua_State* L)
-{	
+{
 	ListedStates[L] = GetMicroTime();
 	return 0;
 }
 
 void ResetMicroTime(lua_State* L, unsigned long Time)
-{	
+{
 	ListedStates[L] = Time;
 }
 
@@ -151,14 +167,14 @@ void LoadMods(lua_State* L, string sdir)
 				if(string(ent->d_name) == "..") continue;
 				if(string(ent->d_name) == ".") continue;
 				string newdir = sdir + ent->d_name + "/";
-				
+
 				LoadMods(L, newdir);
 			}
 			else
 			{
 				string lfile = sdir + ent->d_name;
 				printf ("Loading %s\n", lfile.c_str());
-				
+
 			}
 		}
 		closedir (dir);
@@ -175,7 +191,7 @@ int l_Print(lua_State* L)
 
 	const char* str = luaL_checkstring(L, 1);
 	cout << str;
-	
+
 	return 0;
 }
 
@@ -183,7 +199,7 @@ int l_EscapeHTML(lua_State* L)
 {
 
 	string in = luaL_checkstring(L, 1);
-	
+
 	string buf;
 	buf.reserve(in.size());
 	for(size_t pos = 0; pos != in.size(); ++pos)
@@ -200,7 +216,7 @@ int l_EscapeHTML(lua_State* L)
 		}
 	}
 	in.swap(buf);
-	
+
 	lua_pushstring(L, in.c_str());
 	return 1;
 }
@@ -210,7 +226,7 @@ int l_EscapeURI(lua_State* L)
 {
 
 	string in = luaL_checkstring(L, 1);
-	
+
 	string buf;
 	buf.reserve(in.size());
 	for(size_t pos = 0; pos != in.size(); ++pos)
@@ -244,7 +260,7 @@ int l_EscapeURI(lua_State* L)
 		}
 	}
 	in.swap(buf);
-	
+
 	lua_pushstring(L, in.c_str());
 	return 1;
 }
@@ -253,13 +269,13 @@ int l_EscapeURI(lua_State* L)
 void PrintTable(lua_State *L, int Depth)
 {
 	char* tabs = new char[Depth + 1];
-	
+
 	for(int i = 0; i < Depth; i++)
 		tabs[i] = '\t';
 	tabs[Depth] = '\0';
-	
+
 	lua_pushnil(L);
-	
+
 	while(lua_next(L, -2) != 0)
 	{
 		if(lua_isstring(L, -1))
@@ -275,7 +291,7 @@ void PrintTable(lua_State *L, int Depth)
 
 		lua_pop(L, 1);
 	}
-	
+
 	delete [] tabs;
 }
 
@@ -289,10 +305,10 @@ int l_DirExists(lua_State *L)
 {
 
 	const char* str = luaL_checkstring(L, 1);
-	
+
 	struct stat st;
 	bool exists = stat(str, &st) == 0;
-	
+
 	lua_pushboolean(L, exists);
 	return 1;
 }
@@ -323,12 +339,12 @@ It must not break under comments, strings or any other conditions like:
 	func("Hello, ?>/<?lua world")
 	func('Hello, ?>/<?lua world')
 	func([[Hello, ?>/<?lua world]])
-	
+
 Escaping must work too:
-	
+
 	func("Just testing \") something")
 	And this must work too:
-	
+
 	lua = [[ This is a test \]]
 */
 
@@ -336,15 +352,15 @@ int l_ParseLuaString(lua_State* L)
 {
 	string inlua = luaL_checkstring(L, 1);
 	string outlua;
-	
+
 	outlua.reserve(inlua.size());
 
 	int parsemode = PARSEMODE_OUTOFLUA;
 	unsigned int inluastart = 0;
 	outlua += "write(false,[[";
-	
+
 	unsigned int i = 0;
-	
+
 	while(i < inlua.length())
 	{
 		if(parsemode == PARSEMODE_OUTOFLUA)
@@ -398,7 +414,7 @@ int l_ParseLuaString(lua_State* L)
 			while(i < inlua.length())
 			{
 				char x = inlua[i];
-				
+
 				if(x == '?' && inlua[i+1] == '>')
 				{
 					parsemode = PARSEMODE_OUTOFLUA;
@@ -416,14 +432,14 @@ int l_ParseLuaString(lua_State* L)
 						outlua+= "[[";
 					}
 					else outlua += x;
-					
+
 					i++;
 					if(x == ']') i++;
-					
+
 					while(i < inlua.length())
 					{
 						char y = inlua[i];
-						
+
 						if(y == '\\' && exitnode != ']') // Escape the next char, but only if we're not in a literal string
 						{
 							outlua += y;
@@ -431,10 +447,10 @@ int l_ParseLuaString(lua_State* L)
 							i += 2;
 							continue;
 						}
-						
+
 						outlua += y;
 						i++;
-						
+
 						if(y == exitnode)
 						{
 							if(y == ']')
@@ -453,31 +469,31 @@ int l_ParseLuaString(lua_State* L)
 					// comments
 					outlua += "--";
 					i+= 2;
-					
+
 					bool multiline = false;
-					
+
 					if(inlua[i] == '[' && inlua[i+1] == '[' )
 					{
 						outlua += "[[";
 						i+= 2;
 						multiline = true;
 					}
-					
+
 					while(i < inlua.length())
 					{
 						char y = inlua[i];
 						outlua += y;
-						
+
 						if(!multiline && (y == '\n' || y == '\r'))
 							break;
-							
+
 						if(multiline && y == ']' && inlua[i + 1] == ']')
 						{
 							outlua += "]";
 							i+=2;
 							break;
 						}
-						
+
 						i++;
 					}
 				}
@@ -488,16 +504,16 @@ int l_ParseLuaString(lua_State* L)
 				}
 			}
 		}
-		
+
 	}
-	
+
 	outlua += "]])";
-	
+
 	if(parsemode == PARSEMODE_INLUA)
 	{
 		string offendingline = "";
 		int linecount = 1;
-		
+
 		for(i = 0; i < inluastart; i++)
 		{
 			char x = inlua[i];
@@ -511,7 +527,7 @@ int l_ParseLuaString(lua_State* L)
 			else if(x == '\n')
 				linecount++;
 		}
-		
+
 		while(i < inlua.length())
 		{
 			char x = inlua[i];
@@ -521,17 +537,17 @@ int l_ParseLuaString(lua_State* L)
 			offendingline += x;
 		}
 		// now we have the line number and line
-		
+
 		stringstream ss;
 		ss << linecount;
-		
+
 		string error = "'?>' expected near '" + offendingline + "' (line " + ss.str() + ")";
-		
+
 		lua_pushnil(L);
 		lua_pushstring(L, error.c_str());
 		return 2;
 	}
-	
+
 	lua_pushstring(L, outlua.c_str());
 	return 1;
 }
@@ -546,30 +562,30 @@ int g_LastRand;
 int l_GenerateSessionID(lua_State* L)
 {
 
-	
+
 	if(!g_RandSeedOffset)
 		g_RandSeedOffset = new unsigned long;
-	
+
 	int len = (int)luaL_checkint(L, 1);
-	
+
 	char* res = new char[len+1];
 	res[len] = '\0';
-	
+
 	uniform_int_distribution<int> distro(0, 255);
 	uniform_int_distribution<int> switch_distro(0, 2); // 0 = number, 1 = lowercase, 2 = upper case
-	
+
 	mt19937 engine;
-	
+
 	RENEW_SEED();
-	
+
 	int rand;
-	
+
 	for(int i = 0; i < len; i++)
 	{
 		RENEW_SEED();
 		rand = distro(engine);
 		g_LastRand += rand;
-		
+
 		switch(switch_distro(engine))
 		{
 		case 0:
@@ -582,10 +598,10 @@ int l_GenerateSessionID(lua_State* L)
 			rand = 65 + (rand % 26);
 		break;
 		}
-		
+
 		res[i] = (char)rand;
 	}
-	
+
 	lua_pushstring(L, res);
 	return 1;
 }
@@ -600,6 +616,12 @@ boost::mutex pc_lock;
 boost::mutex* GetPrecacheLock()
 {
 	return &pc_lock;
+}
+
+boost::mutex lls_lock;
+boost::mutex* GetLuaLockStateLock()
+{
+	return &lls_lock;
 }
 
 
@@ -623,32 +645,34 @@ int DoAction(lua_State* L)
 		lua_pushstring(L, "Arg not func");
 		return 2;
 	}
-	
+
 	if(lua_pcall(L, 0, 0, 0))
 	{
 		lua_pushboolean(L, true);
 		lua_pushstring(L, lua_tostring(L, -1));
 		return 2;
 	}
-	
+
 	lua_pushboolean(L, false);
 	return 1;
 }
 
 #define MAX_LOCK 64 // 64 should be enough
-lockdata_t lockdata[MAX_LOCK]; 
+lockdata_t lockdata[MAX_LOCK];
 
 L2B LockedStates;
 boost::mutex lualock;
 
 void SetupLock(lua_State* L)
 {
+	boost::mutex::scoped_lock lock(*GetLuaLockStateLock());
 	for(lockdata_t& ld : lockdata)
 		ld.LockedStates[L] = false;
 }
 
 void FreeLock(lua_State* L)
 {
+	boost::mutex::scoped_lock lock(*GetLuaLockStateLock());
 	for(lockdata_t& ld : lockdata)
 		ld.LockedStates.erase(L);
 }
@@ -663,17 +687,25 @@ int l_Lock(lua_State* L)
 		return 0;
 	}
 	
-	lockdata_t& ld = lockdata[x];
-	if(ld.LockedStates[L])
+	lockdata_t* ld;
+	
+	bool alreadylocked;
+	{
+		boost::mutex::scoped_lock lock(*GetLuaLockStateLock());
+		ld = &lockdata[x];
+		alreadylocked = ld->LockedStates[L];
+	}
+	
+	if(alreadylocked)
 		return DoAction(L);
 	else
 	{
-		boost::mutex::scoped_lock l(ld.mutex);
-		
-		ld.LockedStates[L] = true;
+		boost::mutex::scoped_lock l(ld->mutex);
+
+		ld->LockedStates[L] = true;
 		int ret = DoAction(L);
-		ld.LockedStates[L] = false;
-		
+		ld->LockedStates[L] = false;
+
 		return ret;
 	}
 }

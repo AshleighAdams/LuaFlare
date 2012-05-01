@@ -2,11 +2,10 @@
 #ifndef LUACREATOR_H
 #define LUACREATOR_H
 
+#include "LuaServerInterface.h"
+
 #include "LuaFuncs.h"
 #include <functional>
-
-struct todo_t; // Forward declerations
-struct connection_t;
 
 #define PRECACHE // Comment out this line if you do NOT want to precache (slower, but uses less memory)
 #define PRECACHE_SIZE 16
@@ -17,9 +16,9 @@ public:
 	LuaCreator();
 	~LuaCreator();
 	lua_State* GetState();
-	std::string GetStringFromTable(std::string key);
+	const char* GetStringFromTable(const char* key);
 	double GetNumberFromTable(std::string key);
-	bool TrySetup(connection_t* connection, MHD_Connection* mhdcon, todo_t& todo);
+	bool TrySetup(ServerConnection* pConnection);
 	void ItterateTable(std::function<void(std::string k, std::string v)> callback);
 	
 protected:

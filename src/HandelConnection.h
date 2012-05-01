@@ -22,7 +22,7 @@ class CConnectionHandler
 public:
 	CConnectionHandler();
 	~CConnectionHandler();
-	void Handel(connection_t* connection, MHD_Connection* mhdcon, todo_t& todo);
+	void Handel(ServerConnection* pConnection);
 protected:
 };
 
