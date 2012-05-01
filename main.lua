@@ -14,8 +14,26 @@ function file_exists(name)
    if f~=nil then io.close(f) return true else return false end
 end
 
-function loadfile_parselua(name)
-	local f = io.open(name, r)
+function loadfile_parselua(name, iscompiled)
+	local f
+	
+	if iscompiled then
+		f = io.open(name, "r")
+		local lua = f:read("*a")
+		io.close(f)
+		return loadstring(lua, name)
+	end
+
+	f = io.open(name .. ".pc", "rwb")
+	if f then
+		local contents = f:read("*a")
+		io.close(f)
+		return loadstring(contents, name)
+	end
+	
+	
+	
+	f = io.open(name, "r")
 	if not f then
 		return false, "Can't open file \"" .. name .. "\""
 	end
@@ -28,9 +46,17 @@ function loadfile_parselua(name)
 	if not lua then
 		return false, name .. ":EOF: " .. err
 	end
-	--Print(lua .. "\n")
 	
-	return loadstring(lua, name)
+	local dd = loadstring(lua, name)
+	
+	f = io.open(name .. ".pc", "wb")
+	if f then
+		f:write(string.dump(dd))
+		Print("Created precached lua file for " .. name .. "\n")
+		io.close(f)
+	end
+	
+	return dd
 end
 
 function main( con )
@@ -123,8 +149,8 @@ function main( con )
 		urlpos = urlpos - 1
 	end
 	
-	if extra.ext == "lua" then
-		local f, err = loadfile_parselua(server .. con.url)
+	if extra.ext == "lua" or extra.ext == "pc" then
+		local f, err = loadfile_parselua(server .. con.url, extra.ext == "pc")
 		if err then
 			log("Lua error: %s\n", err)
 			write("Lua error.  Check log for details\n")

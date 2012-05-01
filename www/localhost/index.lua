@@ -2,6 +2,7 @@
 	if GET.name then
 		SESSION.name = EscapeHTML(GET.name)
 ?>
+
 <script>document.location = "/";</script>
 <?lua
 		return

@@ -8,7 +8,7 @@
 #include <functional>
 
 #define PRECACHE // Comment out this line if you do NOT want to precache (slower, but uses less memory)
-#define PRECACHE_SIZE 16
+#define PRECACHE_SIZE 32
 
 class LuaCreator
 {
