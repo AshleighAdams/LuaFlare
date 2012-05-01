@@ -18,6 +18,7 @@
 
 #include "LuaFuncs.h"
 #include "HandelConnection.h"
+#include "Configor.h"
 
 #include <unordered_map>
 
@@ -31,24 +32,34 @@
 using namespace std;
 
 CConnectionHandler ch;
+CConfigor* g_pConfigor = 0;
 
 typedef ILuaServerInterface*(*FnGetInterface)(void);
 
 ILuaServerInterface* GetInterface()
 {
 	FnGetInterface pGetInterface = 0;
+	CConfigor& cfg = *g_pConfigor;
+	
+	char* dllname = cfg["DLL"]["FileName"].GetString();
+	char* func = cfg["DLL"]["Function"].GetString();
+	
+	if(strlen(func) == 0)
+		cfg["DLL"]["Function"] = "GetInterface", func = (char*)"GetInterface";
+	if(strlen(dllname) == 0)
+		cfg["DLL"]["FileName"] = "luaserver-interface-default.dll", dllname = (char*)"luaserver-interface-default.dll";
 	
 #if defined _WIN32 || defined _WIN64
-	HMODULE hand = LoadLibrary("luaserver-interface-default.dll");
+	HMODULE hand = LoadLibrary(dllname);
 	if(!hand)
 	{
-		cout << "Could not load `luaserver-interface-default.dll'\n";
+		cout << "Could not load `" << dllname << "'\n";
 		return 0;
 	}
-	pGetInterface = (FnGetInterface)GetProcAddress(hand, "GetInterface");
+	pGetInterface = (FnGetInterface)GetProcAddress(hand, func);
 	if(!pGetInterface)
 	{
-		cout << "Could not find export `GetInterface' from `luaserver-interface-default.dll'\n";
+		cout << "Could not find export `" << func << "' from `" << dllname << "'\n";
 		return 0;
 	}
 #else
@@ -80,22 +91,24 @@ int main (int argc, char* argv[])
 		SetCurrentDirectory(g_pWorkingDIR);
 #else
 #endif
-		
 	}
-	    
+	
+	g_pConfigor = new CConfigor();
+	g_pConfigor->LoadFromFile("luaserver.cfg");
+	
 	printf("Loading luaserver... ");
 	
+	stringstream ss;
+	char* port = (*g_pConfigor)["Server"]["Port"].GetString();
+	if(strlen(port) == 0)
+		(*g_pConfigor)["Server"]["Port"] = "80";
+
+	ss << (*g_pConfigor)["Server"]["Port"].GetString();
+		
 	unsigned long Port;
-	if(argc > 3 || argc < 2)
-		Port = 8081;
-	else
-	{
-		string sport = argv[1];
-		istringstream ( sport ) >> Port;
-	}
+	ss >> Port;
 	
 	ILuaServerInterface* pInterface = GetInterface();
-	
 	FnNewConnection pNewConnection = [&](ServerConnection* pConnection)
 	{
 		ch.Handel(pConnection);
@@ -116,6 +129,8 @@ int main (int argc, char* argv[])
 	}
 
 	printf("\t (%s) [OK]\n", pInterface->GetInterfaceName());
+	
+	g_pConfigor->SaveToFile("luaserver.cfg");
 
 	while(true)
 	{

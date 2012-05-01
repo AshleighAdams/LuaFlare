@@ -166,3 +166,88 @@
 	<string>
 	<unordered_map>
 
+1335815708 source:c:\users\c0bra\projects\luaserver\src\luafuncs.cpp
+	"LuaFuncs.h"
+	<stdio.h>
+	<sys/stat.h>
+	<string>
+	<sstream>
+	<iostream>
+	"dirent_fix.h"
+	<dirent.h>
+	<time.h>
+	<unordered_map>
+	<random>
+
+1335169660 c:\users\c0bra\projects\luaserver\src\luafuncs.h
+	<string>
+	<microhttpd.h>
+	<boost/thread.hpp>
+	<lua.hpp>
+	"lua.h"
+	"lualib.h"
+	"lauxlib.h"
+	"Luacreator.h"
+
+1335835574 c:\users\c0bra\projects\luaserver\src\luacreator.h
+	"LuaServerInterface.h"
+	"LuaFuncs.h"
+	<functional>
+
+1335805923 c:\users\c0bra\projects\luaserver\src\luaserverinterface.h
+	<functional>
+	<list>
+	<string>
+	<unordered_map>
+
+1335169447 c:\users\c0bra\projects\luaserver\src\dirent_fix.h
+	<inttypes.h>
+	<sys/types.h>
+	<io.h>
+
+1335835515 source:c:\users\c0bra\projects\luaserver\src\luacreator.cpp
+	"HandelConnection.h"
+	"Luacreator.h"
+
+1335794150 c:\users\c0bra\projects\luaserver\src\handelconnection.h
+	"LuaFuncs.h"
+	<unordered_map>
+
+1335813705 source:c:\users\c0bra\projects\luaserver\src\handelconnection.cpp
+	"HandelConnection.h"
+	<functional>
+	<iostream>
+	<fstream>
+	"LuaServerInterface.h"
+
+1335871137 source:c:\users\c0bra\projects\luaserver\src\main.cpp
+	<iostream>
+	<stdio.h>
+	<string>
+	<sstream>
+	<cstring>
+	<microhttpd.h>
+	<iostream>
+	"LuaFuncs.h"
+	"HandelConnection.h"
+	"Configor.h"
+	<unordered_map>
+	"LuaServerInterface.h"
+	<windows.h>
+	"boost/filesystem/operations.hpp"
+	"boost/filesystem/path.hpp"
+	<iostream>
+	<sstream>
+
+1335870432 c:\users\c0bra\projects\luaserver\src\configor.h
+	<string>
+	<list>
+
+1335870716 source:c:\users\c0bra\projects\luaserver\src\configor.cpp
+	"Configor.h"
+	<string>
+	<cstring>
+	<fstream>
+	<sstream>
+	<ctype.h>
+
