@@ -102,10 +102,11 @@ int clock_gettime( int X, struct timeval* tv )
 
 #endif // WINDOWS
 
+
 int l_GetCurrentTime(lua_State* L)
 {
 	struct timespec now;
-	clock_gettime(CLOCK_MONOTONIC, (timeval*)&now);
+	clock_gettime(CLOCK_MONOTONIC, /*(timeval*)*/&now);
 
 	double dbl = (( double )( now.tv_nsec / CLOCKS_PER_SEC ) / 1000.0 + ( double )now.tv_sec);
 
@@ -116,10 +117,11 @@ int l_GetCurrentTime(lua_State* L)
 double GetCurrentTime()
 {
 	struct timespec now;
-	clock_gettime( CLOCK_MONOTONIC, (timeval*)&now );
+	clock_gettime( CLOCK_MONOTONIC, /*(timeval*)*/&now );
 
 	return (( double )( now.tv_nsec / CLOCKS_PER_SEC ) / 1000.0 + ( double )now.tv_sec);
 }
+
 
 typedef std::unordered_map<lua_State*, unsigned long> L2UL;
 L2UL ListedStates;

@@ -5,7 +5,7 @@
 #include <cstring>
 
 // microhttpd
-#include <microhttpd.h>
+//#include <microhttpd.h>
 
 #include <iostream>
 
@@ -20,6 +20,8 @@
 #if defined _WIN32 || defined _WIN64
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#else
+#define LINUX
 #endif
 
 using namespace std;
@@ -33,14 +35,12 @@ typedef ILuaServerInterface*(*FnGetInterface)(void);
 #include <ctime>
 #include <iostream>
 
-
-#if defined _WIN32 || defined _WIN64
-HMODULE g_Hand = 0;
-#endif
-
 std::time_t g_SecondsSince = 0;
 
-ILuaServerInterface* GetInterfaceWindows(HMODULE* SetHand = 0)
+#ifdef LINUX
+#include <dlfcn.h>
+
+ILuaServerInterface* GetInterface()
 {
 	FnGetInterface pGetInterface = 0;
 	CConfigor& cfg = *g_pConfigor;
@@ -52,7 +52,42 @@ ILuaServerInterface* GetInterfaceWindows(HMODULE* SetHand = 0)
 		cfg["DLL"]["Function"] = "GetInterface", func = (char*)"GetInterface";
 	if(strlen(dllname) == 0)
 		cfg["DLL"]["FileName"] = "luaserver-interface-default.dll", dllname = (char*)"luaserver-interface-default.dll";
-		
+	
+	void* handle = dlopen(dllname, RTLD_LAZY);
+	
+	
+	if(!handle)
+	{
+		cout << "Could not load `" << dllname << "'\n";
+		return 0;
+	}
+	
+	pGetInterface = (FnGetInterface)dlsym(handle, func);
+	if(!pGetInterface)
+	{
+		cout << "Could not find export `" << func << "' from `" << dllname << "'\n";
+		return 0;
+	}
+
+	return pGetInterface();
+}
+
+#else
+HMODULE g_Hand = 0; // Incase we need to do something with this...
+
+ILuaServerInterface* GetInterface()
+{
+	FnGetInterface pGetInterface = 0;
+	CConfigor& cfg = *g_pConfigor;
+	
+	char* dllname = cfg["DLL"]["FileName"].GetString();
+	char* func = cfg["DLL"]["Function"].GetString();
+	
+	if(strlen(func) == 0)
+		cfg["DLL"]["Function"] = "GetInterface", func = (char*)"GetInterface";
+	if(strlen(dllname) == 0)
+		cfg["DLL"]["FileName"] = "luaserver-interface-default.dll", dllname = (char*)"luaserver-interface-default.dll";
+	
 	HMODULE hand = LoadLibrary(dllname);
 	if(!hand)
 	{
@@ -65,13 +100,17 @@ ILuaServerInterface* GetInterfaceWindows(HMODULE* SetHand = 0)
 		cout << "Could not find export `" << func << "' from `" << dllname << "'\n";
 		return 0;
 	}
-	if(SetHand)
-		*SetHand = hand;
-	else
-		g_Hand = hand;
 
 	return pGetInterface();
 }
+
+#endif
+
+
+
+
+
+
 
 #include "boost/filesystem/operations.hpp"
 #include "boost/filesystem/path.hpp"
@@ -79,49 +118,6 @@ ILuaServerInterface* GetInterfaceWindows(HMODULE* SetHand = 0)
 #include <sstream>
 
 ILuaServerInterface* g_pInterface = 0;
-
-void HotLoadWindows(FnNewConnection nc, CConfigor& cfg)
-{
-	boost::filesystem::path p( cfg["DLL"]["FileName"].GetString() ) ;
-	
-	if ( !boost::filesystem::exists( p ) )
-		return;
-	
-	std::time_t secs = boost::filesystem::last_write_time( p ) ;
-	
-	if(secs == g_SecondsSince)
-		return; // We havn't changed
-	
-	printf("The HTTP interface changed, attempting to load...\n");
-	g_SecondsSince = secs;
-	HMODULE hand = 0;
-	
-	ILuaServerInterface* pI = GetInterfaceWindows(&hand);
-	
-	if(!pI)
-		return;
-	
-	if(g_pInterface)
-	{
-		printf("Freeing old DLL...\n");
-		delete g_pInterface;
-		FreeLibrary(g_Hand);
-	}
-	
-	g_Hand = hand;
-	g_pInterface = pI;
-	
-	pI->SetCallback(nc);
-	
-	stringstream ss;
-	ss << cfg["Server"]["Port"].GetString();
-	unsigned long Port;
-	ss >> Port;
-	
-	pI->Init(Port);
-	
-	printf("New interface in place. (%s)\n", pI->GetInterfaceName());
-}
 
 int main (int argc, char* argv[])
 {
@@ -157,7 +153,7 @@ int main (int argc, char* argv[])
 	unsigned long Port;
 	ss >> Port;
 	
-	g_pInterface = GetInterfaceWindows();
+	g_pInterface = GetInterface();
 	FnNewConnection pNewConnection = [&](ServerConnection* pConnection)
 	{
 		ch.Handel(pConnection);
@@ -185,11 +181,6 @@ int main (int argc, char* argv[])
 	
 	while(true)
 	{
-		if((GetCurrentTime() - LastHotLoadTime) > 5.0)
-		{
-			LastHotLoadTime = GetCurrentTime();
-			HotLoadWindows(pNewConnection, *g_pConfigor);
-		}
 		usleep(10000); // 1ms, 1000 precaches per second * (PRECACHE_SIZE (16))
 		PrecacheLuaStates();
 	}
