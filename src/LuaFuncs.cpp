@@ -125,6 +125,7 @@ double GetCurrentTime()
 
 typedef std::unordered_map<lua_State*, unsigned long> L2UL;
 L2UL ListedStates;
+boost::mutex listed_mutex;
 
 unsigned long GetMicroTime()
 {
@@ -135,24 +136,34 @@ unsigned long GetMicroTime()
 
 int l_ResetMicroTime(lua_State* L)
 {
+    boost::mutex::scoped_lock lock(listed_mutex);
 	ListedStates[L] = GetMicroTime();
 	return 0;
 }
 
 void ResetMicroTime(lua_State* L, unsigned long Time)
 {
-	ListedStates[L] = Time;
+    boost::mutex::scoped_lock lock(listed_mutex);
+    //try
+    //{
+        ListedStates[L] = Time;
+	//}catch(...){}
 }
 
 int l_MicroTime(lua_State* L)
 {
+    boost::mutex::scoped_lock lock(listed_mutex);
 	lua_pushnumber(L, (double)(GetMicroTime() - ListedStates[L]));
 	return 1;
 }
 
 void MicroTime_Free(lua_State* L)
 {
-	ListedStates.erase(L);
+    boost::mutex::scoped_lock lock(listed_mutex);
+    //try
+    //{
+        ListedStates.erase(L);
+    //}catch(...){}
 }
 
 void LoadMods(lua_State* L, string sdir)
@@ -669,7 +680,15 @@ void SetupLock(lua_State* L)
 {
 	boost::mutex::scoped_lock lock(*GetLuaLockStateLock());
 	for(lockdata_t& ld : lockdata)
-		ld.LockedStates[L] = false;
+	{
+	    try
+	    {
+            ld.LockedStates[L] = false;
+        }catch(...)
+        {
+            cout << "LOCK ERR";
+        }
+	}
 }
 
 void FreeLock(lua_State* L)
@@ -688,16 +707,16 @@ int l_Lock(lua_State* L)
 		lua_error(L);
 		return 0;
 	}
-	
+
 	lockdata_t* ld;
-	
+
 	bool alreadylocked;
 	{
 		boost::mutex::scoped_lock lock(*GetLuaLockStateLock());
 		ld = &lockdata[x];
 		alreadylocked = ld->LockedStates[L];
 	}
-	
+
 	if(alreadylocked)
 		return DoAction(L);
 	else

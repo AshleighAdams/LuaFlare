@@ -254,3 +254,90 @@
 	<sstream>
 	<ctype.h>
 
+1353541651 source:/home/c0bra/Desktop/luaserver-dev/src/Configor.cpp
+	"Configor.h"
+	<string>
+	<cstring>
+	<fstream>
+	<sstream>
+	<ctype.h>
+
+1353541651 /home/c0bra/Desktop/luaserver-dev/src/Configor.h
+	<string>
+	<list>
+
+1353547038 source:/home/c0bra/Desktop/luaserver-dev/src/HandelConnection.cpp
+	"HandelConnection.h"
+	<functional>
+	<iostream>
+	<fstream>
+	"LuaServerInterface.h"
+
+1353541651 /home/c0bra/Desktop/luaserver-dev/src/HandelConnection.h
+	"LuaFuncs.h"
+	<unordered_map>
+
+1353542263 /home/c0bra/Desktop/luaserver-dev/src/LuaFuncs.h
+	<string>
+	<boost/thread.hpp>
+	"luajit-2.0/lua.hpp"
+	"lua.h"
+	"lualib.h"
+	"lauxlib.h"
+	"Luacreator.h"
+
+1353541651 /home/c0bra/Desktop/luaserver-dev/src/Luacreator.h
+	"LuaServerInterface.h"
+	"LuaFuncs.h"
+	<functional>
+
+1353541651 /home/c0bra/Desktop/luaserver-dev/src/LuaServerInterface.h
+	<functional>
+	<list>
+	<string>
+	<unordered_map>
+
+1353550439 source:/home/c0bra/Desktop/luaserver-dev/src/LuaFuncs.cpp
+	"LuaFuncs.h"
+	<stdio.h>
+	<sys/stat.h>
+	<string>
+	<sstream>
+	<iostream>
+	"dirent_fix.h"
+	<dirent.h>
+	<time.h>
+	<unordered_map>
+	<random>
+
+1353541651 /home/c0bra/Desktop/luaserver-dev/src/dirent_fix.h
+	<inttypes.h>
+	<sys/types.h>
+	<io.h>
+
+1353541651 source:/home/c0bra/Desktop/luaserver-dev/src/Luacreator.cpp
+	"HandelConnection.h"
+	"Luacreator.h"
+
+1353542974 source:/home/c0bra/Desktop/luaserver-dev/src/main.cpp
+	<iostream>
+	<stdio.h>
+	<string>
+	<sstream>
+	<cstring>
+	<iostream>
+	"LuaFuncs.h"
+	"HandelConnection.h"
+	"Configor.h"
+	<unordered_map>
+	"LuaServerInterface.h"
+	<windows.h>
+	<boost/filesystem/operations.hpp>
+	<ctime>
+	<iostream>
+	<dlfcn.h>
+	"boost/filesystem/operations.hpp"
+	"boost/filesystem/path.hpp"
+	<iostream>
+	<sstream>
+

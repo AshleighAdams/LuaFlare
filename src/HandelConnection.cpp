@@ -135,6 +135,7 @@ void CConnectionHandler::Handel(ServerConnection* pConnection)
 		{
 			LC.ItterateTable([&](string k, string v)
 			{
+				std::cout << "Sending cookie " << k << " = " << v << "\n";
 				pConnection->SetCookies[k] = v;
 			});
 		}
