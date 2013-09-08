@@ -87,22 +87,29 @@ hook.Add("LuaError", "basic error", function(err, trace, vars, args)
 		strvars = strvars .. "(" .. type(v) .. ") " .. tostring(k) .. " = " .. tostring(v) .. "\n<br/>"
 	end
 	
-	print(err, trace)
-	--res:clear()
-	--res:set_status(501)
-	--[[
-	p { "A Lua error was encountered while trying to process your request!" },
-	div {class = "box", style="margin-bottom: 5px;"}
+	res:clear()
+	res:set_status(501)
+	
+	local content =
+	div
 	{
-		'while requesting "' .. req.full_url .. '":', br,
-		err
-	},
-	div {class = "box", style="margin-bottom: 5px;"}
-	{
-		"local vars:", br, strvars
-	},
-	div {class = "box"}
-	{
-		(trace:gsub("\n", "<br />\n"))
-	}]]
+		p { "A Lua error was encountered while trying to process your request!" },
+		div {class = "box", style="margin-bottom: 5px;"}
+		{
+			'while requesting "' .. req.full_url .. '":', br,
+			err
+		},
+		div {class = "box", style="margin-bottom: 5px;"}
+		{
+			"local vars:", br, strvars
+		},
+		div {class = "box"}
+		{
+			(trace:gsub("\n", "<br />\n"))
+		}
+	}
+	
+	error_template.to_response(res, 0)
+	content.to_response(res)
+	error_template.to_response(res, 1)
 end)
