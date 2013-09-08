@@ -79,7 +79,12 @@ local function basic_error(why, req, res)
 			{
 				html_escape(tostring(why.type) .. " (" .. (error_type_to_str[why.type] or "unknown") .. ")")
 			},
-			" was encountered"
+			" was encountered",
+			(function()
+				if why.message then
+					return "<code>" .. html_escape("\n\n" .. why.message) .. "</code>"
+				end
+			end)()
 		}
 	}
 	

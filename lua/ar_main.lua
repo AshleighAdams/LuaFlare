@@ -67,7 +67,7 @@ local function run_lua_page(req, res)
 	local content = tags.div
 	{
 		tags.p { "Run Lua code:" },
-		tags.form {method = "get", action = "/runlua"}
+		tags.form {method = "post", action = "/runlua"}
 		{
 			tags.SECTION,
 			tags.input{type = "submit"}
@@ -79,15 +79,16 @@ local function run_lua_page(req, res)
 	}
 	
 	local title = "Run Lua"
-	local lua = req.parsed_url.params.lua or [[
-function test()
-    print("hi")
+	local lua = req.post_data.lua or [[function fact (n)
+    if n == 0 then
+        return 1
+    else
+        return n * fact(n-1)
+    end
 end
 
-test()
 
-return 0, "abc"
-	]]
+return fact(4)]]
 	
 	template.to_response(res, 0) -- <title>
 	res:append(title)
@@ -102,10 +103,46 @@ return 0, "abc"
 		
 		content.to_response(res, 1)
 			-- output
+			
+			local function print(...)
+				local prefix = ""
+				for k,v in pairs({...}) do
+					res:append(html_escape(prefix .. tostring(v)))
+					prefix = "\t"
+				end
+				if prefix ~= "" then
+					res:append(html_escape("\n"))
+				end
+			end
+			
+			local function timeout()
+				hook.Call("Error", {type = 501, message = "code took too long to execute"}, req, res)
+				error("function timed out", 2)
+			end
+			
 			last_runlua = lua
-			local func = loadstring(lua, "runlua")
-			local prefix = ""
-			for k,v in pairs({func()}) do
+			
+			local func, err = loadstring(lua, "runlua")
+			
+			if not func then error(err, -1) end
+			
+			setfenv(func, {print = print})
+			
+			local oldhook = debug.gethook()
+			debug.sethook(timeout, "", 1000)
+			local rets = {pcall(func)}
+			
+			if not rets[1] then
+				debug.sethook(oldhook)
+				return
+			end
+			table.remove(rets, 1)
+			debug.sethook(oldhook)
+			
+			
+			
+			local prefix = "returned "
+			for k,v in pairs(rets) do
 				res:append(html_escape(prefix .. to_lua_value(v)))
 				prefix = ", "
 			end

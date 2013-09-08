@@ -233,8 +233,27 @@ function handle_client(client)
 		url = url,
 		full_url = full_url,
 		parsed_url = parsed_url,
-		headers = headers
+		headers = headers,
+		post_data = {}
 	}
+	
+	-- read the post data
+	if method == "POST" then
+		local len = request.headers["Content-Length"]
+		
+		if len == nil then
+			client:close()
+			return
+		end
+		
+		local post = client:receive(tonumber(len))
+		if post == nil then return end
+		
+		request.post_data = parse_params(post)
+	end
+	
+	-- respond
+	
 	local response = {status = 200, response_text = "", headers = {}}
 	setmetatable(response, {__index = response_meta})
 	
@@ -269,8 +288,8 @@ function handle_client(client)
 end
 
 local function on_error(why, request, response)
-	response:set_status(why)
-	print("error:", why.type, request.full_url)
+	response:set_status(why.type)
+	print("error:", why.type, request.url)
 end
 hook.Add("Error", "log errors", on_error)
 
@@ -304,7 +323,8 @@ local function autorun(dir)
 end
 autorun()
 
-local server = socket.bind("*", 27015)
+local server = socket.bind("*", 8080)
+assert(server)
 while true do
 	local client = server:accept()
 	client:settimeout(1)
