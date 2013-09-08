@@ -1,11 +1,13 @@
 #!/usr/bin/env lua5.1
 
-dofile("hooks.lua")
-dofile("htmlwriter.lua")
-dofile("requesthooks.lua")
+dofile("inc/hooks.lua")
+dofile("inc/htmlwriter.lua")
+dofile("inc/lua_icon_base64.lua")
+dofile("inc/requesthooks.lua")
 
-local socket = require( "socket" )
-local url = require( "socket.url" )
+local socket = require("socket")
+local url = require("socket.url")
+require("lfs")
 
 
 function PrintTable(tbl, done, depth)
@@ -93,7 +95,8 @@ function response_meta:set_status(what)
 end
 
 function response_meta:append(str)
-	assert(self and str)
+	assert(self ~= nil)
+	assert(str ~= nil)
 	self.response_text = self.response_text .. str
 end
 
@@ -192,6 +195,31 @@ local function on_lua_error(err, trace, args)
 	print("lua error:", err)
 end
 hook.Add("LuaError", "log errors", on_lua_error)
+
+require'lfs'
+
+local function starts_with(what, with)
+	return what:sub(1, with:len()) == with
+end
+
+local function ends_with(what, with)
+	return with == "" or what:sub(-with:len()) == with
+end
+
+local function autorun(dir)
+	dir = dir or "./lua/"
+	for file in lfs.dir("./lua/") do
+		if lfs.attributes(dir .. file, "mode") == "file" then
+			if starts_with(file, "ar_") and ends_with(file, ".lua") then
+				print("autorun: " .. dir .. file)
+				dofile(dir .. file)
+			end
+		elseif file ~= "." and file ~= ".." and lfs.attributes(dir .. file, "mode") == "directory" then
+			autorun(dir .. file .. "/")
+		end
+	end
+end
+autorun()
 
 local server = socket.bind("*", 27015)
 while true do

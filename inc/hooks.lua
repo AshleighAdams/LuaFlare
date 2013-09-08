@@ -55,6 +55,8 @@ hook.Call = function (name, ...)
 				idx = 1 + idx
 			end
 			
+			variables["(*temporary)"] = nil
+			
 			return {err, debug.traceback(), variables}
 		end
 		
