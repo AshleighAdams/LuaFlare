@@ -27,15 +27,15 @@ function PrintTable(tbl, done, depth)
 end
 
 
-function ReadHeaders(client)
+function read_headers(client)
 	local ret = {}
 	
 	while true do
 		local s, err = client:receive("*l")
 		
-		if s == "" then break end
+		if not s or s == "" then break end
 		if s ~= nil then
-			local key, val = string.match(s, "(.+): (.+)")
+			local key, val = string.match(s, "(.+):%s*(.+)")
 			ret[key] = val
 		end
 	end
@@ -83,16 +83,63 @@ function parse_params(str)
 	return ret
 end
 
+
+----------------------------------- response portion
+local response_meta = {}
+
+function response_meta:set_status(what)
+	assert(self and what)
+	self.status = what
+end
+
+function response_meta:append(str)
+	assert(self and str)
+	self.response_text = self.response_text .. str
+end
+
+function response_meta:clear()
+	assert(self)
+	self.response_text = ""
+	self.file = nil
+end
+
+function response_meta:set_file(path)
+	assert(self and path)
+	self.file = path
+end
+
+function response_meta:set_header(name, value)
+	assert(self and name and value)
+	self.headers[name] = value
+end
+
+---------------- cookie potion TODO: cookies
+
+local cookie_meta = {}
+
+function cookie(name, value, expires)
+	local cook = {}
+	cook.name = name
+	cook.value = value
+	cook.expires = expires
+end
+
+---------------------------------------------------
+
 function HandleClient(client)
 	local action = client:receive("*l")
-	local headers = ReadHeaders(client)
 	
-	local method, full_url, version = string.match(action, "(%w+) (.+) HTTP/([0-9.]+)")
+	if not action then return end -- failed reading
+	
+	local headers = read_headers(client)
+	local method, full_url, version = string.match(action, "(%w+) (.+) HTTP/([%d.]+)")
 	
 	local parsed_url = url.parse(full_url)
 	local url = url.unescape(parsed_url.path)
 	
 	parsed_url.params = parse_params(parsed_url.params)
+	
+	print(method .. " " .. full_url)
 	
 	local request = {
 		client = client,
@@ -102,17 +149,49 @@ function HandleClient(client)
 		parsed_url = parsed_url,
 		headers = headers
 	}
-	local response = {}
+	local response = {status = 200, response_text = "", headers = {}}
+	setmetatable(response, {__index = response_meta})
 	
-	--PrintTable(request)
+	response:set_header("Server", "LuaServer2")
 	
 	hook.Call("Request", request, response)
+	
+	-- must be after...
+	response:set_header("Content-Type", "text/html")
+	response:set_header("Content-Length", (function() 
+		if not response.file then
+			return response.response_text:len() + 1
+		else 
+			error("file not implimented yet" .. tostring(response.file))
+		end
+	end)())
+
+	
+	
+	local tosend = "HTTP/1.1 " .. tostring(response.status) .. "\n"
+	for k,v in pairs(response.headers) do
+		tosend = tosend .. tostring(k) .. ": " .. tostring(v) .. "\n"
+	end
+	
+	tosend = tosend .. "\n\n"
+	
+	if not response.file then
+		tosend = tosend .. response.response_text
+	end
+	
+	client:send(tosend)
 end
 
 local function on_error(why, request, response)
+	response:set_status(why)
 	print("error:", why.type, request.full_url)
 end
 hook.Add("Error", "log errors", on_error)
+
+local function on_lua_error(info)
+	print("lua error:", unpack(info.pcall_res))
+end
+hook.Add("LuaError", "log errors", on_lua_error)
 
 local server = socket.bind("*", 27015)
 while true do

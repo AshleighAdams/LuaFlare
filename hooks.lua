@@ -16,7 +16,7 @@ hook.Remove = function(hookname, name)
 	if hooktbl == nil then
 		return
 	end
-	hook.hooks[hookname] = nil
+	hooktbl[name] = nil
 end
 
 hook.Call = function (name, ...)
@@ -30,9 +30,12 @@ hook.Call = function (name, ...)
 		
 		if ret[1] then
 			table.remove(ret, 1)
-			return unpack(ret)
+			
+			if #ret ~= 0 then -- if there was a return value, return it, otherwise continue calling the hooks
+				return unpack(ret)
+			end
+		else
+			hook.Call("LuaError", {pcall_res = ret, params = {...}})
 		end
-		
-		hook.Call("LuaError", {pcall_res = ret, params = {...}})
 	end
 end

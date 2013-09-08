@@ -3,7 +3,7 @@ reqs.PatternsRegistered = {}
 reqs.FilesRegistered = {}
 
 local function valid_host(target, what)
-	target = target or ""
+	target = target or "main"
 	return string.match(target, what) ~= nil
 end
 
@@ -19,7 +19,6 @@ local function generate_host_patern(what)
 	-- now, allow things like *domain.net, or *.domain.net, *domain.net*
 	pattern = string.gsub(pattern, "*", ".+")
 	
-	print(what, "->", pattern)
 	return pattern
 end
 
@@ -34,13 +33,12 @@ end
 
 reqs.OnRequest = function(request, response)
 	local hits = {}
+	local req_url = "__start__" .. request.url .. "__end__"
 	
-	for k,v in pairs(reqs.PatternsRegistered) do
+	for k,v in ipairs(reqs.PatternsRegistered) do
 		if valid_host(request.headers.Host, v.host) then
 			local pattern = v.url -- there is a hack, so we detect the start end end of the string (not partial)
-			local req_url = "__start__" .. request.url .. "__end__"
 			local res = { string.match(req_url, pattern) }
-			
 			
 			if #res ~= 0 then
 				table.insert(hits, {hook = v, res = res})
@@ -61,5 +59,90 @@ hook.Add("Request", "default handler", reqs.OnRequest)
 
 
 reqs.AddPattern("*", "/profile/(%d+)", function(request, response, id)
-	print("/profile/" .. id)
+	response:append("Hello, you requested the profile id " .. id)
 end)
+
+local error_type_to_str = {
+	[401] = "Not Authorized",
+	[404] = "Resource Not Found",
+	[501] = "Internal Server Error"
+}
+
+hook.Add("Error", "basic error", function(why, req, res)
+	res:set_status(why.type)
+	res:append(
+		html
+		{
+			head
+			{
+				title { "Error: " .. tostring(why.type) },
+				style
+				{
+					[[
+					body {
+						background-color: #DDDDDD;
+						font-family: Helvetica, Arial, sans-serif;
+					}
+					div.bg_wrapper
+					{
+						width: 500px;
+						margin: 0px auto;
+						margin-top: 15%;
+						background-color: #ffffff;
+						background-image: url(http://lua-users.org/files/wiki_insecure/lua-icons-png/lua-256x256.png);
+						background-repeat: no-repeat;
+						background-position: center center;
+						box-shadow: 0px 0px 50px #888888;
+					}
+					div.wrapper {
+						
+						background-color: rgba(255, 255, 255, 0.95);
+						#border-radius: 4px;
+						padding: 15px;
+					}
+					div.box {
+						background-color: #eeeeff;
+						border: 1px solid #ddddff;
+						padding: 5px;
+					}
+					]]
+				}
+			},
+			body
+			{
+				div {class = "bg_wrapper"}
+				{
+					div {class = "wrapper"}
+					{
+						p {style = "font-size: 22; margin-top: 0px; border-bottom: 1px solid #dddddd"} {"Error"},
+						p { "There was an error wile processing your request!" },
+						div {class = "box"}
+						{
+							"while requesting \"" .. req.full_url .. " an error of type " .. tostring(why.type) .. " (" .. (error_type_to_str[why.type] or "unknown") .. ") was encountered"
+						}
+					}
+				}
+			}
+		}.to_html()
+	)
+end)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

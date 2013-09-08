@@ -115,7 +115,9 @@ generate_tag("title", {inline = true})
 generate_tag("div")
 generate_tag("br", {inline = true, empty_element = true})
 generate_tag("img", {empty_element = true})
-generate_tag("a")
+generate_tag("a", {inline = true})
+generate_tag("p", {inline = true})
+generate_tag("span", {inline = true})
 
 --[[
 
@@ -140,6 +142,8 @@ html
 		}
 	}
 }.print()
+
+produces:
 
 <html>
 	<head>
