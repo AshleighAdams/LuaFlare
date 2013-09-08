@@ -188,8 +188,8 @@ local function on_error(why, request, response)
 end
 hook.Add("Error", "log errors", on_error)
 
-local function on_lua_error(info)
-	print("lua error:", unpack(info.pcall_res))
+local function on_lua_error(err, trace, args)
+	print("lua error:", err)
 end
 hook.Add("LuaError", "log errors", on_lua_error)
 
