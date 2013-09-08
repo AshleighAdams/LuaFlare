@@ -106,10 +106,15 @@ return fact(4)]]
 			
 			local function print(...)
 				local prefix = ""
-				for k,v in pairs({...}) do
+				
+				local args = {...}
+				
+				for i=1, #args do
+					local v = args[i]
 					res:append(html_escape(prefix .. tostring(v)))
-					prefix = "\t"
+					prefix = ", \t"
 				end
+				
 				if prefix ~= "" then
 					res:append(html_escape("\n"))
 				end
@@ -126,7 +131,79 @@ return fact(4)]]
 			
 			if not func then error(err, -1) end
 			
-			setfenv(func, {print = print})
+			------------------------------ ENVIROMENT
+			local meta_tables = {}
+
+			local function safe_setmetatable(tbl, meta)
+				if getmetatable(tbl) and meta_tables[tbl] == nil then return error("sandbox error: unsafe setmetatable!", 2) end
+
+				meta_tables[tbl] = meta
+				setmetatable(tbl, meta)
+			end
+
+			local function safe_getmetatable(tbl)
+				return meta_tables[tbl]
+			end
+			
+			local env = {
+				print = print,
+				ipairs = ipairs, tonumber = tonumber, next = next, pairs = pairs, 
+				pcall = pcall, tonumber = tonumber, tostring = tostring, type = type,
+				unpack = unpack, setmetatable = safe_setmetatable, getmetatable = safe_getmetatable, 
+				coroutine = {
+					create = coroutine.create, resume = coroutine.resume, 
+					running = coroutine.running, status = coroutine.status, 
+					wrap = coroutine.wrap, yield = coroutine.yield
+				},
+				string = { 
+					byte = string.byte, char = string.char, find = string.find, 
+					format = string.format, gmatch = string.gmatch, gsub = string.gsub, 
+					len = string.len, lower = string.lower, match = string.match, 
+					rep = string.rep, reverse = string.reverse, sub = string.sub, 
+					upper = string.upper, Trim = string.Trim, Right = string.Right,
+					ToMinutesSeconds = string.ToMinutesSeconds, Replace = string.Replace,
+					SetChar = string.SetChar, StartWith = string.StartWith, Left = string.Left,
+					TrimLeft = string.TrimLeft, GetExtensionFromFilename = string.GetExtensionFromFilename,
+					Implode = string.Implode, GetPathFromFilename = string.GetPathFromFilename,
+					Comma = string.Comma, JavascriptSafe = string.JavascriptSafe, 
+					StripExtension = string.StripExtension, FromColor = string.FromColor,
+					GetChar = string.GetChar, EndsWith = string.EndsWith, 
+					NiceSize = string.NiceSize, GetFileFromFilename = string.GetFileFromFilename, 
+					TrimRight = string.TrimRight, NiceTime = string.NiceTime, 
+					ToTable = string.ToTable, Explode = string.Explode, Split = string.Split,
+					ToMinutesSecondsMilliseconds = string.ToMinutesSecondsMilliseconds, 
+					FormattedTime = string.FormattedTime, ToColor = string.ToColor
+				},
+				table = {
+					insert = table.insert, maxn = table.maxn, remove = table.remove, 
+					sort = table.sort, HasValue = table.HasValue, Count = table.Count
+				},
+				math = { --table.Copy(math)
+					abs = math.abs, acos = math.acos, asin = math.asin, 
+					atan = math.atan, atan2 = math.atan2, ceil = math.ceil, cos = math.cos, 
+					cosh = math.cosh, deg = math.deg, exp = math.exp, floor = math.floor, 
+					fmod = math.fmod, frexp = math.frexp, huge = math.huge, 
+					ldexp = math.ldexp, log = math.log, log10 = math.log10, max = math.max, 
+					min = math.min, modf = math.modf, pi = math.pi, pow = math.pow, 
+					rad = math.rad, random = math.random, sin = math.sin, sinh = math.sinh, 
+					sqrt = math.sqrt, tan = math.tan, tanh = math.tanh,
+					Round = math.Round, Clamp = math.Clamp
+				},
+				--os = { clock = os.clock, difftime = os.difftime, time = os.time },
+				--bit = {
+				--	tobit = bit.tobit, tohex = bit.tohex, bnot = bit.bnot,
+				--	band = bit.band, bor = bit.bor, bxor = bit.bxor,
+				--	lshift = bit.lshift, rshift = bit.rshift, 
+				--	arshift = bit.arshift, rol = bit.rol, ror = bit.ror, 
+				--	bswap = bit.bswap
+				--},
+			}
+			
+			env._G = env
+			
+			setfenv(func, env)
+			
+			--------------------------------------------------- END ENV
 			
 			local oldhook = debug.gethook()
 			debug.sethook(timeout, "", 1000)
