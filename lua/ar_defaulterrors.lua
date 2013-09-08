@@ -38,6 +38,9 @@ error_template = html
 				background-color: rgba(240, 240, 255, 0.5);
 				border: 1px solid #ddddff;
 				padding: 5px;
+				overflow: auto;
+				overflow-y: hidden;
+				white-space: nowrap;
 			}
 			]]
 		}
@@ -117,16 +120,68 @@ local function basic_lua_error(err, trace, vars, args)
 			
 			val = "\"" .. val .. "\""
 		end
+		
+		return val
+	end
+	
+	local function is_empty_tbl(tbl)
+		for k,v in pairs(tbl) do
+			return false
+		end
+		return true
+	end
+	
+	local function to_lua_table_key(key)
+		if type(key) == "string" then
+			if key:match("[A-z_][A-z_0-9]*") == key then
+				return key
+			end
+			return "[" .. to_lua_value(key) .. "]"
+		else
+			return "[" .. to_lua_value(key) .. "]"
+		end
 	end
 	
 	local function to_lua_table(tbl, depth, done)
+		if is_empty_tbl(tbl) then return "{}" end
+		
+		depth = depth or 1
+		done = done or {}
+		
+		local ret = "{</br>\n"
+		local tabs = string.rep("&nbsp;", depth * 4)
+		
+		for k, v in pairs(tbl) do
+			ret = ret .. tabs .. to_lua_table_key(k) .. " = "
+			
+			if type(v) ~= "table" or done[v] then
+				ret = ret .. to_lua_value(v)
+			else
+				ret = ret .. to_lua_table(v, depth + 1, done)
+			end
+			
+			ret = ret .. ",<br/>\n"
+		end
+		
+		-- remove last comma
+		ret = ret:sub(1, ret:len() - 7) .. "<br/>\n"
+		
+		tabs = string.rep("&nbsp;", (depth - 1) * 4)
+		ret = ret .. tabs .. "}"
+		return ret
 	end
 	
+	local done = {}
 	for varname in line:gmatch("[A-z_][A-z0-9]*") do
-		if vars[varname] ~= nil then
-			local val = tostring(vars[varname])
+		if vars[varname] ~= nil and not done[varname] then
+			done[varname] = true
+			
+			local val = to_lua_value(vars[varname])
 			local typ = type(vars[varname])
 			
+			if typ == "table" then
+				val = to_lua_table(vars[varname])
+			end
 			
 			code = code .. "local " .. varname .. " = " .. val .. "<br />"
 		end

@@ -37,7 +37,7 @@ function read_headers(client)
 		
 		if not s or s == "" then break end
 		if s ~= nil then
-			local key, val = string.match(s, "(.+):%s*(.+)")
+			local key, val = string.match(s, "([%a-]+):%s*(.+)")
 			ret[key] = val
 		end
 	end
@@ -129,7 +129,7 @@ end
 
 ---------------------------------------------------
 
-function HandleClient(client)
+function handle_client(client)
 	local action = client:receive("*l")
 	
 	if not action then return end -- failed reading
@@ -140,7 +140,7 @@ function HandleClient(client)
 	local parsed_url = url.parse(full_url)
 	local url = url.unescape(parsed_url.path)
 	
-	parsed_url.params = parse_params(parsed_url.params)
+	parsed_url.params = parse_params(parsed_url.query)
 	
 	print(method .. " " .. full_url)
 	
@@ -224,7 +224,9 @@ autorun()
 local server = socket.bind("*", 27015)
 while true do
 	local client = server:accept()
-	HandleClient(client)
+	client:settimeout(1)
+	
+	handle_client(client)
 	client:close()
 end
 

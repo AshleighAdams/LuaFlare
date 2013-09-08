@@ -57,3 +57,144 @@ end
 
 hook.Add("Request", "default handler", reqs.OnRequest)
 
+
+
+hook.Add("Error", "basic error", function(why, req, res)
+	res:set_status(why.type)
+	res:clear()
+	res:append(
+		html
+		{
+			head
+			{
+				title { "Error: " .. tostring(why.type) },
+				style
+				{
+					[[
+					body {
+						background-color: #DDDDDD;
+						font-family: Helvetica, Arial, sans-serif;
+					}
+					div.bg_wrapper
+					{
+						width: 500px;
+						margin: 0px auto;
+						margin-top: 100px;
+						background-color: #ffffff;
+						background-image: ]]..lua_icon_base64..[[;
+						background-repeat: no-repeat;
+						background-position: center center;
+						box-shadow: 0px 0px 50px #888888;
+					}
+					div.wrapper {
+						
+						background-color: rgba(255, 255, 255, 0.95);
+						#border-radius: 4px;
+						padding: 15px;
+					}
+					div.box {
+						background-color: rgba(240, 240, 255, 0.5);
+						border: 1px solid #ddddff;
+						padding: 5px;
+					}
+					]]
+				}
+			},
+			body
+			{
+				div {class = "bg_wrapper"}
+				{
+					div {class = "wrapper"}
+					{
+						p {style = "font-size: 22; margin-top: 0px; border-bottom: 1px solid #dddddd"} {"Error!"},
+						p { "There was an error wile processing your request!" },
+						div {class = "box"}
+						{
+							"while requesting \"" .. req.full_url .. " an error of type " .. tostring(why.type) .. " (" .. (error_type_to_str[why.type] or "unknown") .. ") was encountered"
+						}
+					}
+				}
+			}
+		}.to_html()
+	)
+end)
+
+hook.Add("LuaError", "basic error", function(err, trace, vars, args)
+	local req = args[1]
+	local res = args[2]
+	
+	trace = trace or "stack trace unavailble"
+	local strvars = ""
+	
+	for k,v in pairs(vars) do
+		strvars = strvars .. "(" .. type(v) .. ") " .. tostring(k) .. " = " .. tostring(v) .. "\n<br/>"
+	end
+	
+	res:clear()
+	res:set_status(501)
+	
+	res:append(
+		html
+		{
+			head
+			{
+				title { "Lua Error" },
+				style
+				{
+					[[
+					body {
+						background-color: #DDDDDD;
+						font-family: Helvetica, Arial, sans-serif;
+					}
+					div.bg_wrapper
+					{
+						width: 500px;
+						margin: 0px auto;
+						margin-top: 100px;
+						background-color: #ffffff;
+						background-image: ]]..lua_icon_base64..[[;
+						background-repeat: no-repeat;
+						background-position: center center;
+						box-shadow: 0px 0px 50px #888888;
+					}
+					div.wrapper {
+						
+						background-color: rgba(255, 255, 255, 0.95);
+						#border-radius: 4px;
+						padding: 15px;
+					}
+					div.box {
+						background-color: rgba(240, 240, 255, 0.5);
+						border: 1px solid #ddddff;
+						padding: 5px;
+					}
+					]]
+				}
+			},
+			body
+			{
+				div {class = "bg_wrapper"}
+				{
+					div {class = "wrapper"}
+					{
+						p {style = "font-size: 22; margin-top: 0px; border-bottom: 1px solid #dddddd"} {"Error!"},
+						p { "A Lua error was encountered while trying to process your request!" },
+						div {class = "box", style="margin-bottom: 5px;"}
+						{
+							'while requesting "' .. req.full_url .. '":', br,
+							err
+						},
+						div {class = "box", style="margin-bottom: 5px;"}
+						{
+							"local vars:", br, strvars
+						},
+						div {class = "box"}
+						{
+							(trace:gsub("\n", "<br />\n"))
+						}
+					}
+				}
+			}
+		}.to_html()
+	)
+end)
