@@ -97,7 +97,7 @@ local function basic_lua_error(err, trace, vars, args)
 	local strvars = ""
 	
 	for k,v in pairs(vars) do
-		strvars = strvars .. "(" .. type(v) .. ") " .. tostring(k) .. " = " .. tostring(v) .. "\n<br/>"
+		strvars = strvars .. "(" .. type(v) .. ") " .. tostring(k) .. " = " .. tostring(v) .. "\n"
 	end
 	
 	res:clear()
@@ -148,8 +148,8 @@ local function basic_lua_error(err, trace, vars, args)
 		depth = depth or 1
 		done = done or {}
 		
-		local ret = "{</br>\n"
-		local tabs = string.rep("&nbsp;", depth * 4)
+		local ret = "{\n"
+		local tabs = string.rep("\t", depth)
 		
 		for k, v in pairs(tbl) do
 			ret = ret .. tabs .. to_lua_table_key(k) .. " = "
@@ -160,13 +160,13 @@ local function basic_lua_error(err, trace, vars, args)
 				ret = ret .. to_lua_table(v, depth + 1, done)
 			end
 			
-			ret = ret .. ",<br/>\n"
+			ret = ret .. ",\n"
 		end
 		
 		-- remove last comma
-		ret = ret:sub(1, ret:len() - 7) .. "<br/>\n"
+		ret = ret:sub(1, ret:len() - 2) .. "\n"
 		
-		tabs = string.rep("&nbsp;", (depth - 1) * 4)
+		tabs = string.rep("\t", depth - 1)
 		ret = ret .. tabs .. "}"
 		return ret
 	end
@@ -183,7 +183,7 @@ local function basic_lua_error(err, trace, vars, args)
 				val = to_lua_table(vars[varname])
 			end
 			
-			code = code .. "local " .. varname .. " = " .. val .. "<br />"
+			code = code .. "local " .. varname .. " = " .. val .. "\n"
 		end
 	end
 	
@@ -193,16 +193,17 @@ local function basic_lua_error(err, trace, vars, args)
 		p { "A Lua error was encountered while trying to process your request!" },
 		div {class = "box", style="margin-bottom: 5px;"}
 		{
-			err
+			html_escape(err)
 		},
 		div {class = "box", style = "font-family: monospace; margin-bottom: 5px;"}
 		{
-			code, br,
+			html_escape(code),
+			br,
 			line
 		},
 		div {class = "box"}
 		{
-			(trace:gsub("\n", "<br />\n"))
+			html_escape(trace)
 		}
 	}
 	

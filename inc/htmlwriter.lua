@@ -83,14 +83,16 @@ function generate_html(first, tbl, depth, parent, section, current_section)
 			whattowrite = whattowrite:gsub("\n", "\n" .. tabs)
 		end
 		
+		--whattowrite = html_escape(whattowrite)
+		
 		if not first and parent.tag_options.inline then
-			generated_html = generated_html .. tostring(whattowrite)
+			generated_html = generated_html .. whattowrite
 		else
 			if was_inline then
 				generated_html = generated_html .. "\n"
 			end
 			
-			generated_html = generated_html .. tabs .. tostring(whattowrite) .. "\n"
+			generated_html = generated_html .. tabs .. whattowrite .. "\n"
 		end
 	end
 	

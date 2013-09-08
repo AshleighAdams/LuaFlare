@@ -86,6 +86,18 @@ function parse_params(str)
 end
 
 
+function html_escape(str, newlines)
+	str = str:gsub("&", "&amp;")
+	str = str:gsub('"', "&quot;")
+	str = str:gsub("'", "&apos;")
+	str = str:gsub("<", "&lt;")
+	str = str:gsub(">", "&gt;")
+	
+	str = str:gsub("\t", "&nbsp;&nbsp;&nbsp;&nbsp;")
+	str = str:gsub("\n", "<br />\n")
+	return str
+end
+
 ----------------------------------- response portion
 local response_meta = {}
 
