@@ -28,6 +28,72 @@ function PrintTable(tbl, done, depth)
 	end
 end
 
+function to_lua_value(var, notable)
+	local val = tostring(var)
+	
+	if type(var) == "string" then
+		val = val:gsub("\\", "\\\\")
+		val = val:gsub("\n", "\\n")
+		val = val:gsub("\t", "\\t")
+		val = val:gsub("\r", "\\r")
+		val = val:gsub("\"", "\\\"")
+		
+		val = "\"" .. val .. "\""
+	elseif type(var) == "table" and not notable then
+		return to_lua_table(var)
+	end
+	
+	return val
+end
+
+function is_empty_tbl(tbl)
+	for k,v in pairs(tbl) do
+		return false
+	end
+	return true
+end
+
+local function to_lua_table_key(key)
+	if type(key) == "string" then
+		if key:match("[A-z_][A-z_0-9]*") == key then
+			return key
+		end
+		return "[" .. to_lua_value(key) .. "]"
+	else
+		return "[" .. to_lua_value(key) .. "]"
+	end
+end
+
+function to_lua_table(tbl, depth, done)
+	if is_empty_tbl(tbl) then return "{}" end
+	
+	depth = depth or 1
+	done = done or {}
+	done[tbl] = true
+	
+	local ret = "{\n"
+	local tabs = string.rep("\t", depth)
+	
+	for k, v in pairs(tbl) do
+		ret = ret .. tabs .. to_lua_table_key(k) .. " = "
+		
+		if type(v) ~= "table" or done[v] then
+			ret = ret .. to_lua_value(v, true)
+		else
+			ret = ret .. to_lua_table(v, depth + 1, done)
+		end
+		
+		ret = ret .. ",\n"
+	end
+	
+	-- remove last comma
+	ret = ret:sub(1, ret:len() - 2) .. "\n"
+	
+	tabs = string.rep("\t", depth - 1)
+	ret = ret .. tabs .. "}"
+	return ret
+end
+
 
 function read_headers(client)
 	local ret = {}
@@ -62,6 +128,7 @@ function parse_params(str)
 	
 	for i = 1, str:len() do
 		local char = str:sub(i, i)
+		if char == "+" then char = " " end
 		
 		if in_name then
 			if char == '=' then
@@ -86,15 +153,19 @@ function parse_params(str)
 end
 
 
-function html_escape(str, newlines)
+function html_escape(str, strict)
+	if strict == nil then strict = true end
+	
 	str = str:gsub("&", "&amp;")
 	str = str:gsub('"', "&quot;")
 	str = str:gsub("'", "&apos;")
 	str = str:gsub("<", "&lt;")
 	str = str:gsub(">", "&gt;")
 	
-	str = str:gsub("\t", "&nbsp;&nbsp;&nbsp;&nbsp;")
-	str = str:gsub("\n", "<br />\n")
+	if strict then
+		str = str:gsub("\t", "&nbsp;&nbsp;&nbsp;&nbsp;")
+		str = str:gsub("\n", "<br />\n")
+	end
 	return str
 end
 
@@ -154,7 +225,7 @@ function handle_client(client)
 	
 	parsed_url.params = parse_params(parsed_url.query)
 	
-	print(method .. " " .. full_url)
+	print(method .. " " .. url)
 	
 	local request = {
 		client = client,

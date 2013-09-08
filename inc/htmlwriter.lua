@@ -69,6 +69,10 @@ function generate_html(first, tbl, depth, parent, section, current_section)
 				generated_html = generated_html .. "</" .. tbl.name .. ">" .. "\n"
 			end
 		end
+	elseif type(tbl) == "table" and section == current_section[1] then
+		for k,v in pairs(tbl) do
+			generate_html(false, v, depth + 1, parent, section, current_section)
+		end
 	elseif section == current_section[1] then
 		local whattowrite = tostring(tbl)
 		local in_tabs = nil
@@ -207,6 +211,9 @@ generate_tag("pre")
 generate_tag("table")
 generate_tag("tr")
 generate_tag("tc")
+generate_tag("form")
+generate_tag("input")
+generate_tag("textarea")
 
 --[[
 

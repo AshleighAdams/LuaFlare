@@ -72,12 +72,12 @@ local function basic_error(why, req, res)
 			"while requesting",
 			tags.code
 			{
-				req.full_url
+				html_escape(req.url)
 			},
 			" an error of type ",
 			tags.code
 			{
-				tostring(why.type) .. " (" .. (error_type_to_str[why.type] or "unknown") .. ")"
+				html_escape(tostring(why.type) .. " (" .. (error_type_to_str[why.type] or "unknown") .. ")")
 			},
 			" was encountered"
 		}
@@ -113,72 +113,21 @@ local function basic_lua_error(err, trace, vars, args)
 	res:clear()
 	res:set_status(501)
 	
-	local line_num = tonumber(err:match("%.lua%:(%d+)%:"))
-	local file = err:match("(.+):" .. tostring(line_num) .. ": ")
-	
-	local line = line_from(file, line_num)
+	local line_num = err:match("%.lua%:(%d+)%:")
+	local line
 	local code = ""
 	
-	local function to_lua_value(var)
-		local val = tostring(var)
+	if line_num ~= nil then
+		local file = err:match("(.+):" .. line_num .. ": ")
+		line_num = tonumber(line_num)
 		
-		if type(var) == "string" then
-			val = val:gsub("\n", "\\n")
-			val = val:gsub("\t", "\\t")
-			val = val:gsub("\r", "\\r")
-			val = val:gsub("\"", "\\\"")
-			
-			val = "\"" .. val .. "\""
+		line = line_from(file, line_num):gsub("\t", "")
+	else
+		line = hook.Call("LuaGetLine", err)
+		
+		if line == nil then
+			line = "could not locate source"
 		end
-		
-		return val
-	end
-	
-	local function is_empty_tbl(tbl)
-		for k,v in pairs(tbl) do
-			return false
-		end
-		return true
-	end
-	
-	local function to_lua_table_key(key)
-		if type(key) == "string" then
-			if key:match("[A-z_][A-z_0-9]*") == key then
-				return key
-			end
-			return "[" .. to_lua_value(key) .. "]"
-		else
-			return "[" .. to_lua_value(key) .. "]"
-		end
-	end
-	
-	local function to_lua_table(tbl, depth, done)
-		if is_empty_tbl(tbl) then return "{}" end
-		
-		depth = depth or 1
-		done = done or {}
-		
-		local ret = "{\n"
-		local tabs = string.rep("\t", depth)
-		
-		for k, v in pairs(tbl) do
-			ret = ret .. tabs .. to_lua_table_key(k) .. " = "
-			
-			if type(v) ~= "table" or done[v] then
-				ret = ret .. to_lua_value(v)
-			else
-				ret = ret .. to_lua_table(v, depth + 1, done)
-			end
-			
-			ret = ret .. ",\n"
-		end
-		
-		-- remove last comma
-		ret = ret:sub(1, ret:len() - 2) .. "\n"
-		
-		tabs = string.rep("\t", depth - 1)
-		ret = ret .. tabs .. "}"
-		return ret
 	end
 	
 	local done = {}
@@ -197,6 +146,9 @@ local function basic_lua_error(err, trace, vars, args)
 		end
 	end
 	
+	local br_tag = tags.br
+	if code == "" then br_tag = "" end
+	
 	local content =
 	tags.div
 	{
@@ -208,8 +160,8 @@ local function basic_lua_error(err, trace, vars, args)
 		tags.div {class = "box nowrap", style = "font-family: monospace; margin-bottom: 5px;"}
 		{
 			html_escape(code),
-			tags.br,
-			line
+			br_tag,
+			html_escape(line)
 		},
 		tags.div {class = "box nowrap"}
 		{
