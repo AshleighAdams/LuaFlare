@@ -145,6 +145,11 @@ return fact(4)]]
 				return meta_tables[tbl]
 			end
 			
+			local function safe_stringrep(str, count)
+				if count > 1000 then error("count is too big", 2) end
+				return string.rep(str, count)
+			end
+			
 			local env = {
 				print = print,
 				ipairs = ipairs, tonumber = tonumber, next = next, pairs = pairs, 
@@ -159,24 +164,12 @@ return fact(4)]]
 					byte = string.byte, char = string.char, find = string.find, 
 					format = string.format, gmatch = string.gmatch, gsub = string.gsub, 
 					len = string.len, lower = string.lower, match = string.match, 
-					rep = string.rep, reverse = string.reverse, sub = string.sub, 
-					upper = string.upper, Trim = string.Trim, Right = string.Right,
-					ToMinutesSeconds = string.ToMinutesSeconds, Replace = string.Replace,
-					SetChar = string.SetChar, StartWith = string.StartWith, Left = string.Left,
-					TrimLeft = string.TrimLeft, GetExtensionFromFilename = string.GetExtensionFromFilename,
-					Implode = string.Implode, GetPathFromFilename = string.GetPathFromFilename,
-					Comma = string.Comma, JavascriptSafe = string.JavascriptSafe, 
-					StripExtension = string.StripExtension, FromColor = string.FromColor,
-					GetChar = string.GetChar, EndsWith = string.EndsWith, 
-					NiceSize = string.NiceSize, GetFileFromFilename = string.GetFileFromFilename, 
-					TrimRight = string.TrimRight, NiceTime = string.NiceTime, 
-					ToTable = string.ToTable, Explode = string.Explode, Split = string.Split,
-					ToMinutesSecondsMilliseconds = string.ToMinutesSecondsMilliseconds, 
-					FormattedTime = string.FormattedTime, ToColor = string.ToColor
+					rep = safe_stringrep, reverse = string.reverse, sub = string.sub, 
+					upper = string.upper
 				},
 				table = {
 					insert = table.insert, maxn = table.maxn, remove = table.remove, 
-					sort = table.sort, HasValue = table.HasValue, Count = table.Count
+					sort = table.sort, concat = table.concat
 				},
 				math = { --table.Copy(math)
 					abs = math.abs, acos = math.acos, asin = math.asin, 
@@ -186,8 +179,7 @@ return fact(4)]]
 					ldexp = math.ldexp, log = math.log, log10 = math.log10, max = math.max, 
 					min = math.min, modf = math.modf, pi = math.pi, pow = math.pow, 
 					rad = math.rad, random = math.random, sin = math.sin, sinh = math.sinh, 
-					sqrt = math.sqrt, tan = math.tan, tanh = math.tanh,
-					Round = math.Round, Clamp = math.Clamp
+					sqrt = math.sqrt, tan = math.tan, tanh = math.tanh
 				},
 				--os = { clock = os.clock, difftime = os.difftime, time = os.time },
 				--bit = {
@@ -211,6 +203,7 @@ return fact(4)]]
 			
 			if not rets[1] then
 				debug.sethook(oldhook)
+				error(rets[2], -1)
 				return
 			end
 			table.remove(rets, 1)
