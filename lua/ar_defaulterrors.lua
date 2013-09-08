@@ -5,12 +5,12 @@ local error_type_to_str = {
 	[501] = "Internal Server Error"
 }
 
-error_template = html
+error_template = tags.html
 {
-	head
+	tags.head
 	{
-		title { "Error" },
-		style
+		tags.title { "Error" },
+		tags.style
 		{
 			[[
 			body {
@@ -40,19 +40,21 @@ error_template = html
 				padding: 5px;
 				overflow: auto;
 				overflow-y: hidden;
+			}
+			div.nowrap {
 				white-space: nowrap;
 			}
 			]]
 		}
 	},
-	body
+	tags.body
 	{
-		div {class = "bg_wrapper"}
+		tags.div {class = "bg_wrapper"}
 		{
-			div {class = "wrapper"}
+			tags.div {class = "wrapper"}
 			{
-				p {style = "font-size: 22; margin-top: 0px; border-bottom: 1px solid #dddddd"} {"Error!"},
-				SECTION
+				tags.p {style = "font-size: 22; margin-top: 0px; border-bottom: 1px solid #dddddd"} {"Error!"},
+				tags.SECTION
 			}
 		}
 	}
@@ -62,16 +64,24 @@ local function basic_error(why, req, res)
 	res:set_status(why.type)
 	res:clear()
 	
-	local content = div
+	local content = tags.div
 	{
-		p { "There was an error while processing your request!" },
-		div {class = "box"}
+		tags.p { "There was an error while processing your request!" },
+		tags.div {class = "box"}
 		{
-			"while requesting \"" .. req.full_url .. " an error of type " .. tostring(why.type) .. " (" .. (error_type_to_str[why.type] or "unknown") .. ") was encountered"
+			"while requesting",
+			tags.code
+			{
+				req.full_url
+			},
+			" an error of type ",
+			tags.code
+			{
+				tostring(why.type) .. " (" .. (error_type_to_str[why.type] or "unknown") .. ")"
+			},
+			" was encountered"
 		}
 	}
-	
-	
 	
 	error_template.to_response(res, 0)
 	content.to_response(res)
@@ -188,20 +198,20 @@ local function basic_lua_error(err, trace, vars, args)
 	end
 	
 	local content =
-	div
+	tags.div
 	{
-		p { "A Lua error was encountered while trying to process your request!" },
-		div {class = "box", style="margin-bottom: 5px;"}
+		tags.p { "A Lua error was encountered while trying to process your request!" },
+		tags.div {class = "box", style="margin-bottom: 5px;"}
 		{
 			html_escape(err)
 		},
-		div {class = "box", style = "font-family: monospace; margin-bottom: 5px;"}
+		tags.div {class = "box nowrap", style = "font-family: monospace; margin-bottom: 5px;"}
 		{
 			html_escape(code),
-			br,
+			tags.br,
 			line
 		},
-		div {class = "box"}
+		tags.div {class = "box nowrap"}
 		{
 			html_escape(trace)
 		}

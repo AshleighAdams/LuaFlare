@@ -1,3 +1,4 @@
+tags = {}
 
 local generated_html = ""
 function generate_html(first, tbl, depth, parent, section, current_section)
@@ -157,10 +158,10 @@ end
 function generate_tag(name, options)
 	options = options or {}
 	
-	_G[name] = function(tbl)
+	tags[name] = function(tbl)
 		if type(tbl) ~= "table" or is_extra_data(tbl) then
 			return function(...)
-				local ret = _G[name](...)
+				local ret = tags[name](...)
 				
 				ret.extra = tbl
 				return ret
@@ -201,6 +202,11 @@ generate_tag("img", {empty_element = true})
 generate_tag("a", {inline = true})
 generate_tag("p", {inline = true})
 generate_tag("span", {inline = true})
+generate_tag("code", {inline = true})
+generate_tag("pre")
+generate_tag("table")
+generate_tag("tr")
+generate_tag("tc")
 
 --[[
 
