@@ -207,7 +207,7 @@ local function ends_with(what, with)
 end
 
 local function autorun(dir)
-	dir = dir or "./lua/"
+	dir = dir or "lua/"
 	for file in lfs.dir("./lua/") do
 		if lfs.attributes(dir .. file, "mode") == "file" then
 			if starts_with(file, "ar_") and ends_with(file, ".lua") then

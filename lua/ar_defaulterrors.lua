@@ -19,9 +19,9 @@ error_template = html
 			}
 			div.bg_wrapper
 			{
-				width: 500px;
+				width: 600px;
 				margin: 0px auto;
-				margin-top: 100px;
+				margin-top: 50px;
 				background-color: #ffffff;
 				background-image: url(http://lua-users.org/files/wiki_insecure/lua-icons-png/lua-256x256.png);
 				background-repeat: no-repeat;
@@ -76,7 +76,17 @@ local function basic_error(why, req, res)
 end
 hook.Add("Error", "basic error", basic_error)
 
-hook.Add("LuaError", "basic error", function(err, trace, vars, args)
+function line_from(file, line_targ)
+	for line in io.lines(file) do 
+		line_targ = line_targ - 1
+		if line_targ == 0 then
+			return line
+		end
+	end
+	return ""
+end
+
+local function basic_lua_error(err, trace, vars, args)
 	local req = args[1]
 	local res = args[2]
 	
@@ -90,18 +100,50 @@ hook.Add("LuaError", "basic error", function(err, trace, vars, args)
 	res:clear()
 	res:set_status(501)
 	
+	local line_num = tonumber(err:match("%.lua%:(%d+)%:"))
+	local file = err:match("(.+):" .. tostring(line_num) .. ": ")
+	
+	local line = line_from(file, line_num)
+	local code = ""
+	
+	local function to_lua_value(var)
+		local val = tostring(var)
+		
+		if type(var) == "string" then
+			val = val:gsub("\n", "\\n")
+			val = val:gsub("\t", "\\t")
+			val = val:gsub("\r", "\\r")
+			val = val:gsub("\"", "\\\"")
+			
+			val = "\"" .. val .. "\""
+		end
+	end
+	
+	local function to_lua_table(tbl, depth, done)
+	end
+	
+	for varname in line:gmatch("[A-z_][A-z0-9]*") do
+		if vars[varname] ~= nil then
+			local val = tostring(vars[varname])
+			local typ = type(vars[varname])
+			
+			
+			code = code .. "local " .. varname .. " = " .. val .. "<br />"
+		end
+	end
+	
 	local content =
 	div
 	{
 		p { "A Lua error was encountered while trying to process your request!" },
 		div {class = "box", style="margin-bottom: 5px;"}
 		{
-			'while requesting "' .. req.full_url .. '":', br,
 			err
 		},
-		div {class = "box", style="margin-bottom: 5px;"}
+		div {class = "box", style = "font-family: monospace; margin-bottom: 5px;"}
 		{
-			"local vars:", br, strvars
+			code, br,
+			line
 		},
 		div {class = "box"}
 		{
@@ -112,4 +154,5 @@ hook.Add("LuaError", "basic error", function(err, trace, vars, args)
 	error_template.to_response(res, 0)
 	content.to_response(res)
 	error_template.to_response(res, 1)
-end)
+end
+hook.Add("LuaError", "basic error", basic_lua_error)

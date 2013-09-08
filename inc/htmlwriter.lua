@@ -178,7 +178,6 @@ function generate_tag(name, options)
 			local extra_tabs = string.rep("\t", at_tabs - start_depth)
 			
 			gen = extra_tabs .. gen:gsub("\n", "\n" .. extra_tabs)
-			print(at_tabs, start_depth)
 			response:append(gen)
 		end
 		
