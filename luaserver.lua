@@ -7,6 +7,7 @@ dofile("inc/requesthooks.lua")
 
 local socket = require("socket")
 local url = require("socket.url")
+local ssl = require("ssl")
 require("lfs")
 
 
@@ -298,7 +299,7 @@ local function on_lua_error(err, trace, args)
 end
 hook.Add("LuaError", "log errors", on_lua_error)
 
-require'lfs'
+
 
 local function starts_with(what, with)
 	return what:sub(1, with:len()) == with
@@ -323,11 +324,33 @@ local function autorun(dir)
 end
 autorun()
 
+local https = true
+local params = {
+	mode = "server",
+--	protocol = "tlsv1",
+	protocol = "sslv3",
+	key = "keys/key.pem",
+	certificate = "keys/certificate.pem",
+--	cafile = "keys/request.pem", -- uncomment these lines if you want to verify the client
+--	verify = {"peer", "fail_if_no_peer_cert"},
+	options = {"all", "no_sslv2"},
+	ciphers = "ALL:!ADH:@STRENGTH",
+}
+
 local server = socket.bind("*", 8080)
 assert(server)
+
 while true do
 	local client = server:accept()
 	client:settimeout(1)
+	
+	if https then
+		client, err = ssl.wrap(client, params)
+		assert(client, err)
+		
+		local suc, err = client:dohandshake()
+		if not suc then print("ssl failed: ", err) end
+	end
 	
 	handle_client(client)
 	client:close()
