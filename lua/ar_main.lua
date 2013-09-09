@@ -146,7 +146,7 @@ return fact(4)]]
 			end
 			
 			local function safe_stringrep(str, count)
-				if count > 1000 then error("count is too big", 2) end
+				if (#str + count) > 1000 then error("count is too big", 2) end
 				return string.rep(str, count)
 			end
 			
