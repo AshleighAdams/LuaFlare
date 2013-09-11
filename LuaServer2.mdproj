@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Default</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ItemType>GenericProject</ItemType>
+    <ProductVersion>10.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{95B03DF5-F098-4C10-AD30-77AA668B20DC}</ProjectGuid>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Default|AnyCPU' ">
+    <OutputPath>.\</OutputPath>
+    <CustomCommands>
+      <CustomCommands>
+        <Command type="Build" command="luac ./luaserver.lua" workingdir="${ProjectDir}" />
+        <Command type="Execute" command="./luaserver.lua" workingdir="${ProjectDir}" externalConsole="True" />
+      </CustomCommands>
+    </CustomCommands>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="inc\" />
+    <Folder Include="keys\" />
+    <Folder Include="lua\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="inc\hooks.lua" />
+    <None Include="inc\htmlwriter.lua" />
+    <None Include="inc\lua_icon_base64.lua" />
+    <None Include="inc\requesthooks.lua" />
+    <None Include="keys\certificate.pem" />
+    <None Include="keys\generatekey.sh" />
+    <None Include="keys\key.pem" />
+    <None Include="keys\request.pem" />
+    <None Include="lua\ar_defaulterrors.lua" />
+    <None Include="lua\ar_main.lua" />
+    <None Include="lua\ar_minecraft.lua" />
+    <None Include="luaserver.lua" />
+  </ItemGroup>
+</Project>
