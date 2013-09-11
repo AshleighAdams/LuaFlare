@@ -32,17 +32,15 @@ function Request(client)
 	end
 	
 	local parsed_url = url.parse(full_url)
-	local url = url.unescape(parsed_url.path)
-	
-	parsed_url.params = parse_params(parsed_url.query)
-	
+		
 	local request = {
 		_client = client,
 		_method = method,
-		_url = url,
+		_url = url.unescape(parsed_url.path),
 		_full_url = full_url,
 		_parsed_url = parsed_url,
 		_headers = headers,
+		_params = parse_params(parsed_url.query),
 		_post_data = {}
 	}
 	
@@ -75,7 +73,7 @@ function meta:method()
 end
 
 function meta:params()
-	return self._parsed_url.params
+	return self._params
 end
 
 function meta:post_data()
