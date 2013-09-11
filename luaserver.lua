@@ -9,10 +9,9 @@ dofile("inc/response.lua")
 
 local socket = require("socket")
 local ssl = require("ssl")
-
-
 require("lfs")
 
+script.parse_arguments(arg)
 
 function handle_client(client)
 	local request, err = Request(client)
@@ -66,7 +65,7 @@ local params = {
 }
 
 function main()
-	local server, err = socket.bind("*", 8080)
+	local server, err = socket.bind("*", script.options.port or 8080)
 	assert(server, err)
 	-- so we can spawn many processes
 	--server:setoption("reuseport", true)

@@ -3,6 +3,7 @@
 table = table or {}
 string = string or {}
 escape = escape or {}
+script = script or {}
 
 ------ Table functions
 function PrintTable(tbl, done, depth)
@@ -186,4 +187,95 @@ function escape.sql(input)
 	input = input:gsub("\"", "\\\"")
 	
 	return input
+end
+
+------- os.*
+
+function os.capture(cmd, raw)
+	local f = assert(io.popen(cmd, 'r'))
+	local s = assert(f:read('*a'))
+	f:close()
+	if raw then return s end
+	s = string.gsub(s, '^%s+', '')
+	s = string.gsub(s, '%s+$', '')
+	s = string.gsub(s, '[\n\r]+', ' ')
+	return s
+end
+
+local _platform = nil
+local _version = 0
+function os.platform()
+	if _platform then return _platform, _version end
+	
+	local ret = os.capture("uname -a")
+	if ret == nil then
+		_platform = "windows"
+		_version = 6.1
+	elseif ret:find("Linux") then
+		_platform = "linux"
+		_version = tonumber(table.concat({ret:match("(%d+%.%d+)%.(%d+)")}))
+	elseif ret:find("Darwin") then
+		_.platform = "mac" -- i hope mac version will work the same
+		_version = tonumber(table.concat({ret:match("(%d+%.%d+)%.(%d+)")}))
+	else
+		_platform = "unknown"
+		_version = "0"
+	end
+	
+	return _platform, _version
+end
+
+------- script.*
+local _pid = nil
+function script.pid() -- attempt to locate the PID of the process
+	if _pid ~= nil then return _pid end
+	
+	local stat = io.open("/proc/self/stat")
+	
+	if not stat then
+		_pid = -1
+		local contents = stat:read("*all")
+		local sb = contents:match("(%d+)") -- get the first number
+		
+		_pid = tonumber(sb) or -2
+	else
+		_pid = -1
+		stat:close()
+	end
+	
+	return _pid
+end
+
+function script.current_file(depth) -- 0 = caller, 1 = caller's parent, 2 = caller's caller's parent
+	return debug.getinfo((depth or 0) + 2).source
+end
+
+function script.instance_info()
+	return string.format("on %d", script.pid())
+end
+
+script.options = {}
+script.arguments = {}
+script.filename = ""
+
+function script.parse_arguments(args)
+	script.filename = args[1]
+	table.remove(args, 1)
+	
+	for k, v in ipairs(args) do
+		local long_set = {v:find("--(%w+)=(%w+)")}
+		local long = {v:find("--(%w+)")}
+		local short = {v:find("-(%w+)")}
+
+		if long_set[1] then
+			options[long_set[3]] = long_set[4]
+		elseif long[1] then
+			options[long[3]] = true
+		elseif short[1] then
+			local opts = short[3]
+			for i = 0, opts:len() do
+				options[opts[i]] = true
+			end
+		end
+	end
 end
