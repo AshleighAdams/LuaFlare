@@ -115,6 +115,7 @@ local function basic_lua_error(err, trace, vars, args)
 		strvars = strvars .. "(" .. type(v) .. ") " .. tostring(k) .. " = " .. tostring(v) .. "\n"
 	end
 	
+	if res == nil or not res.clear then return end
 	res:clear()
 	res:set_status(501)
 	
