@@ -10,42 +10,7 @@ error_template = tags.html
 	tags.head
 	{
 		tags.title { "Error" },
-		tags.style
-		{
-			[[
-			body {
-				background-color: #DDDDDD;
-				font-family: Helvetica, Arial, sans-serif;
-			}
-			div.bg_wrapper
-			{
-				width: 600px;
-				margin: 0px auto;
-				margin-top: 50px;
-				background-color: #ffffff;
-				background-image: url(http://lua-users.org/files/wiki_insecure/lua-icons-png/lua-256x256.png);
-				background-repeat: no-repeat;
-				background-position: center center;
-				box-shadow: 0px 0px 50px #888888;
-			}
-			div.wrapper {
-				
-				background-color: rgba(255, 255, 255, 0.95);
-				#border-radius: 4px;
-				padding: 15px;
-			}
-			div.box {
-				background-color: rgba(240, 240, 255, 0.5);
-				border: 1px solid #ddddff;
-				padding: 5px;
-				overflow: auto;
-				overflow-y: hidden;
-			}
-			div.nowrap {
-				white-space: nowrap;
-			}
-			]]
-		}
+		tags.link {rel = "stylesheet", type = "text/css", href = "/error_style.css"}
 	},
 	tags.body
 	{

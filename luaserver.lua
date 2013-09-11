@@ -8,6 +8,8 @@ dofile("inc/requesthooks.lua")
 local socket = require("socket")
 local url = require("socket.url")
 local ssl = require("ssl")
+local mimetypes = require("inc.mimetypes")
+
 require("lfs")
 
 
@@ -193,12 +195,26 @@ function response_meta:clear()
 end
 
 function response_meta:set_file(path)
-	assert(self and path)
+	if type(path) ~= "string" then error("argument #1, string expected, got " .. type(path), 2) end
+	assert(self)
+	
+	local file = io.open(path, "rb")
+	
+	if not file then
+		hook.Call("Error", {type = 404}, self.request, self)
+		return false
+	end
+	
 	self.file = path
+	self.response_text = file:read("*all")
+	file:close()
+	return true
 end
 
 function response_meta:set_header(name, value)
-	assert(self and name and value)
+	if name == nil then error("argument #1 expected string, got nil", 2) end
+	if value == nil then error("argument #1 expected string, got nil", 2) end
+	assert(self)
 	self.headers[name] = value
 end
 
@@ -257,7 +273,7 @@ function handle_client(client)
 	
 	-- respond
 	
-	local response = {status = 200, response_text = "", headers = {}}
+	local response = {status = 200, response_text = "", headers = {}, request = request}
 	setmetatable(response, {__index = response_meta})
 	
 	response:set_header("Server", "LuaServer2")
@@ -265,27 +281,18 @@ function handle_client(client)
 	hook.Call("Request", request, response)
 	
 	-- must be after...
-	response:set_header("Content-Type", "text/html")
-	response:set_header("Content-Length", (function() 
-		if not response.file then
-			return response.response_text:len() + 1
-		else 
-			error("file not implimented yet" .. tostring(response.file))
-		end
-	end)())
-
+	local type = response.file and mimetypes.guess(response.file) or "text/html"
+	local len = response.response_text:len()
 	
-	
+	response:set_header("Content-Type", type)
+	response:set_header("Content-Length", len)
+		
 	local tosend = "HTTP/1.1 " .. tostring(response.status) .. "\n"
 	for k,v in pairs(response.headers) do
 		tosend = tosend .. tostring(k) .. ": " .. tostring(v) .. "\n"
 	end
 	
-	tosend = tosend .. "\n\n"
-	
-	if not response.file then
-		tosend = tosend .. response.response_text
-	end
+	tosend = tosend .. "\n" .. response.response_text
 	
 	client:send(tosend)
 end

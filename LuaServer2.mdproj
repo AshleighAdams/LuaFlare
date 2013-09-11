@@ -9,11 +9,11 @@
     <ProjectGuid>{95B03DF5-F098-4C10-AD30-77AA668B20DC}</ProjectGuid>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Default|AnyCPU' ">
-    <OutputPath>.\</OutputPath>
+    <OutputPath>.</OutputPath>
     <CustomCommands>
       <CustomCommands>
         <Command type="Build" command="luac ./luaserver.lua" workingdir="${ProjectDir}" />
-        <Command type="Execute" command="./luaserver.lua" workingdir="${ProjectDir}" externalConsole="True" />
+        <Command type="Execute" command="./luaserver.lua" workingdir="${ProjectDir}" externalConsole="True" pauseExternalConsole="True" />
       </CustomCommands>
     </CustomCommands>
     <ConsolePause>false</ConsolePause>
@@ -36,5 +36,7 @@
     <None Include="lua\ar_main.lua" />
     <None Include="lua\ar_minecraft.lua" />
     <None Include="luaserver.lua" />
+    <None Include="lua\ar_resources.lua" />
+    <None Include="inc\mimetypes.lua" />
   </ItemGroup>
 </Project>
