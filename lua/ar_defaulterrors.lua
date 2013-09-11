@@ -37,17 +37,17 @@ local function basic_error(why, req, res)
 			"while requesting",
 			tags.code
 			{
-				html_escape(req.url)
+				escape.html(req:url())
 			},
 			" an error of type ",
 			tags.code
 			{
-				html_escape(tostring(why.type) .. " (" .. (error_type_to_str[why.type] or "unknown") .. ")")
+				escape.html(tostring(why.type) .. " (" .. (error_type_to_str[why.type] or "unknown") .. ")")
 			},
 			" was encountered",
 			(function()
 				if why.message then
-					return "<code>" .. html_escape("\n\n" .. why.message) .. "</code>"
+					return "<code>" .. escape.html("\n\n" .. why.message) .. "</code>"
 				end
 			end)()
 		}
@@ -82,7 +82,7 @@ local function basic_lua_error(err, trace, vars, args)
 	
 	if res == nil or not res.clear then return end
 	res:clear()
-	res:set_status(501)
+	res:set_status(500)
 	
 	local line_num = err:match("%.lua%:(%d+)%:")
 	local line
@@ -126,17 +126,17 @@ local function basic_lua_error(err, trace, vars, args)
 		tags.p { "A Lua error was encountered while trying to process your request!" },
 		tags.div {class = "box", style="margin-bottom: 5px;"}
 		{
-			html_escape(err)
+			escape.html(err)
 		},
 		tags.div {class = "box nowrap", style = "font-family: monospace; margin-bottom: 5px;"}
 		{
-			html_escape(code),
+			escape.html(code),
 			br_tag,
-			html_escape(line)
+			escape.html(line)
 		},
 		tags.div {class = "box nowrap"}
 		{
-			html_escape(trace)
+			escape.html(trace)
 		}
 	}
 	

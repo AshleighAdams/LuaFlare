@@ -7,9 +7,10 @@ local function valid_host(target, what)
 	return string.match(target, what) ~= nil
 end
 
-local function generate_host_patern(what)
+local function generate_host_patern(what) -- TODO: use pattern_escape, can't replace the *
 	local pattern = what
 	
+	-- TODO: should these even be here? other than the . and * replacement
 	pattern = string.gsub(pattern, "%%", "%%%") -- this must be first...	
 	pattern = string.gsub(pattern, "%.", "%%.") -- escape them
 	pattern = string.gsub(pattern, "%(", "%%(")
@@ -33,10 +34,10 @@ end
 
 reqs.OnRequest = function(request, response)
 	local hits = {}
-	local req_url = "__start__" .. request.url .. "__end__"
+	local req_url = "__start__" .. request:url() .. "__end__"
 	
 	for k,v in ipairs(reqs.PatternsRegistered) do
-		if valid_host(request.headers.Host, v.host) then
+		if valid_host(request:headers().Host, v.host) then
 			local pattern = v.url -- there is a hack, so we detect the start end end of the string (not partial)
 			local res = { string.match(req_url, pattern) }
 			
@@ -54,7 +55,6 @@ reqs.OnRequest = function(request, response)
 		hits[1].hook.func(request, response, unpack(hits[1].res))
 	end
 end
-
 hook.Add("Request", "default handler", reqs.OnRequest)
 
 

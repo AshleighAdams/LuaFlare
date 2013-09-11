@@ -3,41 +3,7 @@ local template = tags.html
 	tags.head
 	{
 		tags.title { tags.SECTION },
-		tags.style
-		{
-			[[
-			body {
-				background-color: #DDDDDD;
-				font-family: Helvetica, Arial, sans-serif;
-			}
-			div.bg_wrapper
-			{
-				width: 600px;
-				margin: 0px auto;
-				margin-top: 50px;
-				background-color: #ffffff;
-				background-image: url(http://lua-users.org/files/wiki_insecure/lua-icons-png/lua-256x256.png);
-				background-repeat: no-repeat;
-				background-position: center center;
-				box-shadow: 0px 0px 50px #888888;
-			}
-			div.wrapper {
-				background-color: rgba(255, 255, 255, 0.95);
-				#border-radius: 4px;
-				padding: 15px;
-			}
-			div.box {
-				background-color: rgba(240, 240, 255, 0.5);
-				border: 1px solid #ddddff;
-				padding: 5px;
-				overflow: auto;
-				overflow-y: hidden;
-			}
-			div.nowrap {
-				white-space: nowrap;
-			}
-			]]
-		}
+		tags.link {rel = "stylesheet", type = "text/css", href = "/error_style.css"}
 	},
 	tags.body
 	{
@@ -72,7 +38,7 @@ local function run_lua_page(req, res)
 	}
 	
 	local title = "Run Lua"
-	local lua = req.post_data.lua or [[function fact (n)
+	local lua = req:post_data().lua or [[function fact (n)
     if n == 0 then
         return 1
     else
@@ -91,7 +57,7 @@ return fact(4)]]
 	
 		content.to_response(res, 0)
 		res:append("<textarea name='lua' rows=20 cols=68>\n")
-		res:append(html_escape(lua, false))
+		res:append(escape.html(lua, false))
 		res:append("</textarea>\n")
 		
 		content.to_response(res, 1)
@@ -104,12 +70,12 @@ return fact(4)]]
 				
 				for i=1, #args do
 					local v = args[i]
-					res:append(html_escape(prefix .. tostring(v)))
+					res:append(escape.html(prefix .. tostring(v)))
 					prefix = ", \t"
 				end
 				
 				if prefix ~= "" then
-					res:append(html_escape("\n"))
+					res:append(escape.html("\n"))
 				end
 			end
 			
@@ -206,7 +172,7 @@ return fact(4)]]
 			
 			local prefix = "returned "
 			for k,v in pairs(rets) do
-				res:append(html_escape(prefix .. to_lua_value(v)))
+				res:append(escape.html(prefix .. to_lua_value(v)))
 				prefix = ", "
 			end
 		content.to_response(res, 2)

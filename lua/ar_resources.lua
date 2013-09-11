@@ -14,8 +14,8 @@ local function itterate_dir(dir, callback, ...)
 end
 
 local function add_resource(filename, host)
-	pattern = filename:gsub(static_dir .. pattern_escape(host), "") -- remove our dir
-	pattern = pattern_escape(pattern)
+	pattern = filename:Replace(static_dir .. host, "") -- remove our dir
+	pattern = escape.pattern(pattern)
 		
 	local function serve_file(req, res)
 		res:set_file(filename)

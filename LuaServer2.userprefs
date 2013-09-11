@@ -1,14 +1,9 @@
 ﻿<Properties GitUserInfo="UsingMD">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="luaserver.lua">
+  <MonoDevelop.Ide.Workbench>
     <Files>
-      <File FileName="luaserver.lua" Line="10" Column="27" />
-      <File FileName="lua/ar_defaulterrors.lua" Line="1" Column="1" />
-      <File FileName="lua/ar_main.lua" Line="1" Column="1" />
-      <File FileName="lua/ar_resources.lua" Line="1" Column="1" />
-      <File FileName="inc/mimetypes.lua" Line="1" Column="1" />
-      <File FileName="inc/htmlwriter.lua" Line="1" Column="1" />
-      <File FileName="inc/requesthooks.lua" Line="1" Column="1" />
+      <File FileName="inc/request.lua" Line="59" Column="6" />
+      <File FileName="inc/response.lua" Line="15" Column="4" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
