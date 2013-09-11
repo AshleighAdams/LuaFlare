@@ -105,6 +105,8 @@ function read_headers(client)
 		if not s or s == "" then break end
 		if s ~= nil then
 			local key, val = string.match(s, "([%a-]+):%s*(.+)")
+			
+			if key == nil then error("HTTP request is invalid", 2) end
 			ret[key] = val
 		end
 	end
@@ -287,6 +289,7 @@ function handle_client(client)
 	
 	client:send(tosend)
 end
+hook.Add("HandleClient", "default handle client", handle_client)
 
 local function on_error(why, request, response)
 	response:set_status(why.type)
@@ -324,7 +327,7 @@ local function autorun(dir)
 end
 autorun()
 
-local https = true
+local https = false
 local params = {
 	mode = "server",
 --	protocol = "tlsv1",
@@ -337,23 +340,27 @@ local params = {
 	ciphers = "ALL:!ADH:@STRENGTH",
 }
 
-local server = socket.bind("*", 8080)
-assert(server)
-
-while true do
-	local client = server:accept()
-	client:settimeout(1)
+function main()
+	local server, err = socket.bind("*", 8080)
+	assert(server, err)
+	-- so we can spawn many processes
+	--server:setoption("reuseport", true)
 	
-	if https then
-		client, err = ssl.wrap(client, params)
-		assert(client, err)
+	while true do
+		local client = server:accept()
+		client:settimeout(1)
 		
-		local suc, err = client:dohandshake()
-		if not suc then print("ssl failed: ", err) end
+		if https then
+			client, err = ssl.wrap(client, params)
+			assert(client, err)
+			
+			local suc, err = client:dohandshake()
+			if not suc then print("ssl failed: ", err) end
+		end
+		
+		hook.Call("HandleClient", client)
+		client:close()
 	end
-	
-	handle_client(client)
-	client:close()
 end
 
-
+main() -- then let us run in it
