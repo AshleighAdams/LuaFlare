@@ -22,6 +22,7 @@
     <Folder Include="inc\" />
     <Folder Include="keys\" />
     <Folder Include="lua\" />
+    <Folder Include="static\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="inc\hooks.lua" />
@@ -38,5 +39,8 @@
     <None Include="luaserver.lua" />
     <None Include="lua\ar_resources.lua" />
     <None Include="inc\mimetypes.lua" />
+    <None Include="static\*\error_style.css" />
+    <None Include="static\*\favicon.ico" />
+    <None Include="static\*\lua_logo.png" />
   </ItemGroup>
 </Project>

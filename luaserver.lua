@@ -31,6 +31,18 @@ function PrintTable(tbl, done, depth)
 	end
 end
 
+function pattern_escape(pattern)
+	pattern = pattern:gsub("%%", "%%%%") -- escape %'s, and others
+	
+	pattern = pattern:gsub("%.", "%%.")
+	pattern = pattern:gsub("%*", "%%*")
+	pattern = pattern:gsub("%(", "%%(")
+	pattern = pattern:gsub("%)", "%%)")
+	pattern = pattern:gsub("%+", "%%+")
+	
+	return pattern
+end
+
 function to_lua_value(var, notable)
 	local val = tostring(var)
 	
