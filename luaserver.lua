@@ -12,12 +12,13 @@ local ssl = require("ssl")
 require("lfs")
 
 script.parse_arguments(arg)
+local instance = script.options.instance or 0
 
 function handle_client(client)
 	local request, err = Request(client)
 	if not request then print(err) return end
 	
-	print(client:getpeername()  .. " " .. request:method()  .. " " .. request:url())
+	print(instance .. ": " .. client:getpeername()  .. " " .. request:method()  .. " " .. request:url())
 	
 	local response = Response(request)
 		hook.Call("Request", request, response) -- okay, lets invoke whatever is hooked
@@ -32,7 +33,7 @@ end
 hook.Add("Error", "log errors", on_error)
 
 local function on_lua_error(err, trace, args)
-	print("lua error:", err, trace)
+	print("lua error:", err)--, trace)
 end
 hook.Add("LuaError", "log errors", on_lua_error)
 

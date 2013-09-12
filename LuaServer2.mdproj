@@ -44,5 +44,6 @@
     <None Include="inc\util.lua" />
     <None Include="inc\request.lua" />
     <None Include="inc\response.lua" />
+    <None Include="create_instances.sh" />
   </ItemGroup>
 </Project>

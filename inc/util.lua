@@ -270,14 +270,16 @@ function script.parse_arguments(args)
 		local short = {v:find("-(%w+)")}
 
 		if long_set[1] then
-			options[long_set[3]] = long_set[4]
+			script.options[long_set[3]] = long_set[4]
 		elseif long[1] then
-			options[long[3]] = true
+			script.options[long[3]] = true
 		elseif short[1] then
 			local opts = short[3]
 			for i = 0, opts:len() do
-				options[opts[i]] = true
+				script.options[opts[i]] = true
 			end
+		else
+			table.insert(script.arguments, v)
 		end
 	end
 end
