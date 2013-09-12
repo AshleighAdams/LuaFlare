@@ -84,11 +84,6 @@ return fact(4)]]
 				error("function timed out", 2)
 			end
 			
-			last_runlua = lua
-			
-			local func, err = loadstring(lua, "runlua")
-			
-			if not func then error(err, -1) end
 			
 			------------------------------ ENVIROMENT
 			local meta_tables = {}
@@ -151,8 +146,18 @@ return fact(4)]]
 			}
 			
 			env._G = env
+			last_runlua = lua
 			
-			setfenv(func, env)
+			
+			local func, err
+			do
+				func, err = load(lua, "runlua", nil, env)
+			end
+			
+			if not func then error(err, -1) end
+						
+			-- not anymore
+			-- setfenv(func, env)
 			
 			--------------------------------------------------- END ENV
 			

@@ -126,6 +126,8 @@ end
 
 function table.ToString(tbl)
 	if tbl == nil then error("argument #1 is nil", 2) end
+	
+	return to_lua_table(tbl)
 end
 
 ------- String functions

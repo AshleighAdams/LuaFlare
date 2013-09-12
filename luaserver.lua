@@ -1,4 +1,4 @@
-#!/usr/bin/env lua5.1
+#!/usr/bin/env lua
 
 dofile("inc/hooks.lua")
 dofile("inc/htmlwriter.lua")
@@ -64,15 +64,46 @@ local params = {
 	ciphers = "ALL:!ADH:@STRENGTH",
 }
 
+
+function socket.bind_reuseport(host, port, backlog)
+    if host == "*" then host = "0.0.0.0" end
+    local addrinfo, err = socket.dns.getaddrinfo(host);
+    if not addrinfo then return nil, err end
+    local sock, res
+    err = "no info on address"
+    for i, alt in ipairs(addrinfo) do
+        if alt.family == "inet" then
+            sock, err = socket.tcp()
+        else
+            sock, err = socket.tcp6()
+        end
+        if not sock then return nil, err end
+        sock:setoption("reuseaddr", true)
+        sock:setoption("reuseport", true)
+        res, err = sock:bind(alt.addr, port)
+        if not res then 
+            sock:close()
+        else 
+            res, err = sock:listen(backlog)
+            if not res then 
+                sock:close()
+            else
+                return sock
+            end
+        end 
+    end
+    return nil, err
+end
+
 function main()
-	local server, err = socket.bind("*", script.options.port or 8080)
+	local server, err = socket.bind_reuseport("*", script.options.port or 8080)
 	assert(server, err)
-	-- so we can spawn many processes
+	-- so we can spawn many processes, requires luasocket 3 
 	--server:setoption("reuseport", true)
 	
 	while true do
 		local client = server:accept()
-		client:settimeout(1)
+		--client:settimeout(1000000000000)
 		
 		if https then
 			client, err = ssl.wrap(client, params)
