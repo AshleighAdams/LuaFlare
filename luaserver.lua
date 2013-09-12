@@ -38,21 +38,6 @@ local function on_lua_error(err, trace, args)
 end
 hook.Add("LuaError", "log errors", on_lua_error)
 
-local function autorun(dir)
-	dir = dir or "lua/"
-	for file in lfs.dir("./lua/") do
-		if lfs.attributes(dir .. file, "mode") == "file" then
-			if file:StartsWith("ar_") and file:EndsWith(".lua") then
-				print("autorun: " .. dir .. file)
-				dofile(dir .. file)
-			end
-		elseif file ~= "." and file ~= ".." and lfs.attributes(dir .. file, "mode") == "directory" then
-			autorun(dir .. file .. "/")
-		end
-	end
-end
-autorun()
-
 local https = false
 local params = {
 	mode = "server",
@@ -103,9 +88,15 @@ function main()
 	-- so we can spawn many processes, requires luasocket 3 
 	--server:setoption("reuseport", true)
 	
+	hook.Call("ReloadScripts") -- load all of our scritps
+	
 	while true do
 		local client = server:accept()
 		--client:settimeout(1000000000000)
+		
+		if not script.options["no-reload"] then
+			hook.Call("ReloadScripts")
+		end
 		
 		if https then
 			client, err = ssl.wrap(client, params)
@@ -120,4 +111,30 @@ function main()
 	end
 end
 
-main() -- then let us run in it
+local time_table = {}
+local function autorun(dir)
+	dir = dir or "lua/"
+	for file in lfs.dir("./lua/") do
+		local filename = file
+		file = dir .. file
+		
+		local modified = lfs.attributes(file, "modification")
+		
+		if modified ~= (time_table[file] or 0) then
+			time_table[file] = modified
+			
+			if lfs.attributes(file, "mode") == "file" then
+				if filename:StartsWith("ar_") and filename:EndsWith(".lua") then
+					print("autorun: " .. file)
+					dofile(file)
+				end
+			elseif filename ~= "." and filename ~= ".." and lfs.attributes(file, "mode") == "directory" then
+				autorun(file .. "/")
+			end
+			
+		end
+	end
+end
+hook.Add("ReloadScripts", "autorun", autorun)
+
+main()

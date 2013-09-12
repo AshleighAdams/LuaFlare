@@ -29,7 +29,17 @@ local function generate_resource_patern(pattern)
 end
 
 reqs.AddPattern = function(host, url, func)
-	table.insert(reqs.PatternsRegistered, {host = generate_host_patern(host), url = generate_resource_patern(url), func = func})
+	host = generate_host_patern(host)
+	url = generate_resource_patern(url)
+	
+	for k, v in pairs(reqs.PatternsRegistered) do -- already exists, overwrite it and warn
+		if v.host == host and v.url == url then
+			v.func = func
+			return
+		end
+	end
+	
+	table.insert(reqs.PatternsRegistered, {host = host, url = url, func = func})
 end
 
 reqs.OnRequest = function(request, response)
