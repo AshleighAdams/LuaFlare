@@ -29,3 +29,11 @@ div.box {
 div.nowrap {
 	white-space: nowrap;
 }
+
+div.footer {
+	width: 580px;
+	margin: 0px auto;
+	text-align: right;
+	color: #dcdcdc;
+	font-size: 8pt;
+}

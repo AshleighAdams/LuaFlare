@@ -1,4 +1,7 @@
 -- All extensions to inbuilt libs use ThisCase
+
+local posix = require("posix")
+
 -- incase these libs wen't created
 table = table or {}
 string = string or {}
@@ -232,6 +235,11 @@ local _pid = nil
 function script.pid() -- attempt to locate the PID of the process
 	if _pid ~= nil then return _pid end
 	
+	if posix ~= nil then
+		_pid = posix.getpid("pid")
+		return _pid
+	end
+	
 	local stat = io.open("/proc/self/stat")
 	
 	if not stat then
@@ -261,25 +269,35 @@ script.arguments = {}
 script.filename = ""
 
 function script.parse_arguments(args)
-	script.filename = args[1]
-	table.remove(args, 1)
+	script.filename = args[0]
 	
 	for k, v in ipairs(args) do
-		local long_set = {v:find("--(%w+)=(%w+)")}
-		local long = {v:find("--(%w+)")}
-		local short = {v:find("-(%w+)")}
+		local long_set, val = v:match("--(%w+)=(%w+)")
+		local long = v:match("--(%w+)")
+		local short = v:match("-(%w+)")
 
-		if long_set[1] then
-			script.options[long_set[3]] = long_set[4]
-		elseif long[1] then
-			script.options[long[3]] = true
-		elseif short[1] then
-			local opts = short[3]
+		if long_set then
+			script.options[long_set] = val
+		elseif long then
+			script.options[long] = true
+		elseif short then
+			local opts = short
 			for i = 0, opts:len() do
 				script.options[opts[i]] = true
 			end
 		else
 			table.insert(script.arguments, v)
 		end
+	end
+end
+
+-- detour print, so that it appends the PID infront
+local old_print = print
+function print(first, ...)
+	local pid = tostring(script.pid()) .. ": "
+	if first == nil then
+		return old_print(pid, ...)
+	else
+		return old_print(pid .. tostring(first), ...)
 	end
 end

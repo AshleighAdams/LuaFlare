@@ -21,6 +21,10 @@ error_template = tags.html
 				tags.p {style = "font-size: 22; margin-top: 0px; border-bottom: 1px solid #dddddd"} {"Error!"},
 				tags.SECTION
 			}
+		},
+		tags.div {class = "footer"}
+		{
+			string.format("pid: %i", script.pid())
 		}
 	}
 }

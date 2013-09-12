@@ -11,6 +11,7 @@ local socket = require("socket")
 local ssl = require("ssl")
 require("lfs")
 
+
 script.parse_arguments(arg)
 local instance = script.options.instance or 0
 
@@ -18,7 +19,7 @@ function handle_client(client)
 	local request, err = Request(client)
 	if not request then print(err) return end
 	
-	print(instance .. ": " .. client:getpeername()  .. " " .. request:method()  .. " " .. request:url())
+	print(client:getpeername()  .. " " .. request:method()  .. " " .. request:url())
 	
 	local response = Response(request)
 		hook.Call("Request", request, response) -- okay, lets invoke whatever is hooked
@@ -97,7 +98,7 @@ function socket.bind_reuseport(host, port, backlog)
 end
 
 function main()
-	local server, err = socket.bind_reuseport("*", script.options.port or 8080)
+	local server, err = socket.bind_reuseport("*", tonumber(script.options.port or "8080"))
 	assert(server, err)
 	-- so we can spawn many processes, requires luasocket 3 
 	--server:setoption("reuseport", true)

@@ -1,4 +1,5 @@
 local url = require("socket.url")
+local socket = require("socket")
 
 local meta = {}
 meta.__index = meta
@@ -41,7 +42,8 @@ function Request(client)
 		_parsed_url = parsed_url,
 		_headers = headers,
 		_params = parse_params(parsed_url.query),
-		_post_data = {}
+		_post_data = {},
+		_start_time = socket.gettime()
 	}
 	
 	setmetatable(request, meta)
@@ -98,6 +100,10 @@ end
 
 function meta:client()
 	return self._client
+end
+
+function meta:start_time()
+	return self._start_time
 end
 -- some util stuff we need
 

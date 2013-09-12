@@ -17,6 +17,10 @@ local template = tags.html
 				},
 				tags.SECTION
 			}
+		},
+		tags.div {class = "footer"}
+		{
+			string.format("pid: %i", script.pid())
 		}
 	}
 }
