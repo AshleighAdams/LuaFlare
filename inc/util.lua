@@ -201,14 +201,14 @@ end
 ------- os.*
 
 function os.capture(cmd, raw)
-	local f = assert(io.popen(cmd, 'r'))
+	local f = assert(io.popen(cmd .. " 2>&1", 'r')) -- TODO: should always redirect?
 	local s = assert(f:read('*a'))
-	f:close()
-	if raw then return s end
+	local _, _, err_code = f:close()
+	if raw then return s, err_code end
 	s = string.gsub(s, '^%s+', '')
 	s = string.gsub(s, '%s+$', '')
 	s = string.gsub(s, '[\n\r]+', ' ')
-	return s
+	return s, err_code
 end
 
 local _platform = nil

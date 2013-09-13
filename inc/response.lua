@@ -66,6 +66,9 @@ end
 
 -- finish
 function meta:send()
+	if self._sent then return end -- we've already sent it
+	self._sent = true -- mark future calls to send as done
+	
 	self:set_header("Content-Length", self._reply:len())
 	
 	local tosend = "HTTP/1.1 " .. tostring(self._status) .. "\n"

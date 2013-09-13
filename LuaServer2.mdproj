@@ -23,6 +23,7 @@
     <Folder Include="keys\" />
     <Folder Include="lua\" />
     <Folder Include="static\" />
+    <Folder Include="resources\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="inc\hooks.lua" />
@@ -44,5 +45,8 @@
     <None Include="inc\request.lua" />
     <None Include="inc\response.lua" />
     <None Include="create_instances.sh" />
+    <None Include="lua\ar_buildserver.lua" />
+    <None Include="resources\build_fail.png" />
+    <None Include="resources\build_pass.png" />
   </ItemGroup>
 </Project>
