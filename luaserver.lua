@@ -112,6 +112,8 @@ function main()
 end
 
 local time_table = {}
+local includes_files = {}
+local dependencies = {}
 local function autorun(dir)
 	dir = dir or "lua/"
 	for file in lfs.dir("./lua/") do
@@ -126,7 +128,18 @@ local function autorun(dir)
 			if lfs.attributes(file, "mode") == "file" then
 				if filename:StartsWith("ar_") and filename:EndsWith(".lua") then
 					print("autorun: " .. file)
-					dofile(file)
+					
+					for _, dep in ipairs(dependencies[file]) do -- mark them as not required
+						includes_files[dep] = (includes_files[dep] or 1) - 1
+					end
+					
+					dependencies[file] = include(file)
+					
+					for _, dep in ipairs(dependencies[file]) do -- remark as required (if an include was removed...)
+						includes_files[dep] = (includes_files[dep] or 0) + 1
+					end
+				elseif includes_files[file] ~= nil and includes_files[file] > 0 then
+					include(file)
 				end
 			elseif filename ~= "." and filename ~= ".." and lfs.attributes(file, "mode") == "directory" then
 				autorun(file .. "/")

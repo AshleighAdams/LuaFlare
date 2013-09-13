@@ -151,6 +151,10 @@ function string.Replace(str, what, with)
 	return str:gsub(escape.pattern(what), escape.pattern(with))
 end
 
+function string.Path(self)
+	return self:match("(.+/)") or ""
+end
+
 ------- escape functions, try not to use string.Replace, as it is slower than raw gsub
 
 function escape.pattern(input) -- defo do not use string.Replace, else revusion err
@@ -291,6 +295,33 @@ function script.parse_arguments(args)
 	end
 end
 
+local stack
+do
+	local meta = {}
+	meta._meta = {__index = meta}
+	
+	function stack()
+		local ret = {_tbl = {}}
+		return setmetatable(ret, meta._meta)
+	end
+	
+	function meta:push(val)
+		table.insert(self._tbl, val)
+	end
+	
+	function meta:pop()
+		table.remove(self._tbl, 1)
+	end
+	
+	function meta:value()
+		return self._tbl[1]
+	end
+	
+	function meta:all()
+		return self._tbl
+	end
+end
+
 -- detour print, so that it appends the PID infront
 local old_print = print
 function print(first, ...)
@@ -301,3 +332,26 @@ function print(first, ...)
 		return old_print(pid .. tostring(first), ...)
 	end
 end
+
+local stacks = stack()
+local current = stack()
+
+function include(file)
+	current:push(current:value() .. file:Path())
+		for k,v in ipairs(stacks:all()) do
+			v(current:value() .. file)
+		end
+		
+		local deps = {}
+		local function on_dep(dep)
+			table.insert(deps, dep)
+		end
+		
+		stacks:push(on_dep)
+			dofile(file)
+		stacks:pop()
+	current:pop()
+	
+	return deps
+end
+
