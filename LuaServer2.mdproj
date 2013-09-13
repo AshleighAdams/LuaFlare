@@ -34,7 +34,6 @@
     <None Include="keys\request.pem" />
     <None Include="lua\ar_defaulterrors.lua" />
     <None Include="lua\ar_main.lua" />
-    <None Include="lua\ar_minecraft.lua" />
     <None Include="luaserver.lua" />
     <None Include="lua\ar_resources.lua" />
     <None Include="inc\mimetypes.lua" />

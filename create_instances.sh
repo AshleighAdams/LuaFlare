@@ -1,7 +1,7 @@
 #!/bin/bash
 
 port=80
-instances=5
+instances=10
 
 if [ $(whoami) != "root" ]
 then
