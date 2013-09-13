@@ -129,8 +129,9 @@ local function autorun(dir)
 				if filename:StartsWith("ar_") and filename:EndsWith(".lua") then
 					print("autorun: " .. file)
 					
-					for _, dep in ipairs(dependencies[file]) do -- mark them as not required
+					for _, dep in ipairs(dependencies[file] or {}) do -- mark them as not required
 						includes_files[dep] = (includes_files[dep] or 1) - 1
+						time_table[dep] = lfs.attributes(dep, "modification")
 					end
 					
 					dependencies[file] = include(file)
@@ -139,6 +140,7 @@ local function autorun(dir)
 						includes_files[dep] = (includes_files[dep] or 0) + 1
 					end
 				elseif includes_files[file] ~= nil and includes_files[file] > 0 then
+					print("autorun dependency: " .. file)
 					include(file)
 				end
 			elseif filename ~= "." and filename ~= ".." and lfs.attributes(file, "mode") == "directory" then

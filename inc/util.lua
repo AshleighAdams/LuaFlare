@@ -337,7 +337,10 @@ local stacks = stack()
 local current = stack()
 
 function include(file)
-	current:push(current:value() .. file:Path())
+	local path = file:Path()
+	file = file:sub(path:len())
+
+	current:push((current:value() or "") .. path)
 		for k,v in ipairs(stacks:all()) do
 			v(current:value() .. file)
 		end
@@ -348,7 +351,7 @@ function include(file)
 		end
 		
 		stacks:push(on_dep)
-			dofile(file)
+			dofile(current:value() .. file)
 		stacks:pop()
 	current:pop()
 	

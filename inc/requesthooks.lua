@@ -140,6 +140,11 @@ hook.Add("LuaError", "basic error", function(err, trace, vars, args)
 		strvars = strvars .. "(" .. type(v) .. ") " .. tostring(k) .. " = " .. tostring(v) .. "\n<br/>"
 	end
 	
+	if res == nil then
+		print(err, trace)
+		return
+	end
+	
 	res:clear()
 	res:set_status(501)
 	
