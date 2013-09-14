@@ -25,7 +25,7 @@ end
 
 local function generate_resource_patern(pattern)
 	pattern = string.gsub(pattern, "*", ".+")
-	return "__start__" .. pattern .. "__end__"
+	return "^" .. pattern .. "$"
 end
 
 reqs.AddPattern = function(host, url, func)
@@ -44,7 +44,7 @@ end
 
 reqs.OnRequest = function(request, response)
 	local hits = {}
-	local req_url = "__start__" .. request:url() .. "__end__"
+	local req_url = request:url()
 	
 	for k,v in ipairs(reqs.PatternsRegistered) do
 		if valid_host(request:headers().Host, v.host) then

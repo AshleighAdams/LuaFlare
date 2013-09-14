@@ -18,6 +18,17 @@ h3 {
 	font-weight: normal;
 }
 
+a {
+	color: #777;
+	text-decoration: none;
+}
+a:hover
+{
+	color: inherit;
+	text-decoration: none;
+	cursor: pointer;
+}
+
 div.wrapper{
 	width: 800px;
 	margin: 0px auto;
@@ -111,7 +122,7 @@ li.sb:hover a{
 div.main{
 	float: left;
 	padding: 10px;
-	max-width: 550px;
+	width: 550px;
 	padding-top: 10px;
 }
 
@@ -122,6 +133,49 @@ div.foot{
 	text-align: center;
 	font-size: 90%;
 	color: #818181;
+}
+
+
+/*
+The commands CSS
+*/
+
+ul.commands_root {
+	min-width: 100%;
+	list-style-type: none;
+	padding: 5px; 
+	margin: 0;
+	
+	background-color: #333;
+	color: white;
+	font-family: monospace;
+	font-size: 11pt;
+}
+
+ul.commands {
+	list-style-type: none;
+	padding: 0;
+	margin: 0;
+}
+
+li.command:before {
+	content: "$ ";
+}
+
+li.command {
+	#/*font-weight: bold;*/
+}
+
+li.good {
+	color: yellowgreen;
+}
+
+li.bad {
+	color: red;
+}
+
+li.commands {
+
 }
 
 /*  

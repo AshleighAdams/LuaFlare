@@ -136,20 +136,6 @@ function table.ToString(tbl)
 	return to_lua_table(tbl)
 end
 
-------- math functions
-function basic_round(what)
-	if what % 0.5 >= 0.5 then
-		return math.ceil(what)
-	else
-		return math.floor(what)
-	end
-end
-
-function math.Round(what, prec)
-	prec = 1 / (prec or 1)
-	return basic_round(what * prec) / prec
-end
-
 ------- String functions
 
 function string.StartsWith(haystack, needle)
@@ -170,6 +156,39 @@ end
 
 function string.Path(self)
 	return self:match("(.+/)") or ""
+end
+
+function string.ReplaceLast(str, what, with)
+	local from, to, _from, _to = nil, nil
+	local pos = 1
+	local len = what:len()
+	
+	while true do
+		_from, _to = string.find(str, what, pos, true)
+		if _from == nil then break end
+		pos = _to
+		from = _from
+		to = _to
+	end
+	
+	local firstbit = str:sub(1, from - 1)
+	local lastbit  = str:sub(to + 1)
+	
+	return firstbit .. with .. lastbit
+end
+
+------- math functions
+function basic_round(what)
+	if what % 0.5 >= 0.5 then
+		return math.ceil(what)
+	else
+		return math.floor(what)
+	end
+end
+
+function math.Round(what, prec)
+	prec = 1 / (prec or 1)
+	return basic_round(what * prec) / prec
 end
 
 ------- escape functions, try not to use string.Replace, as it is slower than raw gsub
@@ -317,6 +336,18 @@ end
 
 function util.time()
 	return socket.gettime()
+end
+
+function util.ItterateDir(dir, recursive, callback, ...)
+	assert(dir and recursive ~= nil and callback)
+	
+	for file in lfs.dir(dir) do
+		if lfs.attributes(dir .. file, "mode") == "file" then
+			callback(dir .. file, ...)
+		elseif recursive and file ~= "." and file ~= ".." and lfs.attributes(dir .. file, "mode") == "directory" then
+			itterate_dir(dir .. file .. "/", recursive, callback, ...)
+		end
+	end
 end
 
 ----- other

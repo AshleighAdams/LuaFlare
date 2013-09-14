@@ -95,6 +95,24 @@ local function on_update(req, res, project)
 	build_status = ""
 end
 
+local function get_menu()
+	local menu = {
+		--"Main",
+		--	{Home = "#"},
+		--	{About = "#"},
+		"Builds",
+		--	{LuaPP = "#"},
+		--	{LuaServer = "#"}
+	}
+	
+	util.ItterateDir("build_files/", false, function(file)
+		file = file:sub(("build_files/build_"):len() + 1, file:len() - 4)
+		table.insert(menu, {[file] = "../" .. file})
+	end)
+	
+	return menu
+end
+
 local function on_status(req, res, project)
 	local file = io.open("build_files/build_" .. project .. ".log")
 	
@@ -105,42 +123,86 @@ local function on_status(req, res, project)
 	
 	local contents = ""
 	
-	local line = file:read("*l")
-	line = file:read("*l") -- ignore the first line, OK or ERROR
+	local is_ok = file:read("*l") == "OK"
+	local line = file:read("*l") -- ignore the first line, OK or ERROR
+	
+	local already_command = false
+	local function finish_command()
+		if already_command then
+			contents = contents .. "\t</ul>\n"
+			already_command = false
+		end
+	end
+	
+	local function start_command(cmd)
+		finish_command()
+		already_command = true
+		contents = contents .. "\t<ul class='commands'>\n\t\t<li class='command good'>"..cmd.."</li>\n"
+	end
+	
+	contents = contents .. "<ul class='commands_root'>\n"
 	while line ~= nil do
-		
 		local escaped = escape.html(line)
 		
 		if line:StartsWith("+ ") then
-			contents = contents .. "<b>" .. escaped:sub(2) .. "</b><br/>\n"
+			start_command(escaped:sub(2))
 		else
-			contents = contents .. escaped .. "<br/>\n"
+			contents = contents .. "\t\t<li class='commands'>" .. escaped .. "</li>\n"
 		end
 		
 		line = file:read("*l")
 	end
 	
+	if not is_ok then
+		contents = contents:ReplaceLast("<li class='command good'>", "<li class='command bad'>")
+	end
 	
-	
-	local menu = {
-		"Main",
-			{Home = "#"},
-			{About = "#"},
-		"Builds",
-			{LuaPP = "#"},
-			{LuaServer = "#"}
-	}
+	finish_command()
+	contents = contents .. "</ul>"
 	
 	local content = tags.div {
 		tags.h2 { "Build result of " .. project },
 		tags.img {src = "state.png"},
-		tags.p {style = "font-family: monospace;"}
+		tags.br,
+		
+		"Last successfull build: ",
+		(function()
+			local when = lfs.attributes("static/*/builds/" .. project .. ".zip", "modification")
+			
+			if when == nil then return "never" end
+			
+			local day = os.date("*t", when).day
+			local postfix
+			
+			if day > 10 and day < 20 then
+				postfix = "th"
+			elseif day % 10 == 1 then
+				postfix = "st"
+			elseif dat % 10 == 2 then
+				postfix = "nd"
+			elseif dat % 10 == 3 then
+				postfix = "rd"
+			else
+				postfix = "th"
+			end
+			
+			local str = os.date("%A, %d" .. postfix .. " %B, %Y", when)
+			
+			return tags.a {href = "/builds/" .. project .. ".zip"}
+			{
+				str
+			}
+		end)(),
+		
+		tags.br, tags.br,
+		tags.div {style = "overflow-x: scroll; white-space: nowrap; background-color: #333;"}
 		{
 			contents
 		}
 	}
 	
-	create_build_template("Build > " .. project, menu, content).to_response(res)
+	create_build_template("Build > " .. project, get_menu(), content).to_response(res)
+	res:append("<!-- generated in " .. req:total_time() .. " seconds -->")
 end
 
 local function on_state(req, res, project)
