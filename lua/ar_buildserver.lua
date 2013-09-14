@@ -58,8 +58,8 @@ local function on_update(req, res, project)
 			git.clone(project)
 			lfs.chdir("build_files/" .. project)
 		else
-			git.pull()
 			lfs.chdir("build_files/" .. project)
+			git.pull()
 		end
 		
 		-- attempt the build
