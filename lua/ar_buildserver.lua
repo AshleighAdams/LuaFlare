@@ -107,7 +107,7 @@ local function get_menu()
 	
 	util.ItterateDir("build_files/", false, function(file)
 		file = file:sub(("build_files/build_"):len() + 1, file:len() - 4)
-		table.insert(menu, {[file] = "../" .. file})
+		table.insert(menu, {[file] = "../" .. file .. "/"})
 	end)
 	
 	return menu
