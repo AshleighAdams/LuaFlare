@@ -69,12 +69,12 @@ local function on_update(req, res, project)
 	if errcode == 0 then
 		build_status = "OK\n" .. build_status
 		
-		if lfs.attributes("static/*/builds", "mode") == nil then
-			lfs.mkdir("static/*/builds")
+		if lfs.attributes("static/*/build", "mode") == nil then
+			lfs.mkdir("static/*/build")
 		end
 		
 		-- os.execute so not on logs, and copy the build, if it exists
-		os.execute("mv 'build_files/" .. project .. "/build.zip' 'static/*/builds/" .. project .. ".zip'")
+		os.execute("mv 'build_files/" .. project .. "/build.zip' 'static/*/build/" .. project .. ".zip'")
 		print("build passed")
 	else
 		build_status = "ERROR\n" .. build_status
@@ -167,7 +167,7 @@ local function on_status(req, res, project)
 		
 		"Last successfull build: ",
 		(function()
-			local when = lfs.attributes("static/*/builds/" .. project .. ".zip", "modification")
+			local when = lfs.attributes("static/*/build/" .. project .. ".zip", "modification")
 			
 			if when == nil then return "never" end
 			
@@ -188,7 +188,7 @@ local function on_status(req, res, project)
 			
 			local str = os.date("%A, %d" .. postfix .. " %B, %Y", when)
 			
-			return tags.a {href = "/builds/" .. project .. ".zip"}
+			return tags.a {href = "/build/" .. project .. ".zip"}
 			{
 				str
 			}
