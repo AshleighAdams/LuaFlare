@@ -384,9 +384,9 @@ static_print = print
 function print(first, ...)
 	local pid = tostring(script.pid()) .. ": "
 	if first == nil then
-		return old_print(pid, ...)
+		return static_print(pid, ...)
 	else
-		return old_print(pid .. tostring(first), ...)
+		return static_print(pid .. tostring(first), ...)
 	end
 end
 

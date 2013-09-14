@@ -56,7 +56,7 @@ local function on_update(req, res, project)
 		if lfs.attributes("build_files/" .. project, "mode") == nil then
 			lfs.chdir("build_files")
 			git.clone(project)
-			lfs.chdir("build_files/" .. project)
+			lfs.chdir(project)
 		else
 			lfs.chdir("build_files/" .. project)
 			git.pull()
