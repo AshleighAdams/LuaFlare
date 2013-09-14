@@ -60,7 +60,7 @@ reqs.OnRequest = function(request, response)
 	if #hits == 0 then
 		hook.Call("Error", {type = 404}, request, response)
 	elseif #hits ~= 1 then
-		hook.Call("Error", {type = 501, hits = hits}, request, response)
+		hook.Call("Error", {type = 501, message = "page clash"}, request, response)
 	else
 		hits[1].hook.func(request, response, unpack(hits[1].res))
 	end

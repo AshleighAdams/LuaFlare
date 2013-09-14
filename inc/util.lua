@@ -1,12 +1,14 @@
 -- All extensions to inbuilt libs use ThisCase
 
 local posix = require("posix")
+local socket = require("socket")
 
 -- incase these libs wen't created
 table = table or {}
 string = string or {}
 escape = escape or {}
 script = script or {}
+util = util or {}
 
 ------ Table functions
 function PrintTable(tbl, done, depth)
@@ -295,6 +297,15 @@ function script.parse_arguments(args)
 	end
 end
 
+
+----- util.*
+
+function util.time()
+	return socket.gettime()
+end
+
+----- other
+
 local stack
 do
 	local meta = {}
@@ -337,6 +348,7 @@ local stacks = stack()
 local current = stack()
 
 function include(file)
+	print("include", file)
 	local path = file:Path()
 	file = file:sub(path:len())
 

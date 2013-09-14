@@ -24,6 +24,7 @@
     <Folder Include="lua\" />
     <Folder Include="static\" />
     <Folder Include="resources\" />
+    <Folder Include="static\*\build\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="inc\hooks.lua" />
@@ -48,5 +49,15 @@
     <None Include="lua\ar_buildserver.lua" />
     <None Include="resources\build_fail.png" />
     <None Include="resources\build_pass.png" />
+    <None Include="lua\template_buildserver.lua" />
+    <None Include="static\*\build\style.css" />
+    <None Include="static\*\build\imgs\divs.png" />
+    <None Include="static\*\build\imgs\divsf.png" />
+    <None Include="static\*\build\imgs\divsfweak.png" />
+    <None Include="static\*\build\imgs\header %28copy%29.png" />
+    <None Include="static\*\build\imgs\header.png" />
+    <None Include="static\*\build\imgs\hr.png" />
+    <None Include="static\*\build\imgs\hrf.png" />
+    <None Include="static\*\build\imgs\hrfweak.png" />
   </ItemGroup>
 </Project>

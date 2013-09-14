@@ -1,4 +1,6 @@
 local socket = require("socket")
+
+include("template_buildserver.lua")
 -- /build/{repo}/status
 -- /build/{repo}/update
 -- /build/{repo}/state.png
@@ -39,7 +41,7 @@ local function execute(command, error_fatal)
 end
 
 local function on_update(req, res, project)
-	print("update " .. project .. " by " .. req:client():getpeername())
+	g_print("update " .. project .. " by " .. req:client():getpeername())
 	
 	res:set_status(200)
 	res:set_header("Content-Type", "text/plain")
@@ -97,11 +99,30 @@ local function on_update(req, res, project)
 end
 
 local function on_status(req, res, project)
+	
+	build_template.to_response(res)
+	
+	if true then return end
+	
 	local file = io.open("build_files/build_" .. project .. ".log")
 	
 	if not file then
 		hook.Call("Error", {type = 404}, req, res)
 		return
+	end
+	
+	local line = file:read("*l")
+	while line ~= nil do
+		
+		local escaped = escape.html(line)
+		
+		if line:StartsWith("+ ") then
+			res:append("<b>" .. escaped:sub(2) .. "</b><br/>\n")
+		else
+			res:append(escaped .. "<br/>\n")
+		end
+		
+		line = file:read("*l")
 	end
 	
 	local contents = file:read("*all"):Replace("\n", "<br/>\n")
@@ -130,3 +151,5 @@ reqs.AddPattern("*", "/build/([A-z0-9\\-]+)/update", on_update)
 reqs.AddPattern("*", "/build/([A-z0-9\\-]+)/status", on_status)
 reqs.AddPattern("*", "/build/([A-z0-9\\-]+)/state%.png", on_state)
 
+-- an alias to status
+reqs.AddPattern("*", "/build/([A-z0-9\\-]+)/", on_status)

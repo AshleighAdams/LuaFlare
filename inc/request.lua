@@ -43,7 +43,7 @@ function Request(client)
 		_headers = headers,
 		_params = parse_params(parsed_url.query),
 		_post_data = {},
-		_start_time = socket.gettime()
+		_start_time = util.time()
 	}
 	
 	setmetatable(request, meta)
@@ -105,6 +105,11 @@ end
 function meta:start_time()
 	return self._start_time
 end
+
+function meta:total_time()
+	return util.time() - self._start_time
+end
+
 -- some util stuff we need
 
 function read_headers(client)

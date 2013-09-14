@@ -1,0 +1,309 @@
+body{
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 12pt;
+	margin-top: 0px;
+	margin-bottom: 10px;
+}
+
+h1 {
+	font-size: 15pt;
+}
+h2 {
+	font-size: 14pt;
+}
+h3 {
+	font-size: 13pt;
+}
+
+div.wrapper{
+	width: 800px;
+	margin: 0px auto;
+	padding: 10px;
+	padding-top: 0px;
+	overflow: visible;
+}
+
+div.tpbr{
+	width: auto;
+	padding: 0px;
+	height: 100px;
+}
+
+
+div.side{
+	float: left;
+	width: 180px;
+	padding: 5px;
+	display: inline;
+}
+
+div.side_sub{
+	float: left;
+	width: 180px;
+	padding: 5px;
+	display: inline;
+    margin-bottom: 0px;
+    margin-top: 20px;
+}
+
+h1.side{
+	text-align: center;
+	color: #cecece;
+	font-weight: normal;
+	font-size: 20px;
+	font-variant:small-caps;
+}
+
+ul.sb{
+	width: 100%;
+	list-style-type: none;
+	text-align: center;
+	padding: 0px;
+	font-size: 12pt;
+	font-family: "Trebuchet MS";
+}
+
+li.sbl{
+	margin: 5px;
+	border: 0;
+	margin-top: 10px;
+	color: #888;
+	text-decoration: none;
+	font-variant:small-caps;
+	//box-shadow: 0px -10px 10px #f1f1f1 inset;
+}
+
+li.sb a{
+	margin: 5px;
+	border: 0;
+	margin-top: 10px;
+	color: #888;
+	text-decoration: none;
+	font-variant:small-caps;
+}
+
+li.sbcurrent a{
+	font-weight: bold;
+	text-decoration: none;
+	text-align: center;
+	color: #313131;
+	font-variant:small-caps;
+}
+
+/* Fix the 2 above so they have spacing! */
+li.sb{
+	margin-top: 10px;
+	color: #888;
+}
+li.sbcurrent{
+	margin-top: 10px;
+	color: #888;
+	text-align: center;
+}
+/* --- */
+
+li.sb:hover a{
+	color: #313131;
+}
+
+div.main{
+	float: left;
+	padding: 10px;
+	max-width: 550px;
+	padding-top: 10px;
+}
+
+div.foot{
+	clear: both;
+	width: 100%;
+	padding: 10px;
+	text-align: center;
+	font-size: 90%;
+	color: #818181;
+}
+
+/*  
+ * Hey YouTube/Google,
+ * 
+ * thanks for this!
+ */
+
+div.lineup{
+	margin: 0;
+	position: relative;
+	height: 0;
+	z-index: 100;
+}
+
+span.lineupl{
+	background: no-repeat url(imgs/divs.png) 0 0;
+	background: -webkit-radial-gradient(bottom right,circle,rgba(0, 0, 0, 0.06),transparent 80px);
+	background: -moz-radial-gradient(bottom right,rgba(0, 0, 0, 0.06),transparent 80px);
+	width: 80px;
+	left: 0;
+	position: absolute;
+	display: block;
+	border: none;
+	height: 80px;
+	top: -80px;
+	z-index: 99;
+	margin: 0;
+	padding: 0;
+}
+
+span.lineuplweak{
+	background: no-repeat url(imgs/divs.png) -114 -24;
+	background: -webkit-radial-gradient(bottom right,circle,rgba(0, 0, 0, 0.06),transparent 40px);
+	background: -moz-radial-gradient(bottom right,rgba(0, 0, 0, 0.06),transparent 40px);
+	width: 80px;
+	left: 0;
+	position: absolute;
+	display: block;
+	border: none;
+	height: 40px;
+	top: -40px;
+	z-index: 99;
+	margin: 0;
+	padding: 0;
+}
+
+span.lineupr{
+	background: no-repeat url(imgs/divs.png) -114px 0;
+	background: -webkit-radial-gradient(bottom left,circle,rgba(0, 0, 0, 0.06),transparent 80px);
+	background: -moz-radial-gradient(bottom left,rgba(0, 0, 0, 0.06),transparent 80px);
+	width: 80px;
+	right: 0;
+	position: absolute;
+	display: block;
+	border: none;
+	height: 80px;
+	top: -80px;
+	z-index: 99;
+	margin: 0;
+	padding: 0;
+}
+
+span.lineup{
+	position: relative;
+	display: block;
+	border: none;
+	height: 80px;
+	margin-left: 80px;
+	margin-right: 80px;
+	top: -80px;
+	/* Thanks YouTube! */
+	background: url(imgs/hr.png);
+	background: -webkit-linear-gradient(bottom,rgba(0, 0, 0, 0.06),transparent 80px);
+	background: -moz-linear-gradient(bottom,rgba(0, 0, 0, 0.06),transparent 80px);
+	z-index: 99;
+}
+
+span.lineupweak{
+	position: relative;
+	display: block;
+	border: none;
+	height: 40px;
+	margin-left: 80px;
+	margin-right: 80px;
+	top: -40px;
+	/* Thanks YouTube! */
+	background: url(imgs/hrweak.png);
+	background: -webkit-linear-gradient(bottom,rgba(0, 0, 0, 0.06),transparent 40px);
+	background: -moz-linear-gradient(bottom,rgba(0, 0, 0, 0.06),transparent 40px);
+	z-index: 99;
+}
+
+/* Now for the other side */
+
+div.linedown{
+	margin: 0;
+	position: relative;
+	height: 0;
+	z-index: 100;
+}
+
+span.linedownl{
+	background: no-repeat url(imgs/divsf.png) 0 0;
+	background: -webkit-radial-gradient(top right,circle,rgba(0, 0, 0, 0.06),transparent 80px);
+	background: -moz-radial-gradient(top right,rgba(0, 0, 0, 0.06),transparent 80px);
+	width: 80px;
+	left: 0;
+	position: absolute;
+	display: block;
+	border: none;
+	height: 80px;
+	z-index: 99;
+	margin: 0;
+	padding: 0;
+	pointer-events: none;
+}
+
+span.linedownr{
+	background: no-repeat url(imgs/divsf.png) -114px 0;
+	background: -webkit-radial-gradient(top left,circle,rgba(0, 0, 0, 0.06),transparent 80px);
+	background: -moz-radial-gradient(top left,rgba(0, 0, 0, 0.06),transparent 80px);
+	width: 80px;
+	right: 0;
+	position: absolute;
+	display: block;
+	border: none;
+	height: 80px;
+	z-index: 99;
+	margin: 0;
+	padding: 0;
+	pointer-events: none;
+}
+
+span.linedown{
+	position: relative;
+	display: block;
+	border: none;
+	height: 80px;
+	margin-left: 80px;
+	margin-right: 80px;
+	background: url(imgs/hrf.png);
+	background: -webkit-linear-gradient(top,rgba(0, 0, 0, 0.06),transparent 80px);
+	background: -moz-linear-gradient(top,rgba(0, 0, 0, 0.06),transparent 80px);
+	z-index: 99;
+	pointer-events: none;
+}
+
+/* Same as above, but weaker */
+
+div.linedownweak{
+	margin: 0;
+	position: relative;
+	height: 0;
+	z-index: 100;
+	pointer-events: none;
+}
+
+span.linedownlweak{
+	background: no-repeat url(imgs/divsfweak.png) 0 0;
+	background: -webkit-radial-gradient(top right,circle,rgba(0, 0, 0, 0.06),transparent 40px);
+	background: -moz-radial-gradient(top right,rgba(0, 0, 0, 0.06),transparent 40px);
+	width: 40px;
+	left: 0;
+	position: absolute;
+	display: block;
+	border: none;
+	height: 40px;
+	z-index: 99;
+	margin: 0;
+	padding: 0;
+	pointer-events: none;
+}
+
+span.linedownweak{
+	position: relative;
+	display: block;
+	border: none;
+	height: 40px;
+	margin-left: 40px;
+	margin-right: 0px;
+	background: url(imgs/hrfweak.png);
+	background: -webkit-linear-gradient(top,rgba(0, 0, 0, 0.06),transparent 40px);
+	background: -moz-linear-gradient(top,rgba(0, 0, 0, 0.06),transparent 40px);
+	z-index: 99;
+	pointer-events: none;
+}
