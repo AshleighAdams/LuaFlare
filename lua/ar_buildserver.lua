@@ -99,11 +99,6 @@ local function on_update(req, res, project)
 end
 
 local function on_status(req, res, project)
-	
-	build_template.to_response(res)
-	
-	if true then return end
-	
 	local file = io.open("build_files/build_" .. project .. ".log")
 	
 	if not file then
@@ -111,23 +106,44 @@ local function on_status(req, res, project)
 		return
 	end
 	
+	local contents = ""
+	
 	local line = file:read("*l")
+	line = file:read("*l") -- ignore the first line, OK or ERROR
 	while line ~= nil do
 		
 		local escaped = escape.html(line)
 		
 		if line:StartsWith("+ ") then
-			res:append("<b>" .. escaped:sub(2) .. "</b><br/>\n")
+			contents = contents .. "<b>" .. escaped:sub(2) .. "</b><br/>\n"
 		else
-			res:append(escaped .. "<br/>\n")
+			contents = contents .. escaped .. "<br/>\n"
 		end
 		
 		line = file:read("*l")
 	end
 	
-	local contents = file:read("*all"):Replace("\n", "<br/>\n")
 	
-	res:append(contents)
+	
+	local menu = {
+		"Main",
+			{Home = "#"},
+			{About = "#"},
+		"Builds",
+			{LuaPP = "#"},
+			{LuaServer = "#"}
+	}
+	
+	local content = tags.div {
+		tags.h2 { "Build result of " .. project },
+		tags.img {src = "state.png"},
+		tags.p {style = "font-family: monospace;"}
+		{
+			contents
+		}
+	}
+	
+	create_build_template("Build > " .. project, menu, content).to_response(res)
 end
 
 local function on_state(req, res, project)

@@ -1,5 +1,8 @@
 tags = {}
 
+-- meh, doesn't change view, but it produces nicer code
+local allow_inline = false
+
 local generated_html = ""
 function generate_html(first, tbl, depth, parent, section, current_section)
 	tbl = tbl or {}
@@ -27,7 +30,7 @@ function generate_html(first, tbl, depth, parent, section, current_section)
 		current_section[1] = current_section[1] + 1
 	elseif type(tbl) == "table" and  tbl.is_tag then
 		local attributes = ""
-		was_inline = tbl.tag_options.inline
+		was_inline = tbl.tag_options.inline and allow_inline 
 		
 		if tbl.extra and type(tbl.extra) == "string" then
 			attributes = " " .. tbl.extra
@@ -46,7 +49,7 @@ function generate_html(first, tbl, depth, parent, section, current_section)
 			generated_html = generated_html .. tabs .. "<" .. tbl.name .. attributes .. endbit
 		end
 		
-		if not tbl.tag_options.inline and section == current_section[1] then
+		if not (tbl.tag_options.inline and allow_inline) and section == current_section[1] then
 			generated_html = generated_html .. "\n"
 		end
 		
@@ -57,7 +60,7 @@ function generate_html(first, tbl, depth, parent, section, current_section)
 				end
 			end
 		
-			if not tbl.tag_options.inline and section == current_section[1] then
+			if not (tbl.tag_options.inline and allow_inline) and section == current_section[1] then
 				local len = generated_html:len()
 				if generated_html:sub(len, len) ~= '\n' then
 					generated_html = generated_html .. "\n"
@@ -90,7 +93,7 @@ function generate_html(first, tbl, depth, parent, section, current_section)
 		
 		--whattowrite = html_escape(whattowrite)
 		
-		if not first and parent.tag_options.inline then
+		if not first and (parent.tag_options.inline and allow_inline) then
 			generated_html = generated_html .. whattowrite
 		else
 			if was_inline then

@@ -7,12 +7,15 @@ body{
 
 h1 {
 	font-size: 15pt;
+	font-weight: normal;
 }
 h2 {
 	font-size: 14pt;
+	font-weight: normal;
 }
 h3 {
 	font-size: 13pt;
+	font-weight: normal;
 }
 
 div.wrapper{
@@ -48,7 +51,7 @@ div.side_sub{
 
 h1.side{
 	text-align: center;
-	color: #cecece;
+	color: #999;
 	font-weight: normal;
 	font-size: 20px;
 	font-variant:small-caps;
@@ -60,7 +63,7 @@ ul.sb{
 	text-align: center;
 	padding: 0px;
 	font-size: 12pt;
-	font-family: "Trebuchet MS";
+	#/font-family: "Trebuchet MS";
 }
 
 li.sbl{
@@ -77,16 +80,15 @@ li.sb a{
 	margin: 5px;
 	border: 0;
 	margin-top: 10px;
-	color: #888;
+	color: #313131;
 	text-decoration: none;
 	font-variant:small-caps;
 }
 
 li.sbcurrent a{
-	font-weight: bold;
 	text-decoration: none;
 	text-align: center;
-	color: #313131;
+	color: #888;
 	font-variant:small-caps;
 }
 
