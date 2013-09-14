@@ -6,6 +6,7 @@ local socket = require("socket")
 -- incase these libs wen't created
 table = table or {}
 string = string or {}
+math = math or {}
 escape = escape or {}
 script = script or {}
 util = util or {}
@@ -133,6 +134,20 @@ function table.ToString(tbl)
 	if tbl == nil then error("argument #1 is nil", 2) end
 	
 	return to_lua_table(tbl)
+end
+
+------- math functions
+function basic_round(what)
+	if what % 0.5 >= 0.5 then
+		return math.ceil(what)
+	else
+		return math.floor(what)
+	end
+end
+
+function math.Round(what, prec)
+	prec = 1 / (prec or 1)
+	return basic_round(what * prec) / prec
 end
 
 ------- String functions

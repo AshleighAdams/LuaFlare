@@ -19,25 +19,19 @@ local function print(first, ...)
 	g_print("buildserver: " .. tostring(first), ...) 
 end
 
-local git = {}
-git.clone = function(name, to)
-	local command = "git clone git@github.com:c0bra61/" .. name .. ".git " .. to
-	
-	print("+ " .. command)
-	build_status = build_status .. os.capture(command, true) .. "\n"
-end
-git.pull = function(repo)
-	local command = "cd build_files/" .. repo .. " && git fetch --all &&  git reset --hard origin/master"
-	
-	print("+ " .. command)
-	build_status = build_status .. os.capture(command, true) .. "\n"
-end
-
 local function execute(command, error_fatal)
 	print("+ " .. command)
 	local ret, errcode = os.capture(command, true)
 	build_status = build_status .. ret .. "\n"
 	return errcode
+end
+
+local git = {}
+git.clone = function(repo)
+	return execute("git clone git@github.com:c0bra61/" .. repo .. ".git")
+end
+git.pull = function()
+	execute("git fetch --all &&  git reset --hard origin/master")
 end
 
 local function on_update(req, res, project)
@@ -55,16 +49,19 @@ local function on_update(req, res, project)
 	if lfs.attributes("build_files", "mode") == nil then
 		lfs.mkdir("build_files/")
 	end
-		
-	-- check a dir exists for the project
-	if lfs.attributes("build_files/" .. project, "mode") == nil then
-		git.clone(project, "build_files/" .. project)
-	else
-		git.pull(project)
-	end
+	
 	
 	local cd = lfs.currentdir()
-	lfs.chdir("build_files/" .. project)
+		-- check a dir exists for the project
+		if lfs.attributes("build_files/" .. project, "mode") == nil then
+			lfs.chdir("build_files")
+			git.clone(project)
+			lfs.chdir("build_files/" .. project)
+		else
+			git.pull()
+			lfs.chdir("build_files/" .. project)
+		end
+		
 		-- attempt the build
 		local errcode = execute("./.buildserver")
 	lfs.chdir(cd)
@@ -88,7 +85,7 @@ local function on_update(req, res, project)
 	
 	local endtime = socket.gettime()
 	local delta = endtime - starttime;
-	print("completed in ".. tostring(delta) .." seconds")
+	print("completed in ".. math.Round(delta, 0.01) .." seconds")
 	
 	local file = io.open("build_files/build_" .. project .. ".log", "w")
 	assert(file)
