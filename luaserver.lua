@@ -83,6 +83,12 @@ function socket.bind_reuseport(host, port, backlog)
 end
 
 function main()
+	if script.options["test"] then
+		print = static_print
+		include("inc/unittests.lua")
+		return unit_test()
+	end
+	
 	local server, err = socket.bind_reuseport("*", tonumber(script.options.port or "8080"))
 	assert(server, err)
 	-- so we can spawn many processes, requires luasocket 3 

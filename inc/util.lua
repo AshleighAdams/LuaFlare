@@ -146,10 +146,6 @@ function string.EndsWith(haystack, needle)
 	return needle == "" or haystack:sub(-needle:len()) == needle
 end
 
-function string.Trim(str, chars)
-	error("Not implimented", 2)
-end
-
 function string.Replace(str, what, with)
 	return str:gsub(escape.pattern(what), escape.pattern(with))
 end
@@ -177,9 +173,13 @@ function string.ReplaceLast(str, what, with)
 	return firstbit .. with .. lastbit
 end
 
+function string.Trim(str)
+	return str:match("^%s*(.-)%s*$")
+end
+
 ------- math functions
 function basic_round(what)
-	if what % 0.5 >= 0.5 then
+	if what % 1 >= 0.5 then -- haha, the 1 was 0.5, thanks to unit testing i found it...
 		return math.ceil(what)
 	else
 		return math.floor(what)
@@ -380,7 +380,7 @@ do
 end
 
 -- detour print, so that it appends the PID infront
-local old_print = print
+static_print = print
 function print(first, ...)
 	local pid = tostring(script.pid()) .. ": "
 	if first == nil then
@@ -394,9 +394,8 @@ local stacks = stack()
 local current = stack()
 
 function include(file)
-	print("include", file)
 	local path = file:Path()
-	file = file:sub(path:len())
+	file = file:sub(path:len() + 1)
 
 	current:push((current:value() or "") .. path)
 		for k,v in ipairs(stacks:all()) do

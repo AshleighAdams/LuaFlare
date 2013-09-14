@@ -1,0 +1,10 @@
+#!/bin/bash
+set -e #make bash halt on error
+set -x #make bash echo the commands
+
+# make sure there's no syntax errors
+luac -p ./*.lua ./**/*.lua
+
+./luaserver.lua --test
+
+zip build.zip `find -name "*.*"`

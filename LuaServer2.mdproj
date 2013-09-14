@@ -59,5 +59,7 @@
     <None Include="static\*\build\imgs\hr.png" />
     <None Include="static\*\build\imgs\hrf.png" />
     <None Include="static\*\build\imgs\hrfweak.png" />
+    <None Include=".buildserver" />
+    <None Include="inc\unittests.lua" />
   </ItemGroup>
 </Project>
