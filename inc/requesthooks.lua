@@ -32,7 +32,7 @@ reqs.AddPattern = function(host, url, func)
 	host = generate_host_patern(host)
 	url = generate_resource_patern(url)
 	
-	for k, v in pairs(reqs.PatternsRegistered) do -- already exists, overwrite it and warn
+	for k, v in ipairs(reqs.PatternsRegistered) do -- already exists, overwrite it and warn
 		if v.host == host and v.url == url then
 			v.func = func
 			return

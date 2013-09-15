@@ -12,8 +12,7 @@ script = script or {}
 util = util or {}
 
 ------ Table functions
-function PrintTable(tbl, done, depth)
-	if tbl == nil then error("argument #1 is nil", 2) end
+function PrintTable(tbl, done, depth) expects "table"
 	
 	done = done or {}
 	depth = depth or 0
@@ -32,9 +31,7 @@ function PrintTable(tbl, done, depth)
 	end
 end
 
-function table.Count(tbl)
-	if tbl == nil then error("argument #1 is nil", 2) end
-	
+function table.Count(tbl) expects "table"	
 	local count = 0
 	for k,v in pairs(tbl) do
 		count = count + 1
@@ -43,24 +40,15 @@ function table.Count(tbl)
 	return count
 end
 
-function table.IsEmpty(tbl)
-	if tbl == nil then error("argument #1 is nil", 2) end
-	
-	for k,v in pairs(tbl) do
-		return false
-	end
-	return true
+function table.IsEmpty(tbl) expects "table"	
+	return next(tbl) == nil
 end
 
-function table.HasKey(tbl, key) -- if not tbl[key] then -- < is an error if is 0 or false
-	if tbl == nil then error("argument #1 is nil", 2) end
-	
+function table.HasKey(tbl, key) expects ("table", "*")
 	return tbl[key] ~= nil
 end
 
-function table.HasValue(tbl, value)
-	if tbl == nil then error("argument #1 is nil", 2) end
-	
+function table.HasValue(tbl, value) expects ("table", "*")	
 	for k,v in pairs(tbl) do
 		if v == value then
 			return true, k
@@ -130,31 +118,30 @@ function to_lua_table(tbl, depth, done)
 	return ret
 end
 
-function table.ToString(tbl)
-	if tbl == nil then error("argument #1 is nil", 2) end
+function table.ToString(tbl) expects "table"
 	
 	return to_lua_table(tbl)
 end
 
 ------- String functions
 
-function string.StartsWith(haystack, needle)
+function string.StartsWith(haystack, needle) expects ("string", "string")
 	return haystack:sub(1, needle:len()) == needle
 end
 
-function string.EndsWith(haystack, needle)
+function string.EndsWith(haystack, needle) expects ("string", "string")
 	return needle == "" or haystack:sub(-needle:len()) == needle
 end
 
-function string.Replace(str, what, with)
+function string.Replace(str, what, with) expects ("string", "string", "string")
 	return str:gsub(escape.pattern(what), escape.pattern(with))
 end
 
-function string.Path(self)
+function string.Path(self) expects "string"
 	return self:match("(.+/)") or ""
 end
 
-function string.ReplaceLast(str, what, with)
+function string.ReplaceLast(str, what, with) expects ("string", "string", "string")
 	local from, to, _from, _to = nil, nil
 	local pos = 1
 	local len = what:len()
@@ -173,7 +160,7 @@ function string.ReplaceLast(str, what, with)
 	return firstbit .. with .. lastbit
 end
 
-function string.Trim(str)
+function string.Trim(str) expects "string"
 	return str:match("^%s*(.-)%s*$")
 end
 
@@ -187,13 +174,16 @@ function basic_round(what)
 end
 
 function math.Round(what, prec)
-	prec = 1 / (prec or 1)
+	prec = prec or 1
+	expects("number", "number")
+	
+	prec = 1 / prec
 	return basic_round(what * prec) / prec
 end
 
 ------- escape functions, try not to use string.Replace, as it is slower than raw gsub
 
-function escape.pattern(input) -- defo do not use string.Replace, else revusion err
+function escape.pattern(input) expects "string" -- defo do not use string.Replace, else revusion err
 	if input == nil then error("argument #1 is nil", 2) end
 	
 	input = input:gsub("%%", "%%%%") -- escape %'s, and others
@@ -207,7 +197,7 @@ function escape.pattern(input) -- defo do not use string.Replace, else revusion 
 	return input
 end
 
-function escape.html(input, strict)
+function escape.html(input, strict) expects "string"
 	if input == nil then error("argument #1 is nil", 2) end
 	
 	if strict == nil then strict = true end
@@ -225,7 +215,7 @@ function escape.html(input, strict)
 	return input
 end
 
-function escape.sql(input)
+function escape.sql(input) expects "string"
 	if input == nil then error("argument #1 is nil", 2) end
 	
 	input = input:gsub("'", "\\'")
@@ -236,7 +226,7 @@ end
 
 ------- os.*
 
-function os.capture(cmd, raw)
+function os.capture(cmd, raw) expects "string"
 	local f = assert(io.popen(cmd .. " 2>&1", 'r')) -- TODO: should always redirect?
 	local s = assert(f:read('*a'))
 	local _, _, err_code = f:close()
@@ -308,7 +298,7 @@ script.options = {}
 script.arguments = {}
 script.filename = ""
 
-function script.parse_arguments(args)
+function script.parse_arguments(args) expects "table"
 	script.filename = args[0]
 	
 	for k, v in ipairs(args) do
@@ -338,7 +328,7 @@ function util.time()
 	return socket.gettime()
 end
 
-function util.ItterateDir(dir, recursive, callback, ...)
+function util.ItterateDir(dir, recursive, callback, ...) expects("string", "boolean", "function")
 	assert(dir and recursive ~= nil and callback)
 	
 	for file in lfs.dir(dir) do
@@ -362,19 +352,19 @@ do
 		return setmetatable(ret, meta._meta)
 	end
 	
-	function meta:push(val)
+	function meta:push(val) expects (meta._meta)
 		table.insert(self._tbl, val)
 	end
 	
-	function meta:pop()
+	function meta:pop() expects (meta._meta)
 		table.remove(self._tbl, 1)
 	end
 	
-	function meta:value()
+	function meta:value() expects (meta._meta)
 		return self._tbl[1]
 	end
 	
-	function meta:all()
+	function meta:all() expects (meta._meta)
 		return self._tbl
 	end
 end
@@ -393,7 +383,7 @@ end
 local stacks = stack()
 local current = stack()
 
-function include(file)
+function include(file) expects "string"
 	local path = file:Path()
 	file = file:sub(path:len() + 1)
 
@@ -414,4 +404,63 @@ function include(file)
 	
 	return deps
 end
+
+function expects(...)
+	local args = {...}
+	local count = #args
+	
+	local level = 2 -- caller
+	local typ, exp = "", ""
+	
+	local arg
+	for i = 1, count do
+		arg = args[i]
+		
+		if arg == nil then -- anything
+		elseif type(arg) == "table" then -- should be a meta table
+			name, val = debug.getlocal (level, i)
+			if name == nil then -- they called with too many args
+				error("too many arguments to expects", 2)
+			end
+			
+			if val == nil then
+				error(string.format("argument #i (%s) expected a table with a metatable (got nil)", i, name), 3)
+			end
+			
+			local meta = getmetatable(val)
+			if meta ~= arg then
+				error(string.format("argument #i (%s): metatable mismatch", i, name), 3)
+			end
+		elseif arg == "*" then -- anything but nil
+			name, val = debug.getlocal (level, i)
+			if val == nil then
+				if name == nil then -- they called with too many args
+					error("too many arguments to expects", 2)
+				end
+				error(string.format("argument #i (%s) expected a value (got nil)", i, name), 3)
+			end
+		else
+			name, val = debug.getlocal (level, i)
+			typ = type(val)
+			if typ ~= args[i] then
+				if name == nil then -- they called with too many args
+					error("too many arguments to expects", 2)
+				end
+				error(string.format("argument #%i (%s) expected %s (got %s)", i, name, args[i], typ), 3) -- 3 = caller's caller
+			end
+		end
+	end
+end
+
+
+
+
+
+
+
+
+
+
+
+
 

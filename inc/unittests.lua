@@ -19,6 +19,11 @@ local function check(what)
 	end
 end
 
+local function test_util_math()
+	SUB_FAIL = false
+	return not SUB_FAIL
+end
+
 local function test_util()
 	SUB_FAIL = false
 	
@@ -32,7 +37,7 @@ local function test_util()
 	-- strings
 	check(string.Path("/test/file") == "/test/")
 	check(string.Path("/test/") == "/test/")
-	--check(string.Path("/test") == "/")
+	check(string.Path("/test") == "/")
 	check(string.Trim(" \n\t hello, world  \t\n  ") == "hello, world")
 	check(string.ReplaceLast("test is test", "test", "simple") == "test is simple")
 	
@@ -42,11 +47,12 @@ end
 local function test(msg, func)
 	local toprint = msg .. "... "
 	
+	SUB_FAIL = false
 	local suc, ret = pcall(func)
 	if not suc then
-		FAILED = false
+		FAILED = true
 		toprint = toprint .. "error: " .. lines[tonumber(ret:match("inc/unittests%.lua:(%d+):"))] or ret
-	elseif not ret then
+	elseif SUB_FAIL then
 		toprint = toprint .. "fail"
 	else
 		toprint = toprint .. "pass"
