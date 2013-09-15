@@ -5,6 +5,30 @@ body{
 	margin-bottom: 10px;
 }
 
+div.wrapper{
+	width: 1000px;
+	margin: 0px auto;
+	padding: 10px;
+	padding-top: 0px;
+	overflow: visible;
+}
+
+div.main{
+	float: left;
+	padding: 10px;
+	width: 750px;
+	padding-top: 10px;
+}
+
+div.foot{
+	clear: both;
+	width: 100%;
+	padding: 10px;
+	text-align: center;
+	font-size: 90%;
+	color: #818181;
+}
+
 h1 {
 	font-size: 15pt;
 	font-weight: normal;
@@ -29,13 +53,6 @@ a:hover
 	cursor: pointer;
 }
 
-div.wrapper{
-	width: 800px;
-	margin: 0px auto;
-	padding: 10px;
-	padding-top: 0px;
-	overflow: visible;
-}
 
 div.tpbr{
 	width: auto;
@@ -118,23 +135,6 @@ li.sbcurrent{
 li.sb:hover a{
 	color: #313131;
 }
-
-div.main{
-	float: left;
-	padding: 10px;
-	width: 550px;
-	padding-top: 10px;
-}
-
-div.foot{
-	clear: both;
-	width: 100%;
-	padding: 10px;
-	text-align: center;
-	font-size: 90%;
-	color: #818181;
-}
-
 
 /*
 The commands CSS

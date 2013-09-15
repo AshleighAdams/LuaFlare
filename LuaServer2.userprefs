@@ -2,10 +2,16 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Default" />
   <MonoDevelop.Ide.Workbench ActiveDocument="inc/requesthooks.lua">
     <Files>
-      <File FileName="inc/util.lua" Line="44" Column="25" />
-      <File FileName="luaserver.lua" Line="160" Column="1" />
       <File FileName="inc/unittests.lua" Line="50" Column="18" />
       <File FileName="inc/requesthooks.lua" Line="39" Column="6" />
+      <File FileName="lua/template_buildserver.lua" Line="79" Column="6" />
+      <File FileName="static/*/build/style.css" Line="166" Column="14" />
+      <File FileName="inc/htmlwriter.lua" Line="39" Column="28" />
+      <File FileName="static/*/error_style.css" Line="38" Column="9" />
+      <File FileName="lua/ar_buildserver.lua" Line="110" Column="52" />
+      <File FileName="luaserver.lua" Line="134" Column="58" />
+      <File FileName="lua/ar_resources.lua" Line="4" Column="1" />
+      <File FileName="inc/util.lua" Line="342" Column="29" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -14,8 +20,14 @@
             <Node name="inc" expanded="True">
               <Node name="requesthooks.lua" selected="True" />
             </Node>
-            <Node name="keys" expanded="True" />
-            <Node name="lua" expanded="True" />
+            <Node name="lua" expanded="True">
+              <Node name="ar_buildserver.lua" selected="True" />
+            </Node>
+            <Node name="static" expanded="True">
+              <Node name="*" expanded="True">
+                <Node name="build" expanded="True" />
+              </Node>
+            </Node>
           </Node>
         </State>
       </Pad>
