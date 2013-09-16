@@ -138,7 +138,7 @@ function string.Replace(str, what, with) expects ("string", "string", "string")
 end
 
 function string.Path(self) expects "string"
-	return self:match("(.+/)") or ""
+	return self:match("(.*/)") or ""
 end
 
 function string.ReplaceLast(str, what, with) expects ("string", "string", "string")
@@ -193,6 +193,7 @@ function escape.pattern(input) expects "string" -- defo do not use string.Replac
 	input = input:gsub("%(", "%%(")
 	input = input:gsub("%)", "%%)")
 	input = input:gsub("%+", "%%+")
+	input = input:gsub("%-", "%%-")
 	
 	return input
 end

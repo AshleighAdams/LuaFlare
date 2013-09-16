@@ -105,5 +105,11 @@ function unit_test()
 	test("math.* extensions", test_math)
 	test("escape.*", test_escape)
 	
-	os.exit(FAILED and 1 or 0)
+	if FAILED then
+		print("unit test failed!")
+		os.exit(1)	
+	else
+		print("all unit tests passed!")
+		os.exit(0)
+	end
 end
