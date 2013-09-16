@@ -53,6 +53,7 @@ local function test(msg, func)
 		FAILED = true
 		toprint = toprint .. "error: " .. lines[tonumber(ret:match("inc/unittests%.lua:(%d+):"))] or ret
 	elseif SUB_FAIL then
+		FAILED = true
 		toprint = toprint .. "fail"
 	else
 		toprint = toprint .. "pass"
@@ -64,5 +65,5 @@ end
 function unit_test()
 	test("test util.* functions", test_util)
 	
-	return FAILED and 1 or 0
+	os.exit(FAILED and 1 or 0)
 end
