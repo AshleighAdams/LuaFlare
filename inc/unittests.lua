@@ -76,8 +76,27 @@ end
 
 local function test_table()
 	check(table.Count({this=5, 15, 4, simple="test"}) == 4)
-	check(table.Count({1, 2, nil, 4}) == 4)
+	check(table.Count({1, 2, nil, 4}) == 3)
 	check(table.Count({}) == 0)
+	
+	check(table.IsEmpty({}))
+	check(not table.IsEmpty({1, 2, 3}))
+	check(not table.IsEmpty({a=1}))
+	check(table.IsEmpty({nil}))
+	
+	check(table.HasKey({a=5}, "a"))
+	check(table.HasKey({1, 2, 3}, 3))
+	check(table.HasKey({1}, 1))
+	check(not table.HasKey({1}, 2))
+	check(not table.HasKey({a=5}, "b"))
+	
+	check(table.HasValue({1, 2, 3}, 2))
+	check(not table.HasValue({1, 2, 3}, 4))
+	check(table.HasValue({a=4, b=2}, 2))
+	check(not table.HasValue({a=4, b=2}, "a"))
+	check(not table.HasValue({a=4, b=2}, "4"))
+	
+	check(table.ToString({}) == "{}")
 end
 
 function unit_test()
