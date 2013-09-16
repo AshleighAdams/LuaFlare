@@ -59,7 +59,7 @@ function create_build_template(title, menu_items, content)
 		{
 			tags.div {class = "wrapper"}
 			{
-				tags.div {class = "tpbr"}{ tags.img {src = "/build/imgs/header.png" } },
+				tags.div {class = "tpbr"}{ tags.img {class="header"} {src = "/build/imgs/header.png" } },
 				tags.div {class = "lineup"}
 				{
 					tags.span {class = "lineupl"},

@@ -19,31 +19,6 @@ local function check(what)
 	end
 end
 
-local function test_util_math()
-	SUB_FAIL = false
-	return not SUB_FAIL
-end
-
-local function test_util()
-	SUB_FAIL = false
-	
-	-- maths
-	check(math.Round(5.4, 1) == 5)
-	check(math.Round(5.5, 1) == 6)
-	check(math.Round(5.6, 1) == 6)
-	check(math.Round(5.52, 0.1) == 5.5)
-	check(math.Round(5.58, 0.1) == 5.6)
-	
-	-- strings
-	check(string.Path("/test/file") == "/test/")
-	check(string.Path("/test/") == "/test/")
-	check(string.Path("/test") == "/")
-	check(string.Trim(" \n\t hello, world  \t\n  ") == "hello, world")
-	check(string.ReplaceLast("test is test", "test", "simple") == "test is simple")
-	
-	return not SUB_FAIL
-end
-
 local function test(msg, func)
 	local toprint = msg .. "... "
 	
@@ -51,7 +26,7 @@ local function test(msg, func)
 	local suc, ret = pcall(func)
 	if not suc then
 		FAILED = true
-		toprint = toprint .. "error: " .. lines[tonumber(ret:match("inc/unittests%.lua:(%d+):"))] or ret
+		toprint = toprint .. "error: " .. (lines[tonumber(ret:match("inc/unittests%.lua:(%d+):"))] or ret)
 	elseif SUB_FAIL then
 		FAILED = true
 		toprint = toprint .. "fail"
@@ -62,8 +37,54 @@ local function test(msg, func)
 	print(toprint)
 end
 
+local function test_math()
+	-- maths
+	check(math.Round(5.4, 1) == 5)
+	check(math.Round(5.5, 1) == 6)
+	check(math.Round(5.6, 1) == 6)
+	check(math.Round(5.52, 0.1) == 5.5)
+	check(math.Round(5.58, 0.1) == 5.6)
+end
+
+local function test_string()
+	-- strings
+	check(string.Path("/test/file") == "/test/")
+	check(string.Path("/test/") == "/test/")
+	check(string.Path("/test") == "/")
+	check(string.Trim(" \n\t hello, world  \t\n  ") == "hello, world")
+	check(string.Trim(" . test . ") == ". test .")
+	check(string.ReplaceLast("test is test", "test", "simple") == "test is simple")
+	check(string.StartsWith("this is a test", "this "))
+	check(not string.StartsWith("this is a test", "is a"))
+	check(string.EndsWith("123456789", "789"))
+	check(not string.EndsWith("123456789", "678"))
+	check(string.Replace("this is a simple test", "is", "si") == "thsi si a simple test")
+	check(string.Replace("this is a simple test", "nope", "simple") == "this is a simple test")
+end
+
+local function test_escape()
+	check(escape.html("<this> is a </test>") == "&lt;this&gt; is a &lt;/test&gt;")
+	check(escape.html("< &lt; >") == "&lt; &amp;lt; &gt;")
+	check(escape.html("<>&'\"") == "&lt;&gt;&amp;&apos;&quot;")
+	check(escape.html("\t\n") == "&nbsp;&nbsp;&nbsp;&nbsp;<br />\n")
+	
+	check(escape.sql("this is ' a simple \"\" test") == "this is \\' a simple \\\"\\\" test")
+	
+	check(escape.pattern("one (two) three % four.") == "one %(two%) three %% four%.")
+	check(escape.pattern("(5 * 2) / 3 - 4 + 1") == "%(5 %* 2%) / 3 %- 4 %+ 1")
+end
+
+local function test_table()
+	check(table.Count({this=5, 15, 4, simple="test"}) == 4)
+	check(table.Count({1, 2, nil, 4}) == 4)
+	check(table.Count({}) == 0)
+end
+
 function unit_test()
-	test("test util.* functions", test_util)
+	test("table.* extensions", test_table)
+	test("string.* extensions", test_string)
+	test("math.* extensions", test_math)
+	test("escape.*", test_escape)
 	
 	os.exit(FAILED and 1 or 0)
 end
