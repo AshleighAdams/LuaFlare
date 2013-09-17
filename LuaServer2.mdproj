@@ -61,5 +61,6 @@
     <None Include="static\*\build\imgs\hrfweak.png" />
     <None Include=".buildserver" />
     <None Include="inc\unittests.lua" />
+    <None Include="README.md" />
   </ItemGroup>
 </Project>

@@ -22,19 +22,6 @@ local function link(name, to)
 	return tags.li {class="sb"}{ tags.a {href = to} { name } }
 end
 
-local menu = {
-		"Main",
-		{
-			{Home = "#"},
-			{About = "#"}
-		},
-		"Builds",
-		{
-			{LuaPP = "#"},
-			{LuaServer = "#"}
-		}
-	}
-
 function create_build_template(title, menu_items, content)
 	local menuitems = {}
 	

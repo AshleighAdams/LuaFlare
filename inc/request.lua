@@ -22,14 +22,19 @@ function Request(client) expects("userdata")
 	local action, err = client:receive("*l")
 	if not action then return nil end -- just timed out
 	
+	local method, full_url, version = string.match(action, "(%w+) (.+) HTTP/([%d.]+)")
+	if method == nil or full_url == nil or version == nil then
+		quick_response_client(client, 400) 
+		return nil, "invalid request: failed to parse method, url, or version"
+	end
+	
 	local headers = read_headers(client)
 	if not headers then quick_response_client(client, 400) return nil, "invalid request: failed to parse headers" end
 	
-	local method, full_url, version = string.match(action, "(%w+) (.+) HTTP/([%d.]+)")
-	
-	if method == nil or full_url == nil or method == nil then
-		quick_response_client(client, 400) 
-		return nil, "invalid request: failed to parse method, url, or version"
+	local peer = client:getpeername():match("(.+):%d+")
+	if script.options["local"] then
+		peer = headers["X-Forwarded-For"]
+		if not peer then return nil, "X-Forwarded-For not set!" end
 	end
 	
 	local parsed_url = url.parse(full_url)
@@ -43,7 +48,8 @@ function Request(client) expects("userdata")
 		_headers = headers,
 		_params = parse_params(parsed_url.query),
 		_post_data = {},
-		_start_time = util.time()
+		_start_time = util.time(),
+		_peer = peer
 	}
 	
 	setmetatable(request, meta)
@@ -108,6 +114,10 @@ end
 
 function meta:total_time() expects(meta)
 	return util.time() - self._start_time
+end
+
+function meta:peer() expects(meta)
+	return self._peer
 end
 
 -- some util stuff we need

@@ -65,4 +65,4 @@ reqs.OnRequest = function(request, response)
 		hits[1].hook.func(request, response, unpack(hits[1].res))
 	end
 end
-hook.Add("Request", "default handler", reqs.OnRequest)
+hook.Add("Request", "default", reqs.OnRequest)

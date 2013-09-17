@@ -17,6 +17,7 @@ script.parse_arguments(arg)
 local port = tonumber(script.options.port) or 8080
 local threads = tonumber(script.options.threads) or 0 -- how many times we should fork ourselves
 local forkonconnect = script.options["fork-on-connect"] or false
+local host = script.options["local"] and "localhost" or "*"
 
 function handle_client(client)
 	local time = util.time()
@@ -25,7 +26,7 @@ function handle_client(client)
 		if not request and err then print(err) return end
 		if not request then return end -- probably a keep-alive connection timing out
 		
-		print(client:getpeername()  .. " " .. request:method()  .. " " .. request:url())
+		print(request:peer()  .. " " .. request:method()  .. " " .. request:url())
 		
 		local response = Response(request)
 			hook.Call("Request", request, response) -- okay, lets invoke whatever is hooked
@@ -68,7 +69,7 @@ function main()
 		return unit_test()
 	end
 	
-	local server, err = socket.bind("*", port)
+	local server, err = socket.bind(host, port)
 	assert(server, err)
 	
 	if threads > 0 then
