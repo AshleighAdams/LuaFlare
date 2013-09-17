@@ -41,9 +41,7 @@ function meta:clear() expects(meta)
 end
 
 function meta:set_file(path) expects(meta, "string")
-	if type(path) ~= "string" then error("argument #1, string expected, got " .. type(path), 2) end
-	assert(self)
-		
+
 	local file = io.open(path, "rb")
 	
 	if not file then

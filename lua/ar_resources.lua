@@ -1,4 +1,6 @@
 require("lfs")
+local mimetypes = require("inc.mimetypes")
+
 local static_dir = "static/"
 
 local function itterate_dir(dir, callback, ...)
@@ -30,6 +32,7 @@ local function add_resource(filename, host)
 			month = Months[month]
 			local theirs = os.time({tz=tz,day=day,month=month,year=year,hour=hour,min=min,sec=sec})
 			if theirs and ours <= theirs then
+				self:set_header("Content-Type", mimetypes.guess(path))
 				res:set_status(304)
 				return
 			end
