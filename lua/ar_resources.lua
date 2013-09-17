@@ -32,7 +32,7 @@ local function add_resource(filename, host)
 			month = Months[month]
 			local theirs = os.time({tz=tz,day=day,month=month,year=year,hour=hour,min=min,sec=sec})
 			if theirs and ours <= theirs then
-				self:set_header("Content-Type", mimetypes.guess(path))
+				res:set_header("Content-Type", mimetypes.guess(filename))
 				res:set_status(304)
 				return
 			end
