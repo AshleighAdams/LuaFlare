@@ -74,7 +74,7 @@ function main()
 	if threads > 0 then
 		print("forking children") -- ... lol
 		for i = 1, threads do
-			if posix.fork() ~= 0 then break end -- so the forked processes don't fork again
+			if posix.fork() == 0 then break end -- so the forked processes don't fork again
 		end
 	end
 	-- so we can spawn many processes, requires luasocket 3 
