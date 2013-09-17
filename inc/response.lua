@@ -14,24 +14,24 @@ function Response(request)
 	return ret
 end
 
-function meta:request()
+function meta:request() expects(meta)
 	return self._request
 end
 
-function meta:client()
+function meta:client() expects(meta)
 	return self._client
 end
 
-function meta:set_status(what)
+function meta:set_status(what) expects(meta, "number")
 	assert(self and what)
 	self._status = what
 end
 
-function meta:append(str)
+function meta:append(str) expects(meta, "string")
 	self._reply = self._reply .. str
 end
 
-function meta:clear()
+function meta:clear() expects(meta)
 	assert(self)
 	self._status = 200
 	self._content_type = "text/html"
@@ -39,7 +39,7 @@ function meta:clear()
 	self.file = nil
 end
 
-function meta:set_file(path)
+function meta:set_file(path) expects(meta, "string")
 	if type(path) ~= "string" then error("argument #1, string expected, got " .. type(path), 2) end
 	assert(self)
 		
@@ -57,15 +57,13 @@ function meta:set_file(path)
 	return true
 end
 
-function meta:set_header(name, value)
-	if name == nil then error("argument #1 expected string, got nil", 2) end
-	if value == nil then error("argument #2 expected string, got nil", 2) end
+function meta:set_header(name, value) expects(meta, "string", "*")
 	assert(self)
-	self._headers[name] = value
+	self._headers[name] = tostring(value)
 end
 
 -- finish
-function meta:send()
+function meta:send() expects(meta)
 	if self._sent then return end -- we've already sent it
 	self._sent = true -- mark future calls to send as done
 	

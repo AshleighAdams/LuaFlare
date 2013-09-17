@@ -212,3 +212,32 @@ hook.Add("LuaGetLine", "locate runstring", function(err)
 		return line
 	end
 end)
+
+
+local function get_info(req, res)
+	res:append("<table>")
+	for hook,v in pairs(hook.hooks) do
+		res:append("<tr>")
+		res:append("<td>" .. escape.html(hook) .. "<td/>")
+		res:append("<td><table>")
+		for name, vv in pairs(v) do
+			res:append("<tr><td>")
+			res:append(escape.html(name))
+			res:append("</td></tr>")
+		end
+		res:append("</table><td>")
+		res:append("</tr>")
+	end
+	res:append("</table>")
+	
+	res:append("<table>")
+	res:append(string.format("<td>%s</td><td>%s</td>", "<b>Host</b>&nbsp;&nbsp;&nbsp;&nbsp;", "<b>URL</b>"))
+	for _, hk in pairs(reqs.PatternsRegistered) do
+		res:append("<tr>")
+		res:append(string.format("<td>%s</td><td>%s</td>", escape.html(hk.host),
+			escape.html(hk.url)))
+		res:append("</tr>")
+	end
+	res:append("/<table>")
+end
+reqs.AddPattern("*", "/info", get_info)

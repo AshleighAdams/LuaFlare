@@ -9,6 +9,7 @@ dofile("inc/response.lua")
 
 local socket = require("socket")
 local ssl = require("ssl")
+local posix = require("posix")
 require("lfs")
 
 
@@ -66,7 +67,7 @@ function socket.bind_reuseport(host, port, backlog)
         end
         if not sock then return nil, err end
         sock:setoption("reuseaddr", true)
-        sock:setoption("reuseport", true)
+        pcall(sock.setoption, sock, "reuseport", true) -- attempt to reuse port
         res, err = sock:bind(alt.addr, port)
         if not res then 
             sock:close()
@@ -91,6 +92,7 @@ function main()
 	
 	local server, err = socket.bind_reuseport("*", tonumber(script.options.port or "8080"))
 	assert(server, err)
+		
 	-- so we can spawn many processes, requires luasocket 3 
 	--server:setoption("reuseport", true)
 	
@@ -114,6 +116,7 @@ function main()
 		
 		hook.Call("HandleClient", client)
 		client:close()
+		
 	end
 end
 

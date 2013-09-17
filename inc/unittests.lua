@@ -72,6 +72,7 @@ local function test_escape()
 	
 	check(escape.pattern("one (two) three % four.") == "one %(two%) three %% four%.")
 	check(escape.pattern("(5 * 2) / 3 - 4 + 1") == "%(5 %* 2%) / 3 %- 4 %+ 1")
+	check(escape.pattern("$5 ^ 2") == "%$5 %^ 2")
 end
 
 local function test_table()
@@ -99,11 +100,20 @@ local function test_table()
 	check(table.ToString({}) == "{}")
 end
 
+local function test_util()
+	script.parse_arguments({"--123=abc", "--abc=123", "--test-val", "--test-val2=abc"})
+	check(script.options["123"] == "abc")
+	check(script.options["abc"] == "123")
+	check(script.options["test-val"] == true)
+	check(script.options["test-val2"] == "abc")
+end
+
 function unit_test()
 	test("table.* extensions", test_table)
 	test("string.* extensions", test_string)
 	test("math.* extensions", test_math)
 	test("escape.*", test_escape)
+	test("utility functions", test_util)
 	
 	if FAILED then
 		print("unit test failed!")

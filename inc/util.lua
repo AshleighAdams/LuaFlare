@@ -183,9 +183,7 @@ end
 
 ------- escape functions, try not to use string.Replace, as it is slower than raw gsub
 
-function escape.pattern(input) expects "string" -- defo do not use string.Replace, else revusion err
-	if input == nil then error("argument #1 is nil", 2) end
-	
+function escape.pattern(input) expects "string" -- defo do not use string.Replace, else revusion err	
 	input = input:gsub("%%", "%%%%") -- escape %'s, and others
 	
 	input = input:gsub("%.", "%%.")
@@ -199,8 +197,6 @@ function escape.pattern(input) expects "string" -- defo do not use string.Replac
 end
 
 function escape.html(input, strict) expects "string"
-	if input == nil then error("argument #1 is nil", 2) end
-	
 	if strict == nil then strict = true end
 	
 	input = input:gsub("&", "&amp;")

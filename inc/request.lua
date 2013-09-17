@@ -18,7 +18,7 @@ local function quick_response_client(client, err)
 end
 
 -- TODO: replace error messages with something meaningful
-function Request(client)
+function Request(client) expects("userdata")
 	local action, err = client:receive("*l")
 	if not action then quick_response_client(client, 400) return nil, "invalid request: failed to read method, url, or version: " .. err end
 	
@@ -70,43 +70,43 @@ function Request(client)
 	return request
 end
 
-function meta:method()
+function meta:method() expects(meta)
 	return self._method
 end
 
-function meta:params()
+function meta:params() expects(meta)
 	return self._params
 end
 
-function meta:post_data()
+function meta:post_data() expects(meta)
 	return self._post_data
 end
 
-function meta:headers()
+function meta:headers() expects(meta)
 	return self._headers
 end
 
-function meta:url()
+function meta:url() expects(meta)
 	return self._url
 end
 
-function meta:full_url()
+function meta:full_url() expects(meta)
 	return self._full_url
 end
 
-function meta:parsed_url()
+function meta:parsed_url() expects(meta)
 	return self._parsed_url
 end
 
-function meta:client()
+function meta:client() expects(meta)
 	return self._client
 end
 
-function meta:start_time()
+function meta:start_time() expects(meta)
 	return self._start_time
 end
 
-function meta:total_time()
+function meta:total_time() expects(meta)
 	return util.time() - self._start_time
 end
 
