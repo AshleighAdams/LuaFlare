@@ -9,14 +9,4 @@ then
 	exit
 fi
 
-for (( i=1; i < $instances; i++ ))
-do
-	echo "staring server instance $i"
-	./luaserver.lua --port=$port --instance=$i &
-done
-
-echo "staring server instance $instances"
-./luaserver.lua --port=$port --instance=$instances
-
-# kill the instances we created
-trap "kill 0" SIGINT SIGTERM EXIT
+./luaserver.lua --port=$port --threads=$instances

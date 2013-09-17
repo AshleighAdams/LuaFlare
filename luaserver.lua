@@ -14,19 +14,28 @@ require("lfs")
 
 
 script.parse_arguments(arg)
-local instance = script.options.instance or 0
+local port = tonumber(script.options.port) or 8080
+local threads = tonumber(script.options.threads) or 0 -- how many times we should fork ourselves
+local forkonconnect = script.options["fork-on-connect"] or false
 
 function handle_client(client)
-	local request, err = Request(client)
-	if not request then print(err) return end
-	
-	print(client:getpeername()  .. " " .. request:method()  .. " " .. request:url())
-	
-	local response = Response(request)
-		hook.Call("Request", request, response) -- okay, lets invoke whatever is hooked
-	response:send()
+	local time = util.time()
+	while (util.time() - time) < 2 do -- give them 2 seconds
+		local request, err = Request(client)
+		if not request and err then print(err) return end
+		if not request then return end -- probably a keep-alive connection timing out
+		
+		print(client:getpeername()  .. " " .. request:method()  .. " " .. request:url())
+		
+		local response = Response(request)
+			hook.Call("Request", request, response) -- okay, lets invoke whatever is hooked
+		response:send()
+		
+		if request:headers().Connection ~= "keep-alive" then
+			break
+		end
+	end
 end
-hook.Add("HandleClient", "default handle client", handle_client)
 
 local function on_error(why, request, response)
 	response:set_status(why.type)
@@ -52,37 +61,6 @@ local params = {
 	ciphers = "ALL:!ADH:@STRENGTH",
 }
 
-
-function socket.bind_reuseport(host, port, backlog)
-    if host == "*" then host = "0.0.0.0" end
-    local addrinfo, err = socket.dns.getaddrinfo(host);
-    if not addrinfo then return nil, err end
-    local sock, res
-    err = "no info on address"
-    for i, alt in ipairs(addrinfo) do
-        if alt.family == "inet" then
-            sock, err = socket.tcp()
-        else
-            sock, err = socket.tcp6()
-        end
-        if not sock then return nil, err end
-        sock:setoption("reuseaddr", true)
-        pcall(sock.setoption, sock, "reuseport", true) -- attempt to reuse port
-        res, err = sock:bind(alt.addr, port)
-        if not res then 
-            sock:close()
-        else 
-            res, err = sock:listen(backlog)
-            if not res then 
-                sock:close()
-            else
-                return sock
-            end
-        end 
-    end
-    return nil, err
-end
-
 function main()
 	if script.options["test"] then
 		print = static_print
@@ -90,9 +68,15 @@ function main()
 		return unit_test()
 	end
 	
-	local server, err = socket.bind_reuseport("*", tonumber(script.options.port or "8080"))
+	local server, err = socket.bind("*", port)
 	assert(server, err)
-		
+	
+	if threads > 0 then
+		print("forking children") -- ... lol
+		for i = 1, threads do
+			if posix.fork() ~= 0 then break end -- so the forked processes don't fork again
+		end
+	end
 	-- so we can spawn many processes, requires luasocket 3 
 	--server:setoption("reuseport", true)
 	
@@ -100,7 +84,7 @@ function main()
 	
 	while true do
 		local client = server:accept()
-		--client:settimeout(1000000000000)
+		client:settimeout(5) -- 5 seconds until a timeout
 		
 		if not script.options["no-reload"] then
 			hook.Call("ReloadScripts")
@@ -114,9 +98,14 @@ function main()
 			if not suc then print("ssl failed: ", err) end
 		end
 		
-		hook.Call("HandleClient", client)
-		client:close()
-		
+		if forkonconnect and posix.fork() == 0 then
+			handle_client(client)
+			client:close()
+			return
+		elseif not forkonconnect then
+			handle_client(client)
+			client:close()
+		end
 	end
 end
 

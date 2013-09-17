@@ -9,6 +9,7 @@ function Response(request)
 	setmetatable(ret, meta)
 	
 	ret:set_header("Server", "luaserver")
+	ret:set_header("Connection", request:headers().Connection or "close")
 	ret:set_header("Content-Type", "text/html")
 	
 	return ret

@@ -20,7 +20,7 @@ end
 -- TODO: replace error messages with something meaningful
 function Request(client) expects("userdata")
 	local action, err = client:receive("*l")
-	if not action then quick_response_client(client, 400) return nil, "invalid request: failed to read method, url, or version: " .. err end
+	if not action then return nil end -- just timed out
 	
 	local headers = read_headers(client)
 	if not headers then quick_response_client(client, 400) return nil, "invalid request: failed to parse headers" end

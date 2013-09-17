@@ -192,6 +192,10 @@ function escape.pattern(input) expects "string" -- defo do not use string.Replac
 	input = input:gsub("%)", "%%)")
 	input = input:gsub("%+", "%%+")
 	input = input:gsub("%-", "%%-")
+	input = input:gsub("%[", "%%[")
+	input = input:gsub("%?", "%%?")
+	input = input:gsub("%^", "%%^")
+	input = input:gsub("%$", "%%$")
 	
 	return input
 end
@@ -212,9 +216,7 @@ function escape.html(input, strict) expects "string"
 	return input
 end
 
-function escape.sql(input) expects "string"
-	if input == nil then error("argument #1 is nil", 2) end
-	
+function escape.sql(input) expects "string"	
 	input = input:gsub("'", "\\'")
 	input = input:gsub("\"", "\\\"")
 	
@@ -258,29 +260,8 @@ function os.platform()
 end
 
 ------- script.*
-local _pid = nil
 function script.pid() -- attempt to locate the PID of the process
-	if _pid ~= nil then return _pid end
-	
-	if posix ~= nil then
-		_pid = posix.getpid("pid")
-		return _pid
-	end
-	
-	local stat = io.open("/proc/self/stat")
-	
-	if not stat then
-		_pid = -1
-		local contents = stat:read("*all")
-		local sb = contents:match("(%d+)") -- get the first number
-		
-		_pid = tonumber(sb) or -2
-	else
-		_pid = -1
-		stat:close()
-	end
-	
-	return _pid
+	return posix.getpid("pid")
 end
 
 function script.current_file(depth) -- 0 = caller, 1 = caller's parent, 2 = caller's caller's parent
@@ -299,10 +280,10 @@ function script.parse_arguments(args) expects "table"
 	script.filename = args[0]
 	
 	for k, v in ipairs(args) do
-		local long_set, val = v:match("--(%w+)=(%w+)")
-		local long = v:match("--(%w+)")
-		local short = v:match("-(%w+)")
-
+		local long_set, val = v:match("^%-%-(.+)=(.+)$")
+		local long = v:match("^%-%-(.+)$")
+		local short = v:match("^%-(.+)$")
+		
 		if long_set then
 			script.options[long_set] = val
 		elseif long then
