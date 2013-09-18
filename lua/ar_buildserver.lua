@@ -1,5 +1,5 @@
 local socket = require("socket")
-local json = require("json")
+--local json = require("json")
 
 include("template_buildserver.lua")
 -- /build/{repo}/status
@@ -43,8 +43,9 @@ local function on_update(req, res, project)
 	res:append("OK")
 	res:send()
 	
-	local data = json.decode(req:post_string())
-	PrintTable(data)
+	-- json lib is currently broken
+	--local data = json.decode(req:post_string())
+	--PrintTable(data)
 	
 	-- okay, now we can continue with our operations, this may be a bit lengthy, so...
 	local starttime = socket.gettime()
