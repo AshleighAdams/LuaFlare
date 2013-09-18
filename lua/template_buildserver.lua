@@ -1,5 +1,5 @@
 
-local function group(name)
+local function group(name) expects "string"
 	return tags.div {
 		tags.h1 {class = "side" } { name },				
 		tags.div { style="clear: both; overflow: visible;height: 7px"}
@@ -13,16 +13,12 @@ local function group(name)
 	}
 end
 
-local function link(name, to)
-	if name == nil then
-		error("argument #1 expected string, got nil", 2)
-	elseif to == nil then
-		error("argument #2 expected string, got nil", 2)
-	end
+local function link(name, to) expects("string", "string")
 	return tags.li {class="sb"}{ tags.a {href = to} { name } }
 end
 
 function create_build_template(title, menu_items, content)
+		expects("string", "table", "table")
 	local menuitems = {}
 	
 	for k,v in pairs(menu_items) do

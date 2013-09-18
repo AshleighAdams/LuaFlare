@@ -1,4 +1,5 @@
 local socket = require("socket")
+local json = require("json")
 
 include("template_buildserver.lua")
 -- /build/{repo}/status
@@ -41,6 +42,9 @@ local function on_update(req, res, project)
 	res:set_header("Content-Type", "text/plain")
 	res:append("OK")
 	res:send()
+	
+	local data = json.decode(req:post_string())
+	PrintTable(data)
 	
 	-- okay, now we can continue with our operations, this may be a bit lengthy, so...
 	local starttime = socket.gettime()
@@ -113,7 +117,7 @@ local function get_menu()
 	return menu
 end
 
-local function on_status(req, res, project)
+local function on_status(req, res, project, branch)
 	local file = io.open("build_files/build_" .. project .. ".log")
 	
 	if not file then
@@ -205,7 +209,7 @@ local function on_status(req, res, project)
 	res:append("<!-- generated in " .. req:total_time() .. " seconds -->")
 end
 
-local function on_state(req, res, project)
+local function on_state(req, res, project, branch)
 	local file = io.open("build_files/build_" .. project .. ".log")
 	
 	if not file then
@@ -213,7 +217,7 @@ local function on_state(req, res, project)
 		return
 	end
 	
-	local line =file:read("*l")
+	local line = file:read("*l")
 	
 	if line == "OK" then
 		res:set_file("resources/build_pass.png")
@@ -222,9 +226,7 @@ local function on_state(req, res, project)
 	end
 end
 
-reqs.AddPattern("*", "/build/([A-z0-9\\-]+)/update", on_update)
-reqs.AddPattern("*", "/build/([A-z0-9\\-]+)/status", on_status)
-reqs.AddPattern("*", "/build/([A-z0-9\\-]+)/state%.png", on_state)
+reqs.AddPattern("*", "/build/([%a\\-]+)/update", on_update)
+reqs.AddPattern("*", "/build/([%a\\-]+)/([%a\\-_]+)/status", on_status)
+reqs.AddPattern("*", "/build/([%a\\-]/([%a\\-_]+)/state%.png", on_state)
 
--- an alias to status
-reqs.AddPattern("*", "/build/([A-z0-9\\-]+)/", on_status)

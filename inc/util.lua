@@ -164,6 +164,21 @@ function string.Trim(str) expects "string"
 	return str:match("^%s*(.-)%s*$")
 end
 
+function string.Split(self, delimiter) expects("string", "string")
+	delimiter = escape.pattern(delimiter)
+	
+	local result = {}
+	local from  = 1
+	local delim_from, delim_to = string.find(self, delimiter, from)
+	while delim_from do
+		table.insert(result, string.sub(self, from , delim_from-1 ))
+		from  = delim_to + 1
+		delim_from, delim_to = string.find(self, delimiter, from)
+	end
+	table.insert(result, string.sub(self, from ))
+	return result
+end
+
 ------- math functions
 function basic_round(what)
 	if what % 1 >= 0.5 then -- haha, the 1 was 0.5, thanks to unit testing i found it...
@@ -301,7 +316,6 @@ end
 
 
 ----- util.*
-
 function util.time()
 	return socket.gettime()
 end
@@ -318,6 +332,26 @@ function util.ItterateDir(dir, recursive, callback, ...) expects("string", "bool
 	end
 end
 
+function util.DirExists(dir) expects "string"
+	return lfs.attributes(dir, "mode") == "directory"
+end
+
+function util.EnsurePath(path) expects "string" -- false = already exists, true = didn't
+	if util.DirExists(path) then return false end
+	
+	local split = path:Split()
+	local cd = ""
+	
+	for k,v in ipairs(split) do
+		cd = cd .. v .. "/"
+		
+		if not util.DirExists(path) then
+			assert(lfs.makedir(cd))
+		end
+	end
+	
+	return true
+end
 ----- other
 
 local stack

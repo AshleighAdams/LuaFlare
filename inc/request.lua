@@ -47,7 +47,8 @@ function Request(client) expects("userdata")
 		_parsed_url = parsed_url,
 		_headers = headers,
 		_params = parse_params(parsed_url.query),
-		_post_data = {},
+		_post_data = nil,
+		_post_string = "",
 		_start_time = util.time(),
 		_peer = peer
 	}
@@ -67,7 +68,7 @@ function Request(client) expects("userdata")
 		local post, err = client:receive(tonumber(len))
 		if post == nil then quick_response(request, 400) return nil, "failed to read post data (" .. len .. ") bytes: " .. err end
 		
-		request._post_data = parse_params(post)
+		request._post_string = post
 	else
 		quick_response(request, 501)
 		return  nil, method .. " not supported"
@@ -85,7 +86,14 @@ function meta:params() expects(meta)
 end
 
 function meta:post_data() expects(meta)
+	if self._post_data == nil then
+		self._post_data = parse_params(self._post_string)
+	end
 	return self._post_data
+end
+
+function meta:post_string() expects(meta)
+	return self._post_string
 end
 
 function meta:headers() expects(meta)
