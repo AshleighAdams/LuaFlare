@@ -36,7 +36,7 @@ git.pull = function()
 end
 
 local function on_update(req, res, project)
-	g_print("update " .. project .. " by " .. req:client():getpeername())
+	g_print("update " .. project .. " by " .. req:peer())
 	
 	res:set_status(200)
 	res:set_header("Content-Type", "text/plain")
@@ -55,6 +55,7 @@ local function on_update(req, res, project)
 		lfs.mkdir(script.local_path("build_files/"))
 	end
 	
+	if true then return end
 	
 	local cd = lfs.currentdir()
 		-- check a dir exists for the project

@@ -291,16 +291,16 @@ function script.pid() -- attempt to locate the PID of the process
 	return posix.getpid("pid")
 end
 
-function script.current_file(depth) -- 0 = caller, 1 = caller's parent, 2 = caller's caller's parent
-	return debug.getinfo((depth or 0) + 1).source:sub(2)
+function script.current_file(depth)
+	return debug.getinfo((depth or 1) + 1).source:sub(2)
 end
 
 function script.current_path(depth)
-	return debug.getinfo((depth or 0) + 1).source:sub(2):Path()
+	return debug.getinfo((depth or 1) + 1).source:sub(2):Path()
 end
 
-function script.local_path(path)
-	return script.current_path(2):match("(sites/.-/).*")
+function script.local_path(path) expects "string"
+	return (script.current_path(2):match("(sites/.-/).*") or "") .. path
 end
 
 function script.instance_info()
