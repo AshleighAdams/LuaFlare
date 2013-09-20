@@ -41,7 +41,6 @@ function meta:clear() expects(meta)
 end
 
 function meta:set_file(path) expects(meta, "string")
-
 	local file = io.open(path, "rb")
 	
 	if not file then

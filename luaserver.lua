@@ -18,6 +18,7 @@ local port = tonumber(script.options.port) or 8080
 local threads = tonumber(script.options.threads) or 0 -- how many times we should fork ourselves
 local forkonconnect = script.options["fork-on-connect"] or false
 local host = script.options["local"] and "localhost" or "*"
+local reload_time = script.options["reload-time"] or 5 -- default to every 5 seconds
 
 function handle_client(client)
 	local time = util.time()
@@ -113,9 +114,8 @@ end
 local time_table = {}
 local includes_files = {}
 local dependencies = {}
-local function autorun(dir)
-	dir = dir or "lua/"
-	for file in lfs.dir("./lua/") do
+local function autorun(dir) expects "string"
+	for file in lfs.dir(dir) do
 		local filename = file
 		file = dir .. file
 		
@@ -149,6 +149,25 @@ local function autorun(dir)
 		end
 	end
 end
-hook.Add("ReloadScripts", "autorun", autorun)
+
+local next_run = 0 -- just limit this to once every ~5 seconds, so under stress
+                   -- it wont be slown down
+local function reload_scripts()
+	if util.time() < next_run then return end
+	next_run = util.time() + reload_time
+	
+	autorun("lua/")
+	
+	for filename in lfs.dir("sites/") do
+		local file = "sites/" .. filename
+		
+		if filename ~= "." and filename ~= ".." and lfs.attributes(file, "mode") == "directory" then
+			if lfs.attributes(file .. "/lua", "mode") == "directory" then
+				autorun(file .. "/lua/")
+			end
+		end
+	end
+end
+hook.Add("ReloadScripts", "reload scripts", reload_scripts)
 
 main()

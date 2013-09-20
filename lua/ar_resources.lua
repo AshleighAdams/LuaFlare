@@ -52,8 +52,26 @@ local function add_resource(filename, host)
 	reqs.AddPattern(host, pattern, serve_file)
 end
 
+-- load global static dir
 for folder in lfs.dir(static_dir) do
 	if folder ~= "." and folder ~= ".." and lfs.attributes(static_dir .. folder, "mode") == "directory" then
 		itterate_dir(static_dir .. folder .. "/", add_resource, folder)
+	end
+end
+
+--load sites static's dir
+
+for filename in lfs.dir("sites/") do
+	local file = "sites/" .. filename .. "/static/"
+	static_dir = file
+	
+	if filename ~= "." and filename ~= ".." and lfs.attributes(file, "mode") == "directory" then
+		
+		for folder in lfs.dir(file) do
+			if folder ~= "." and folder ~= ".." and lfs.attributes(file .. folder, "mode") == "directory" then
+				itterate_dir(file .. folder .. "/", add_resource, folder)
+			end
+		end
+		
 	end
 end

@@ -1,33 +1,19 @@
 ﻿<Properties GitUserInfo="UsingMD">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="inc/requesthooks.lua">
+  <MonoDevelop.Ide.Workbench ActiveDocument="luaserver.lua">
     <Files>
-      <File FileName="inc/unittests.lua" Line="50" Column="18" />
-      <File FileName="inc/requesthooks.lua" Line="39" Column="6" />
-      <File FileName="lua/template_buildserver.lua" Line="79" Column="6" />
-      <File FileName="static/*/build/style.css" Line="166" Column="14" />
-      <File FileName="inc/htmlwriter.lua" Line="39" Column="28" />
-      <File FileName="static/*/error_style.css" Line="38" Column="9" />
-      <File FileName="lua/ar_buildserver.lua" Line="110" Column="52" />
-      <File FileName="luaserver.lua" Line="134" Column="58" />
-      <File FileName="lua/ar_resources.lua" Line="4" Column="1" />
-      <File FileName="inc/util.lua" Line="342" Column="29" />
+      <File FileName="luaserver.lua" Line="160" Column="2" />
+      <File FileName="inc/util.lua" Line="293" Column="1" />
+      <File FileName="lua/ar_resources.lua" Line="57" Column="44" />
+      <File FileName="lua/ar_main.lua" Line="231" Column="24" />
+      <File FileName="inc/response.lua" Line="42" Column="1" />
+      <File FileName="sites/buildserver/lua/ar_buildserver.lua" Line="95" Column="14" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State expanded="True">
           <Node name="LuaServer2" expanded="True">
-            <Node name="inc" expanded="True">
-              <Node name="requesthooks.lua" selected="True" />
-            </Node>
-            <Node name="lua" expanded="True">
-              <Node name="ar_buildserver.lua" selected="True" />
-            </Node>
-            <Node name="static" expanded="True">
-              <Node name="*" expanded="True">
-                <Node name="build" expanded="True" />
-              </Node>
-            </Node>
+            <Node name="sites" expanded="True" />
           </Node>
         </State>
       </Pad>

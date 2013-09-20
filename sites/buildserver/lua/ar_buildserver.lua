@@ -48,22 +48,22 @@ local function on_update(req, res, project)
 	--PrintTable(data)
 	
 	-- okay, now we can continue with our operations, this may be a bit lengthy, so...
-	local starttime = socket.gettime()
+	local starttime = util.time()
 	
 	-- check we have a dir
-	if lfs.attributes("build_files", "mode") == nil then
-		lfs.mkdir("build_files/")
+	if lfs.attributes(script.local_path("build_files"), "mode") == nil then
+		lfs.mkdir(script.local_path("build_files/"))
 	end
 	
 	
 	local cd = lfs.currentdir()
 		-- check a dir exists for the project
-		if lfs.attributes("build_files/" .. project, "mode") == nil then
-			lfs.chdir("build_files")
+		if lfs.attributes(script.local_path("build_files/" .. project), "mode") == nil then
+			lfs.chdir(script.local_path("build_files"))
 			git.clone(project)
 			lfs.chdir(project)
 		else
-			lfs.chdir("build_files/" .. project)
+			lfs.chdir(script.local_path("build_files/" .. project))
 			git.pull()
 		end
 		
@@ -74,25 +74,24 @@ local function on_update(req, res, project)
 	if errcode == 0 then
 		build_status = "OK\n" .. build_status
 		
-		if lfs.attributes("static/*/build", "mode") == nil then
-			lfs.mkdir("static/*/build")
+		if lfs.attributes(script.local_path("static/*/build"), "mode") == nil then
+			lfs.mkdir(script.local_path("static/*/build"))
 		end
 		
 		-- os.execute so not on logs, and copy the build, if it exists
-		os.execute("mv 'build_files/" .. project .. "/build.zip' 'static/*/build/" .. project .. ".zip'")
+		local from = script.local_path("build_files/" .. project .. "/build.zip")
+		local to = script.local_path("static/*/build/" .. project .. ".zip")
+		os.execute("mv " .. escape.argument(from) .. " " .. escape.argument(to))
 		print("build passed")
 	else
 		build_status = "ERROR\n" .. build_status
 		print("build failed")
 	end
 	
-	
-	
-	local endtime = socket.gettime()
-	local delta = endtime - starttime;
+	local delta = util.time() - starttime;
 	print("completed in ".. math.Round(delta, 0.01) .." seconds")
 	
-	local file = io.open("build_files/build_" .. project .. ".log", "w")
+	local file = io.open(script.local_path("build_files/build_" .. project .. ".log"), "w")
 	assert(file)
 	file:write(build_status)
 	file:close()
@@ -110,8 +109,8 @@ local function get_menu()
 		--	{LuaServer = "#"}
 	}
 	
-	util.ItterateDir("build_files/", false, function(file)
-		file = file:sub(("build_files/build_"):len() + 1, file:len() - 4)
+	util.ItterateDir(script.local_path("build_files/"), false, function(file)
+		file = file:sub(script.local_path("build_files/build_"):len() + 1, file:len() - 4)
 		table.insert(menu, {[file] = "../../" .. file .. "/"})
 	end)
 	
@@ -119,7 +118,7 @@ local function get_menu()
 end
 
 local function on_status(req, res, project, branch)
-	local file = io.open("build_files/build_" .. project .. ".log")
+	local file = io.open(script.local_path("build_files/build_" .. project .. ".log"))
 	
 	if not file then
 		hook.Call("Error", {type = 404}, req, res)

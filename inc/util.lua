@@ -238,6 +238,18 @@ function escape.sql(input) expects "string"
 	return input
 end
 
+function escape.argument(input) expects "string"
+	input = input:gsub(" ", "\\ ")	
+	input = input:gsub("'", "\\'")
+	input = input:gsub("\"", "\\\"")
+	input = input:gsub("\n", "\\n")
+	input = input:gsub("\r", "\\r")
+	input = input:gsub("\b", "\\b")
+	input = input:gsub("\t", "\\t")
+	
+	return input
+end
+
 ------- os.*
 
 function os.capture(cmd, raw) expects "string"
@@ -280,7 +292,15 @@ function script.pid() -- attempt to locate the PID of the process
 end
 
 function script.current_file(depth) -- 0 = caller, 1 = caller's parent, 2 = caller's caller's parent
-	return debug.getinfo((depth or 0) + 2).source
+	return debug.getinfo((depth or 0) + 1).source:sub(2)
+end
+
+function script.current_path(depth)
+	return debug.getinfo((depth or 0) + 1).source:sub(2):Path()
+end
+
+function script.local_path(path)
+	return script.current_path(2):match("(sites/.-/).*")
 end
 
 function script.instance_info()
@@ -334,6 +354,29 @@ end
 
 function util.DirExists(dir) expects "string"
 	return lfs.attributes(dir, "mode") == "directory"
+end
+
+function util.Dir(base_dir, recursive) expects "string"
+	local ret = {}
+	
+	local itt_dir = function(dir)
+		for filename in lfs.dir(dir) do
+			if filename ~= "." and filename ~= ".." then
+			
+				local file = dir .. file
+				if util.DirExists(file) then
+					table.insert(ret, {name=file .. "/", dir=true})
+					if recursive then itt_dir(file .. "/") end
+				else
+					table.insert(ret, {name=file, dir=false})
+				end
+				
+			end
+		end
+	end
+	
+	itt_dir(base_dir)
+	return ret
 end
 
 function util.EnsurePath(path) expects "string" -- false = already exists, true = didn't
@@ -452,16 +495,3 @@ function expects(...)
 		end
 	end
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
