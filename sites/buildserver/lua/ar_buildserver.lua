@@ -55,8 +55,6 @@ local function on_update(req, res, project)
 		lfs.mkdir(script.local_path("build_files/"))
 	end
 	
-	if true then return end
-	
 	local cd = lfs.currentdir()
 		-- check a dir exists for the project
 		if lfs.attributes(script.local_path("build_files/" .. project), "mode") == nil then
@@ -211,7 +209,7 @@ local function on_status(req, res, project, branch)
 end
 
 local function on_state(req, res, project, branch)
-	local file = io.open("build_files/build_" .. project .. ".log")
+	local file = io.open(script.local_path("build_files/build_" .. project .. ".log"))
 	
 	if not file then
 		hook.Call("Error", {type = 404}, req, res)
@@ -221,9 +219,9 @@ local function on_state(req, res, project, branch)
 	local line = file:read("*l")
 	
 	if line == "OK" then
-		res:set_file("resources/build_pass.png")
+		res:set_file(script.local_path("resources/build_pass.png"))
 	else
-		res:set_file("resources/build_fail.png")
+		res:set_file(script.local_path("resources/build_fail.png"))
 	end
 end
 
