@@ -31,7 +31,7 @@ function Request(client) expects("userdata")
 	local headers = read_headers(client)
 	if not headers then quick_response_client(client, 400) return nil, "invalid request: failed to parse headers" end
 	
-	local peer = client:getpeername():match("(.+):%d+")
+	local peer = client:getpeername():match("(.+):?%d*") -- cpature .+, : is optional, and digits are optional
 	if script.options["local"] then
 		peer = headers["X-Forwarded-For"]
 		if not peer then return nil, "X-Forwarded-For not set!" end

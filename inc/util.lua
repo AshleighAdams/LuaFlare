@@ -420,45 +420,34 @@ end
 function expects(...)
 	local args = {...}
 	local count = #args
-	
 	local level = 2 -- caller
-	local typ, exp = "", ""
+	local err_level = level + 1
 	
-	local arg
 	for i = 1, count do
-		arg = args[i]
+		local arg = args[i]
+		local name, val = debug.getlocal(level, i)
+		
+		if name == nil then -- expects() called with too many args
+			error("too many arguments to expects", level)
+		end
 		
 		if arg == nil then -- anything
 		elseif type(arg) == "table" then -- should be a meta table
-			name, val = debug.getlocal (level, i)
-			if name == nil then -- they called with too many args
-				error("too many arguments to expects", 2)
-			end
-			
 			if val == nil then
-				error(string.format("argument #i (%s) expected a table with a metatable (got nil)", i, name), 3)
+				error(string.format("argument #i (%s) expected a table with a metatable (got nil)", i, name), err_level)
 			end
 			
 			local meta = getmetatable(val)
 			if meta ~= arg then
-				error(string.format("argument #i (%s): metatable mismatch", i, name), 3)
+				error(string.format("argument #i (%s): metatable mismatch", i, name), err_level)
 			end
 		elseif arg == "*" then -- anything but nil
-			name, val = debug.getlocal (level, i)
 			if val == nil then
-				if name == nil then -- they called with too many args
-					error("too many arguments to expects", 2)
-				end
-				error(string.format("argument #i (%s) expected a value (got nil)", i, name), 3)
+				error(string.format("argument #i (%s) expected a value (got nil)", i, name), err_level)
 			end
 		else
-			name, val = debug.getlocal (level, i)
-			typ = type(val)
-			if typ ~= args[i] then
-				if name == nil then -- they called with too many args
-					error("too many arguments to expects", 2)
-				end
-				error(string.format("argument #%i (%s) expected %s (got %s)", i, name, args[i], typ), 3) -- 3 = caller's caller
+			if type(val) ~= args[i] then
+				error(string.format("argument #%i (%s) expected %s (got %s)", i, name, args[i], type(val)), err_level) -- 3 = caller's caller
 			end
 		end
 	end
