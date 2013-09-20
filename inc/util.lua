@@ -434,16 +434,16 @@ function expects(...)
 		if arg == nil then -- anything
 		elseif type(arg) == "table" then -- should be a meta table
 			if val == nil then
-				error(string.format("argument #i (%s) expected a table with a metatable (got nil)", i, name), err_level)
+				error(string.format("argument #%i (%s) expected a table with a metatable (got nil)", i, name), err_level)
 			end
 			
 			local meta = getmetatable(val)
 			if meta ~= arg then
-				error(string.format("argument #i (%s): metatable mismatch", i, name), err_level)
+				error(string.format("argument #%i (%s): metatable mismatch", i, name), err_level)
 			end
 		elseif arg == "*" then -- anything but nil
 			if val == nil then
-				error(string.format("argument #i (%s) expected a value (got nil)", i, name), err_level)
+				error(string.format("argument #%i (%s) expected a value (got nil)", i, name), err_level)
 			end
 		else
 			if type(val) ~= args[i] then
