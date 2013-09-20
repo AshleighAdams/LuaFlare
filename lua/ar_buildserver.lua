@@ -179,13 +179,13 @@ local function on_status(req, res, project, branch)
 			local day = os.date("*t", when).day
 			local postfix
 			
-			if day > 10 and day < 20 then
+			if day >= 10 and day <= 20 then
 				postfix = "th"
 			elseif day % 10 == 1 then
 				postfix = "st"
-			elseif dat % 10 == 2 then
+			elseif day % 10 == 2 then
 				postfix = "nd"
-			elseif dat % 10 == 3 then
+			elseif day % 10 == 3 then
 				postfix = "rd"
 			else
 				postfix = "th"
@@ -227,7 +227,12 @@ local function on_state(req, res, project, branch)
 	end
 end
 
-reqs.AddPattern("*", "/build/([%a\\-]+)/update", on_update)
-reqs.AddPattern("*", "/build/([%a\\-]+)/([%a\\-_]+)/status", on_status)
-reqs.AddPattern("*", "/build/([%a\\-]/([%a\\-_]+)/state%.png", on_state)
+local function redirect_master(req, res)
+	res:set_status(303) -- redirect, the proper way
+	res:set_header("Location", req:url() .. "master/status")
+end
 
+reqs.AddPattern("*", "/build/(*)/update", on_update)
+reqs.AddPattern("*", "/build/(*)/(*)/status", on_status)
+reqs.AddPattern("*", "/build/(*)/(*)/state%.png", on_state)
+reqs.AddPattern("*", "/build/*/", redirect_master)
