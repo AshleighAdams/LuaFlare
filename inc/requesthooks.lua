@@ -24,7 +24,14 @@ local function generate_host_patern(what) -- TODO: use pattern_escape, can't rep
 end
 
 local function generate_resource_patern(pattern)
-	pattern = string.gsub(pattern, "*", ".+")
+	--pattern = string.gsub(pattern, "*", ".+")
+	-- 0 to '/' - 1, '/' + 1 to '\' - 1, '\' + 1 to 255
+	-- 0x2f == '/'; 0x5c == '\\'
+	-- [\x00-\x2e\x30-\x5b\x5d-\xff]+
+	-- how to gsub this?
+	-- [%w%s!-.:-@%%%]%[-\xff]-
+	-- [%%w%%s!-.:-@%%%%%%]%%[-\xff]-
+	pattern = string.gsub(pattern, "*", "[%%w%%s!-.:-@%%%%%%]%%[-\xff]-")
 	return "^" .. pattern .. "$"
 end
 

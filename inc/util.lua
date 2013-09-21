@@ -208,6 +208,7 @@ function escape.pattern(input) expects "string" -- defo do not use string.Replac
 	input = input:gsub("%+", "%%+")
 	input = input:gsub("%-", "%%-")
 	input = input:gsub("%[", "%%[")
+	input = input:gsub("%]", "%%]")
 	input = input:gsub("%?", "%%?")
 	input = input:gsub("%^", "%%^")
 	input = input:gsub("%$", "%%$")
