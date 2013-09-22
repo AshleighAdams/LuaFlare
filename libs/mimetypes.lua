@@ -33,19 +33,18 @@ do -- parse the systems mime types file, if it exists
 	local file = io.open("/etc/mime.types", "r")
 	
 	if file then -- success, we found it
-		for line in file:lines() do
+		for line in file:lines() do repeat
 			line = line:Trim()
-			if not line:StartsWith("#") then
-				local mimetype, exts = line:match("^(.-)%s+(.*)$")
-				
-				if mimetype ~= nil and exts ~= nil then
-					exts = exts:Split(" ")
-					for _, ext in ipairs(exts) do
-						mimetypes.types[ext] = mimetype
-					end
-				end
+			if line:StartsWith("#") then break end
+			
+			local mimetype, exts = line:match("^(.-)%s+(.*)$")
+			if mimetype == nil or exts == nil then break end	
+		
+			exts = exts:Split(" ")
+			for _, ext in ipairs(exts) do
+				mimetypes.types[ext] = mimetype
 			end
-		end
+		until true end
 	end
 	
 	print(string.format("loaded %i mime types", table.Count(mimetypes.types)))

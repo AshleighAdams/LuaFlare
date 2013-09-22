@@ -1,19 +1,19 @@
 ﻿<Properties GitUserInfo="UsingMD">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="luaserver.lua">
-    <Files>
-      <File FileName="luaserver.lua" Line="160" Column="2" />
-      <File FileName="inc/util.lua" Line="1" Column="1" />
-      <File FileName="lua/ar_resources.lua" Line="1" Column="1" />
-      <File FileName="lua/ar_main.lua" Line="1" Column="1" />
-      <File FileName="inc/response.lua" Line="1" Column="1" />
-      <File FileName="sites/buildserver/lua/ar_buildserver.lua" Line="1" Column="1" />
-    </Files>
+  <MonoDevelop.Ide.Workbench>
     <Pads>
       <Pad Id="ProjectPad">
         <State expanded="True">
-          <Node name="LuaServer2" expanded="True" selected="True">
-            <Node name="sites" expanded="True" />
+          <Node name="LuaServer2" expanded="True">
+            <Node name="inc" expanded="True" />
+            <Node name="lua" expanded="True" />
+            <Node name="sites" expanded="True">
+              <Node name="buildserver" expanded="True">
+                <Node name="lua" expanded="True">
+                  <Node name="ar_buildserver.lua" selected="True" />
+                </Node>
+              </Node>
+            </Node>
           </Node>
         </State>
       </Pad>

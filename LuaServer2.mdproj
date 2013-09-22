@@ -26,6 +26,7 @@
     <Folder Include="static\*\build\" />
     <Folder Include="sites\" />
     <Folder Include="sites\buildserver\" />
+    <Folder Include="libs\" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".buildserver" />
@@ -36,7 +37,6 @@
     <None Include="luaserver.lua" />
     <None Include="inc\hooks.lua" />
     <None Include="inc\htmlwriter.lua" />
-    <None Include="inc\mimetypes.lua" />
     <None Include="inc\request.lua" />
     <None Include="inc\requesthooks.lua" />
     <None Include="inc\response.lua" />
@@ -67,5 +67,7 @@
     <None Include="static\*\error_style.css" />
     <None Include="static\*\favicon.ico" />
     <None Include="static\*\lua_logo.png" />
+    <None Include="libs\mimetypes.lua" />
+    <None Include="libs\configor.lua" />
   </ItemGroup>
 </Project>

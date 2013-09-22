@@ -1,5 +1,9 @@
 #!/usr/bin/env lua
 
+-- for require() to check modules path
+package.path = "./libs/?.lua;" .. package.path
+package.cpath = "./libs/?.lua;" .. package.cpath
+
 dofile("inc/hooks.lua")
 dofile("inc/htmlwriter.lua")
 dofile("inc/requesthooks.lua")
@@ -10,8 +14,13 @@ dofile("inc/response.lua")
 local socket = require("socket")
 local ssl = require("ssl")
 local posix = require("posix")
+local configor = require("configor")
+
 require("lfs")
 
+configor.loadstring('"this" "is" \n { "a" \n "test" \n }')
+
+if true then return end
 
 script.parse_arguments(arg)
 local port = tonumber(script.options.port) or 8080

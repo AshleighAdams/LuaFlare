@@ -1,12 +1,6 @@
-local socket = require("socket")
---local json = require("json")
-
 include("template_buildserver.lua")
--- /build/{repo}/status
--- /build/{repo}/update
--- /build/{repo}/state.png
 
-local build_status = ""
+local build_status = "" -- the current status of a build
 
 local g_print = print
 local function print(first, ...)

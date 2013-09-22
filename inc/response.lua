@@ -1,4 +1,4 @@
-local mimetypes = require("inc.mimetypes")
+local mimetypes = require("mimetypes")
 
 local meta = {}
 meta.__index = meta
