@@ -461,6 +461,15 @@ function include(file) expects "string"
 	return deps
 end
 
+expects_types = {}
+expects_types.vector = function(what) -- example
+	if what == nil then return false, "is nil" end
+	if type(what.x) ~= "number" then return false, "x not defined" end
+	if type(what.y) ~= "number" then return false, "y not defined" end
+	if type(what.z) ~= "number" then return false, "z not defined" end
+	return true
+end
+
 function expects(...)
 	local args = {...}
 	local count = #args
@@ -474,6 +483,7 @@ function expects(...)
 		if name == nil then -- expects() called with too many args
 			error("too many arguments to expects", level)
 		end
+		
 		
 		if arg == nil then -- anything
 		elseif type(arg) == "table" then -- should be a meta table
@@ -489,9 +499,14 @@ function expects(...)
 			if val == nil then
 				error(string.format("argument #%i (%s) expected a value (got nil)", i, name), err_level)
 			end
+		elseif expects_types[arg] then
+			local good, err = expects_types.[arg](val)
+			if not good then
+				error(string.format("argument #%i (%s) expected %s (%s)", i, name, arg, err), err_level)
+			end
 		else
 			if type(val) ~= args[i] then
-				error(string.format("argument #%i (%s) expected %s (got %s)", i, name, args[i], type(val)), err_level) -- 3 = caller's caller
+				error(string.format("argument #%i (%s) expected %s (got %s)", i, name, arg, type(val)), err_level) -- 3 = caller's caller
 			end
 		end
 	end
