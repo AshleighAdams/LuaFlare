@@ -122,7 +122,7 @@ local function on_update(req, res, project)
 		
 	local push = {
 		token = ops.pushover.token:string(),
-		usr = ops.pushover.user:string(),
+		user = ops.pushover.user:string(),
 		timestamp = os.time()
 	}
 	
@@ -138,8 +138,8 @@ local function on_update(req, res, project)
 			math.Round(delta, 0.01))
 	end
 	
-	pushover(push)
-	--aU8toaSBN3TVURzwpEZcMnqPrVrpmd
+	local suc, err = pushover(push)
+	if not suc then print(err) end
 end
 
 local function get_menu()
