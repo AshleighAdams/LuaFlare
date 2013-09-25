@@ -78,6 +78,8 @@ local function basic_lua_error(err, trace, vars, args)
 	local res = args[2]
 	
 	trace = trace or "stack trace unavailble"
+	print(err, trace)
+	
 	local strvars = ""
 	
 	for k,v in pairs(vars) do
