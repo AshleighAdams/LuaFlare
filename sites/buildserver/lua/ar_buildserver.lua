@@ -134,7 +134,7 @@ local function on_update(req, res, project)
 		push.message = string.format("%s pushed to %s:\n%s\nBuild failed", commit.author.name, project, commit.message)
 	else
 		push.title = string.format("%s build succeded", project)
-		push.message = string.format("%s pushed to %s:\n%s\nSuccessfully built in %i seconds.", commit.author.name, project, commit.message, 
+		push.message = string.format("%s pushed to %s:\n%s\nSuccessfully built in %f seconds.", commit.author.name, project, commit.message, 
 			math.Round(delta, 0.01))
 	end
 	
