@@ -94,7 +94,7 @@ local function on_update(req, res, project)
 	file:write(build_status)
 	file:close()
 	
-	hook.Call("BuildServer.Built", req, project, errcode == 0, buildtime, build_status)
+	hook.Call("BuildServer.Built", req, project, errcode == 0, delta, build_status)
 	build_status = ""
 end
 
