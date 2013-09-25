@@ -95,6 +95,8 @@ function to_lua_table(tbl, depth, done)
 	done = done or {}
 	done[tbl] = true
 	
+	if depth > 10 then return "..." end
+	
 	local ret = "{\n"
 	local tabs = string.rep("\t", depth)
 	
