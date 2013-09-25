@@ -1,4 +1,99 @@
 local configor = {}
+-- configor node
+local node = {}
+node._meta = {}
+setmetatable(node, node._meta)
+
+node.to_string = {}
+node.to_string.string = function(val) return val end
+node.to_string.number = function(val) return tostring(val) end
+node.to_string.boolean = function(val) return tostring(val) end
+
+node.from_string = {}
+node.from_string.string = function(str, def) return str == "" and def or str, str == "" end
+node.from_string.number = function(str, def) local r = tonumber(str) return r ~= nil and r or def, r == nil end
+node.from_string.boolean = function(str, def) return str == "" and def, true or str == "true", false end
+
+
+function node._meta.__call(t, parent, name)
+	local nde = {}
+	nde._name = name
+	nde._value = ""
+	nde._cached_val = ""
+	nde._value_type = "nil"
+	nde._parent = parent
+	nde._children = {}
+	nde._self = nde
+	nde._missed_cache = false
+	
+	setmetatable(nde, node._meta)
+	
+	if parent then
+		parent:add_child(nde)
+	end
+	
+	return nde
+end
+
+function node._meta.__index(tbl, key) expects("table", "string")
+	if rawget(node, key) then
+		return rawget(node, key)
+	end
+	
+	local ret = rawget(tbl, "_children")[key] or node(rawget(tbl, "_self"), key)
+	
+	return ret
+	--error("not imp", 2)
+end
+
+function node:add_child(node)
+	self._children[node:name()] = node
+end
+
+function node:name()
+	return self._name
+end
+function node:set_name(name)
+	self._name = name
+end
+function node:parent()
+	return self._parent
+end
+
+function node:value(default) expects(node._meta, "*")
+	local typ = type(default)
+	if typ == self._value_type then
+		return self._cached_val
+	elseif self._missed_cache then
+		print("configor: cache miss (check types)", debug.traceback())
+	else
+		self._missed_cache = true -- the first one will miss the cache
+		-- this allows some form of type saftey
+	end
+	
+	local from_str = node.from_string[typ]
+	if from_str == nil then error("no node.fromstring." .. typ .. " defined", 2) end
+	
+	local val, changed = from_str(self._value, default)
+	
+	self._value_type = typ
+	self._cached_val = val
+	
+	if changed then
+		self:set_value(val)
+	end
+	
+	return val
+end
+function node:set_value(value) expects("*", "*")
+	local typ = type(value)
+	
+	self._value = node.to_string[typ](value)
+	self._value_type = typ
+	self._cached_val = value
+end
+
+--
 
 local function inrange(val, ...)
 	local args = {...}
@@ -37,6 +132,7 @@ local literals = {
 	f = "\f",
 	x = parse_hex
 }
+
 local function parse_quotes(str, start)
 	local literal = false
 	local len = #str
@@ -102,7 +198,7 @@ local function tokenize(str)
 		char = str:sub(pos, pos)
 		
 		if char == "\n" then
-			table.insert(ret, {token="newline", line=cur_line})
+			table.insert(ret, {type="newline", line=cur_line})
 			cur_line = cur_line + 1
 		elseif char == '"' then
 			local endpos, val = parse_quotes(str, pos)
@@ -110,10 +206,10 @@ local function tokenize(str)
 				return nil, string.format("error parsing string literal: %s (started line %i)", val, cur_line)
 			end
 			pos = endpos
-			table.insert(ret, {token="string", value=val, line=cur_line})
+			table.insert(ret, {type="string", value=val, line=cur_line})
 		elseif char == ' ' or char == '\t' or char == '\r' then -- do nothing with them
 		else -- it must be an operator
-			table.insert(ret, {token="operator", operator=char, line=cur_line})
+			table.insert(ret, {type="operator", operator=char, line=cur_line})
 		end
 		
 		pos = pos + 1
@@ -122,10 +218,63 @@ local function tokenize(str)
 	return ret
 end
 
+local function parse(tokens)
+	local root_node = node(nil, "root")
+	
+	local current_node = root_node
+	local new_node = nil
+	
+	local i = 1
+	
+	while i <= #tokens do
+		local token = tokens[i]
+		
+		if token.type == "string" then
+			local name, value = "", ""
+			name = token.value
+			
+			if tokens[i + 1].type == "string" then
+				value = tokens[i + 1].value
+				i = i + 1
+			end
+			
+			local newnode = current_node[name]
+			newnode:set_value(value)
+			
+			new_node = newnode
+		elseif token.type == "operator" then
+			if token.operator == "{" then
+				if not new_node then
+					return nil, string.format("%i: no parent to asign children", token.cur_line)
+				end
+				current_node = new_node
+				new_node = nil
+			elseif token.operator == "}" then
+				current_node = current_node:parent()
+				new_node = nil
+				if current_node == nil then
+					return nil, string.format("%i: unexpected '}'", token.cur_line)
+				end
+			else
+				return nil, string.format("%i: unknown operator '%s'", token.cur_line, token.operator)
+			end
+		end
+		
+		i = i + 1
+	end
+	
+	-- TODO: check all have been closed
+	--print(root_node, parent_node, current_node)
+	return root_node
+end
+
 function configor.loadstring(str)
 	local tokens, err = tokenize(str)
-	print(err)
-	PrintTable(tokens)
+	if tokens == nil then return nil, err end
+	
+	local ret, err = parse(tokens)
+	
+	return ret, err
 end
 
 function configor.loadfile(path)
