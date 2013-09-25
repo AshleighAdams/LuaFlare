@@ -18,10 +18,6 @@ local configor = require("configor")
 
 require("lfs")
 
-configor.loadstring('"this" "is" \n { "a" \n "test" \n }')
-
-if true then return end
-
 script.parse_arguments(arg)
 local port = tonumber(script.options.port) or 8080
 local threads = tonumber(script.options.threads) or 0 -- how many times we should fork ourselves
