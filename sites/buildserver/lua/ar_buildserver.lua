@@ -60,7 +60,7 @@ local function on_update(req, res, project)
 	
 	local log = io.open(script.local_path("log.txt"), "a")
 	if log then
-		local data = json.decode(req:post_string())
+		local data = json.decode(req:post_data().payload)
 		
 		log:write("===============\n" .. (req:post_string() or "n/a") .. "\n\n")
 		log:write("data = " .. table.ToString(data) .. "\n\n")
