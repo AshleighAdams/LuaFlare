@@ -1,4 +1,24 @@
 include("template_buildserver.lua")
+local ssl = require("ssl")
+local json = require ("dkjson")
+
+function pushover( request ) -- https://github.com/sweetfish/pushover-lua/blob/master/pushover.lua
+	local pushover_url = "https://api.pushover.net/1/messages.json"
+	local data_str = {}
+	for k,v in pairs(request) do
+		table.insert(data_str, tostring(k) .. "=" .. tostring(v))
+	end
+	data_str = table.concat(data_str, "&")
+	local res, code, headers, status = ssl.https.request(pushover_url, data_str)
+	if (code ~= 200) then
+		local errstr = "Error while sending request. Status code: " .. tostring(code) .. ", Body: " .. tostring(res)
+		return false, errstr
+	elseif (res ~= '{"status":1}') then
+		local errstr = "Error from pushover: " .. tostring(res)
+		return false, errstr
+	end
+	return true
+end
 
 local build_status = "" -- the current status of a build
 
@@ -37,6 +57,15 @@ local function on_update(req, res, project)
 	res:append("OK")
 	res:send()
 	
+	
+	local log = io.open(script.local_path("log.txt"), "a")
+	if log then
+		local data = json.decode(req:post_string())
+		
+		log:write("===============\n" .. (req:post_string() or "n/a") .. "\n\n")
+		log:write("data = " .. table.ToString(data) .. "\n\n")
+		log:close()
+	end
 	-- json lib is currently broken
 	--local data = json.decode(req:post_string())
 	--PrintTable(data)

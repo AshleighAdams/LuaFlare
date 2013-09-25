@@ -69,5 +69,6 @@
     <None Include="static\*\lua_logo.png" />
     <None Include="libs\mimetypes.lua" />
     <None Include="libs\configor.lua" />
+    <None Include="libs\dkjson.lua" />
   </ItemGroup>
 </Project>
