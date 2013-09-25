@@ -46,18 +46,28 @@ function node._meta.__index(tbl, key) expects("table", "string")
 	--error("not imp", 2)
 end
 
-function node:add_child(node)
-	self._children[node:name()] = node
-end
 
-function node:name()
+function node:name()  expects(node._meta)
 	return self._name
 end
-function node:set_name(name)
+function node:data()
+	return self._value
+end
+function node:set_name(name) expects(node._meta, "string")
 	self._name = name
 end
-function node:parent()
+function node:parent() expects(node._meta)
 	return self._parent
+end
+
+function node:has_children() expects(node._meta)
+	return table.Count(self._children) ~= 0
+end
+function node:children() expects(node._meta)
+	return self._children
+end
+function node:add_child(node)  expects(node._meta, node._meta)
+	self._children[node:name()] = node
 end
 
 function node:value(default) expects(node._meta, "*")
@@ -144,7 +154,7 @@ local function parse_quotes(str, start)
 		local char = str:sub(i, i)
 		
 		if literal then
-			local read, lit = 1, literals[char]
+			local read, lit = 1, literals[char] or char
 			
 			if type(lit) == "function" then
 				read, lit = lit(str, i, len)
@@ -283,6 +293,65 @@ function configor.loadfile(path)
 	
 	local contents = file:read("*a")
 	return configor.loadstring(contents)
+end
+
+local replacements = {}
+
+for i=0, 31 do -- hex
+	replacements[string.char(i)] = string.format("\\x%x", i)
+end
+for i=127, 255 do -- hex
+	replacements[string.char(i)] = string.format("\\x%x", i)
+end
+
+for k, v in pairs(literals) do repeat
+	if type(v) == "function" then break end -- continue
+	replacements[v] = "\\" .. k
+until true end
+replacements["'"] = "\\'"
+replacements['"'] = '\\"'
+replacements["	"] = "	" -- tab
+
+
+local function quotify(str)
+	local ret = ""
+	
+	for i=1, #str do
+		local char = str:sub(i, i)
+		if replacements[char] then char = replacements[char] end
+		ret = ret .. char
+	end
+	
+	return '"' .. ret .. '"'
+end
+
+local function serialize_nodes(nodes, depth)
+	local tabs = string.rep("\t", depth)
+	local ret = ""
+	
+	for k,node in pairs(nodes) do
+		ret = ret .. tabs .. quotify(node:name()) .. " " .. quotify(node:data()) .. "\n"
+		
+		if node:has_children() then
+			ret = ret .. tabs .. "{\n"
+			ret = ret .. serialize_nodes(node:children(), depth + 1)
+			ret = ret .. tabs .. "}\n"
+		end
+	end
+	
+	return ret
+end
+
+function configor.savestring(cfg) expects(node._meta)
+	return serialize_nodes(cfg:children(), 0)
+end
+
+function configor.savefile(cfg, path) expects(node._meta)
+	local file, err = io.open(path, "w")
+	if not file then return err end
+	
+	file:write(configor.savestring(cfg))
+	file:close()
 end
 
 return configor
