@@ -164,7 +164,7 @@ local function on_status(req, res, project, branch)
 		
 		"Last successfull build: ",
 		(function()
-			local when = lfs.attributes("static/*/build/" .. project .. ".zip", "modification")
+			local when = lfs.attributes(script.local_path("static/*/build/" .. project .. ".zip"), "modification")
 			
 			if when == nil then return "never" end
 			
