@@ -34,6 +34,8 @@ if ops:children().pushover == nil then
 end
 
 local function pushover(req, project, success, buildtime, shell)
+	local payload = json.decode(req:post_data().payload)
+	
 	local commit = payload.head_commit
 	local ops = configor.loadfile(script.local_path("options.cfg.secret"))
 		

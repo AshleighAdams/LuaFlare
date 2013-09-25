@@ -36,8 +36,6 @@ end
 local function on_update(req, res, project)
 	g_print("update " .. project .. " by " .. req:peer())
 	
-	local payload = json.decode(req:post_data().payload)
-	
 	if payload ~= nil then
 		res:set_status(200)
 		res:set_header("Content-Type", "text/plain")
