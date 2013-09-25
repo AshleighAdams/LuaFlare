@@ -500,7 +500,7 @@ function expects(...)
 				error(string.format("argument #%i (%s) expected a value (got nil)", i, name), err_level)
 			end
 		elseif expects_types[arg] then
-			local good, err = expects_types.[arg](val)
+			local good, err = expects_types[arg](val)
 			if not good then
 				error(string.format("argument #%i (%s) expected %s (%s)", i, name, arg, err), err_level)
 			end
