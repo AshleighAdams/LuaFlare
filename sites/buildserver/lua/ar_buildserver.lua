@@ -1,5 +1,6 @@
 include("template_buildserver.lua")
 local ssl = require("ssl")
+ssl.https = require("ssl.https")
 local json = require("dkjson")
 local configor = require("configor")
 
