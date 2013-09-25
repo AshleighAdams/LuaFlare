@@ -126,7 +126,7 @@ local function on_update(req, res, project)
 		timestamp = os.time()
 	}
 	
-	if errcode == 0 then
+	if errcode ~= 0 then
 		push.title = string.format("%s build failed", project)
 		push.priority = 2
 		push.retry = 60 * 2 -- 2min
