@@ -2,3 +2,4 @@ Binaries/
 Projects/
 *~
 build.zip
+*.secret

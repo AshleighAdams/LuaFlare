@@ -1,6 +1,7 @@
 include("template_buildserver.lua")
 local ssl = require("ssl")
-local json = require ("dkjson")
+local json = require("dkjson")
+local configor = require("configor")
 
 function pushover( request ) -- https://github.com/sweetfish/pushover-lua/blob/master/pushover.lua
 	local pushover_url = "https://api.pushover.net/1/messages.json"
@@ -52,27 +53,20 @@ end
 local function on_update(req, res, project)
 	g_print("update " .. project .. " by " .. req:peer())
 	
-	res:set_status(200)
-	res:set_header("Content-Type", "text/plain")
-	res:append("OK")
-	res:send()
+	local payload = json.decode(req:post_data().payload)
 	
-	
-	local log = io.open(script.local_path("log.txt"), "a")
-	if log then
-		local data = json.decode(req:post_data().payload)
-		
-		log:write("===============\n" .. (req:post_string() or "n/a") .. "\n\n")
-		log:write("data = " .. table.ToString(data) .. "\n\n")
-		log:close()
+	if payload ~= nil then
+		res:set_status(200)
+		res:set_header("Content-Type", "text/plain")
+		res:append("OK")
+		res:send()
+	else
+		res:set_status(400)
+		res:set_header("Content-Type", "text/plain")
+		res:append("NO")
+		res:send()
 	end
-	-- json lib is currently broken
-	--local data = json.decode(req:post_string())
-	--PrintTable(data)
-	
-	-- okay, now we can continue with our operations, this may be a bit lengthy, so...
-	local starttime = util.time()
-	
+		
 	-- check we have a dir
 	if lfs.attributes(script.local_path("build_files"), "mode") == nil then
 		lfs.mkdir(script.local_path("build_files/"))
@@ -89,6 +83,7 @@ local function on_update(req, res, project)
 			git.pull()
 		end
 		
+		local starttime = util.time()
 		-- attempt the build
 		local errcode = execute("./.buildserver")
 	lfs.chdir(cd)
@@ -119,6 +114,31 @@ local function on_update(req, res, project)
 	file:close()
 	
 	build_status = ""
+	
+	
+	local commit = payload.head_commit
+	local ops = configor.loadfile(script.local_path("options.cfg.secret"))
+		
+	local push = {
+		token = ops.pushover.token:string(),
+		usr = ops.pushover.user:string(),
+		timestamp = os.time()
+	}
+	
+	if errcode == 0 then
+		push.title = string.format("%s build failed", project)
+		push.priority = 2
+		push.retry = 60 * 2 -- 2min
+		push.expire = 60 * 60 * 1 -- 1 hour
+		push.message = string.format("%s pushed to %s:\n%s\nBuild failed", commit.author.name, project, commit.message)
+	else
+		push.title = string.format("%s build succeded", project)
+		push.message = string.format("%s pushed to %s:\n%s\nSuccessfully built in %i seconds.", commit.author.name, project, commit.message, 
+			math.Round(delta, 0.01))
+	end
+	
+	pushover(push)
+	--aU8toaSBN3TVURzwpEZcMnqPrVrpmd
 end
 
 local function get_menu()
@@ -257,3 +277,11 @@ reqs.AddPattern("*", "/build/(*)/update", on_update)
 reqs.AddPattern("*", "/build/(*)/(*)/status", on_status)
 reqs.AddPattern("*", "/build/(*)/(*)/state%.png", on_state)
 reqs.AddPattern("*", "/build/*/", redirect_master)
+
+-- ensure that the options exist
+local ops = configor.loadfile(script.local_path("options.cfg.secret"), true)	
+if ops:children().pushover == nil then
+	ops.pushover.token:set_value("enter token")
+	ops.pushover.user:set_value("enter user key")
+	configor.savefile(ops, script.local_path("options.cfg.secret"))
+end

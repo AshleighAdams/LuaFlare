@@ -287,8 +287,19 @@ function configor.loadstring(str)
 	return ret, err
 end
 
-function configor.loadfile(path)
+function configor.loadfile(path, create)
+	create = create ~= nil and create or true
 	local file, err =  io.open(path, "r")
+	
+	-- attempt to make it
+	if not file and create then
+		local f = io.open(path, "w")
+		if f then
+			f:close()
+			file, err =  io.open(path, "r")
+		end
+	end
+	
 	if not file then return nil, string.format("could not open file (%s)", err) end
 	
 	local contents = file:read("*a")
@@ -330,7 +341,13 @@ local function serialize_nodes(nodes, depth)
 	local ret = ""
 	
 	for k,node in pairs(nodes) do
-		ret = ret .. tabs .. quotify(node:name()) .. " " .. quotify(node:data()) .. "\n"
+		ret = ret .. tabs .. quotify(node:name())
+		
+		if node:data() ~= "" then
+			ret = ret .. " " .. quotify(node:data()) .. "\n"
+		else
+			ret = ret .. "\n"
+		end
 		
 		if node:has_children() then
 			ret = ret .. tabs .. "{\n"
