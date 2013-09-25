@@ -121,8 +121,8 @@ local function on_update(req, res, project)
 	local ops = configor.loadfile(script.local_path("options.cfg.secret"))
 		
 	local push = {
-		token = ops.pushover.token:string(),
-		user = ops.pushover.user:string(),
+		token = ops.pushover.token:data(),
+		user = ops.pushover.user:data(),
 		timestamp = os.time()
 	}
 	
