@@ -3,7 +3,7 @@ local json = require("dkjson")
 local ssl = require("ssl")
 ssl.https = require("ssl.https")
 
-function pushover( request ) -- https://github.com/sweetfish/pushover-lua/blob/master/pushover.lua
+function pushover(request) -- https://github.com/sweetfish/pushover-lua/blob/master/pushover.lua
 	local pushover_url = "https://api.pushover.net/1/messages.json"
 	local data_str = {}
 	for k,v in pairs(request) do
@@ -33,7 +33,7 @@ if ops:children().pushover == nil then
 	configor.savefile(ops, script.local_path("options.cfg.secret"))
 end
 
-local function pushover(req, project, success, buildtime, shell)
+local function onbuild(req, project, success, buildtime, shell)
 	local payload = json.decode(req:post_data().payload)
 	
 	local commit = payload.head_commit
@@ -61,4 +61,4 @@ local function pushover(req, project, success, buildtime, shell)
 	if not suc then print(err) end
 end
 
-hook.Add("BuildServer.Built", "pushover", pushover)
+hook.Add("BuildServer.Built", "pushover", onbuild)
