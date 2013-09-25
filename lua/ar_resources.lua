@@ -1,5 +1,5 @@
 require("lfs")
-local mimetypes = require("inc.mimetypes")
+local mimetypes = require("mimetypes")
 
 local static_dir = "static/"
 
