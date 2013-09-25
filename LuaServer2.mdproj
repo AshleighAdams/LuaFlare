@@ -70,5 +70,6 @@
     <None Include="libs\mimetypes.lua" />
     <None Include="libs\configor.lua" />
     <None Include="libs\dkjson.lua" />
+    <None Include="sites\buildserver\lua\ar_pushover.lua" />
   </ItemGroup>
 </Project>
