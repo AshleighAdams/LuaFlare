@@ -71,5 +71,6 @@
     <None Include="libs\configor.lua" />
     <None Include="libs\dkjson.lua" />
     <None Include="sites\buildserver\lua\ar_pushover.lua" />
+    <None Include="static\*\lua.vm.js" />
   </ItemGroup>
 </Project>
