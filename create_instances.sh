@@ -9,4 +9,4 @@ instances=25
 #	exit
 #fi
 
-./luaserver.lua --port=$port --threads=$instances
+./luaserver.lua --local --port=$port --threads=$instances

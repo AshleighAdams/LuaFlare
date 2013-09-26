@@ -78,6 +78,8 @@ function main()
 	local server, err = socket.bind(host, port)
 	assert(server, err)
 	
+	hook.Call("ReloadScripts") -- load all of our scritps, before forking anything!
+	
 	if threads > 0 then
 		print("forking children") -- ... lol
 		for i = 1, threads do
@@ -86,8 +88,6 @@ function main()
 	end
 	-- so we can spawn many processes, requires luasocket 3 
 	--server:setoption("reuseport", true)
-	
-	hook.Call("ReloadScripts") -- load all of our scritps
 	
 	while true do
 		local client = server:accept()

@@ -3,6 +3,7 @@
 
 include("template_buildserver.lua")
 
+local bit = require("bit")
 local json = require("dkjson")
 local build_status = "" -- the current status of a build
 
@@ -33,10 +34,38 @@ git.pull = function()
 	execute("git fetch --all &&  git reset --hard origin/master")
 end
 
+-- bit.tobit, bit.tohex, bit.bnot, bit.band, bit.bor, bit.bxor, bit.lshift, bit.rshift, bit.arshift, bit.rol, bit.ror, bit.bswap
+local function ipv4(ip)
+	local a,b,c,d,m = ip:match("^(%d+).(%d+).(%d+).(%d+)/*(%d*)$")
+	if not a then return nil end
+	a = bit.lshift(tonumber(a), 24)
+	b = bit.lshift(tonumber(b), 16)
+	c = bit.lshift(tonumber(c), 08)
+	d = bit.lshift(tonumber(d), 00)
+	m = tonumber(m) or 32
+	return {int = a + b + c + d, mask = m}
+end
+
+local function ipv4_inrange(range, val)
+	local tomove = 32 - range.mask
+	return bit.rshift(range.int, tomove) == bit.rshift(val.int, tomove)
+end
+
+local gh1 = ipv4("204.232.175.64/27") -- these are the github IPs used on hooks
+local gh2 = ipv4("192.30.252.0/22")
+local function AllowGithub(req, res, project)
+	local test = ipv4(req:peer())
+	if ipv4_inrange(gh1, test) or ipv4_inrange(gh2, test) then
+		print("Github service hook called")
+		return true
+	end
+end
+hook.Add("BuildServer.BuildAuthorized", "Github", AllowGithub)
+
 local function on_update(req, res, project)
 	g_print("update " .. project .. " by " .. req:peer())
 	
-	if payload ~= nil then
+	if hook.Call("BuildServer.BuildAuthorized", req, res, project) then
 		res:set_status(200)
 		res:set_header("Content-Type", "text/plain")
 		res:append("OK")
@@ -46,6 +75,7 @@ local function on_update(req, res, project)
 		res:set_header("Content-Type", "text/plain")
 		res:append("NO")
 		res:send()
+		return
 	end
 		
 	-- check we have a dir

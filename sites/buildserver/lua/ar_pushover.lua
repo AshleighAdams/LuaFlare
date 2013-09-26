@@ -34,6 +34,8 @@ if ops:children().pushover == nil then
 end
 
 local function onbuild(req, project, success, buildtime, shell)
+	if not req:post_data().payload then return end -- nope
+	
 	local payload = json.decode(req:post_data().payload)
 	
 	local commit = payload.head_commit
