@@ -106,6 +106,7 @@ function main()
 		end
 		
 		if forkonconnect and posix.fork() == 0 then
+			script.isfork = true
 			handle_client(client)
 			client:close()
 			return
