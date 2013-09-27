@@ -15,7 +15,6 @@ local socket = require("socket")
 local ssl = require("ssl")
 local posix = require("posix")
 local configor = require("configor")
-local threadpool = require("threadpool")
 
 require("lfs")
 
