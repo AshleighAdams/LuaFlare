@@ -215,7 +215,8 @@ end)
 
 
 local function get_info(req, res)
-	res:append("script path: " .. script.local_path(""))
+	res:append("Headers: " .. escape.html(table.ToString(req:headers())))	
+	res:append("script path: " .. script.local_path("") .. "\n")
 	res:append("<table>")
 	for hook,v in pairs(hook.hooks) do
 		res:append("<tr>")
