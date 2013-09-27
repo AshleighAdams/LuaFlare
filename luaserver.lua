@@ -15,6 +15,7 @@ local socket = require("socket")
 local ssl = require("ssl")
 local posix = require("posix")
 local configor = require("configor")
+local threadpool = require("threadpool")
 
 require("lfs")
 
@@ -175,5 +176,11 @@ local function reload_scripts()
 	end
 end
 hook.Add("ReloadScripts", "reload scripts", reload_scripts)
+
+-- if specified, use the coroutines to provide threads, may potentially block in C calls, SQL quieries, ...
+if script.options.coroutines then
+	print("using coroutines")
+	dofile("inc/coroutinify.lua")
+end
 
 main()

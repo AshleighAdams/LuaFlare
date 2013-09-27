@@ -18,7 +18,7 @@ local function quick_response_client(client, err)
 end
 
 -- TODO: replace error messages with something meaningful
-function Request(client) expects("userdata")
+function Request(client) -- expects("userdata")
 	local action, err = client:receive("*l")
 	if not action then return nil end -- just timed out
 	

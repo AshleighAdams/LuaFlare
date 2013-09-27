@@ -72,5 +72,7 @@
     <None Include="libs\dkjson.lua" />
     <None Include="sites\buildserver\lua\ar_pushover.lua" />
     <None Include="static\*\lua.vm.js" />
+    <None Include="libs\threadpool.lua" />
+    <None Include="inc\coroutinify.lua" />
   </ItemGroup>
 </Project>
