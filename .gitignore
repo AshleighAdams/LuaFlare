@@ -3,3 +3,8 @@ Projects/
 *~
 build.zip
 *.secret
+*.userprefs
+# for buildserver
+sites/buildserver/build_files/
+sites/buildserver/static/*/build/*
+sites/buildserver/static/*/build/LuaServer2.zip
