@@ -212,7 +212,7 @@ local function on_status(req, res, project, branch)
 		tags.img {src = "state.png"},
 		tags.br,
 		
-		"Last successfull build: ",
+		"Last successful build: ",
 		(function()
 			local when = lfs.attributes(script.local_path("static/*/build/" .. project .. ".zip"), "modification")
 			
