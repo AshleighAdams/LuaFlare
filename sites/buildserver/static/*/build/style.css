@@ -103,7 +103,6 @@ ul.sb{
 li.sbl{
 	margin: 5px;
 	border: 0;
-	margin-bottom: 10px;
 	color: #888;
 	text-decoration: none;
 	font-variant:small-caps;
@@ -113,7 +112,6 @@ li.sbl{
 li.sb a{
 	margin: 5px;
 	border: 0;
-	margin-bottom: 10px;
 	color: #313131;
 	text-decoration: none;
 	font-variant:small-caps;
@@ -128,11 +126,9 @@ li.sbcurrent a{
 
 /* Fix the 2 above so they have spacing! */
 li.sb{
-	margin-bottom: 10px;
 	color: #888;
 }
 li.sbcurrent{
-	margin-bottom: 10px;
 	color: #888;
 	text-align: center;
 }
