@@ -73,5 +73,6 @@
     <None Include="sites\buildserver\lua\ar_pushover.lua" />
     <None Include="static\*\lua.vm.js" />
     <None Include="inc\autorun.lua" />
+    <None Include="libs\httpstatus.lua" />
   </ItemGroup>
 </Project>

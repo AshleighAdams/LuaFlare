@@ -1,6 +1,6 @@
 -- Hooks:
 -- BuildServer.Built
-
+local httpstatus = require("httpstatus")
 include("template_buildserver.lua")
 
 local bit = require("bit")
@@ -256,7 +256,7 @@ local function on_state(req, res, project, branch)
 end
 
 local function redirect_master(req, res)
-	res:set_status(303) -- redirect, the proper way
+	res:set_status(httpstatus.fromstring("Permanent Redirect"))
 	res:set_header("Location", req:url() .. "master/status")
 end
 

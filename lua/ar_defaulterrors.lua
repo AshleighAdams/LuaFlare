@@ -1,3 +1,13 @@
+local function on_error(why, request, response)
+	response:set_status(why.type)
+	print("error:", why.type, request:url())
+end
+hook.Add("Error", "log errors", on_error)
+
+local function on_lua_error(err, trace, args)
+	print("lua error:", err)--, trace)
+end
+hook.Add("LuaError", "log errors", on_lua_error)
 
 local error_type_to_str = {
 	[401] = "Not Authorized",

@@ -1,4 +1,5 @@
 local mimetypes = require("mimetypes")
+local httpstatus = require("httpstatus")
 
 local meta = {}
 meta.__index = meta
@@ -67,7 +68,7 @@ function meta:send() expects(meta)
 	
 	self:set_header("Content-Length", self._reply:len())
 	
-	local tosend = "HTTP/1.1 " .. tostring(self._status) .. "\n"
+	local tosend = "HTTP/1.1 " .. tostring(self._status) .. (httpstatus.tostring(self._status) or "") .. "\n"
 	for k,v in pairs(self._headers) do
 		tosend = tosend .. tostring(k) .. ": " .. tostring(v) .. "\n"
 	end
