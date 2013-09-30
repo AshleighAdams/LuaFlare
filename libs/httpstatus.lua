@@ -47,7 +47,7 @@ httpstatus.know_statuses = {
 }
 
 function httpstatus.tostring(number) expects "number"
-	
+	return httpstatus.know_statuses[number]
 end
 
 httpstatus.reverse_cache = {}
@@ -60,10 +60,11 @@ end
 -- should all return the same
 -- "404 Internal Server Error" should yield 404
 function httpstatus.fromstring(str) expects "string"
-	local code, message = str:match("(%d%d%d)%s*(.*)")
+	local code, message = str:match("(%d*)%s*(.*)")
 	
+	print(code, message)
 	-- the code takes priority
-	if code ~= nil then
+	if code ~= "" then
 		return tonumber(code)
 	elseif message ~= nil then
 		message = message:lower():gsub("%s", "") -- so NotFound, not found, notfound Not Found are same

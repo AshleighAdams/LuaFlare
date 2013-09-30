@@ -1,6 +1,8 @@
 -- Hooks:
 -- BuildServer.Built
 local httpstatus = require("httpstatus")
+local configor = require("configor")
+
 include("template_buildserver.lua")
 
 local bit = require("bit")
@@ -133,15 +135,27 @@ local function get_menu()
 		--"Main",
 		--	{Home = "#"},
 		--	{About = "#"},
-		"Builds",
+		--"Builds",
 		--	{LuaPP = "#"},
 		--	{LuaServer = "#"}
 	}
 	
-	util.ItterateDir(script.local_path("build_files/"), false, function(file)
-		file = file:sub(script.local_path("build_files/build_"):len() + 1, file:len() - 4)
-		table.insert(menu, {[file] = "../../" .. file .. "/"})
-	end)
+	local config = configor.loadfile(script.local_path("menu.cfg"))
+	
+	if config ~= nil then
+		for k, build in pairs(config:children()) do
+			table.insert(menu, build:name())
+			for k, branch in pairs(build:children()) do
+				local name = branch:name()
+				table.insert(menu, {[name] = "/build/" .. build:name() .. "/" .. name .. "/status"})
+			end
+		end
+	end
+	
+	--util.ItterateDir(script.local_path("build_files/"), false, function(file)
+	--	file = file:sub(script.local_path("build_files/build_"):len() + 1, file:len() - 4)
+	--	table.insert(menu, {[file] = "../../" .. file .. "/"})
+	--end)
 	
 	return menu
 end
