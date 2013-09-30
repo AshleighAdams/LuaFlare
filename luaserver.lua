@@ -21,7 +21,6 @@ require("lfs")
 script.parse_arguments(arg)
 local port = tonumber(script.options.port) or 8080
 local threads = tonumber(script.options.threads) or 0 -- how many times we should fork ourselves
-local forkonconnect = script.options["fork-on-connect"] or false
 local host = script.options["local"] and "localhost" or "*"
 
 function handle_client(client)
@@ -104,15 +103,8 @@ function main()
 			if not suc then print("ssl failed: ", err) end
 		end
 		
-		if forkonconnect and posix.fork() == 0 then
-			script.isfork = true
-			handle_client(client)
-			client:close()
-			return
-		elseif not forkonconnect then
-			handle_client(client)
-			client:close()
-		end
+		handle_client(client)
+		client:close()
 	end
 end
 
