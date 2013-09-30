@@ -98,4 +98,11 @@ function main()
 end
 
 dofile("inc/autorun.lua")
+
+-- if specified, use the coroutines to provide threads, may potentially block in C calls, SQL quieries, ...
+if script.options.coroutines then
+	print("using coroutines")
+	dofile("inc/coroutinify.lua")
+end
+
 main()
