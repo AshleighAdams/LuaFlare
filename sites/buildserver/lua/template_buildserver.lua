@@ -38,31 +38,6 @@ function create_build_template(title, menu_items, content)
 			tags.meta {["http-equiv"] = "Content-Type", content="text/html; charset=UTF-8"},
 			tags.link {type="text/css", rel="stylesheet", href="/build/style.css"}
 		},
-		tags.script {src = "/lua.vm.js"},
-		tags.script {type = "text/lua"}
-		{
-			[[
-			function PrintTable(tbl, done, depth)
-				done = done or {}
-				depth = depth or 0
-				if done[tbl] then return end
-				done[tbl] = true
-				
-				local tabs = string.rep("\t", depth)
-				
-				for k, v in pairs(tbl) do
-					if type(v) == "table" then
-						print(tabs .. tostring(k) .. ":")
-						PrintTable(v, done, depth + 1)
-					else
-						print(tabs .. tostring(k) .. " = " .. tostring(v))
-					end
-				end
-			end
-			
-			PrintTable(_G)
-			]]
-		},
 		tags.body
 		{
 			tags.div {class = "wrapper"}
