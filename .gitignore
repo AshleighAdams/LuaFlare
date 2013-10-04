@@ -1,6 +1,7 @@
 Binaries/
 Projects/
 *~
+log.txt
 build.zip
 *.secret
 *.userprefs
