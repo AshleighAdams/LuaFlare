@@ -145,12 +145,20 @@ local function get_menu()
 	if config ~= nil then
 		for k, build in pairs(config:children()) do
 			table.insert(menu, build:name())
+			
+			table.sort(build:children(), function(a, b)
+				if a == "master" or b == "master" then return a == "master" and true or false end
+				return a < b
+			end)
+			
 			for k, branch in pairs(build:children()) do
 				local name = branch:name()
 				table.insert(menu, {[name] = "/build/" .. build:name() .. "/" .. name .. "/status"})
 			end
 		end
 	end
+	
+	table.sort(menu)
 	
 	--util.ItterateDir(script.local_path("build_files/"), false, function(file)
 	--	file = file:sub(script.local_path("build_files/build_"):len() + 1, file:len() - 4)
