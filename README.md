@@ -8,6 +8,7 @@ The files that match the pattern lua/*/ar_*.lua will be automatically ran at the
 they may be automatically reloaded too.
 
 ## Basic functions
+
 ```lua
 reqs.AddPattern(host, url_pattern, callback --[[request, response, ...]])
 reqs.AddPattern("*", "/hello_world", hello_world)
@@ -23,6 +24,7 @@ end)
 ## Overriding default handler
 
 The following code will remove the hook used by reqs, so you can impliment your own if you desire
+
 ```lua
 hook.Remove("Request", "default")
 hook.Add("Request", "mine", function(req, res)
@@ -36,7 +38,8 @@ It is recommended that you run LuaServer behind Nginx to prevent many types of a
 provided by Nginx, such as compression.
 
 Example Nginx config:
-```
+
+```nginx
 server {
 	listen 80 default_server;
 	listen [::]:80 default_server ipv6only=on;
