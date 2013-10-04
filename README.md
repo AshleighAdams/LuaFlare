@@ -36,7 +36,8 @@ It is recommended that you run LuaServer behind Nginx to prevent many types of a
 provided by Nginx, such as compression.
 
 Example Nginx config:
-```
+
+```nginx
 server {
 	listen 80 default_server;
 	listen [::]:80 default_server ipv6only=on;
