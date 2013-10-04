@@ -25,6 +25,7 @@ function node._meta.__call(t, parent, name)
 	nde._children = {}
 	nde._self = nde
 	nde._missed_cache = false
+	nde._cache = {} -- this is the cache for accessing child nodes (needed so sorting is the same)
 	
 	setmetatable(nde, node._meta)
 	
@@ -40,10 +41,7 @@ function node._meta.__index(tbl, key) expects("table", "string")
 		return rawget(node, key)
 	end
 	
-	local ret = rawget(tbl, "_children")[key] or node(rawget(tbl, "_self"), key)
-	
-	return ret
-	--error("not imp", 2)
+	return rawget(tbl, "_self"):get_child(key) or node(rawget(tbl, "_self"), key)
 end
 
 
@@ -66,8 +64,30 @@ end
 function node:children() expects(node._meta)
 	return self._children
 end
-function node:add_child(node)  expects(node._meta, node._meta)
-	self._children[node:name()] = node
+function node:get_child(key) expects(node._meta, "string")
+	local cache = rawget(self, "_cache")
+	if cache[key] then return cache[key] end
+	
+	for k,v in pairs(self._children) do
+		if v:name() == key then
+			cache[key] = v
+			return v
+		end
+	end
+	return nil -- wasn't found
+end
+function node:add_child(node) expects(node._meta, node._meta)
+	table.insert(self._children, node)
+end
+function node:remove_child(node) expects(node._meta, node._meta)
+	local name = node:name()
+	if self._cache[name] == node then self._cache[name] = nil end
+	for k,v in pairs(self._children) do
+		if v == node then
+			table.remove(self._children, k)
+			return
+		end
+	end
 end
 
 function node:value(default) expects(node._meta, "*")
