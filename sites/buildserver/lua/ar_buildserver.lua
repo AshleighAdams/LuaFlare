@@ -53,6 +53,11 @@ local function ipv4_inrange(range, val)
 	return bit.rshift(range.int, tomove) == bit.rshift(val.int, tomove)
 end
 
+
+
+---
+--- Allow GitHub and localhost to cause updates
+---
 local gh1 = ipv4("204.232.175.64/27") -- these are the github IPs used on hooks
 local gh2 = ipv4("192.30.252.0/22")
 local function AllowGithub(req, res, project)
@@ -63,6 +68,15 @@ local function AllowGithub(req, res, project)
 	end
 end
 hook.Add("BuildServer.BuildAuthorized", "Github", AllowGithub)
+
+local lh = ipv4("127.0.0.0/8")
+local function AllowLocalhost(req, res, project)
+	local test = ipv4(req:peer())
+	if ipv4_inrange(lh, test) then
+		return true
+	end
+end
+hook.Add("BuildServer.BuildAuthorized", "localhost", AllowLocalhost)
 
 local function on_update(req, res, project)
 	g_print("update " .. project .. " by " .. req:peer())
@@ -145,21 +159,12 @@ local function get_menu()
 	if config ~= nil then
 		for k, build in pairs(config:children()) do
 			table.insert(menu, build:name())
-			
-			table.sort(build:children(), function(a, b)
-				if type(a) == "string" and a == "master" then return true end
-				if type(b) == "string" and b == "master" then return false end
-				return a < b
-			end)
-			
 			for k, branch in pairs(build:children()) do
 				local name = branch:name()
 				table.insert(menu, {[name] = "/build/" .. build:name() .. "/" .. name .. "/status"})
 			end
 		end
 	end
-	
-	table.sort(menu)
 	
 	--util.ItterateDir(script.local_path("build_files/"), false, function(file)
 	--	file = file:sub(script.local_path("build_files/build_"):len() + 1, file:len() - 4)
