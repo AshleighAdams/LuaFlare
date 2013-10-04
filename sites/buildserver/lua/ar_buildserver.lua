@@ -147,7 +147,8 @@ local function get_menu()
 			table.insert(menu, build:name())
 			
 			table.sort(build:children(), function(a, b)
-				if a == "master" or b == "master" then return a == "master" and true or false end
+				if type(a) == "string" and a == "master" then return true end
+				if type(b) == "string" and b == "master" then return false end
 				return a < b
 			end)
 			
