@@ -49,7 +49,6 @@
     <None Include="lua\ar_defaulterrors.lua" />
     <None Include="lua\ar_main.lua" />
     <None Include="lua\ar_minecraft.lua" />
-    <None Include="lua\ar_resources.lua" />
     <None Include="sites\buildserver\lua\ar_buildserver.lua" />
     <None Include="sites\buildserver\lua\template_buildserver.lua" />
     <None Include="sites\buildserver\resources\build_fail.png" />
@@ -76,5 +75,6 @@
     <None Include="libs\threadpool.lua" />
     <None Include="inc\coroutinify.lua" />
     <None Include="libs\globaltable.lua" />
+    <None Include="lua\ar_static.lua" />
   </ItemGroup>
 </Project>
