@@ -22,6 +22,26 @@ local function add_resource(filename, host)
 	pattern = escape.pattern(pattern)
 		
 	local function serve_file(req, res)
+		-- support for HTTP Range
+		local range_from, range_to = nil, nil
+		
+		if req:headers().Range ~= nil then
+			if req:headers().Range == "" then
+				print("range supported?")
+				res:set_header("Accept-Ranges", "bytes") -- let them know that we can accept ranges
+			else
+				local from, to = string.match(req:headers().Range, "bytes=(%d+)-(%d*)")
+				if to == "" then to = nil end
+				
+				print("client wants range " .. from .. " to " .. tostring(to))
+				-- the range headers and stuff are parsed in set_file
+				range_from = (tonumber(from) or 0) + 1 -- this param needs to be here
+				range_to = tonumber(to)
+				if range_to ~= nil then range_to = range_to + 1 end -- from 0 indexed to 1 indexed
+			end
+		end
+		
+		-- Support for last modified since, TODO: Does this new 304 header mix well with above range header?	
 		local ifmod = req:headers()["If-Modified-Since"]
 		local ours = lfs.attributes(filename, "modification")
 		
@@ -44,7 +64,7 @@ local function add_resource(filename, host)
 		
 		res:set_header("Last-Modified", timestring)
 		res:set_header("Expires", expires)
-		res:set_file(filename)
+		res:set_file(filename, range_from, range_to)
 	end
 	
 	--print("adding resource `" .. filename .. "' as `" .. pattern .. "'")

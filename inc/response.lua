@@ -41,7 +41,7 @@ function meta:clear() expects(meta)
 	self.file = nil
 end
 
-function meta:set_file(path) expects(meta, "string")
+function meta:set_file(path, from, to) expects(meta, "string")
 	local file = io.open(path, "rb")
 	
 	if not file then
@@ -51,8 +51,28 @@ function meta:set_file(path) expects(meta, "string")
 	
 	self:set_header("Content-Type", mimetypes.guess(path) or "text/html")
 	self._file = path
+	
 	self._reply = file:read("*all")
 	file:close()
+	
+	if from ~= nil then
+		local len = self._reply:len()		
+		if len < from or (to ~= nil and len < to) then
+			-- we can't serve this
+			self:set_status(httpstatus.fromstring("Requested Range Not Satisfiable"))
+			-- tell them how long the file is
+			self:set_header("Content-Range", "bytes */" .. len)
+			self._reply = "" -- nulify the response
+		else
+			if to == nil then to = len end
+			
+			self:set_status(httpstatus.fromstring("Partial Content"))
+			-- subtract one to convert from 1 index to 0 index; C "a[n]" == Lua "a[n + 1]"
+			self:set_header("Content-Range", string.format("bytes %i-%i/%i", from - 1, to - 1, len))
+			self._reply = self._reply:sub(from, to)
+		end
+	end
+	
 	return true
 end
 
