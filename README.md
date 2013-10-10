@@ -150,7 +150,7 @@ template.to_request(req, 0)
 		tags.div {class = "comment"}
 		{
 			tags.span {class = "author"} { "Anon" .. i },
-			tags.span {class = "message"} { "The quick brown box jumped over the lazy dog." }
+			tags.span {class = "message"} { "This is a test message." }
 		}.to_request(req)
 	end
 template.to_request(req, 1)
@@ -166,7 +166,7 @@ template.to_request(req, 1)
 			Anon 1
 		</span>
 		<span class="message">
-			The quick brown fox jumped over the lazy dog.
+			This is a test message.
 		</span>
 	</div>
 	<!--- ... --->
@@ -175,7 +175,7 @@ template.to_request(req, 1)
 			Anon 5
 		</span>
 		<span class="message">
-			The quick brown fox jumped over the lazy dog.
+			This is a test message.
 		</span>
 	</div>
 </div>
@@ -189,7 +189,7 @@ for i = 1, 5 do
 	local comment = tags.div {class = "comment"}
 	{
 		tags.span {class = "author"} { "Anon" .. i },
-		tags.span {class = "message"} { "The quick brown box jumped over the lazy dog." }
+		tags.span {class = "message"} { "This is a test message." }
 	}
 	table.insert(comments, comment)
 end
@@ -212,7 +212,7 @@ print(template.to_html())
 			Anon 1
 		</span>
 		<span class="message">
-			The quick brown fox jumped over the lazy dog.
+			This is a test message.
 		</span>
 	</div>
 	<!--- ... --->
@@ -221,7 +221,7 @@ print(template.to_html())
 			Anon 5
 		</span>
 		<span class="message">
-			The quick brown fox jumped over the lazy dog.
+			This is a test message.
 		</span>
 	</div>
 </div>
