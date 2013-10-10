@@ -25,8 +25,8 @@ end)
 
 LuaServer comes with it's own templating system, you can still use `reqest:append(string)` should you choose to (eg,
 implimenting your own templating system).
-
-The default templating system offers the `tags` namespace.  The general gjist is `tag [, attributes][, children]` where
+<!--- jist is not spelt incorrectly, gist = g for ghost, IMO, so yeah... --->
+The default templating system offers the `tags` namespace.  The general jist is `tag [, attributes][, children]` where
 attributes is a key-value table, and children is an indexed (array) or empty table (`table.Count(att) != #att`).
 
 ### Escaping
