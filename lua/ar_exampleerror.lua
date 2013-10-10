@@ -5,4 +5,4 @@ local function exampleerror(req, res, str)
 	req:append("done")
 end
 
-reqs.Add("*", "/examplerrror/(*)", examplerror)
+reqs.AddPattern("*", "/examplerrror/(*)", examplerror)
