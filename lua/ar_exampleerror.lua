@@ -1,7 +1,6 @@
 
 local function exampleerror(req, res, str)
-	local tbl = _G
-	local result = str .. tbl
+	local result = str .. _G
 	req:append("done")
 end
 
