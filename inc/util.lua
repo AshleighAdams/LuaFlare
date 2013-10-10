@@ -3,6 +3,12 @@
 local posix = require("posix")
 local socket = require("socket")
 
+--# luarocks install xssfilter
+-- And until luarocks supports lua 5.2:
+--# cp /usr/local/share/lua/5.1/xssfilter.lua /usr/local/share/lua/5.2/xssfilter.lua
+require("xssfilter")
+local xss_filter = xssfilter.new({})
+
 -- incase these libs wen't created
 table = table or {}
 string = string or {}
@@ -232,6 +238,17 @@ function escape.html(input, strict) expects "string"
 		input = input:gsub("\n", "<br />\n")
 	end
 	return input
+end
+
+function escape.striptags(input, tbl) expects "string"
+	local html, message = xss_filter:filter(input)
+	
+	if html then
+	   return html
+	elseif message then
+		error(message)
+	end
+	error("what?")
 end
 
 function escape.sql(input) expects "string"	

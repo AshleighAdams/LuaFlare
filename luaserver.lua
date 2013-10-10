@@ -5,9 +5,9 @@ package.path = "./libs/?.lua;" .. package.path
 package.cpath = "./libs/?.lua;" .. package.cpath
 
 dofile("inc/hooks.lua")
+dofile("inc/util.lua")
 dofile("inc/htmlwriter.lua")
 dofile("inc/requesthooks.lua")
-dofile("inc/util.lua")
 dofile("inc/request.lua")
 dofile("inc/response.lua")
 
