@@ -1,6 +1,7 @@
 
 local function exampleerror(req, res, str)
-	local result = str .. _G
+	local testbl = {argument = str, time = util.time()}
+	local result = testbl .. _G
 	req:append("done")
 end
 
