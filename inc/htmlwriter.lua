@@ -241,26 +241,29 @@ generate_tag("form")
 generate_tag("input")
 generate_tag("textarea")
 
+local html = tags.p {class = "test"} { "Here, have some ", tags.b{ "boldness" }, "." }.to_html()
+print(html)
+
 --[[
 
-html
+tags.html
 {
-	head
+	tags.head
 	{
-		title
+		tags.title
 		{
 			"Hello, world"
 		}
 	},
-	body
+	tags.body
 	{
-		div {class = "test"}
+		tags.div {class = "test"}
 		{
 			"This is a really nice generation thingy",
-			br, br,
+			tags.br, tags.br,
 			"Do you like my logo?",
-			br,
-			img {src = "/logo.png"}
+			tags.br,
+			tags.img {src = "/logo.png"}
 		}
 	}
 }.print()
@@ -269,16 +272,20 @@ produces:
 
 <html>
 	<head>
-		<title>Hello, world</title>
+		<title>
+			Hello, world
+		</title>
 	</head>
 	<body>
 		<div class="test">
 			This is a really nice generation thingy
-			<br /> <br /> Do you like my logo?
-			<br /> <img src="/logo.png" />
+			<br />
+			<br />
+			Do you like my logo?
+			<br />
+			<img src="/logo.png" />
 		</div>
 	</body>
 </html>
-
 
 ]]

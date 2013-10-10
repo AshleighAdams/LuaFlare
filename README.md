@@ -21,6 +21,79 @@ reqs.AddPattern("*", "user/%d+/message", function(req, res, id)
 end)
 ```
 
+## Templating System
+
+LuaServer comes with it's own templating system, you can still use `reqest:append(string)` should you choose to (eg,
+implimenting your own templating system).
+
+The default templating system offers the `tags` namespace.  The general gjist is `tag [, attributes][, children]` where
+attributes is a key-value table, and children is an indexed (array) or empty table (`table.Count(att) != #att`).
+
+### Examples
+
+#### Example 1
+
+```lua
+local html = tags.p {class = "test"} { "Here, have some ", tags.b{ "boldness" }, "." }.to_html()
+print(html)
+```
+
+```html
+<p class="test">
+	Here, have some 
+	<b>
+		boldness
+	</b>
+	.
+</p>
+```
+
+#### Example 2
+
+```lua
+tags.html
+{
+	tags.head
+	{
+		tags.title
+		{
+			"Hello, world"
+		}
+	},
+	tags.body
+	{
+		tags.div {class = "test"}
+		{
+			"This is a really nice generation thingy",
+			tags.br, tags.br,
+			"Do you like my logo?",
+			tags.br,
+			tags.img {src = "/logo.png"}
+		}
+	}
+}.print()
+```
+
+```html
+<html>
+	<head>
+		<title>
+			Hello, world
+		</title>
+	</head>
+	<body>
+		<div class="test">
+			This is a really nice generation thingy
+			<br />
+			<br />
+			Do you like my logo?
+			<br />
+			<img src="/logo.png" />
+		</div>
+	</body>
+</html>
+```
+
 ## Overriding default handler
 
 The following code will remove the hook used by reqs, so you can impliment your own if you desire
@@ -83,9 +156,10 @@ server {
 }
 ```
 
-# To do
+# To Do
+<!--- U+2610 (☐, 'BALLOT BOX'), U+2611 (☑, 'BALLOT BOX WITH CHECK'), and U+2612 (☒, 'BALLOT BOX WITH X') --->
 
-- [ ] Cookie Support
-- [ ] Session libary
-- 	[ ] Global table support for sessions
-- [ ] Rewrite template generate_html to be cleaner & easier to follow
+- ☐ Cookie Support
+- ☐ Session libary
+- ☐ Global table support for sessions
+- ☐ Rewrite template generate_html to be cleaner & easier to follow
