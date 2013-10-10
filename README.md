@@ -1,13 +1,30 @@
 LuaServer
 =========
 
+# Table of Contents
+
+>####[1. Documentation](#documentation)
+>>####[1.1. Handle a Page](#handle-a-page)
+>>####[1.2. Templating System](#templating-system)
+>>>####[1.2.1. Escaping](#escaping)
+>>>####[1.2.2. Examples](#examples)
+>>>>#####[1.2.2.1. Example 1 - Simple](#example-1-simple)
+>>>>#####[1.2.2.1. Example 2 - Basic Page](#example-2-basic-page)
+>>>>#####[1.2.2.1. Example 3 - Segmants](#example-3-segmants)
+>>>>#####[1.2.2.1. Example 4 - Unpack](#example-4-unpack)
+>>####[1.3. Overiding Default Handler](#overiding-default-handler)
+>####[2. Behind Nginx](#behind-nginx)
+>>####[2.1. HTTP](#http)
+>>####[2.2. HTTPS](#https)
+>####[3. To Do](#to-do)
+
 # Documentation
 
 The files that match the pattern lua/*/ar_*.lua will be automatically ran at the start, and when they're modified. Use
 `include(file)` to include files relative to your directory, and to specify files that your script depends on, so that
 they may be automatically reloaded too.
 
-## Basic functions
+## Handle a Page
 
 ```lua
 reqs.AddPattern(host, url_pattern, callback --[[request, response, ...]])
@@ -198,7 +215,7 @@ print(template.to_html())
 </div>
 ```
 
-## Overriding default handler
+## Overriding Default Handler
 
 The following code will remove the hook used by reqs, so you can impliment your own if you desire
 
@@ -213,6 +230,8 @@ end)
 
 It is recommended that you run LuaServer behind Nginx to prevent many types of attacks, and other things
 provided by Nginx, such as compression.
+
+## HTTP
 
 Example Nginx config:
 
@@ -230,6 +249,8 @@ server {
 	}
 }
 ```
+
+## HTTPS
 
 For HTTPS, allthough this behaviour is inbuilt into LuaServer, if you're running through Nginx, then
 you should also create a server to handle HTTPS.  For exmaple:
@@ -267,3 +288,6 @@ server {
 - ☐ Session libary
 - ☐ Global table support for sessions
 - ☐ Rewrite template generate_html to be cleaner & easier to follow
+
+
+  [1]: #table-of-contents
