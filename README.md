@@ -3,21 +3,21 @@ LuaServer
 
 # Table of Contents
 
->####[1. Documentation](#documentation)
->>####[1.1. Command Line Arguments](#command-line-arguments)
->>####[1.2. Handle a Page](#handle-a-page)
->>####[1.3. Templating System](#templating-system)
->>>####[1.3.1. Escaping](#escaping)
->>>####[1.3.2. Examples](#examples)
->>>>#####[1.3.2.1. Example 1 - Simple](#example-1-simple)
->>>>#####[1.3.2.1. Example 2 - Basic Page](#example-2-basic-page)
->>>>#####[1.3.2.1. Example 3 - Segmants](#example-3-segmants)
->>>>#####[1.3.2.1. Example 4 - Unpack](#example-4-unpack)
->>####[1.4. Overiding Default Handler](#overiding-default-handler)
->####[2. Behind Nginx](#behind-nginx)
->>####[2.1. HTTP](#http)
->>####[2.2. HTTPS](#https)
->####[3. To Do](#to-do)
+- [1. Documentation](#documentation)  
+	- [1.1. Command Line Arguments](#command-line-arguments)  
+	- [1.2. Handle a Page](#handle-a-page)  
+	- [1.3. Templating System](#templating-system)  
+		- [1.3.1. Escaping](#escaping)  
+		- [1.3.2. Examples](#examples)  
+			- [1.3.2.1. Example 1 - Simple](#example-1---simple)  
+			- [1.3.2.1. Example 2 - Basic Page](#example-2---basic-page)  
+			- [1.3.2.1. Example 3 - Segmants](#example-3---segmants)  
+			- [1.3.2.1. Example 4 - Unpack](#example-4---unpack)  
+	- [1.4. Overiding Default Handler](#overiding-default-handler)  
+- [2. Behind Nginx](#behind-nginx)  
+	- [2.1. HTTP](#http)  
+	- [2.2. HTTPS](#https)  
+- [3. To Do](#to-do)  
 
 # Documentation
 
@@ -27,14 +27,14 @@ they may be automatically reloaded too.
 
 ## Command Line Arguments
 
-| Command              | Default Value | Info                                            |
+| Command			  | Default Value | Info											|
 | -------------------- | ------------- | ----------------------------------------------- |
-| --port=\<number\>    | 8080          | Set the port to run on                          |
-| --threads=\<number\> | 1             | How many threads to create                      |
-| --host=\<string\>    | \*            | Bind to this address                            |
-| --local              | false         | Set the host to "localhost"                     |
-| --unit-test          | false         | Perform unit tests and quit                     |
-| --coroutines         | false         | Use coroutines for threads, instead of fork()   |
+| --port=\<number\>	| 8080		  | Set the port to run on						  |
+| --threads=\<number\> | 1			 | How many threads to create					  |
+| --host=\<string\>	| \*			| Bind to this address							|
+| --local			  | false		 | Set the host to "localhost"					 |
+| --unit-test		  | false		 | Perform unit tests and quit					 |
+| --coroutines		 | false		 | Use coroutines for threads, instead of fork()   |
 
 ## Handle a Page
 
