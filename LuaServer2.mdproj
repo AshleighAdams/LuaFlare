@@ -76,5 +76,6 @@
     <None Include="inc\coroutinify.lua" />
     <None Include="libs\globaltable.lua" />
     <None Include="lua\ar_static.lua" />
+    <None Include="lua\ar_exampleerror.lua" />
   </ItemGroup>
 </Project>
