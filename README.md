@@ -29,13 +29,26 @@ implimenting your own templating system).
 The default templating system offers the `tags` namespace.  The general gjist is `tag [, attributes][, children]` where
 attributes is a key-value table, and children is an indexed (array) or empty table (`table.Count(att) != #att`).
 
-### Examples
+### Escaping
 
-#### Example 1
+Escaping with the templating system is all done automatically, however, should you need to write HTML stored in text
+to the templating system, then you should use the tag `tags.NOESCAPE` which will prevent the very next value from being
+escaped.  Here is an example of it in use:
 
 ```lua
-local html = tags.p {class = "test"} { "Here, have some ", tags.b{ "boldness" }, "." }.to_html()
-print(html)
+tags.html
+{
+	tags.NOESCAPE, "<script>alert('hi');</script>"
+}
+```
+
+### Examples
+
+#### Example 1 - Simple
+
+```lua
+local template = tags.p {class = "test"} { "Here, have some ", tags.b{ "boldness" }, "." }
+print(template.to_html())
 ```
 
 ```html
@@ -48,7 +61,7 @@ print(html)
 </p>
 ```
 
-#### Example 2
+#### Example 2 - Basic Page
 
 ```lua
 tags.html
@@ -92,6 +105,97 @@ tags.html
 		</div>
 	</body>
 </html>
+```
+
+#### Example 3 - Segmants
+
+```lua
+local template = tags.div {class = "comments"}
+{
+	tags.span {"Comments:"},
+	tags.SECTION
+}
+
+template.to_request(req, 0)
+	for i = 1, 5 do
+		tags.div {class = "comment"}
+		{
+			tags.span {class = "author"} { "Anon" .. i },
+			tags.span {class = "message"} { "The quick brown box jumped over the lazy dog." }
+		}.to_request(req)
+	end
+template.to_request(req, 1)
+```
+
+```html
+<div class="comments">
+	<span>
+		Comments:
+	</span>
+	<div class="comment">
+		<span class="author">
+			Anon 1
+		</span>
+		<span class="message">
+			The quick brown fox jumped over the lazy dog.
+		</span>
+	</div>
+	<!--- ... --->
+	<div class="comment">
+		<span class="author">
+			Anon 5
+		</span>
+		<span class="message">
+			The quick brown fox jumped over the lazy dog.
+		</span>
+	</div>
+</div>
+```
+
+#### Example 4 - Unpack
+
+```lua
+local comments = {}
+for i = 1, 5 do
+	local comment = tags.div {class = "comment"}
+	{
+		tags.span {class = "author"} { "Anon" .. i },
+		tags.span {class = "message"} { "The quick brown box jumped over the lazy dog." }
+	}
+	table.insert(comments, comment)
+end
+
+local template = tags.div {class = "comments"}
+{
+	tags.span {"Comments:"},
+	unpack(comments)
+}
+print(template.to_html())
+```
+
+```html
+<div class="comments">
+	<span>
+		Comments:
+	</span>
+	<div class="comment">
+		<span class="author">
+			Anon 1
+		</span>
+		<span class="message">
+			The quick brown fox jumped over the lazy dog.
+		</span>
+	</div>
+	<!--- ... --->
+	<div class="comment">
+		<span class="author">
+			Anon 5
+		</span>
+		<span class="message">
+			The quick brown fox jumped over the lazy dog.
+		</span>
+	</div>
+</div>
 ```
 
 ## Overriding default handler

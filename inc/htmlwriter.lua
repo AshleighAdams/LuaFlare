@@ -241,9 +241,6 @@ generate_tag("form")
 generate_tag("input")
 generate_tag("textarea")
 
-local html = tags.p {class = "test"} { "Here, have some ", tags.b{ "boldness" }, "." }.to_html()
-print(html)
-
 --[[
 
 tags.html
