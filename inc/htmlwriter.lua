@@ -92,11 +92,6 @@ function generate_html(first, tbl, depth, parent, section, state)
 			end
 		end
 		
-		if in_tabs ~= nil then
-			whattowrite = whattowrite:gsub(in_tabs, "")
-			whattowrite = whattowrite:gsub("\n", "\n" .. tabs)
-		end
-		
 		-- TODO: Should this be here?
 		if state.escape_this then
 			local func = parent and parent.tag_options.escape_function or escape.html
@@ -105,6 +100,11 @@ function generate_html(first, tbl, depth, parent, section, state)
 			state.escape_this = true -- re-enable escaping
 		end
 		
+		if in_tabs ~= nil then
+			whattowrite = whattowrite:gsub(in_tabs, "")
+			whattowrite = whattowrite:gsub("\n", "\n" .. tabs)
+		end
+			
 		if not first and (parent.tag_options.inline and allow_inline) then
 			generated_html = generated_html .. whattowrite
 		else
