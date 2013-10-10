@@ -56,7 +56,7 @@ function Request(client) -- expects("userdata")
 	setmetatable(request, meta)
 	
 	-- read the post data
-	if method == "GET" then
+	if method == "GET" or method == "HEAD" then
 	elseif method == "POST" then
 		local len = request:headers()["Content-Length"]
 		

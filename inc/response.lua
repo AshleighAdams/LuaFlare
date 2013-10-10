@@ -109,6 +109,10 @@ function meta:send() expects(meta)
 		tosend = tosend .. tostring(k) .. ": " .. tostring(v) .. "\n"
 	end
 	
+	if self:request():method() == "HEAD" then
+		self._reply = "" -- HEAD should yield same headers, but no body
+	end
+	
 	tosend = tosend .. "\n" .. self._reply
 	
 	self:client():send(tosend)
