@@ -62,7 +62,6 @@ end
 function httpstatus.fromstring(str) expects "string"
 	local code, message = str:match("(%d*)%s*(.*)")
 	
-	print(code, message)
 	-- the code takes priority
 	if code ~= "" then
 		return tonumber(code)
