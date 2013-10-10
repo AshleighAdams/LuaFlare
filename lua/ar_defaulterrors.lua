@@ -51,17 +51,17 @@ local function basic_error(why, req, res)
 			"while requesting",
 			tags.code
 			{
-				escape.html(req:url())
+				req:url()
 			},
 			" an error of type ",
 			tags.code
 			{
-				escape.html(tostring(why.type) .. " (" .. (error_type_to_str[why.type] or "unknown") .. ")")
+				tostring(why.type) .. " (" .. (error_type_to_str[why.type] or "unknown") .. ")"
 			},
 			" was encountered",
 			(function()
 				if why.message then
-					return "<code>" .. escape.html("\n\n" .. why.message) .. "</code>"
+					return tags.code { "\n\n" .. why.message }
 				end
 			end)()
 		}
@@ -142,17 +142,17 @@ local function basic_lua_error(err, trace, vars, args)
 		tags.p { "A Lua error was encountered while trying to process your request!" },
 		tags.div {class = "box", style="margin-bottom: 5px;"}
 		{
-			escape.html(err)
+			err
 		},
 		tags.div {class = "box nowrap", style = "font-family: monospace; margin-bottom: 5px;"}
 		{
-			escape.html(code),
+			code,
 			br_tag,
-			escape.html(line)
+			line
 		},
 		tags.div {class = "box nowrap"}
 		{
-			escape.html(trace)
+			trace
 		}
 	}
 	

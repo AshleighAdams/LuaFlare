@@ -69,7 +69,7 @@ function create_build_template(title, menu_items, content)
 				},
 				tags.div {class = "foot"}
 				{
-					"Copyright &copy; " .. os.date("*t").year .. " Blah.  All rights reserved."
+					tags.NOESCAPE, "Copyright &copy; " .. os.date("*t").year .. " Kobra.  All rights reserved."
 				}
 			}
 		}

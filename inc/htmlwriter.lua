@@ -4,12 +4,12 @@ tags = {}
 local allow_inline = false
 
 local generated_html = ""
-function generate_html(first, tbl, depth, parent, section, current_section)
+function generate_html(first, tbl, depth, parent, section, state)
 	tbl = tbl or {}
 	depth = depth or 0
-	current_section = current_section or {0} -- references
+	state = state or {current_section = 0, escape_this = true} -- references
 	section = section or 0
-	
+		
 	if tbl == nil then
 		error("tbl is nil")
 	end
@@ -27,8 +27,14 @@ function generate_html(first, tbl, depth, parent, section, current_section)
 	end
 	
 	if type(tbl) == "table" and tbl.is_tag and tbl.tag_options.section_marker then
-		current_section[1] = current_section[1] + 1
+		state.current_section = state.current_section + 1
+	elseif type(tbl) == "table" and tbl.is_tag and tbl.tag_options.noescape then
+		state.escape_this = false
 	elseif type(tbl) == "table" and  tbl.is_tag then
+		if state.escape_this == false then
+			error("Attempting to not escape a tag element (are you sure you have the tags.NOESCAPE in the right place?")
+		end
+		
 		local attributes = ""
 		was_inline = tbl.tag_options.inline and allow_inline 
 		
@@ -45,22 +51,22 @@ function generate_html(first, tbl, depth, parent, section, current_section)
 			endbit = " />"
 		end
 		
-		if section == current_section[1] then
+		if section == state.current_section then
 			generated_html = generated_html .. tabs .. "<" .. tbl.name .. attributes .. endbit
 		end
 		
-		if not (tbl.tag_options.inline and allow_inline) and section == current_section[1] then
+		if not (tbl.tag_options.inline and allow_inline) and section == state.current_section then
 			generated_html = generated_html .. "\n"
 		end
 		
 		if not tbl.tag_options.empty_element then
 			if tbl.children then
 				for k,v in pairs(tbl.children) do
-					generate_html(false, v, depth + 1, tbl, section, current_section)
+					generate_html(false, v, depth + 1, tbl, section, state)
 				end
 			end
 		
-			if not (tbl.tag_options.inline and allow_inline) and section == current_section[1] then
+			if not (tbl.tag_options.inline and allow_inline) and section == state.current_section then
 				local len = generated_html:len()
 				if generated_html:sub(len, len) ~= '\n' then
 					generated_html = generated_html .. "\n"
@@ -68,15 +74,15 @@ function generate_html(first, tbl, depth, parent, section, current_section)
 				generated_html = generated_html .. tabs
 			end
 			
-			if section == current_section[1] then
+			if section == state.current_section then
 				generated_html = generated_html .. "</" .. tbl.name .. ">" .. "\n"
 			end
 		end
-	elseif type(tbl) == "table" and section == current_section[1] then
+	elseif type(tbl) == "table" and section == state.current_section then
 		for k,v in pairs(tbl) do
-			generate_html(false, v, depth + 1, parent, section, current_section)
+			generate_html(false, v, depth + 1, parent, section, state)
 		end
-	elseif section == current_section[1] then
+	elseif section == state.current_section then
 		local whattowrite = tostring(tbl)
 		local in_tabs = nil
 		
@@ -91,7 +97,13 @@ function generate_html(first, tbl, depth, parent, section, current_section)
 			whattowrite = whattowrite:gsub("\n", "\n" .. tabs)
 		end
 		
-		--whattowrite = html_escape(whattowrite)
+		-- TODO: Should this be here?
+		if state.escape_this then
+			local func = parent and parent.tag_options.escape_function or escape.html
+			whattowrite = func(whattowrite)
+		else
+			state.escape_this = true -- re-enable escaping
+		end
 		
 		if not first and (parent.tag_options.inline and allow_inline) then
 			generated_html = generated_html .. whattowrite
@@ -196,6 +208,7 @@ function generate_tag(name, options)
 end
 
 generate_tag("SECTION", {section_marker = true})
+generate_tag("NOESCAPE", {noescape = true})
 generate_tag("html")
 generate_tag("head")
 generate_tag("body")

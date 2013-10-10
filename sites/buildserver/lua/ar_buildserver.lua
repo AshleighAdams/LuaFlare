@@ -258,7 +258,7 @@ local function on_status(req, res, project, branch)
 		tags.br, tags.br,
 		tags.div -- {style = "overflow-x: scroll; white-space: nowrap; background-color: #333;"}
 		{
-			contents
+			tags.NOESCAPE, contents
 		}
 	}
 	

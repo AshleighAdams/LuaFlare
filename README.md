@@ -53,3 +53,10 @@ server {
 	}
 }
 ```
+
+# To do
+
+[ ] Cookie Support
+[ ] Session libary
+	[ ] Global table support for sessions
+[ ] Rewrite template generate_html to be cleaner & easier to follow
