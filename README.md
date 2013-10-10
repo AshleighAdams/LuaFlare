@@ -41,8 +41,8 @@ Example Nginx config:
 
 ```nginx
 server {
-	listen 80 default_server;
-	listen [::]:80 default_server ipv6only=on;
+	listen 80;
+	listen [::]:80 ipv6only=on;
 
 	server_name localhost;
 
@@ -53,6 +53,35 @@ server {
 	}
 }
 ```
+
+For HTTPS, allthough this behaviour is inbuilt into LuaServer, if you're running through Nginx, then
+you should also create a server to handle HTTPS.  For exmaple:
+
+```nginx
+server {
+	listen 443 ssl;
+	listen [::]:443 ssl ipv6only=on;
+	
+	ssl on;
+	ssl_certificate cert.pem;
+	ssl_certificate_key cert.key;
+
+	ssl_session_timeout 5m;
+
+	ssl_protocols SSLv3 TLSv1;
+	ssl_ciphers ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv3:+EXP;
+	ssl_prefer_server_ciphers on;
+
+	server_name localhost;
+
+	location / {
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		proxy_set_header Host $http_host;
+		proxy_set_header X-Forwarded-Ssl on;
+		proxy_pass http://localhost:8080;
+	}
+}
+``
 
 # To do
 
