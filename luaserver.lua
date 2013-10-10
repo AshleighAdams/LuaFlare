@@ -22,6 +22,7 @@ script.parse_arguments(arg)
 local port = tonumber(script.options.port) or 8080
 local threads = tonumber(script.options.threads) or 0 -- how many times we should fork ourselves
 local host = script.options["local"] and "localhost" or "*"
+host = script.options["host"] or host
 
 function handle_client(client)
 	local time = util.time()
@@ -56,7 +57,7 @@ local params = {
 }
 
 function main()
-	if script.options["test"] then
+	if script.options["unit-test"] then
 		print = static_print
 		include("inc/unittests.lua")
 		return unit_test()
