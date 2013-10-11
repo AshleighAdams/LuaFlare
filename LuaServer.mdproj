@@ -72,7 +72,9 @@
     <None Include="sites\buildserver\lua\ar_pushover.lua" />
     <None Include="static\*\lua.vm.js" />
     <None Include="libs\threadpool.lua" />
-    <None Include="inc\coroutinify.lua" />
     <None Include="lua\ar_static.lua" />
+    <None Include="inc\threads_coroutine.lua" />
+    <None Include="inc\threads_fork.lua" />
+    <None Include="inc\threads_pyrate.lua" />
   </ItemGroup>
 </Project>

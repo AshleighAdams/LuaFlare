@@ -36,14 +36,17 @@ they may be automatically reloaded too.
 
 ## Command Line Arguments
 
-| Command			  | Default Value | Info											|
-| -------------------- | ------------- | ----------------------------------------------- |
-| --port=\<number\>	| 8080		  | Set the port to run on						  |
-| --threads=\<number\> | 1			 | How many threads to create					  |
-| --host=\<string\>	| \*			| Bind to this address							|
-| --local			  | false		 | Set the host to "localhost"					 |
-| --unit-test		  | false		 | Perform unit tests and quit					 |
-| --coroutines		 | false		 | Use coroutines for threads, instead of fork()   |
+| Command                    | Default Value | Allowed Values          | Info                                       |
+| -------------------------- | ------------- | ----------------------- | ------------------------------------------ |
+| --port=\<number\>          | 8080          | 0-65535                 | Set the port to run on                     |
+| --threads=\<number\>       | 2             | 0-\*                    | How many threads to create                 |
+| --threads-model=\<string\> | pyrate        | coroutine, fork, pyrate | How will Lua create the threads?           |
+| --host=\<string\>	         | \*            | \*                      | Bind to this address                       |
+| -l, --local                | false         | true, false             | Set the host to "localhost"                |
+| -t, --unit-test            | false         | true, false             | Perform unit tests and quit                |
+| -h, --help                 | false         | true, false             | Show the help information then quit        |
+| -v, --version              | false         | true, false             | Show the version information then quit     |
+| --no-reload                | false         | true, false             | Do not automatically reload scripts        |
 
 ## Handle a Page
 
@@ -309,6 +312,8 @@ server {
 - ☐ Session libary
 - ☐ Global table support for sessions
 - ☐ Rewrite template generate_html to be cleaner & easier to follow
+- ☐ Add the additional command --help
+- ☐ Add the additional command --version
 
 # Functions Provided
 

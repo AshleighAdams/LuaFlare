@@ -7,7 +7,7 @@ routines = routines or {}
 do
 	local i = 1
 	while true do
-		local name, val = debug.getlocal(3, i)
+		local name, val = debug.getlocal(4, i)
 		if name ~= nil then
 			_ENV[name] = val
 		else
@@ -98,8 +98,7 @@ do
 end
 
 
--- overwrite the existing main
-function main()
+function main_loop()
 	local server, err = socket.bind(host, port)
 	assert(server, err)
 	

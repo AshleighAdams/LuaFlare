@@ -18,9 +18,16 @@ local configor = require("configor")
 
 require("lfs")
 
-script.parse_arguments(arg)
+local shorthands = {
+	v = "version",
+	l = "local",
+	t = "unit-test",
+	h = "help"
+}
+script.parse_arguments(arg, shorthands)
+
 local port = tonumber(script.options.port) or 8080
-local threads = tonumber(script.options.threads) or 0 -- how many times we should fork ourselves
+local threads = tonumber(script.options.threads) or 2 -- how many threads to create
 local host = script.options["local"] and "localhost" or "*"
 host = script.options["host"] or host
 
@@ -63,47 +70,13 @@ function main()
 		return unit_test()
 	end
 	
-	local server, err = socket.bind(host, port)
-	assert(server, err)
+	local thread_mdl = script.options["threading-model"] or "pyrate"
+	dofile(string.format("inc/threads_%s.lua", thread_mdl))
 	
-	hook.Call("ReloadScripts") -- load all of our scritps, before forking anything!
+	dofile("inc/autorun.lua")
 	
-	if threads > 0 then
-		print("forking children") -- ... lol
-		for i = 1, threads do
-			if posix.fork() == 0 then break end -- so the forked processes don't fork again
-		end
-	end
-	-- so we can spawn many processes, requires luasocket 3 
-	--server:setoption("reuseport", true)
-	
-	while true do
-		local client = server:accept()
-		client:settimeout(5) -- 5 seconds until a timeout
-		
-		if not script.options["no-reload"] then
-			hook.Call("ReloadScripts")
-		end
-		
-		if https then
-			client, err = ssl.wrap(client, params)
-			assert(client, err)
-			
-			local suc, err = client:dohandshake()
-			if not suc then print("ssl failed: ", err) end
-		end
-		
-		handle_client(client)
-		client:close()
-	end
-end
-
-dofile("inc/autorun.lua")
-
--- if specified, use the coroutines to provide threads, may potentially block in C calls, SQL quieries, ...
-if script.options.coroutines then
-	print("using coroutines")
-	dofile("inc/coroutinify.lua")
+	assert(main_loop, "`main_loop()` is not defined!")
+	main_loop()
 end
 
 main()

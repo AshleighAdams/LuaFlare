@@ -331,8 +331,9 @@ script.options = {}
 script.arguments = {}
 script.filename = ""
 
-function script.parse_arguments(args) expects "table"
+function script.parse_arguments(args, shorthands) expects "table"
 	script.filename = args[0]
+	shorthands = shorthands or {}
 	
 	for k, v in ipairs(args) do
 		local long_set, val = v:match("^%-%-(.+)=(.+)$")
@@ -346,7 +347,9 @@ function script.parse_arguments(args) expects "table"
 		elseif short then
 			local opts = short
 			for i = 0, opts:len() do
-				script.options[opts[i]] = true
+				local opt = opts:sub(i, i)
+				local key = shorthands[opt] or opt
+				script.options[key] = true
 			end
 		else
 			table.insert(script.arguments, v)
