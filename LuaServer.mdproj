@@ -44,6 +44,7 @@
     <None Include="inc\util.lua" />
     <None Include="keys\certificate.pem" />
     <None Include="keys\generatekey.sh" />
+    <None Include="keys\generatekey.sh~" />
     <None Include="keys\key.pem" />
     <None Include="keys\request.pem" />
     <None Include="lua\ar_defaulterrors.lua" />
@@ -70,12 +71,8 @@
     <None Include="libs\dkjson.lua" />
     <None Include="sites\buildserver\lua\ar_pushover.lua" />
     <None Include="static\*\lua.vm.js" />
-    <None Include="inc\autorun.lua" />
-    <None Include="libs\httpstatus.lua" />
     <None Include="libs\threadpool.lua" />
     <None Include="inc\coroutinify.lua" />
-    <None Include="libs\globaltable.lua" />
     <None Include="lua\ar_static.lua" />
-    <None Include="lua\ar_exampleerror.lua" />
   </ItemGroup>
 </Project>
