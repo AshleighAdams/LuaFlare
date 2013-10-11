@@ -313,82 +313,105 @@ server {
 # Functions Provided
 
 ## hook
-	`hook.Add(name, id, callback)`
-	`hook.Remove(name, id)`
-	`hook.Call(name)`
-	`hook.PushFatalErrors()`
-	`hook.PopFatalErrors()`
+
+	`hook.Add(name, id, callback)`  
+	`hook.Remove(name, id)`  
+	`hook.Call(name)`  
+	`hook.PushFatalErrors()`  
+	`hook.PopFatalErrors()`  
+
 ## reqs:
+
 	`reqs.AddPattern(host, url, callback)`
+
 ## Request:
-	`Request(clilent)`
-	`request:method()`
-	`request:params()`
-	`request:post_data()`
-	`request:post_string()`
-	`request:headers()`
-	`request:url()`
-	`request:full_url()`
-	`request:parsed_url()`
-	`request:client()`
-	`request:start_time()`
-	`request:total_time()`
-	`request:peer()`
+
+	`Request(clilent)`  
+	`request:method()`  
+	`request:params()`  
+	`request:post_data()`  
+	`request:post_string()`  
+	`request:headers()`  
+	`request:url()`  
+	`request:full_url()`  
+	`request:parsed_url()`  
+	`request:client()`  
+	`request:start_time()`  
+	`request:total_time()`  
+	`request:peer()`  
+	
 ## Response:
-	`Response(request)`
-	`response:request()`
-	`response:client()`
-	`response:set_status(what)`
-	`response:append(str)`
-	`response:clear()`
-	`response:set_file(path)`
-	`response:set_header(name, value)`
-	`response:send()`
+
+	`Response(request)`  
+	`response:request()`  
+	`response:client()`  
+	`response:set_status(what)`  
+	`response:append(str)`  
+	`response:clear()`  
+	`response:set_file(path)`  
+	`response:set_header(name, value)`  
+	`response:send()`  
+
 ## util:
-	`PrintTable(tbl, done = {}, depth = 0)`
-	`include(file)`
-	`expects(...)`
-	`util.time()`
-	`util.ItterateDir(dir, recursive, callback, ...) `
-	`util.DirExists(dir)`
-	`util.Dir(base_dir, recursive)`
-	`util.EnsurePath(path)`
+
+	`PrintTable(tbl, done = {}, depth = 0)`  
+	`include(file)`  
+	`expects(...)`  
+	`util.time()`  
+	`util.ItterateDir(dir, recursive, callback, ...) `  
+	`util.DirExists(dir)`  
+	`util.Dir(base_dir, recursive)`  
+	`util.EnsurePath(path)`  
+
 ## table: (extension)
-	`table.Count(tbl)`
-	`table.IsEmpty(tbl)`
-	`table.HasKey(tbl, key)`
-	`table.HasValue(tbl, value)`
-	`table.ToString(tbl)`
+
+	`table.Count(tbl)`  
+	`table.IsEmpty(tbl)`  
+	`table.HasKey(tbl, key)`  
+	`table.HasValue(tbl, value)`  
+	`table.ToString(tbl)`  
+
 ## string: (extension)
-	`string.StartsWith(haystack, needle)`
-	`string.EndsWith(haystack, needle)`
-	`string.Replace(str, what, with)`
-	`string.Path(self)`
-	`string.ReplaceLast(str, what, with)`
-	`string.Trim(str)`
-	`string.Split(self, delimiter)`
+
+	`string.StartsWith(haystack, needle)`  
+	`string.EndsWith(haystack, needle)`  
+	`string.Replace(str, what, with)`  
+	`string.Path(self)`  
+	`string.ReplaceLast(str, what, with)`  
+	`string.Trim(str)`  
+	`string.Split(self, delimiter)`  
+
 ## math: (extension)
-	`math.Round(what, prec)`
+
+	`math.Round(what, prec)`  
+
 ## escape:
-	`escape.pattern(input)`
-	`escape.html(input, strict = true)`
-	`escape.striptags(input)`
-	`escape.sql(input)`
-	`escape.argument(input)`
+
+	`escape.pattern(input)`  
+	`escape.html(input, strict = true)`  
+	`escape.striptags(input)`  
+	`escape.sql(input)`  
+	`escape.argument(input)`  
+
 ## os:
-	`os.capture(cmd, raw)`
-	`os.platform()`
+
+	`os.capture(cmd, raw)`  
+	`os.platform()`  
+
 ## script:
-	`script.pid()`
-	`script.current_file(depth = 1)`
-	`script.current_path(depth = 1)`
-	`script.local_path(path)`
-	`script.instance_info()`
-	`script.parse_arguments(args)`
+
+	`script.pid()`  
+	`script.current_file(depth = 1)`  
+	`script.current_path(depth = 1)`  
+	`script.local_path(path)`  
+	`script.instance_info()`  
+	`script.parse_arguments(args)`  
+
 ## stack:
-	`stack()`
-	`stack:push(val)`
-	`stack:pop()`
-	`stack:value()`
-	`stack:all()`
+
+	`stack()`  
+	`stack:push(val)`  
+	`stack:pop()`  
+	`stack:value()`  
+	`stack:all()`  
 
