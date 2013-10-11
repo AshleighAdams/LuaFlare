@@ -70,7 +70,7 @@ function main()
 		return unit_test()
 	end
 	
-	local thread_mdl = script.options["threading-model"] or "fork"
+	local thread_mdl = script.options["threads-model"] or "fork"
 	dofile(string.format("inc/threads_%s.lua", thread_mdl))
 	
 	dofile("inc/autorun.lua")
