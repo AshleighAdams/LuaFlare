@@ -18,7 +18,16 @@ LuaServer
 	- [2.1. HTTP](#http)  
 	- [2.2. HTTPS](#https)  
 - [3. To Do](#to-do)  
-
+- [4. Functions Provided](#functions-provided)  
+	- [4.1. util](#util)  
+	- [4.2. table](#table)  
+	- [4.3. string](#string)  
+	- [4.4. math](#math)  
+	- [4.5. escape](#escape)  
+	- [4.6. os](#os)  
+	- [4.7. script](#script)  
+	- [4.8. stack](#stack)  
+	
 # Documentation
 
 The files that match the pattern lua/\*/ar_\*.lua will be automatically ran at the start, and when they're modified. Use
@@ -300,3 +309,86 @@ server {
 - ☐ Session libary
 - ☐ Global table support for sessions
 - ☐ Rewrite template generate_html to be cleaner & easier to follow
+
+# Functions Provided
+
+## hook
+	`hook.Add(name, id, callback)`
+	`hook.Remove(name, id)`
+	`hook.Call(name)`
+	`hook.PushFatalErrors()`
+	`hook.PopFatalErrors()`
+## reqs:
+	`reqs.AddPattern(host, url, callback)`
+## Request:
+	`Request(clilent)`
+	`request:method()`
+	`request:params()`
+	`request:post_data()`
+	`request:post_string()`
+	`request:headers()`
+	`request:url()`
+	`request:full_url()`
+	`request:parsed_url()`
+	`request:client()`
+	`request:start_time()`
+	`request:total_time()`
+	`request:peer()`
+## Response:
+	`Response(request)`
+	`response:request()`
+	`response:client()`
+	`response:set_status(what)`
+	`response:append(str)`
+	`response:clear()`
+	`response:set_file(path)`
+	`response:set_header(name, value)`
+	`response:send()`
+## util:
+	`PrintTable(tbl, done = {}, depth = 0)`
+	`include(file)`
+	`expects(...)`
+	`util.time()`
+	`util.ItterateDir(dir, recursive, callback, ...) `
+	`util.DirExists(dir)`
+	`util.Dir(base_dir, recursive)`
+	`util.EnsurePath(path)`
+## table: (extension)
+	`table.Count(tbl)`
+	`table.IsEmpty(tbl)`
+	`table.HasKey(tbl, key)`
+	`table.HasValue(tbl, value)`
+	`table.ToString(tbl)`
+## string: (extension)
+	`string.StartsWith(haystack, needle)`
+	`string.EndsWith(haystack, needle)`
+	`string.Replace(str, what, with)`
+	`string.Path(self)`
+	`string.ReplaceLast(str, what, with)`
+	`string.Trim(str)`
+	`string.Split(self, delimiter)`
+## math: (extension)
+	`math.Round(what, prec)`
+## escape:
+	`escape.pattern(input)`
+	`escape.html(input, strict = true)`
+	`escape.striptags(input)`
+	`escape.sql(input)`
+	`escape.argument(input)`
+## os:
+	`os.capture(cmd, raw)`
+	`os.platform()`
+## script:
+	`script.pid()`
+	`script.current_file(depth = 1)`
+	`script.current_path(depth = 1)`
+	`script.local_path(path)`
+	`script.instance_info()`
+	`script.parse_arguments(args)`
+## stack:
+	`stack()`
+	`stack:push(val)`
+	`stack:pop()`
+	`stack:value()`
+	`stack:all()`
+
