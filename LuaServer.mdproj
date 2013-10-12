@@ -1,57 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Default</Configuration>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ItemType>GenericProject</ItemType>
+    <ItemType>LuaProject</ItemType>
     <ProductVersion>10.0.0</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{95B03DF5-F098-4C10-AD30-77AA668B20DC}</ProjectGuid>
+    <ProjectGuid>{C29C33AE-D895-493C-9ACF-2917EC972DAD}</ProjectGuid>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Default|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>.</OutputPath>
-    <CustomCommands>
-      <CustomCommands>
-        <Command type="Build" command="sh -c &quot;luac -p ./*.lua ./**/*.lua&quot;" workingdir="${ProjectDir}" />
-        <Command type="Execute" command="./luaserver.lua" workingdir="${ProjectDir}" externalConsole="True" pauseExternalConsole="True" />
-      </CustomCommands>
-    </CustomCommands>
-    <ConsolePause>false</ConsolePause>
+    <InterpreterArgs />
+    <MainFile>luaserver.lua</MainFile>
+    <Externalconsole>true</Externalconsole>
+    <Commandlineparameters>--release</Commandlineparameters>
   </PropertyGroup>
-  <ItemGroup>
-    <Folder Include="inc\" />
-    <Folder Include="keys\" />
-    <Folder Include="lua\" />
-    <Folder Include="static\" />
-    <Folder Include="static\*\build\" />
-    <Folder Include="sites\" />
-    <Folder Include="sites\buildserver\" />
-    <Folder Include="libs\" />
-  </ItemGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>.\</OutputPath>
+    <Externalconsole>true</Externalconsole>
+    <Commandlineparameters>--debug</Commandlineparameters>
+    <MainFile>luaserver.lua</MainFile>
+    <InterpreterArgs />
+  </PropertyGroup>
   <ItemGroup>
     <None Include=".buildserver" />
     <None Include=".gitignore" />
     <None Include="LICENSE" />
     <None Include="README.md" />
     <None Include="create_instances.sh" />
-    <None Include="luaserver.lua" />
-    <None Include="inc\hooks.lua" />
-    <None Include="inc\htmlwriter.lua" />
-    <None Include="inc\request.lua" />
-    <None Include="inc\requesthooks.lua" />
-    <None Include="inc\response.lua" />
-    <None Include="inc\unittests.lua" />
-    <None Include="inc\util.lua" />
     <None Include="keys\certificate.pem" />
     <None Include="keys\generatekey.sh" />
-    <None Include="keys\generatekey.sh~" />
     <None Include="keys\key.pem" />
     <None Include="keys\request.pem" />
-    <None Include="lua\ar_defaulterrors.lua" />
-    <None Include="lua\ar_main.lua" />
-    <None Include="lua\ar_minecraft.lua" />
-    <None Include="sites\buildserver\lua\ar_buildserver.lua" />
-    <None Include="sites\buildserver\lua\template_buildserver.lua" />
+    <None Include="sites\buildserver\menu.cfg" />
+    <None Include="sites\buildserver\options.cfg.secret" />
     <None Include="sites\buildserver\resources\build_fail.png" />
     <None Include="sites\buildserver\resources\build_pass.png" />
     <None Include="sites\buildserver\static\*\build\style.css" />
@@ -66,15 +48,33 @@
     <None Include="static\*\error_style.css" />
     <None Include="static\*\favicon.ico" />
     <None Include="static\*\lua_logo.png" />
-    <None Include="libs\mimetypes.lua" />
-    <None Include="libs\configor.lua" />
-    <None Include="libs\dkjson.lua" />
-    <None Include="sites\buildserver\lua\ar_pushover.lua" />
-    <None Include="static\*\lua.vm.js" />
-    <None Include="libs\threadpool.lua" />
-    <None Include="lua\ar_static.lua" />
-    <None Include="inc\threads_coroutine.lua" />
-    <None Include="inc\threads_fork.lua" />
-    <None Include="inc\threads_pyrate.lua" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="luaserver.lua" />
+    <Compile Include="inc\autorun.lua" />
+    <Compile Include="inc\hooks.lua" />
+    <Compile Include="inc\htmlwriter.lua" />
+    <Compile Include="inc\request.lua" />
+    <Compile Include="inc\requesthooks.lua" />
+    <Compile Include="inc\response.lua" />
+    <Compile Include="inc\threads_coroutine.lua" />
+    <Compile Include="inc\threads_fork.lua" />
+    <Compile Include="inc\threads_pyrate.lua" />
+    <Compile Include="inc\unittests.lua" />
+    <Compile Include="inc\util.lua" />
+    <Compile Include="libs\configor.lua" />
+    <Compile Include="libs\dkjson.lua" />
+    <Compile Include="libs\globaltable.lua" />
+    <Compile Include="libs\httpstatus.lua" />
+    <Compile Include="libs\mimetypes.lua" />
+    <Compile Include="libs\threadpool.lua" />
+    <Compile Include="lua\ar_defaulterrors.lua" />
+    <Compile Include="lua\ar_exampleerror.lua" />
+    <Compile Include="lua\ar_main.lua" />
+    <Compile Include="lua\ar_minecraft.lua" />
+    <Compile Include="lua\ar_static.lua" />
+    <Compile Include="sites\buildserver\lua\ar_buildserver.lua" />
+    <Compile Include="sites\buildserver\lua\ar_pushover.lua" />
+    <Compile Include="sites\buildserver\lua\template_buildserver.lua" />
   </ItemGroup>
 </Project>
