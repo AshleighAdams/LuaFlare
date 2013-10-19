@@ -74,17 +74,20 @@ function main()
 		print(string.format("LuaServer 2.0 (%s)", _VERSION))
 		return
 	elseif script.options.help then
+		print = static_print
 		print([[
---port=number				Port to bind to (default 8080)
---threads=number			Number of threads to create (default 2)
---threads-model=string		Threading mode to use (default 
---host=string				The address to bind to (default *)
--l, --local					Equilivent to --host=localhost
--t, --unit-test				Perfom unit tests and quit
---h, --help					Show this help
--v, --version				Print out version information and quit.
---no-reload					Don't automatically reload ar_*.lua scripts when they've changed.
+--port=number              Port to bind to (default 8080)
+--threads=number           Number of threads to create (default 2)
+--threads-model=string     Threading mode to use (default 
+--host=string              The address to bind to (default *)
+-l, --local                Equilivent to --host=localhost
+-t, --unit-test            Perfom unit tests and quit
+-h, --help                 Show this help
+-v, --version              Print out version information and quit.
+--no-reload                Don't automatically reload ar_*.lua scripts when
+                           they've changed.
 		]])
+		return
 	end
 	
 	
