@@ -24,8 +24,9 @@ local shorthands = {
 	t = "unit-test",
 	h = "help"
 }
-script.parse_arguments(arg, shorthands)
 
+script.parse_arguments(arg, shorthands)
+	
 local port = tonumber(script.options.port) or 8080
 local threads = tonumber(script.options.threads) or 2 -- how many threads to create
 local host = script.options["local"] and "localhost" or "*"
@@ -68,7 +69,24 @@ function main()
 		print = static_print
 		include("inc/unittests.lua")
 		return unit_test()
+	elseif script.options.version then
+		print = static_print
+		print(string.format("LuaServer 2.0 (%s)", _VERSION))
+		return
+	elseif script.options.help then
+		print([[
+--port=number				Port to bind to (default 8080)
+--threads=number			Number of threads to create (default 2)
+--threads-model=string		Threading mode to use (default 
+--host=string				The address to bind to (default *)
+-l, --local					Equilivent to --host=localhost
+-t, --unit-test				Perfom unit tests and quit
+--h, --help					Show this help
+-v, --version				Print out version information and quit.
+--no-reload					Don't automatically reload ar_*.lua scripts when they've changed.
+		]])
 	end
+	
 	
 	local thread_mdl = script.options["threads-model"] or "fork"
 	dofile(string.format("inc/threads_%s.lua", thread_mdl))

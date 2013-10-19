@@ -10,17 +10,19 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>.</OutputPath>
-    <InterpreterArgs />
+    <InterpreterArgs>
+    </InterpreterArgs>
     <MainFile>luaserver.lua</MainFile>
-    <Externalconsole>true</Externalconsole>
     <Commandlineparameters>--release</Commandlineparameters>
+    <Externalconsole>true</Externalconsole>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <OutputPath>.\</OutputPath>
+    <OutputPath>.</OutputPath>
     <Externalconsole>true</Externalconsole>
     <Commandlineparameters>--debug</Commandlineparameters>
     <MainFile>luaserver.lua</MainFile>
-    <InterpreterArgs />
+    <InterpreterArgs>
+    </InterpreterArgs>
   </PropertyGroup>
   <ItemGroup>
     <None Include=".buildserver" />
