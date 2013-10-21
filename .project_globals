@@ -44,7 +44,7 @@ escape	striptags	(input)
 escape	sql	(input)
 escape	argument	(input)
 
-os	capture	(cmd, raw)
+os	capture	(cmd [, raw])
 os	platform	()
 
 _G	script	{}
@@ -53,4 +53,4 @@ script	current_file	([depth])
 script	current_path	([depth])
 script	local_path	(path)
 script	instance_info	()
-script	parse_arguments(args)
+script	parse_arguments	(args [, shorthands])

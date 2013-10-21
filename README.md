@@ -312,8 +312,8 @@ server {
 - ☐ Session libary
 - ☐ Global table support for sessions
 - ☐ Rewrite template generate_html to be cleaner & easier to follow
-- ☐ Add the additional command --help
-- ☐ Add the additional command --version
+- ☑ Add the additional command --help
+- ☑ Add the additional command --version
 
 # Functions Provided
 
@@ -435,7 +435,7 @@ server {
 
 `escape.pattern(input)`  
 
-`escape.html(input, strict = true)`  
+`escape.html(input [, strict])`  
 
 `escape.striptags(input)`  
 
@@ -445,7 +445,7 @@ server {
 
 ## os:
 
-`os.capture(cmd, raw)`  
+`os.capture(cmd [, raw])`  
 
 `os.platform()`  
 
@@ -453,15 +453,15 @@ server {
 
 `script.pid()`  
 
-`script.current_file(depth = 1)`  
+`script.current_file([depth])`  
 
-`script.current_path(depth = 1)`  
+`script.current_path([depth])`  
 
 `script.local_path(path)`  
 
 `script.instance_info()`  
 
-`script.parse_arguments(args)`  
+`script.parse_arguments(args [, shorthands])`  
 
 ## stack:
 
