@@ -50,6 +50,7 @@
     <None Include="static\*\error_style.css" />
     <None Include="static\*\favicon.ico" />
     <None Include="static\*\lua_logo.png" />
+    <None Include=".project_globals" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="luaserver.lua" />

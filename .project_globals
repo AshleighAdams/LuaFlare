@@ -1,0 +1,56 @@
+_G	hook	{}
+hook	Add	(name, id, callback)
+hook	Remove	(name, id)`  
+hook	Call	(name, ...)
+hook	PushFatalErrors	()
+hook	PopFatalErrors	()
+
+_G	reqs	{}
+reqs	AddPattern	(host, url, callback)
+
+_G	Request	(clilent)
+_G	Response	(request)
+_G	PrintTable	(tbl [, done][, depth])
+_G	include	(file)
+_G	expects	(type1, ...)
+
+_G	util	{}
+util	time	() 
+util	ItterateDir	(dir, recursive, callback, ...)
+util	DirExists	(dir)
+util	Dir	(base_dir, recursive)
+util	EnsurePath	(path)
+
+table	Count	(tbl)
+table	IsEmpty	(tbl)
+table	HasKey	(tbl, key)
+table	HasValue	(tbl, value)
+table	ToString	(tbl)
+
+string	StartsWith	(haystack, needle)
+string	EndsWith	(haystack, needle)
+string	Replace	(str, what, with)
+string	Path	(self)
+string	ReplaceLast	(str, what, with)
+string	Trim	(str)
+string	Split	(self, delimiter)
+
+math	Round	(what, prec)
+
+_G	escape	{}
+escape	pattern	(input)`  
+escape	html	(input [, strict])
+escape	striptags	(input)
+escape	sql	(input)
+escape	argument	(input)
+
+os	capture	(cmd, raw)
+os	platform	()
+
+_G	script	{}
+script	pid	()
+script	current_file	([depth])
+script	current_path	([depth])
+script	local_path	(path)
+script	instance_info	()
+script	parse_arguments(args)

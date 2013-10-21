@@ -86,7 +86,7 @@ function main()
 -v, --version              Print out version information and quit.
 --no-reload                Don't automatically reload ar_*.lua scripts when
                            they've changed.
-		]])
+]])
 		return
 	end
 	
@@ -98,6 +98,7 @@ function main()
 	
 	assert(main_loop, "`main_loop()` is not defined!")
 	main_loop()
+
 end
 
 main()
