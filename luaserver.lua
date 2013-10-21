@@ -89,7 +89,7 @@ function main()
 ]])
 		return
 	end
-
+	
 	
 	local thread_mdl = script.options["threads-model"] or "fork"
 	dofile(string.format("inc/threads_%s.lua", thread_mdl))
@@ -98,7 +98,6 @@ function main()
 	
 	assert(main_loop, "`main_loop()` is not defined!")
 	main_loop()
-
 end
 
 main()

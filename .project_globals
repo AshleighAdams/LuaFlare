@@ -54,3 +54,34 @@ script	current_path	([depth])
 script	local_path	(path)
 script	instance_info	()
 script	parse_arguments	(args [, shorthands])
+
+
+# Configor
+# Below is to be disabledin the future as it is to be provided via locals support (when implimented)
+_G	configor	{}
+configor	loadstring	(string)
+configor	loadfile	(path [, create])
+configor	savestring	(node)
+configor	savefile	(node, path)
+
+#JSON
+_G	json	{}
+json	decode	(string [, position [, null]])
+json	encode	(object [, state])
+json	quotestring	(string)
+json	addnewline	(state)
+json	use_lpeg	()
+json	null	#
+json	version	#
+json	using_lpeg	#
+
+# HTTP Statuses
+_G	httpstatus	{}
+httpstatus	tostring	(number)
+httpstatus	reverse_cache	#
+httpstatus	fromstring	(string)
+
+# Mimes
+_G	mimetypes	{}
+mimetypes	types	#
+mimetypes	guess	(path)
