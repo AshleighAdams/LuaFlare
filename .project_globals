@@ -121,3 +121,55 @@ httpstatus	fromstring	(string)
 #_G	mimetypes	{}
 mimetypes	types	#
 mimetypes	guess	(path)
+
+# Posix
+posix	access	(pathname, mode)
+posix	chdir	(path)
+posix	chmod	(path, mode)
+posix	chown	(path,uid, gid)
+posix	crypt	(string, salt)
+posix	ctermid	()
+posix	dir	(path)
+posix	dup	(oldfd[, newfd])
+posix	errno	()
+posix	exec	(path [, args])
+posix	execp	(path [, args])
+posix	mkfifo	(path)
+posix	files	(path)
+posix	fork	()
+posix	getcwd	()
+posix	getenv	()
+posix	getgroup	(gid)
+posix	getlogin	()
+posix	getpasswd	(user, field)
+posix	getprocessid	(type)
+posix	getpid	(type)
+posix	glob	(pattern)
+posix	kill	(pid, signal)
+posix	link	(oldpath, newpath[, symbolic])
+posix	mkdir	(pathname)
+posix	pathconf	(path, name)
+posix	pipe	()
+posix	putenv	(str)
+posix	readlink	(path)
+posix	rmdir	(path)
+posix	setgid	(gid)
+posix	setuid	(uid)
+posix	sleep	(seconds)
+posix	stat	(path, selector)
+posix	times	([type])
+posix	ttyname	()
+posix	access	([format])
+posix	utime	(path, atime, mtime)
+posix	wait	(pid)
+posix	setenv	(name, value)
+posix	unsetenv	(name)
+
+
+
+
+
+
+
+
+
