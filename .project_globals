@@ -165,6 +165,41 @@ posix	wait	(pid)
 posix	setenv	(name, value)
 posix	unsetenv	(name)
 
+# LuaSocket
+#	socket
+socket	_DEBUG	#
+socket	newtry	(finalizer)
+socket	protect	(func)
+socket	select	(recvt, sendt [, timeout])
+socket	sink	(mode, socket)
+socket	skip	(d [, ret1, ...])
+socket	sleep	(time)
+socket	source	(mode, socket [, length])
+socket	gettime	()
+socket	_VERSION	#
+socket	tcp	()
+socket	udp	()
+#	dns
+socket.dns	gethostname	()
+socket.dns	tohostname	()
+socket.dns	toip	(address)
+# url
+url	absolute	(base, relative)
+url	build	(parsed_url)
+url	build_path	(segments, unsafe)
+url	escape	(content)
+url	parse	(url, default)
+url	parse_path	(path)
+url	unescape	(content)
+
+
+
+
+
+
+
+
+
 
 
 
