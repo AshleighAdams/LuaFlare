@@ -192,19 +192,5 @@ url	parse	(url, default)
 url	parse_path	(path)
 url	unescape	(content)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# luasec
+ssl	wrap	(conn, params)
