@@ -1,4 +1,4 @@
-LuaServer
+LuaServer [![Build Status](http://kateadams.eu/build/LuaServer/master/state.png)](http://kateadams.eu/build/LuaServer/master/)
 =========
 
 # Table of Contents
