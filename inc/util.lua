@@ -207,7 +207,7 @@ end
 ------- escape functions, try not to use string.Replace, as it is slower than raw gsub
 
 function escape.pattern(input) expects "string" -- defo do not use string.Replace, else revusion err	
-	return (string.gsub(s, "[%(%)%.%%%+%-%*%?%[%]%^%$]", "%%%1"))
+	return (string.gsub(input, "[%(%)%.%%%+%-%*%?%[%]%^%$]", "%%%1"))
 end
 
 function escape.html(input, strict) expects "string"
