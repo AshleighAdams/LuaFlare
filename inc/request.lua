@@ -128,6 +128,27 @@ function meta:peer() expects(meta)
 	return self._peer
 end
 
+function meta:parse_cookies() expects(meta)
+	local cookie_str = self:headers().Cookie or ""
+	self._cookies = {}
+
+	print(cookie_str)
+
+	--for str in cookie_str:gmatch("%s*.-%s*=%s*.-%s*;?") do
+	for _, str in pairs(cookie_str:Split(";")) do
+		local pos = string.find(str, "=", 1, true)
+		local key = str:sub(1, pos - 1):Trim()
+		local val = str:sub(pos + 1):match("(.+);?"):Trim()
+
+		self._cookies[key] = val
+	end
+end
+
+function meta:get_cookie(name) expects(meta, "string")
+	if not self._cookies then self:parse_cookies() end
+	return self._cookies[name]
+end
+
 -- some util stuff we need
 
 function read_headers(client)

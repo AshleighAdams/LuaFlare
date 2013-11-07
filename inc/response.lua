@@ -39,6 +39,7 @@ function meta:clear() expects(meta)
 	self._content_type = "text/html"
 	self._reply = ""
 	self.file = nil
+	self._tosend_cookies = nil
 end
 
 function meta:set_file(path) expects(meta, "string")
@@ -97,6 +98,11 @@ function meta:set_header(name, value) expects(meta, "string", "*")
 	self._headers[name] = tostring(value)
 end
 
+function meta:set_cookie(name, value, lifetime) expects(meta, "string", "string")
+	self._tosend_cookies = self._tosend_cookies or {}
+	self._tosend_cookies[name] = {value=value, lifetime=lifetime}
+end
+
 -- finish
 function meta:send() expects(meta)
 	if self._sent then return end -- we've already sent it
@@ -108,7 +114,24 @@ function meta:send() expects(meta)
 	for k,v in pairs(self._headers) do
 		tosend = tosend .. tostring(k) .. ": " .. tostring(v) .. "\n"
 	end
-	
+
+	-- cookies
+	if self._tosend_cookies ~= nil then
+		for name, tbl in pairs(self._tosend_cookies) do
+			local optionstr
+
+			if tbl.lifetime ~= nil then
+				local ends_at = os.time() + tbl.lifetime
+				local format = "%a, %d %b %Y %X UTC"
+				local timestring = os.date(format, ends_at)
+
+				optionstr = (optionstr and optionstr .. " " or "") .. string.format("expires=%s;", timestring)
+			end
+
+			tosend = tosend .. string.format("Set-Cookie: %s=%s%s\n", name, tbl.value, optionstr and "; " .. optionstr or "")
+		end
+	end
+
 	if self:request():method() == "HEAD" then
 		self._reply = "" -- HEAD should yield same headers, but no body
 	end
