@@ -26,6 +26,8 @@ table	IsEmpty	(tbl)
 table	HasKey	(tbl, key)
 table	HasValue	(tbl, value)
 table	ToString	(tbl)
+table	save	(table [, filename])
+table	load	(filename or stringtable)
 
 string	StartsWith	(haystack, needle)
 string	EndsWith	(haystack, needle)
@@ -36,6 +38,7 @@ string	Trim	(str)
 string	Split	(self, delimiter)
 
 math	Round	(what, prec)
+math	SecureRandom	(min, max)
 
 _G	escape	{}
 escape	pattern	(input)`  

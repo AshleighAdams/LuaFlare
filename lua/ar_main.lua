@@ -1,3 +1,5 @@
+local session = require("session")
+
 local template = tags.html
 {
 	tags.head
@@ -241,5 +243,16 @@ local function get_info(req, res)
 		res:append("</tr>")
 	end
 	res:append("/<table>")
+
+	local last = tonumber(req:get_cookie("hits")) or 0
+	res:append(tostring(last) .. "<br/>\n")
+	res:set_cookie("hits", tostring(last + 1))
+
+	local sess = session.get(req, res)
+	local data = sess:data()
+	data.hits = (data.hits or 0) + 1
+	sess:save()
+
+	res:append(escape.html(table.ToString(data)))
 end
 reqs.AddPattern("*", "/info", get_info)

@@ -79,5 +79,7 @@
     <Compile Include="sites\buildserver\lua\ar_buildserver.lua" />
     <Compile Include="sites\buildserver\lua\ar_pushover.lua" />
     <Compile Include="sites\buildserver\lua\template_buildserver.lua" />
+    <Compile Include="inc\savetotable.lua" />
+    <Compile Include="libs\session.lua" />
   </ItemGroup>
 </Project>

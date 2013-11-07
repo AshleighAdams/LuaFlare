@@ -132,8 +132,6 @@ function meta:parse_cookies() expects(meta)
 	local cookie_str = self:headers().Cookie or ""
 	self._cookies = {}
 
-	print(cookie_str)
-
 	--for str in cookie_str:gmatch("%s*.-%s*=%s*.-%s*;?") do
 	for _, str in pairs(cookie_str:Split(";")) do
 		local pos = string.find(str, "=", 1, true)

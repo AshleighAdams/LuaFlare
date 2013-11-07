@@ -203,7 +203,33 @@ function math.Round(what, prec)
 	prec = 1 / prec
 	return basic_round(what * prec) / prec
 end
+	
+function math.SecureRandom(min, max) expects("number", "number")
+	-- read from /dev/urandom
+	local size = max - min
+	local bits = math.ceil( math.log(size) / math.log(2) )
+	local bytes = math.ceil( bits / 8 )
+	
+	local file = io.open("/dev/urandom", "r")
 
+	-- meh, we don't have that device, probably on Windows
+	if not file then return math.random(min, max) end
+	local data = file:read(bytes)
+	file:close()
+	
+	local result = min
+	for i = bytes, 1, -1 do
+		
+		local byte = data:byte(i)
+		result = result + bit32.lshift(byte, (i - 1) * 8)
+	end
+
+	if result > max then -- try again, i don't know how else to do this without reducing security
+		return math.SecureRandom(min, max)
+	end
+
+	return result
+end
 ------- escape functions, try not to use string.Replace, as it is slower than raw gsub
 
 function escape.pattern(input) expects "string" -- defo do not use string.Replace, else revusion err	
@@ -391,14 +417,14 @@ end
 function util.EnsurePath(path) expects "string" -- false = already exists, true = didn't
 	if util.DirExists(path) then return false end
 	
-	local split = path:Split()
+	local split = path:Split("/")
 	local cd = ""
 	
 	for k,v in ipairs(split) do
 		cd = cd .. v .. "/"
 		
 		if not util.DirExists(path) then
-			assert(lfs.makedir(cd))
+			assert(lfs.mkdir(cd))
 		end
 	end
 	

@@ -10,6 +10,7 @@ dofile("inc/htmlwriter.lua")
 dofile("inc/requesthooks.lua")
 dofile("inc/request.lua")
 dofile("inc/response.lua")
+dofile("inc/savetotable.lua")
 
 local socket = require("socket")
 local ssl = require("ssl")
