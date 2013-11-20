@@ -253,6 +253,6 @@ local function get_info(req, res)
 	data.hits = (data.hits or 0) + 1
 	sess:save()
 
-	res:append(escape.html(table.ToString(data)))
+	res:append("session = " .. escape.html(table.ToString(data)))
 end
 reqs.AddPattern("*", "/info", get_info)

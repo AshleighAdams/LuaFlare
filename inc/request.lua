@@ -135,10 +135,11 @@ function meta:parse_cookies() expects(meta)
 	--for str in cookie_str:gmatch("%s*.-%s*=%s*.-%s*;?") do
 	for _, str in pairs(cookie_str:Split(";")) do
 		local pos = string.find(str, "=", 1, true)
-		local key = str:sub(1, pos - 1):Trim()
-		local val = str:sub(pos + 1):match("(.+);?"):Trim()
-
-		self._cookies[key] = val
+		if pos ~= nil then
+			local key = str:sub(1, pos - 1):Trim()
+			local val = str:sub(pos + 1):match("(.+);?"):Trim()
+			self._cookies[key] = val
+		end
 	end
 end
 
