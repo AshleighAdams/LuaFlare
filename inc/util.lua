@@ -474,6 +474,8 @@ local stacks = stack()
 local current = stack()
 
 function include(file) expects "string"
+	package.included = package.included or {}
+
 	local path = file:Path()
 	file = file:sub(path:len() + 1)
 
@@ -488,11 +490,41 @@ function include(file) expects "string"
 		end
 		
 		stacks:push(on_dep)
-			dofile(current:value() .. file)
+			local ret = {dofile(current:value() .. file)}
+			-- Add it to the registry
+			do
+				local file = current:value() .. file
+				package.included[file] = package.included[file] or {}
+
+				for k, v in pairs(ret) do
+					if type(v) == "table" then
+						if package.included[file][k] == nil then
+							-- on first itteration, just set it
+							package.included[file][k] = v
+						else
+							-- otherwise, update the values
+							local tbl = package.included[file][k]
+
+							-- clear the table
+							for k, v in pairs(tbl) do
+								tbl[k] = nil
+							end
+							-- and update with new stuff
+							for k, vv in pairs(v) do
+								tbl[k] = vv
+							end
+
+							ret[k] = tbl
+						end
+					else
+						package.included[file][k] = v
+					end
+				end
+			end
 		stacks:pop()
 	current:pop()
 	
-	return deps
+	return unpack(ret), deps
 end
 
 expects_types = {}
