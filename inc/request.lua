@@ -158,12 +158,12 @@ function read_headers(client)
 		
 		if not s or s == "" then break end
 
-		local key, val = string.match(s, "([%a-]+):%s*(.+)")
+		local key, val = string.match(s, "([%a%-]-):%s*(.+)")
 		if key ~= nil then
 			ret[key] = val
 		else
 			-- TODO: check the spec for what should be done
-			-- return nil
+			return nil
 		end
 	end
 	
