@@ -18,7 +18,7 @@ end
 
 function session.get(req, res, session_name)
 	session_name = session_name or "session"
-	local id = req:get_cookie("session")
+	local id = req:get_cookie(session_name)
 
 	if id ~= nil then -- make sure it contains only valid chars!
 		if not id:match(string.format("^[%s]+$", session.valid_chars)) then

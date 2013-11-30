@@ -98,9 +98,10 @@ function meta:set_header(name, value) expects(meta, "string", "*")
 	self._headers[name] = tostring(value)
 end
 
-function meta:set_cookie(name, value, lifetime) expects(meta, "string", "string")
+function meta:set_cookie(name, value, path, domain, lifetime) expects(meta, "string", "string")
 	self._tosend_cookies = self._tosend_cookies or {}
-	self._tosend_cookies[name] = {value=value, lifetime=lifetime}
+	self._tosend_cookies[name] = {value=value, lifetime=lifetime, path=path, domain=domain}
+
 end
 
 -- finish
@@ -126,6 +127,10 @@ function meta:send() expects(meta)
 				local timestring = os.date(format, ends_at)
 
 				optionstr = (optionstr and optionstr .. " " or "") .. string.format("expires=%s;", timestring)
+			end
+
+			if tbl.path then
+				optionstr = (optionstr and optionstr .. " " or "") .. string.format("path=%s;", tbl.path)
 			end
 
 			tosend = tosend .. string.format("Set-Cookie: %s=%s%s\n", name, tbl.value, optionstr and "; " .. optionstr or "")

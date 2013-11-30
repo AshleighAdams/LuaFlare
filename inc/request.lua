@@ -157,11 +157,13 @@ function read_headers(client)
 		local s, err = client:receive("*l")
 		
 		if not s or s == "" then break end
-		if s ~= nil then
-			local key, val = string.match(s, "([%a-]+):%s*(.+)")
-			
-			if key == nil then return nil end
+
+		local key, val = string.match(s, "([%a-]+):%s*(.+)")
+		if key ~= nil then
 			ret[key] = val
+		else
+			-- TODO: check the spec for what should be done
+			-- return nil
 		end
 	end
 	
