@@ -2,6 +2,7 @@
 
 port=8080
 instances=25
+model="coroutine" # fork, pyrate or coroutine
 
 #if [ $(whoami) != "root" ]
 #then
@@ -9,4 +10,4 @@ instances=25
 #	exit
 #fi
 
-./luaserver.lua --local --port=$port --threads=$instances | tee -a log.txt
+./luaserver.lua --local --port=$port --threads=$instances --threads-model=$model | tee -a log.txt
