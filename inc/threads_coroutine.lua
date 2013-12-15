@@ -77,8 +77,8 @@ do
 			
 			self.parent:settimeout(to)
 
-			if line == nil then return nil end
-			return (prefix or "") .. line
+			if line == nil then return nil, err end
+			return (prefix or "") .. line, err
 		end
 		
 		--coroutine.yield()
