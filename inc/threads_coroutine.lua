@@ -32,7 +32,7 @@ do
 	function meta:receive(pat, prefix)
 		local to = 5 --self.parent:gettimeout()
 		if pat == "*l" then -- read a line
-			local line
+			local line, err
 			local t = util.time() + to
 			self.parent:settimeout(0)
 			
@@ -47,7 +47,7 @@ do
 			end
 			
 			self.parent:settimeout(to)
-			return (prefix or "") .. line
+			return line == nil and nil or (prefix or "") .. line, err
 		elseif type(pat) == "number" then
 			local ret = ""
 			
@@ -77,8 +77,7 @@ do
 			
 			self.parent:settimeout(to)
 
-			if line == nil then return nil, err end
-			return (prefix or "") .. line, err
+			return ret == nil and nil or (prefix or "") .. ret, err
 		end
 		
 		--coroutine.yield()
