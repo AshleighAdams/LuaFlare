@@ -76,6 +76,8 @@ do
 			end
 			
 			self.parent:settimeout(to)
+
+			if line == nil then return nil end
 			return (prefix or "") .. line
 		end
 		
