@@ -43,6 +43,12 @@ function meta:clear() expects(meta)
 	self._tosend_cookies = nil
 end
 
+function meta:clear_content() expects(meta)
+	local status = self._status
+	self:clear()
+	self._status = status
+end
+
 function meta:set_file(path) expects(meta, "string")
 	local file = io.open(path, "rb")
 	

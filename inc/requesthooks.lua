@@ -65,8 +65,10 @@ reqs.OnRequest = function(request, response)
 	end
 	
 	if #hits == 0 then
+		response:set_status(404)
 		hook.Call("Error", {type = 404}, request, response)
 	elseif #hits ~= 1 then
+		response:set_status(501)
 		hook.Call("Error", {type = 501, message = "page clash"}, request, response)
 	else
 		hits[1].hook.func(request, response, unpack(hits[1].res))

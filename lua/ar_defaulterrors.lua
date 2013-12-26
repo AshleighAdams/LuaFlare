@@ -1,5 +1,4 @@
 local function on_error(why, request, response)
-	response:set_status(why.type)
 	print("error:", why.type, request:url())
 end
 hook.Add("Error", "log errors", on_error)
@@ -40,8 +39,7 @@ error_template = tags.html
 }
 
 local function basic_error(why, req, res)
-	res:set_status(why.type)
-	res:clear()
+	res:clear_content()
 	
 	local content = tags.div
 	{
@@ -97,7 +95,7 @@ local function basic_lua_error(err, trace, vars, args)
 	end
 	
 	if res == nil or not res.clear then return end
-	res:clear()
+	res:clear_content()
 	res:set_status(500)
 	
 	local line_num = err:match("%.lua%:(%d+)%:")
