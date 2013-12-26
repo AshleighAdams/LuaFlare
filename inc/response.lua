@@ -109,9 +109,24 @@ function meta:etag()
 	return string.format([[W/"%s"]], md5.sumhexa(self._reply))
 end
 
+local max_etag_size
 function meta:use_etag()
-	-- use if response is okay, and less than 64MB
-	return self._status == 200 and (self._reply:len()) < (64 *1024*1024)
+	if max_etag_size == nil then
+		local multi = {k = 1, M = 2, G = 3, T = 4, P = 5, E = 6, Z = 7, Y = 8}
+		local tmp = script.options["max-etag-size"] or "64 MiB"
+		tmp = tmp:gsub(" ", "")
+
+		local number, postfix, twentyfour, bitbyte = tmp:match("(%d+)([A-z]?)(i?)([Bb]?)")
+		number = tonumber(number)
+
+		bitbyte = bitbyte == "b" and 8 or 1
+		multi = multi[postfix] or 1
+		multi = twentyfour == "i" and (1024 ^ multi) / bitbyte or (10 ^ (multi * 3)) / bitbyte
+
+		max_etag_size = number * multi
+	end
+
+	return self._status == 200 and (self._reply:len()) < max_etag_size
 end
 
 -- finish

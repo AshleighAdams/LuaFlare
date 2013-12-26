@@ -47,6 +47,7 @@ they may be automatically reloaded too.
 | -h, --help                 | false         | true, false             | Show the help information then quit        |
 | -v, --version              | false         | true, false             | Show the version information then quit     |
 | --no-reload                | false         | true, false             | Do not automatically reload scripts        |
+| --max-etag-size=\<size\>   | 64 MiB        | -1, 0-\*                | Maximium size to generate ETags for        |
 
 ## Handle a Page
 
