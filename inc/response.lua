@@ -106,7 +106,7 @@ function meta:set_cookie(name, value, path, domain, lifetime) expects(meta, "str
 end
 
 function meta:etag()
-	return string.format([["%s"]], md5.sumhexa(self._reply))
+	return string.format([[W/"%s"]], md5.sumhexa(self._reply))
 end
 
 function meta:use_etag()
