@@ -1,5 +1,6 @@
 local mimetypes = require("mimetypes")
 local httpstatus = require("httpstatus")
+local md5 = require("md5")
 
 local meta = {}
 meta.__index = meta
@@ -104,13 +105,35 @@ function meta:set_cookie(name, value, path, domain, lifetime) expects(meta, "str
 
 end
 
+function meta:etag()
+	return string.format([["%s"]], md5.sumhexa(self._reply))
+end
+
+function meta:use_etag()
+	-- use if response is okay, and less than 64MB
+	return self._status == 200 and (self._reply:len()) < (64 *1024*1024)
+end
+
 -- finish
 function meta:send() expects(meta)
 	if self._sent then return end -- we've already sent it
 	self._sent = true -- mark future calls to send as done
 	
 	self:set_header("Content-Length", self._reply:len())
-	
+
+	-- ETag support
+	local ifnonematch = self:request():headers()["If-None-Match"]
+	if self:use_etag() then
+		local etag = self:etag()
+		if ifnonematch ~= nil and ifnonematch == etag then -- they've supplied an etag, and it matches
+			self._reply = ""
+			self:set_header("Content-Length", 0)
+			self:set_status(304)
+		end
+		self:set_header("ETag", etag)
+	end
+
+	-- write headers
 	local tosend = "HTTP/1.1 " .. tostring(self._status) .. " " .. (httpstatus.tostring(self._status) or "") .. "\n"
 	for k,v in pairs(self._headers) do
 		tosend = tosend .. tostring(k) .. ": " .. tostring(v) .. "\n"
