@@ -263,7 +263,6 @@ local function on_status(req, res, project, branch)
 	}
 	
 	create_build_template("Build > " .. project, get_menu(), content).to_response(res)
-	res:append("<!-- generated in " .. req:total_time() .. " seconds -->")
 end
 
 local function on_state(req, res, project, branch)
