@@ -102,6 +102,7 @@ end
 
 function meta:set_header(name, value) expects(meta, "string", "*")
 	assert(self)
+	name = util.canonicalize_header(name)
 	self._headers[name] = tostring(value)
 end
 

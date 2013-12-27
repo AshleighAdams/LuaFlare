@@ -150,6 +150,7 @@ end
 
 -- some util stuff we need
 
+
 function read_headers(client)
 	local ret = {}
 	
@@ -160,7 +161,12 @@ function read_headers(client)
 
 		local key, val = string.match(s, "([%a%-]-):%s*(.+)")
 		if key ~= nil then
-			ret[key] = val
+			key = util.canonicalize_header(key) -- normalize it!
+			if ret[key] == nil then
+				ret[key] = val
+			else
+				ret[key] = string.format("%s, %s", ret[key], val)
+			end
 		else
 			-- TODO: check the spec for what should be done
 			return nil
