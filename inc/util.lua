@@ -1,4 +1,13 @@
 -- All extensions to inbuilt libs use ThisCase
+expects_types = {}
+expects_types.vector = function(what) -- example
+	if what == nil then return false, "is nil" end
+	if type(what.x) ~= "number" then return false, "x not defined" end
+	if type(what.y) ~= "number" then return false, "y not defined" end
+	if type(what.z) ~= "number" then return false, "z not defined" end
+	return true
+end
+
 function expects(...)
 	local args = {...}
 	local count = #args
@@ -672,13 +681,4 @@ function include(file) expects "string"
 	
 	return unpack(ret), deps
 end
-
-expects_types = {}
-expects_types.vector = function(what) -- example
-	if what == nil then return false, "is nil" end
-	if type(what.x) ~= "number" then return false, "x not defined" end
-	if type(what.y) ~= "number" then return false, "y not defined" end
-	if type(what.z) ~= "number" then return false, "z not defined" end
-	return true
-end
-
+	
