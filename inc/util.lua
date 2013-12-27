@@ -1,4 +1,45 @@
 -- All extensions to inbuilt libs use ThisCase
+function expects(...)
+	local args = {...}
+	local count = #args
+	local level = 2 -- caller
+	local err_level = level + 1
+	
+	for i = 1, count do
+		local arg = args[i]
+		local name, val = debug.getlocal(level, i)
+		
+		if name == nil then -- expects() called with too many args
+			error("too many arguments to expects", level)
+		end
+		
+		
+		if arg == nil then -- anything
+		elseif type(arg) == "table" then -- should be a meta table
+			if val == nil then
+				error(string.format("argument #%i (%s) expected a table with a metatable (got nil)", i, name), err_level)
+			end
+			
+			local meta = getmetatable(val)
+			if meta ~= arg then
+				error(string.format("argument #%i (%s): metatable mismatch", i, name), err_level)
+			end
+		elseif arg == "*" then -- anything but nil
+			if val == nil then
+				error(string.format("argument #%i (%s) expected a value (got nil)", i, name), err_level)
+			end
+		elseif expects_types[arg] then
+			local good, err = expects_types[arg](val)
+			if not good then
+				error(string.format("argument #%i (%s) expected %s (%s)", i, name, arg, err), err_level)
+			end
+		else
+			if type(val) ~= args[i] then
+				error(string.format("argument #%i (%s) expected %s (got %s)", i, name, arg, type(val)), err_level) -- 3 = caller's caller
+			end
+		end
+	end
+end
 
 local posix = require("posix")
 local socket = require("socket")
@@ -641,44 +682,3 @@ expects_types.vector = function(what) -- example
 	return true
 end
 
-function expects(...)
-	local args = {...}
-	local count = #args
-	local level = 2 -- caller
-	local err_level = level + 1
-	
-	for i = 1, count do
-		local arg = args[i]
-		local name, val = debug.getlocal(level, i)
-		
-		if name == nil then -- expects() called with too many args
-			error("too many arguments to expects", level)
-		end
-		
-		
-		if arg == nil then -- anything
-		elseif type(arg) == "table" then -- should be a meta table
-			if val == nil then
-				error(string.format("argument #%i (%s) expected a table with a metatable (got nil)", i, name), err_level)
-			end
-			
-			local meta = getmetatable(val)
-			if meta ~= arg then
-				error(string.format("argument #%i (%s): metatable mismatch", i, name), err_level)
-			end
-		elseif arg == "*" then -- anything but nil
-			if val == nil then
-				error(string.format("argument #%i (%s) expected a value (got nil)", i, name), err_level)
-			end
-		elseif expects_types[arg] then
-			local good, err = expects_types[arg](val)
-			if not good then
-				error(string.format("argument #%i (%s) expected %s (%s)", i, name, arg, err), err_level)
-			end
-		else
-			if type(val) ~= args[i] then
-				error(string.format("argument #%i (%s) expected %s (got %s)", i, name, arg, type(val)), err_level) -- 3 = caller's caller
-			end
-		end
-	end
-end
