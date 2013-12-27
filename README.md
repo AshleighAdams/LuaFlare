@@ -282,10 +282,9 @@ you should also create a server to handle HTTPS.  For exmaple:
 
 ```nginx
 server {
-	listen 443 ssl;
-	listen [::]:443 ssl ipv6only=on;
-	
-	ssl on;
+	listen 443 ssl spdy;
+	listen [::]:443 ssl spdy ipv6only=on;
+
 	ssl_certificate cert.pem;
 	ssl_certificate_key cert.key;
 
@@ -304,6 +303,7 @@ server {
 		proxy_pass http://localhost:8080;
 	}
 }
+
 ```
 
 # To Do
