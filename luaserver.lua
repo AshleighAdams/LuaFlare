@@ -87,12 +87,13 @@ function main()
 -v, --version              Print out version information and quit.
 --no-reload                Don't automatically reload ar_*.lua scripts when
                            they've changed.
+--max-etag-size=size       Max size to generate etag hashes for
 ]])
 		return
 	end
 	
 	
-	local thread_mdl = script.options["threads-model"] or "fork"
+	local thread_mdl = script.options["threads-model"] or "coroutine"
 	dofile(string.format("inc/threads_%s.lua", thread_mdl))
 	
 	dofile("inc/autorun.lua")
