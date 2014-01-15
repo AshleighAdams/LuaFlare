@@ -101,9 +101,13 @@ function meta:set_file(path) expects(meta, "string")
 end
 
 function meta:set_header(name, value) expects(meta, "string", "*")
-	assert(self)
 	name = util.canonicalize_header(name)
 	self._headers[name] = tostring(value)
+end
+
+function meta:remove_header(name, value) expects(meta, "string")
+	name = util.canonicalize_header(name)
+	self._headers[name] = nil
 end
 
 function meta:set_cookie(name, value, path, domain, lifetime) expects(meta, "string", "string")
@@ -149,7 +153,7 @@ function meta:send() expects(meta)
 		local etag = self:etag()
 		if ifnonematch ~= nil and ifnonematch == etag then -- they've supplied an etag, and it matches
 			self._reply = ""
-			self:set_header("Content-Length", 0)
+			self:remove_header("Content-Length")
 			self:set_status(304)
 		end
 		self:set_header("ETag", etag)
