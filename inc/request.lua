@@ -149,7 +149,13 @@ function meta:get_cookie(name) expects(meta, "string")
 end
 
 -- some util stuff we need
+function meta:is_upgraded() expects(meta)
+	return self.upgraded == true
+end
 
+function meta:set_upgraded()
+	self.upgraded = true
+end
 
 function read_headers(client)
 	local ret = {}

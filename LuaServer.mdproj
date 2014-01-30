@@ -82,5 +82,7 @@
     <Compile Include="inc\savetotable.lua" />
     <Compile Include="libs\session.lua" />
     <Compile Include="libs\sqlbuilder.lua" />
+    <Compile Include="libs\sha1.lua" />
+    <Compile Include="inc\websocket.lua" />
   </ItemGroup>
 </Project>

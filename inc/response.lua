@@ -43,6 +43,10 @@ function meta:clear() expects(meta)
 	self._tosend_cookies = nil
 end
 
+function meta:clear_headers() expects(meta)
+	self._headers = {}
+end
+
 function meta:clear_content() expects(meta)
 	local status = self._status
 	self:clear()
@@ -160,9 +164,9 @@ function meta:send() expects(meta)
 	end
 
 	-- write headers
-	local tosend = "HTTP/1.1 " .. tostring(self._status) .. " " .. (httpstatus.tostring(self._status) or "") .. "\n"
+	local tosend = "HTTP/1.1 " .. tostring(self._status) .. " " .. (httpstatus.tostring(self._status) or "") .. "\r\n"
 	for k,v in pairs(self._headers) do
-		tosend = tosend .. tostring(k) .. ": " .. tostring(v) .. "\n"
+		tosend = tosend .. tostring(k) .. ": " .. tostring(v) .. "\r\n"
 	end
 
 	-- cookies
@@ -182,7 +186,7 @@ function meta:send() expects(meta)
 				optionstr = (optionstr and optionstr .. " " or "") .. string.format("path=%s;", tbl.path)
 			end
 
-			tosend = tosend .. string.format("Set-Cookie: %s=%s%s\n", name, tbl.value, optionstr and "; " .. optionstr or "")
+			tosend = tosend .. string.format("Set-Cookie: %s=%s%s\r\n", name, tbl.value, optionstr and "; " .. optionstr or "")
 		end
 	end
 
@@ -190,7 +194,7 @@ function meta:send() expects(meta)
 		self._reply = "" -- HEAD should yield same headers, but no body
 	end
 	
-	tosend = tosend .. "\n" .. self._reply
+	tosend = tosend .. "\r\n" .. self._reply
 	
 	self:client():send(tosend)
 	self._client = nil -- prevent circular recusion? i duno if not doing this will mem leak

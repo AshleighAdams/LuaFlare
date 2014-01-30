@@ -11,6 +11,7 @@ dofile("inc/requesthooks.lua")
 dofile("inc/request.lua")
 dofile("inc/response.lua")
 dofile("inc/savetotable.lua")
+dofile("inc/websocket.lua")
 
 local socket = require("socket")
 local ssl = require("ssl")
@@ -44,6 +45,8 @@ function handle_client(client)
 		
 		local response = Response(request)
 			hook.Call("Request", request, response) -- okay, lets invoke whatever is hooked
+		
+			if request:is_upgraded() then break end
 		response:send()
 		
 		if request:headers().Connection ~= "keep-alive" then

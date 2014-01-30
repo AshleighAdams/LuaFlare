@@ -49,9 +49,26 @@ reqs.AddPattern = function(host, url, func)
 	table.insert(reqs.PatternsRegistered, {host = host, url = url, func = func})
 end
 
+reqs.Upgrades = {}
+
 reqs.OnRequest = function(request, response)
 	local hits = {}
 	local req_url = request:url()
+	
+	if request:headers().Connection and request:headers().Connection == "Upgrade" then
+		local ug = (request:headers().Upgrade or ""):lower()
+		local f = reqs.Upgrades[ug]
+		
+		if not f then
+			print("no upgrade for " .. ug)
+			response:set_status(501)
+			hook.Call("Error", {type = 501, message = "Invalid upgrade"}, request, response)
+			return
+		end
+		
+		f(request, response)
+		return
+	end
 	
 	for k,v in ipairs(reqs.PatternsRegistered) do
 		if valid_host(request:headers().Host, v.host) then
