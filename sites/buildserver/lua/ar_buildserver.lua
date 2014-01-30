@@ -30,7 +30,7 @@ end
 
 local git = {}
 git.clone = function(repo)
-	return execute("git clone git@github.com:c0bra61/" .. repo .. ".git")
+	return execute("git clone git@github.com:KateAdams/" .. repo .. ".git")
 end
 git.pull = function()
 	execute("git fetch --all &&  git reset --hard origin/master")
