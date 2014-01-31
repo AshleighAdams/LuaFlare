@@ -1,5 +1,6 @@
 websocket = {}
 websocket.TEXT = 129
+websocket.registered = {}
 
 local sha1 = require("sha1")
 local vstruct = require("vstruct")
@@ -60,8 +61,6 @@ local function read_message(client)
 	local enc = bit.band(string.byte(b1), 128) == 128
 	local len = 0
 	
-	print("websocket: encoding: " .. tostring(enc))
-	
 	if bit.band(string.byte(b1), 127) < 126 then -- 1 byte
 		len  = bit.band(string.byte(b1), 127)
 	elseif bit.band(string.byte(b1), 127) == 126 then -- 2 bytes
@@ -80,11 +79,9 @@ local function read_message(client)
 			+ string.byte(client:receive(1))
 	end
 	
-	print("websocket: read: length is " .. len)
-	
 	local payload
 	
-	if enc then -- need to XOR with that above
+	if enc then -- need to XOR 
 		local mask = { client:receive(4):byte(1, 4) }
 		local bytes = { client:receive(len):byte(1, len) }
 		
@@ -115,6 +112,22 @@ local function Upgrade_websocket(request, response)
 		return
 	end
 	
+	local path_tbl = websocket.registered[request:url()]
+	if not path_tbl then
+		response:set_status(404)
+		response:send()
+		return
+	end
+	
+	local proto = path_tbl[pprotocol]
+	if not proto then
+		response:set_status(404)
+		response:send()
+		return
+	end
+	
+	-- okay, there's a registered client, let's authenticate
+	
 	local hash = base64(sha1.binary(key .. "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"))
 	
 	print(string.format("websocket: %s: generated the hash %s from key %s", protocol, hash, key))
@@ -128,18 +141,61 @@ local function Upgrade_websocket(request, response)
 	response:send()
 	
 	-- client now should be a websocket protocol
-	--while true do
 	client:settimeout(0)
+	proto.newclient(client)
 	
-		send_message(client, "hello")
-		print(string.format("websocket: message: %s", read_message(client)))
-		send_message(client, "world")
-		print(string.format("websocket: message: %s", read_message(client)))
+	--	send_message(client, "hello")
+	--	print(string.format("websocket: message: %s", read_message(client)))
+	--	send_message(client, "world")
+	--	print(string.format("websocket: message: %s", read_message(client)))
 		--client:send("hello\n")
 	--end
 end
 
 reqs.Upgrades["websocket"] = Upgrade_websocket
+
+local meta = {}
+meta._metatbl = {__index = meta}
+
+function websocket.register(path, protocol, callbacks) expects("string", "string", "table")
+	websocket.registered[path] = websocket.registered[path] or {}
+	websocket.registered[path][protocol] = {} -- TODO:
+	
+	local obj = websocket.registered[path][protocol]
+	obj._path = path
+	obj._protocol = protocol
+	obj._callbacks = callbacks
+	obj._clients = {}
+	obj._client_threads = {}
+	
+	obj.newclient = function(client)
+		if obj._callbacks.onconnect then
+			obj._callbacks.onconnect(client)
+		end
+		error("not implimented", 2)
+		-- create a thread for them
+	end
+	
+	return setmetatable(obj, meta._metatbl)
+end
+
+function meta:send(message, clients) expects(meta, "string")
+	error("not implimented", 2)
+end
+
+local tty
+local function tty_onconnect(client)
+	print("tty: client connected")
+end
+local function tty_ondisconnect(client)
+	print("tty: client disconnected")
+end
+local function tty_onmessage(client, message)
+	print("got message")
+end
+tty = websocket.register("/tty", "tty", {onconnect = tty_onconnect, ondisconnect = tty_ondisconnect, onmessage = tty_onmessage})
+
+
 
 reqs.AddPattern("*", "/websocket", function(req, res)
 	tags.html

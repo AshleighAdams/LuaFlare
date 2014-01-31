@@ -197,3 +197,8 @@ url	unescape	(content)
 
 # luasec
 ssl	wrap	(conn, params)
+
+# websocket
+_G	websocket	{}
+websocket	register	(path, protocol, callback)
+websocket	registered	{}
