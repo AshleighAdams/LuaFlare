@@ -29,15 +29,20 @@ do
 		end
 	end
 	
+	function meta:settimeout(t)
+		rawset(self, "_timeout", t)
+	end
+	
 	function meta:receive(pat, prefix)
-		local to = 5 --self.parent:gettimeout()
+		local to = rawget(self, "_timeout") or 5 --self.parent:gettimeout()
+		
 		if pat == "*l" then -- read a line
 			local line, err
 			local t = util.time() + to
 			self.parent:settimeout(0)
 			
 			while true do
-				if util.time() > t then
+				if to ~= 0 and util.time() > t then
 					return nil, "timeout"
 				end
 				
@@ -60,7 +65,7 @@ do
 				bytes = bytes - toget
 				
 				while true do
-					if util.time() > t then
+					if to ~= 0 and util.time() > t then
 						return nil, "timeout"
 					end
 					
