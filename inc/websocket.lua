@@ -3,6 +3,7 @@ websocket.TEXT = 129
 
 local sha1 = require("sha1")
 local vstruct = require("vstruct")
+local bit = require("bit")
 
 local b = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
 function base64(data)
@@ -50,6 +51,55 @@ local function send_message(client, payload)
 	client:send(string.format("%s%s", table.concat(header, ""), payload))
 end
 
+local function read_message(client)
+	print("read message...")
+	local type = client:receive(1)
+	assert(string.byte(type) == websocket.TEXT, "this mode is not supported")
+	
+	local b1 = client:receive(1)
+	local enc = bit.band(string.byte(b1), 128) == 128
+	local len = 0
+	
+	print("websocket: encoding: " .. tostring(enc))
+	
+	if bit.band(string.byte(b1), 127) < 126 then -- 1 byte
+		len  = bit.band(string.byte(b1), 127)
+	elseif bit.band(string.byte(b1), 127) == 126 then -- 2 bytes
+		len = 0
+			+ bit.lshift(string.byte(client:receive(1)), 8)
+			+ string.byte(client:receive(1))
+	else -- 8 bytes
+		len = 0
+			+ bit.lshift(string.byte(client:receive(1)), 56)
+			+ bit.lshift(string.byte(client:receive(1)), 48)
+			+ bit.lshift(string.byte(client:receive(1)), 40)
+			+ bit.lshift(string.byte(client:receive(1)), 32)
+			+ bit.lshift(string.byte(client:receive(1)), 24)
+			+ bit.lshift(string.byte(client:receive(1)), 16)
+			+ bit.lshift(string.byte(client:receive(1)),  8)
+			+ string.byte(client:receive(1))
+	end
+	
+	print("websocket: read: length is " .. len)
+	
+	local payload
+	
+	if enc then -- need to XOR with that above
+		local mask = { client:receive(4):byte(1, 4) }
+		local bytes = { client:receive(len):byte(1, len) }
+		
+		for i = 1, len do
+			bytes[i] = bit.bxor(bytes[i], mask[((i - 1) % 4) + 1])
+		end
+		
+		payload = string.char(unpack(bytes))
+	else -- no need to XOR
+		payload = client:receive(len)
+	end
+	
+	return payload
+end
+
 local function Upgrade_websocket(request, response)
 	local client = request:client()
 	request:set_upgraded()
@@ -79,8 +129,12 @@ local function Upgrade_websocket(request, response)
 	
 	-- client now should be a websocket protocol
 	--while true do
+	client:settimeout(0)
+	
 		send_message(client, "hello")
+		print(string.format("websocket: message: %s", read_message(client)))
 		send_message(client, "world")
+		print(string.format("websocket: message: %s", read_message(client)))
 		--client:send("hello\n")
 	--end
 end
@@ -97,11 +151,17 @@ reqs.AddPattern("*", "/websocket", function(req, res)
 			{
 				tags.NOESCAPE,
 				[[
+					function reverse(s){
+						return s.split("").reverse().join("");
+					}
 					$( document ).ready(function()
 					{
 						con = new WebSocket("ws://localhost:8080/test", "tty");    
 						con.onopen = function() { document.write("open<br/>") }
-						con.onmessage = function(event) { document.write("data: " + event.data + "<br/>") }
+						con.onmessage = function(event) {
+							document.write("data: " + event.data + "<br/>") 
+							con.send(reverse(event.data))
+						}
 						con.onclose = function(event) { document.write("close<br/>") }
 					})
 				]]
