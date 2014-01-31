@@ -5,25 +5,12 @@ websocket.registered = {}
 local sha1 = require("sha1")
 local vstruct = require("vstruct")
 local bit = require("bit")
-
-local b = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-function base64(data)
-    return ((data:gsub('.', function(x) 
-        local r,b='',x:byte()
-        for i=8,1,-1 do r=r..(b%2^i-b%2^(i-1)>0 and '1' or '0') end
-        return r;
-    end)..'0000'):gsub('%d%d%d?%d?%d?%d?', function(x)
-        if (#x < 6) then return '' end
-        local c=0
-        for i=1,6 do c=c+(x:sub(i,i)=='1' and 2^(6-i) or 0) end
-        return b:sub(c+1,c+1)
-    end)..({ '', '==', '=' })[#data%3+1])
-end
+local base64 = require("base64")
 
 local function send_message(client, payload)
 	local len = payload:len()
 	local header
-	local mode =  websocket.TEXT
+	local mode = bit.lshift(1, 7) + 1 -- +1 for TEXT, +2 for BINARY  -- websocket.TEXT
 	
 	if len < 126 then
 		header = {string.char(mode), string.char(len)}
@@ -53,10 +40,11 @@ local function send_message(client, payload)
 end
 
 local function read_message(client)
-	local typ = string.byte(client:receive(1))
+	local opcode = string.byte(client:receive(1))
+	local typ = bit.band(opcode, 15)
 	
-	if typ == 129 then -- text
-	elseif typ == 136 then -- disconnect?
+	if typ == 1 or typ == 2 then -- text or binary
+	elseif typ == 8 then -- disconnect?
 		return nil, "disconnected"
 	else
 		assert(false, string.format("unknown opcode %s", typ))
@@ -133,7 +121,7 @@ local function Upgrade_websocket(request, response)
 	
 	-- okay, there's a registered client, let's authenticate
 	
-	local hash = base64(sha1.binary(key .. "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"))
+	local hash = base64.encode(sha1.binary(key .. "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"))
 	
 	print(string.format("websocket: %s: generated the hash %s from key %s", protocol, hash, key))
 	
@@ -237,6 +225,7 @@ end
 function meta:send(message, client) expects(meta._meta, "string")
 	if client == nil then --send to all the clients
 		for k,cl in pairs(self._clients) do
+			print(string.format("sending message of %d bytes", message:len()))
 			send_message(cl, message)
 		end
 	else
@@ -252,7 +241,6 @@ local pty = require("pty")
 local function tty_onconnect(client)
 	print("tty: client connected")
 	-- send them all the TTY stuff
-	shell:write("ping google.com\n")
 end
 local function tty_ondisconnect(client)
 	print("tty: client disconnected")
@@ -263,9 +251,11 @@ end
 tty = websocket.register("/tty", "tty", {onconnect = tty_onconnect, ondisconnect = tty_ondisconnect, onmessage = tty_onmessage})
 local function tty_task()
 	shell = pty.new()
+	shell:write("grc ping google.com\n")
 	while true do
 		if shell:canread() then
-			tty:send(shell:read(shell:pending()))
+			local payload = base64.encode(shell:read(shell:pending()))
+			tty:send(payload:sub(1, 126))
 		end
 		coroutine.yield() -- allow other stuff to execute
 	end

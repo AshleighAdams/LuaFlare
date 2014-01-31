@@ -85,5 +85,6 @@
     <Compile Include="libs\sha1.lua" />
     <Compile Include="inc\websocket.lua" />
     <Compile Include="inc\scheduler.lua" />
+    <Compile Include="libs\base64.lua" />
   </ItemGroup>
 </Project>
