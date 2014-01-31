@@ -96,6 +96,14 @@ function table.Count(tbl) expects "table"
 	return count
 end
 
+function table.RemoveValue(tbl, val) expects("table", "*")
+	for k, v in pairs(tbl) do
+		if v == val then
+			table.remove(tbl, k)
+		end
+	end
+end
+
 function table.IsEmpty(tbl) expects "table"	
 	return next(tbl) == nil
 end

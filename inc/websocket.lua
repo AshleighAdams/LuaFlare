@@ -119,7 +119,7 @@ local function Upgrade_websocket(request, response)
 		return
 	end
 	
-	local proto = path_tbl[pprotocol]
+	local proto = path_tbl[protocol]
 	if not proto then
 		response:set_status(404)
 		response:send()
@@ -157,9 +157,32 @@ reqs.Upgrades["websocket"] = Upgrade_websocket
 local meta = {}
 meta._metatbl = {__index = meta}
 
+function websocket.run()
+	-- resume all coroutines
+	for path, protos in pairs(websocket.registered) do
+		for proto, prototbl in pairs(protos) do
+			for client, thread in pairs(prototbl._client_threads) do
+				--print(string.format("resuming client thread for %s at %s", proto, path))
+				local _, err = coroutine.resume(thread)
+				if err then
+					table.RemoveValue(prototbl._clients, client)
+					prototbl._client_threads[client] = nil
+					print(string.format("websocket: %s at %s: %s", proto, path, err))
+				end
+			end
+		end
+	end
+end
+
+function websocket.done()
+	return false -- TODO: not implimented yet
+end
+
 function websocket.register(path, protocol, callbacks) expects("string", "string", "table")
 	websocket.registered[path] = websocket.registered[path] or {}
 	websocket.registered[path][protocol] = {} -- TODO:
+	
+	print(string.format("websocket: registering %s at %s", protocol, path))
 	
 	local obj = websocket.registered[path][protocol]
 	obj._path = path
@@ -169,29 +192,59 @@ function websocket.register(path, protocol, callbacks) expects("string", "string
 	obj._client_threads = {}
 	
 	obj.newclient = function(client)
-		if obj._callbacks.onconnect then
-			obj._callbacks.onconnect(client)
-		end
-		error("not implimented", 2)
+		--error("not implimented", 2)
+		
 		-- create a thread for them
+		local thread = function()
+			-- call the onconnect callback
+			if obj._callbacks.onconnect then
+				obj._callbacks.onconnect(client)
+			end
+			
+			while true do
+				local msg = read_message(client)
+				if not msg then break end -- client disconnected
+				
+				if obj._callbacks.onmessage then
+					obj._callbacks.onmessage(client, msg)
+				end
+			end
+			
+			if obj._callbacks.ondisconnect then
+				obj._callbacks.ondisconnect(client)
+			end
+			table.RemoveValue(obj._clients, client) -- nil-ify them
+			obj._client_threads[client] = nil
+		end
+		
+		local co = coroutine.create(thread)
+		table.insert(obj._clients, client)
+		obj._client_threads[client] = co
 	end
 	
 	return setmetatable(obj, meta._metatbl)
 end
 
-function meta:send(message, clients) expects(meta, "string")
-	error("not implimented", 2)
+function meta:send(message, client) expects(meta._meta, "string")
+	if client == nil then --send to all the clients
+		for k,cl in pairs(self._clients) do
+			send_message(cl, message)
+		end
+	else
+		send_message(client, message)
+	end
 end
 
 local tty
 local function tty_onconnect(client)
 	print("tty: client connected")
+	tty:send("hello", client)
 end
 local function tty_ondisconnect(client)
 	print("tty: client disconnected")
 end
 local function tty_onmessage(client, message)
-	print("got message")
+	print("got message " .. message)
 end
 tty = websocket.register("/tty", "tty", {onconnect = tty_onconnect, ondisconnect = tty_ondisconnect, onmessage = tty_onmessage})
 
@@ -212,7 +265,7 @@ reqs.AddPattern("*", "/websocket", function(req, res)
 					}
 					$( document ).ready(function()
 					{
-						con = new WebSocket("ws://localhost:8080/test", "tty");    
+						con = new WebSocket("ws://localhost:8080/tty", "tty");    
 						con.onopen = function() { document.write("open<br/>") }
 						con.onmessage = function(event) {
 							document.write("data: " + event.data + "<br/>") 

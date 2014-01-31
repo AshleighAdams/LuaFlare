@@ -127,14 +127,15 @@ function main_loop()
 		
 		client = routines.wrap(client)
 		
-		handle_client(client)
-		client:close()
+		if not handle_client(client) then -- we can close it, otherwise, do not!
+			client:close()
+		end
 	end
 	
 	local tp = threadpool.create(threads, callback)
 	
 	while true do
-		if tp:done() then
+		if tp:done() and websocket.done() then
 			server:settimeout(-1)
 		else
 			server:settimeout(0)
@@ -143,6 +144,7 @@ function main_loop()
 		local client = server:accept()
 		if client then tp:enqueue(client) end
 		tp:step()
+		websocket.run()
 		posix.nanosleep(0, 100)
 	end
 end

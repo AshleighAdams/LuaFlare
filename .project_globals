@@ -22,6 +22,7 @@ util	Dir	(base_dir, recursive)
 util	EnsurePath	(path)
 
 table	Count	(tbl)
+table	RemoveValue	(tbl, value)
 table	IsEmpty	(tbl)
 table	HasKey	(tbl, key)
 table	HasValue	(tbl, value)
@@ -201,4 +202,5 @@ ssl	wrap	(conn, params)
 # websocket
 _G	websocket	{}
 websocket	register	(path, protocol, callback)
+websocket	run	()
 websocket	registered	{}
