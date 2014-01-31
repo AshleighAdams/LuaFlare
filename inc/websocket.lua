@@ -53,17 +53,22 @@ local function send_message(client, payload)
 end
 
 local function read_message(client)
-	print("read message...")
-	local type = client:receive(1)
-	assert(string.byte(type) == websocket.TEXT, "this mode is not supported")
+	local typ = string.byte(client:receive(1))
 	
-	local b1 = client:receive(1)
-	local enc = bit.band(string.byte(b1), 128) == 128
+	if typ == 129 then -- text
+	elseif typ == 136 then -- disconnect?
+		return nil, "disconnected"
+	else
+		assert(false, string.format("unknown opcode %s", typ))
+	end
+	
+	local b1 = string.byte(client:receive(1))
+	local enc = bit.band(b1, 128) == 128
 	local len = 0
 	
-	if bit.band(string.byte(b1), 127) < 126 then -- 1 byte
-		len  = bit.band(string.byte(b1), 127)
-	elseif bit.band(string.byte(b1), 127) == 126 then -- 2 bytes
+	if bit.band(b1, 127) < 126 then -- 1 byte
+		len  = bit.band(b1, 127)
+	elseif bit.band(b1, 127) == 126 then -- 2 bytes
 		len = 0
 			+ bit.lshift(string.byte(client:receive(1)), 8)
 			+ string.byte(client:receive(1))
@@ -159,20 +164,24 @@ meta._metatbl = {__index = meta}
 
 function websocket.run()
 	-- resume all coroutines
-	for path, protos in pairs(websocket.registered) do
-		for proto, prototbl in pairs(protos) do
-			for client, thread in pairs(prototbl._client_threads) do
-				--print(string.format("resuming client thread for %s at %s", proto, path))
-				local _, err = coroutine.resume(thread)
-				if err then
-					table.RemoveValue(prototbl._clients, client)
-					prototbl._client_threads[client] = nil
-					print(string.format("websocket: %s at %s: %s", proto, path, err))
+	while true do
+		for path, protos in pairs(websocket.registered) do
+			for proto, prototbl in pairs(protos) do
+				for client, thread in pairs(prototbl._client_threads) do
+					--print(string.format("resuming client thread for %s at %s", proto, path))
+					local _, err = coroutine.resume(thread)
+					if err then
+						table.RemoveValue(prototbl._clients, client)
+						prototbl._client_threads[client] = nil
+						print(string.format("websocket: %s at %s: %s", proto, path, err))
+					end
 				end
 			end
 		end
+		coroutine.yield()
 	end
 end
+scheduler.newtask("websockets", websocket.run)
 
 function websocket.done()
 	return false -- TODO: not implimented yet
@@ -235,22 +244,35 @@ function meta:send(message, client) expects(meta._meta, "string")
 	end
 end
 
+------------- The TTY test page for WebSockets
+
 local tty
+local shell
+local pty = require("pty")
 local function tty_onconnect(client)
 	print("tty: client connected")
-	tty:send("hello", client)
+	-- send them all the TTY stuff
+	shell:write("ping google.com\n")
 end
 local function tty_ondisconnect(client)
 	print("tty: client disconnected")
 end
 local function tty_onmessage(client, message)
-	print("got message " .. message)
+	print("tty: msg: " .. message)
 end
 tty = websocket.register("/tty", "tty", {onconnect = tty_onconnect, ondisconnect = tty_ondisconnect, onmessage = tty_onmessage})
+local function tty_task()
+	shell = pty.new()
+	while true do
+		if shell:canread() then
+			tty:send(shell:read(shell:pending()))
+		end
+		coroutine.yield() -- allow other stuff to execute
+	end
+end
+scheduler.newtask("tty", tty_task)
 
-
-
-reqs.AddPattern("*", "/websocket", function(req, res)
+reqs.AddPattern("*", "/tty", function(req, res)
 	tags.html
 	{
 		tags.head
@@ -260,19 +282,19 @@ reqs.AddPattern("*", "/websocket", function(req, res)
 			{
 				tags.NOESCAPE,
 				[[
-					function reverse(s){
-						return s.split("").reverse().join("");
+				function reverse(s){
+					return s.split("").reverse().join("");
+				}
+				$( document ).ready(function()
+				{
+					con = new WebSocket("ws://localhost:8080/tty", "tty");    
+					con.onopen = function() { document.write("open<br/>") }
+					con.onmessage = function(event) {
+						document.write("data: " + event.data + "<br/>") 
+						con.send(reverse(event.data))
 					}
-					$( document ).ready(function()
-					{
-						con = new WebSocket("ws://localhost:8080/tty", "tty");    
-						con.onopen = function() { document.write("open<br/>") }
-						con.onmessage = function(event) {
-							document.write("data: " + event.data + "<br/>") 
-							con.send(reverse(event.data))
-						}
-						con.onclose = function(event) { document.write("close<br/>") }
-					})
+					con.onclose = function(event) { document.write("close<br/>") }
+				})
 				]]
 			}
 		},

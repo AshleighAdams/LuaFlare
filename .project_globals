@@ -204,3 +204,10 @@ _G	websocket	{}
 websocket	register	(path, protocol, callback)
 websocket	run	()
 websocket	registered	{}
+
+# scheduler
+_G	scheduler	{}
+scheduler	run	()
+scheduler	done	()
+scheduler	newtask	(func)
+scheduler	tasks	#

@@ -84,5 +84,6 @@
     <Compile Include="libs\sqlbuilder.lua" />
     <Compile Include="libs\sha1.lua" />
     <Compile Include="inc\websocket.lua" />
+    <Compile Include="inc\scheduler.lua" />
   </ItemGroup>
 </Project>

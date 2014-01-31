@@ -11,6 +11,7 @@ dofile("inc/requesthooks.lua")
 dofile("inc/request.lua")
 dofile("inc/response.lua")
 dofile("inc/savetotable.lua")
+dofile("inc/scheduler.lua")
 dofile("inc/websocket.lua")
 
 local socket = require("socket")

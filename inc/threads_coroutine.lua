@@ -135,7 +135,7 @@ function main_loop()
 	local tp = threadpool.create(threads, callback)
 	
 	while true do
-		if tp:done() and websocket.done() then
+		if tp:done() and scheduler.done() then
 			server:settimeout(-1)
 		else
 			server:settimeout(0)
@@ -144,7 +144,7 @@ function main_loop()
 		local client = server:accept()
 		if client then tp:enqueue(client) end
 		tp:step()
-		websocket.run()
+		scheduler.run()
 		posix.nanosleep(0, 100)
 	end
 end
