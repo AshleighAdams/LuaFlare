@@ -12,19 +12,24 @@ local function send_message(client, payload)
 	local header
 	local mode = bit.lshift(1, 7) + 1 -- +1 for TEXT, +2 for BINARY  -- websocket.TEXT
 	
+	print(string.format("sending message of length %d", len))
+	
 	if len < 126 then
-		header = {string.char(mode), string.char(len)}
-	elseif len < 65536 then
 		header = {
-			string.char(mode),
-			string.char(126),
+			mode,
+			len
+		}
+	elseif len <= 0xffff then
+		header = {
+			mode,
+			126,
 			bit.band( bit.rshift(len, 8) , 255),
-			bit.band( len                , 255),
+			bit.band(            len     , 255),
 		}
 	else
 		header = {
-			string.char(mode),
-			string.char(127),
+			mode,
+			127,
 			bit.band( bit.rshift(len, 56) , 255),
 			bit.band( bit.rshift(len, 48) , 255),
 			bit.band( bit.rshift(len, 40) , 255),
@@ -32,11 +37,15 @@ local function send_message(client, payload)
 			bit.band( bit.rshift(len, 24) , 255),
 			bit.band( bit.rshift(len, 16) , 255),
 			bit.band( bit.rshift(len,  8) , 255),
-			bit.band( len                 , 255),
+			bit.band(            len      , 255),
 		}
 	end
 	
-	client:send(string.format("%s%s", table.concat(header, ""), payload))
+	header = string.char(unpack(header))
+	client:send(header .. payload)
+	-- this little shit below, IT TOOK ME THREE FUCKING HOURS TO FIND THIS BUG
+	-- (that string.format is a binding to the C function, which does NOT like null-bytes!)
+	--string.format("%s%s", header, payload))
 end
 
 local function read_message(client)
@@ -225,7 +234,6 @@ end
 function meta:send(message, client) expects(meta._meta, "string")
 	if client == nil then --send to all the clients
 		for k,cl in pairs(self._clients) do
-			print(string.format("sending message of %d bytes", message:len()))
 			send_message(cl, message)
 		end
 	else
@@ -254,8 +262,8 @@ local function tty_task()
 	shell:write("grc ping google.com\n")
 	while true do
 		if shell:canread() then
-			local payload = base64.encode(shell:read(shell:pending()))
-			tty:send(payload:sub(1, 126))
+			local payload = shell:read(shell:pending()) --base64.encode(
+			tty:send(payload)
 		end
 		coroutine.yield() -- allow other stuff to execute
 	end
@@ -275,10 +283,17 @@ reqs.AddPattern("*", "/tty", function(req, res)
 				function reverse(s){
 					return s.split("").reverse().join("");
 				}
+				String.prototype.repeat = function( num )
+				{
+				    return new Array( num + 1 ).join( this );
+				}
 				$( document ).ready(function()
 				{
 					con = new WebSocket("ws://localhost:8080/tty", "tty");    
-					con.onopen = function() { document.write("open<br/>") }
+					con.onopen = function() { 
+						document.write("open<br/>") 
+						con.send("t".repeat(146))
+					}
 					con.onmessage = function(event) {
 						document.write("data: " + event.data + "<br/>") 
 						con.send(reverse(event.data))
