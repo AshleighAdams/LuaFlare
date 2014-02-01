@@ -12,8 +12,6 @@ local function send_message(client, payload)
 	local header
 	local mode = bit.lshift(1, 7) + 1 -- +1 for TEXT, +2 for BINARY  -- websocket.TEXT
 	
-	print(string.format("sending message of length %d", len))
-	
 	if len < 126 then
 		header = {
 			mode,
