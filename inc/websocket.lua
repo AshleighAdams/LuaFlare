@@ -66,7 +66,7 @@ local function read_message(client)
 	elseif bit.band(b1, 127) == 126 then -- 2 bytes
 		len = 0
 			+ bit.lshift(string.byte(client:receive(1)), 8)
-			+ string.byte(client:receive(1))
+			+            string.byte(client:receive(1))
 	else -- 8 bytes
 		len = 0
 			+ bit.lshift(string.byte(client:receive(1)), 56)
@@ -76,7 +76,7 @@ local function read_message(client)
 			+ bit.lshift(string.byte(client:receive(1)), 24)
 			+ bit.lshift(string.byte(client:receive(1)), 16)
 			+ bit.lshift(string.byte(client:receive(1)),  8)
-			+ string.byte(client:receive(1))
+			+            string.byte(client:receive(1))
 	end
 	
 	local payload
