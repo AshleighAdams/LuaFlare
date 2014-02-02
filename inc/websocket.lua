@@ -3,7 +3,6 @@ websocket.TEXT = 129
 websocket.registered = {}
 
 local sha1 = require("sha1")
-local vstruct = require("vstruct")
 local bit = require("bit")
 local base64 = require("base64")
 
