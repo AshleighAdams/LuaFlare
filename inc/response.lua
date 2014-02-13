@@ -193,10 +193,13 @@ function meta:send() expects(meta)
 	if self:request():method() == "HEAD" then
 		self._reply = "" -- HEAD should yield same headers, but no body
 	end
-	
 	tosend = tosend .. "\r\n" .. self._reply
 	
-	self:client():send(tosend)
+	local client = self:client()
+	client:settimeout(-1)
+	
+	client:send(tosend)
+	
 	self._client = nil -- prevent circular recusion? i duno if not doing this will mem leak
 	self._request = nil -- doesn't harm us not to...
 end

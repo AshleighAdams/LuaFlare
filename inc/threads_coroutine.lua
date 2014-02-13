@@ -29,8 +29,9 @@ do
 		end
 	end
 	
-	function meta:settimeout(t)
+	function meta:settimeout(t, m)
 		rawset(self, "_timeout", t)
+		return self.parent:settimeout(t, m)
 	end
 	
 	function meta:receive(pat, prefix)
