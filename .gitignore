@@ -12,3 +12,11 @@ sites/buildserver/static/*/build/LuaServer2.zip
 
 # Sessions
 sessions/*
+
+# Documentation build files
+docs/*.aux
+docs/*.log
+docs/*.pdf
+docs/*.toc
+docs/*.fdb_latexmk
+
