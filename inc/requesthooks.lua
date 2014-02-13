@@ -55,7 +55,7 @@ reqs.OnRequest = function(request, response)
 	local hits = {}
 	local req_url = request:url()
 	
-	if request:headers().Connection and request:headers().Connection == "Upgrade" then
+	if request:headers().Connection and request:headers().Connection:match("Upgrade") ~= nil then
 		local ug = (request:headers().Upgrade or ""):lower()
 		local f = reqs.Upgrades[ug]
 		
