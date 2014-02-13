@@ -9,3 +9,10 @@ build.zip
 sites/buildserver/build_files/
 sites/buildserver/static/*/build/*
 sites/buildserver/static/*/build/LuaServer2.zip
+
+# Documentation build files
+docs/*.aux
+docs/*.log
+docs/*.pdf
+docs/*.toc
+docs/*.fdb_latexmk
