@@ -11,29 +11,13 @@ sites/buildserver/static/*/build/*
 sites/buildserver/static/*/build/LuaServer2.zip
 sites/tty
 
-# LaTeX:
-*.aux
-*.glo
-*.idx
-*.log
-*.toc
-*.ist
-*.acn
-*.acr
-*.alg
-*.bbl
-*.blg
-*.dvi
-*.glg
-*.gls
-*.ilg
-*.ind
-*.lof
-*.lot
-*.maf
-*.mtc
-*.mtc1
-*.out
-*.synctex.gz
+# Sessions
+sessions/*
 
-sessions/
+# Documentation build files
+docs/*.aux
+docs/*.log
+docs/*.pdf
+docs/*.toc
+docs/*.fdb_latexmk
+

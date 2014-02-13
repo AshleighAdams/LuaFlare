@@ -1,0 +1,363 @@
+\documentclass[a4paper,11pt]{report}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{listings}
+\usepackage{color}
+\usepackage[margin=1.25in]{geometry}
+
+\renewcommand{\familydefault}{\sfdefault}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{red}{rgb}{0.6,0.2,0.2}
+
+\lstdefinelanguage{Lua}%
+  {morekeywords={function,local,if,then,else,end,elseif,or,and,not,while,do,until,repeat,true,false,nil},%
+   sensitive,%
+   morecomment=[l]{--},%
+   morecomment=[n]{--[[}{]]},%
+   morestring=[d]',%
+   morestring=[d]"%
+  }[keywords,comments,strings]%
+
+\lstset{
+  language=Lua,
+  tabsize=4,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{red},
+  showstringspaces=false
+}
+
+\newcommand{\setlua}{\lstset{language=Lua}}
+\newcommand{\sethtml}{\lstset{language=HTML}}
+\newcommand{\setnginx}{\lstset{language=sh}}
+\newcommand{\inlinecode}{\texttt}
+
+\title{LuaServer}
+\author{Kobra}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\chapter{Command Line Arguments}
+
+\section{--port=<number>}
+\subsubsection{Default Value}{8080}
+\subsubsection{Allowed Values}{0-65535}
+\subsubsection{Description}{Set the port to bind to.}
+
+\section{--threads=<number>}
+\subsubsection{Default Value}{2}
+\subsubsection{Allowed Values}{0-*}
+\subsubsection{Description}{How many threads to create.}
+
+\section{--threads-model=<string>}
+\subsubsection{Default Value}{coroutine}
+\subsubsection{Allowed Values}{coroutine, fork, pyrate}
+\subsubsection{Description}{How will Lua create the threads?}
+
+\section{--host=<string>}
+\subsubsection{Default Value}{*}
+\subsubsection{Allowed Values}{*}
+\subsubsection{Description}{Bind to this address.}
+
+\section{-l, --local}
+\subsubsection{Default Value}{false}
+\subsubsection{Allowed Values}{true, false}
+\subsubsection{Description}{Set the host to "localhost"}
+
+\section{-t, --unit-test}
+\subsubsection{Default Value}{false}
+\subsubsection{Allowed Values}{true, false}
+\subsubsection{Description}{Perform unit tests and quit.}
+
+\section{-h, --help}
+\subsubsection{Default Value}{false}
+\subsubsection{Allowed Values}{true, false}
+\subsubsection{Description}{Show the help information then quit.}
+
+\section{-v, --version}
+\subsubsection{Default Value}{false}
+\subsubsection{Allowed Values}{true, false}
+\subsubsection{Description}{Show the version information then quit.}
+
+\section{--no-reload}
+\subsubsection{Default Value}{false}
+\subsubsection{Allowed Values}{true, false}
+\subsubsection{Description}{Do not automatically reload scripts.}
+
+\section{--max-etag-size=<size>}
+\subsubsection{Default Value}{64MiB}
+\subsubsection{Allowed Values}{0-* (k, M, G, T, P, E, Z, Y)(i)(B, b)}
+\subsubsection{Description}{Maximium size to generate ETags for.}
+
+\chapter{Handle a Page}
+
+\begin{lstlisting}
+reqs.AddPattern(host, url_pattern, callback --[[request, response, ...]])
+reqs.AddPattern("*", "/hello_world", hello_world)
+reqs.AddPattern("host.com", "/hello_host", hello_host)
+reqs.AddPattern("*", "user/%d+/message", send_message)
+
+--AddPattern also appends any captures to the function's arguments:
+reqs.AddPattern("*", "user/%d+/message", function(req, res, id)
+    print("sending message to ", id)
+end)
+\end{lstlisting}
+
+\chapter{Templating System}
+
+LuaServer comes with it's own templating system, you can still use \inlinecode{reqest:append(string)} should you choose to (eg, implimenting your own templating system).
+The default templating system offers the \inlinecode{tags} namespace.
+The general jist is \inlinecode{tag [, attributes][, children]} where attributes is a key-value table, and children is an indexed (array) or empty table (\inlinecode{table.Count(att) != \#att}).
+
+\section{Escaping}
+Escaping with the templating system is all done automatically, however, should you need to write HTML stored in text to the templating system, then you should use the tag \inlinecode{tags.NOESCAPE} which will prevent the very next value from being escaped. Here is an example of it in use:
+
+\begin{lstlisting}
+tags.html
+{
+    tags.NOESCAPE, "<script>alert('hi');</script>"
+}
+\end{lstlisting}
+
+\section{Examples}
+
+\subsection{Example 1 - Simple}
+
+\setlua
+\begin{lstlisting}
+tags.p { class = "test" }
+{
+  "Here, have some ", tags.b{ "boldness" }, "."
+}.print()
+\end{lstlisting}
+
+\sethtml
+\begin{lstlisting}
+<p class="test">
+    Here, have some 
+    <b>
+        boldness
+    </b>
+    .
+</p>
+\end{lstlisting}
+
+\subsection{Example 2 - Basic Page}
+\setlua
+\begin{lstlisting}
+tags.html
+{
+    tags.head
+    {
+        tags.title
+        {
+            "Hello, world"
+        }
+    },
+    tags.body
+    {
+        tags.div {class = "test"}
+        {
+            "This is a really nice generation thingy",
+            tags.br, tags.br,
+            "Do you like my logo?",
+            tags.br,
+            tags.img {src = "/logo.png"}
+        }
+    }
+}.print()
+\end{lstlisting}
+
+\sethtml
+\begin{lstlisting}
+<html>
+    <head>
+        <title>
+            Hello, world
+        </title>
+    </head>
+    <body>
+        <div class="test">
+            This is a really nice generation thingy
+            <br />
+            <br />
+            Do you like my logo?
+            <br />
+            <img src="/logo.png" />
+        </div>
+    </body>
+</html>
+\end{lstlisting}
+
+\subsection{Example 3 - Sections}
+
+\setlua
+\begin{lstlisting}
+local template = tags.div {class = "comments"}
+{
+    tags.span {"Comments:"},
+    tags.SECTION
+}
+
+template.print(0)
+    for i = 1, 5 do
+        tags.div {class = "comment"}
+        {
+            tags.span {class = "author"} { "Anon" .. i },
+            tags.span {class = "message"} { "This is a test message." }
+        }.print()
+    end
+template.print(1)
+\end{lstlisting}
+
+\sethtml
+\begin{lstlisting}
+<div class="comments">
+    <span>
+        Comments:
+    </span>
+    <div class="comment">
+        <span class="author">
+            Anon 1
+        </span>
+        <span class="message">
+            This is a test message.
+        </span>
+    </div>
+    <!-- ... -->
+    <div class="comment">
+        <span class="author">
+            Anon 5
+        </span>
+        <span class="message">
+            This is a test message.
+        </span>
+    </div>
+</div>
+\end{lstlisting}
+
+\subsection{Example 3 - Unpack}
+
+\setlua
+\begin{lstlisting}
+local comments = {}
+for i = 1, 5 do
+    local comment = tags.div {class = "comment"}
+    {
+        tags.span {class = "author"} { "Anon" .. i },
+        tags.span {class = "message"} { "This is a test message." }
+    }
+    table.insert(comments, comment)
+end
+
+local template = tags.div {class = "comments"}
+{
+    tags.span {"Comments:"},
+    unpack(comments)
+}
+template.print()
+\end{lstlisting}
+
+\sethtml
+\begin{lstlisting}
+<div class="comments">
+    <span>
+        Comments:
+    </span>
+    <div class="comment">
+        <span class="author">
+            Anon 1
+        </span>
+        <span class="message">
+            This is a test message.
+        </span>
+    </div>
+    <!--- ... --->
+    <div class="comment">
+        <span class="author">
+            Anon 5
+        </span>
+        <span class="message">
+            This is a test message.
+        </span>
+    </div>
+</div>
+\end{lstlisting}
+
+\setlua
+
+\section{Overriding Default Handler}
+
+The following code will remove the hook used by reqs, so you can impliment your own if you desire
+
+\chapter{Behind Nginx}
+
+It is recommended that you run LuaServer behind Nginx to prevent many types of attacks, and other things provided by Nginx, such as compression.
+
+\section{Configurations}
+These are some configurations that should be placed in \inlinecode{/etc/nginx/sites-available/}, and system linked to \inlinecode{/etc/nginx/sites-enabled/}
+
+\subsection{HTTP}
+
+\begin{lstlisting}
+server {
+    listen 80;
+    listen [::]:80 ipv6only=on;
+
+    server_name localhost;
+
+    location / {
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $http_host;
+        proxy_pass http://localhost:8080;
+    }
+}
+\end{lstlisting}
+
+\subsection{HTTPS}
+
+\setnginx
+\begin{lstlisting}
+server {
+    listen 443 ssl spdy; # remove spdy if your Nginx installation does not support it
+    listen [::]:443 ssl spdy ipv6only=on;
+
+    ssl_certificate cert.pem;
+    ssl_certificate_key cert.key;
+
+    ssl_session_timeout 5m;
+
+    ssl_protocols SSLv3 TLSv1;
+    ssl_ciphers ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv3:+EXP;
+    ssl_prefer_server_ciphers on;
+
+    server_name localhost;
+
+    location / {
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Forwarded-Ssl on;
+        proxy_pass http://localhost:8080;
+    }
+}
+\end{lstlisting}
+
+\chapter{Internal Workings}
+To be done later...
+
+\section{Hooks}
+\subsection{ReloadScripts}
+\subsection{LuaError}
+\subsection{Error}
+\subsection{LuaGetLine}
+\subsection{Request}
+
+\end{document}
