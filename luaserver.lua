@@ -47,7 +47,7 @@ function handle_client(client)
 		local response = Response(request)
 			hook.Call("Request", request, response) -- okay, lets invoke whatever is hooked
 		
-			if request:is_upgraded() then return true end -- don't close the connection!!!
+		if request:is_upgraded() then return true end -- don't close the connection!!!
 		response:send()
 		
 		if request:headers().Connection ~= "keep-alive" then
