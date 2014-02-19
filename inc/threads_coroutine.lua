@@ -49,6 +49,7 @@ do
 				
 				line, err, part = self.parent:receive("*l")
 				if line ~= nil then break end
+				if err == "closed" then return nil, "closed" end
 				coroutine.yield()
 			end
 			
@@ -71,7 +72,7 @@ do
 					end
 					
 					data, err = self.parent:receive(toget)
-					
+					if err == "closed" then return nil, "closed" end
 					if data == nil then
 						coroutine.yield()
 					else
@@ -146,6 +147,6 @@ function main_loop()
 		if client then tp:enqueue(client) end
 		tp:step()
 		scheduler.run()
-		posix.nanosleep(0, 100)
+		scheduler.idle()
 	end
 end

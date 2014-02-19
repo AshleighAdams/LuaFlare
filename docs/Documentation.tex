@@ -13,7 +13,7 @@
 \definecolor{red}{rgb}{0.6,0.2,0.2}
 
 \lstdefinelanguage{Lua}%
-  {morekeywords={function,local,if,then,else,end,elseif,or,and,not,while,do,until,repeat,true,false,nil},%
+  {morekeywords={function,for,local,if,then,else,end,elseif,or,and,not,while,do,until,repeat,true,false,nil},%
    sensitive,%
    morecomment=[l]{--},%
    morecomment=[n]{--[[}{]]},%
@@ -37,8 +37,18 @@
 \newcommand{\setnginx}{\lstset{language=sh}}
 \newcommand{\inlinecode}{\texttt}
 
+\lstnewenvironment{lua}[0]
+  {\setlua}
+  {}
+\lstnewenvironment{html}[0]
+  {\sethtml}
+  {}
+\lstnewenvironment{nginx}[0]
+  {\setnginx}
+  {}
+
 \title{LuaServer}
-\author{Kobra}
+\author{Kate Adams}
 
 \begin{document}
 
@@ -99,7 +109,7 @@
 
 \chapter{Handle a Page}
 
-\begin{lstlisting}
+\begin{lua}
 reqs.AddPattern(host, url_pattern, callback --[[request, response, ...]])
 reqs.AddPattern("*", "/hello_world", hello_world)
 reqs.AddPattern("host.com", "/hello_host", hello_host)
@@ -107,9 +117,39 @@ reqs.AddPattern("*", "user/%d+/message", send_message)
 
 --AddPattern also appends any captures to the function's arguments:
 reqs.AddPattern("*", "user/%d+/message", function(req, res, id)
-    print("sending message to ", id)
+	print("sending message to ", id)
 end)
-\end{lstlisting}
+\end{lua}
+
+\chapter{WebSockets}
+
+\begin{lua}
+local callbacks, socket = {}, nil
+function callbacks.onconnect(client)
+	print("client connected")
+end
+function callbacks.onmessage(client, msg)
+	print("client message: " .. msg)
+end
+function callbacks.ondisconnect(client)
+	print("client disconnected")
+end
+socket = websocket.register("/path", "protocol", callbacks)
+\end{lua}
+
+\section{Create a task}
+
+Most of the time, you can't just use the callbacks, you need some sort of loop (such as a game tick) and send data off to the client.  For this, we will use the task scheduler as follows.
+
+\begin{lua}
+local function task()
+	while true do
+		-- do something
+		socket:send("It is now " .. os.date())
+		coroutine.yield()
+	end
+end
+\end{lua}
 
 \chapter{Templating System}
 
@@ -120,180 +160,172 @@ The general jist is \inlinecode{tag [, attributes][, children]} where attributes
 \section{Escaping}
 Escaping with the templating system is all done automatically, however, should you need to write HTML stored in text to the templating system, then you should use the tag \inlinecode{tags.NOESCAPE} which will prevent the very next value from being escaped. Here is an example of it in use:
 
-\begin{lstlisting}
+\begin{lua}
 tags.html
 {
-    tags.NOESCAPE, "<script>alert('hi');</script>"
+	tags.NOESCAPE, "<script>alert('hi');</script>"
 }
-\end{lstlisting}
+\end{lua}
 
 \section{Examples}
 
 \subsection{Example 1 - Simple}
 
-\setlua
-\begin{lstlisting}
+\begin{lua}
 tags.p { class = "test" }
 {
   "Here, have some ", tags.b{ "boldness" }, "."
 }.print()
-\end{lstlisting}
+\end{lua}
 
-\sethtml
-\begin{lstlisting}
+\begin{html}
 <p class="test">
-    Here, have some 
-    <b>
-        boldness
-    </b>
-    .
+	Here, have some 
+	<b>
+		boldness
+	</b>
+	.
 </p>
-\end{lstlisting}
+\end{html}
 
 \subsection{Example 2 - Basic Page}
-\setlua
-\begin{lstlisting}
+
+\begin{lua}
 tags.html
 {
-    tags.head
-    {
-        tags.title
-        {
-            "Hello, world"
-        }
-    },
-    tags.body
-    {
-        tags.div {class = "test"}
-        {
-            "This is a really nice generation thingy",
-            tags.br, tags.br,
-            "Do you like my logo?",
-            tags.br,
-            tags.img {src = "/logo.png"}
-        }
-    }
+	tags.head
+	{
+		tags.title
+		{
+			"Hello, world"
+		}
+	},
+	tags.body
+	{
+		tags.div {class = "test"}
+		{
+			"This is a really nice generation thingy",
+			tags.br, tags.br,
+			"Do you like my logo?",
+			tags.br,
+			tags.img {src = "/logo.png"}
+		}
+	}
 }.print()
-\end{lstlisting}
+\end{lua}
 
-\sethtml
-\begin{lstlisting}
+\begin{html}
 <html>
-    <head>
-        <title>
-            Hello, world
-        </title>
-    </head>
-    <body>
-        <div class="test">
-            This is a really nice generation thingy
-            <br />
-            <br />
-            Do you like my logo?
-            <br />
-            <img src="/logo.png" />
-        </div>
-    </body>
+	<head>
+		<title>
+			Hello, world
+		</title>
+	</head>
+	<body>
+		<div class="test">
+			This is a really nice generation thingy
+			<br />
+			<br />
+			Do you like my logo?
+			<br />
+			<img src="/logo.png" />
+		</div>
+	</body>
 </html>
-\end{lstlisting}
+\end{html}
 
 \subsection{Example 3 - Sections}
 
-\setlua
-\begin{lstlisting}
+\begin{lua}
 local template = tags.div {class = "comments"}
 {
-    tags.span {"Comments:"},
-    tags.SECTION
+	tags.span {"Comments:"},
+	tags.SECTION
 }
 
 template.print(0)
-    for i = 1, 5 do
-        tags.div {class = "comment"}
-        {
-            tags.span {class = "author"} { "Anon" .. i },
-            tags.span {class = "message"} { "This is a test message." }
-        }.print()
-    end
+for i = 1, 5 do
+	tags.div {class = "comment"}
+	{
+		tags.span {class = "author"} { "Anon" .. i },
+		tags.span {class = "message"} { "This is a test message." }
+	}.print()
+end
 template.print(1)
-\end{lstlisting}
+\end{lua}
 
-\sethtml
-\begin{lstlisting}
+\begin{html}
 <div class="comments">
-    <span>
-        Comments:
-    </span>
-    <div class="comment">
-        <span class="author">
-            Anon 1
-        </span>
-        <span class="message">
-            This is a test message.
-        </span>
-    </div>
-    <!-- ... -->
-    <div class="comment">
-        <span class="author">
-            Anon 5
-        </span>
-        <span class="message">
-            This is a test message.
-        </span>
-    </div>
+	<span>
+		Comments:
+	</span>
+	<div class="comment">
+		<span class="author">
+			Anon 1
+		</span>
+		<span class="message">
+			This is a test message.
+		</span>
+	</div>
+	<!-- ... -->
+	<div class="comment">
+		<span class="author">
+			Anon 5
+		</span>
+		<span class="message">
+			This is a test message.
+		</span>
+	</div>
 </div>
-\end{lstlisting}
+\end{html}
 
 \subsection{Example 3 - Unpack}
 
-\setlua
-\begin{lstlisting}
+\begin{lua}
 local comments = {}
 for i = 1, 5 do
-    local comment = tags.div {class = "comment"}
-    {
-        tags.span {class = "author"} { "Anon" .. i },
-        tags.span {class = "message"} { "This is a test message." }
-    }
-    table.insert(comments, comment)
+	local comment = tags.div {class = "comment"}
+	{
+		tags.span {class = "author"} { "Anon" .. i },
+		tags.span {class = "message"} { "This is a test message." }
+	}
+	table.insert(comments, comment)
 end
 
 local template = tags.div {class = "comments"}
 {
-    tags.span {"Comments:"},
-    unpack(comments)
+	tags.span {"Comments:"},
+	unpack(comments)
 }
 template.print()
-\end{lstlisting}
+\end{lua}
 
-\sethtml
-\begin{lstlisting}
+\begin{html}
 <div class="comments">
-    <span>
-        Comments:
-    </span>
-    <div class="comment">
-        <span class="author">
-            Anon 1
-        </span>
-        <span class="message">
-            This is a test message.
-        </span>
-    </div>
-    <!--- ... --->
-    <div class="comment">
-        <span class="author">
-            Anon 5
-        </span>
-        <span class="message">
-            This is a test message.
-        </span>
-    </div>
+	<span>
+		Comments:
+	</span>
+	<div class="comment">
+		<span class="author">
+			Anon 1
+		</span>
+		<span class="message">
+			This is a test message.
+		</span>
+	</div>
+	<!--- ... --->
+	<div class="comment">
+		<span class="author">
+			Anon 5
+		</span>
+		<span class="message">
+			This is a test message.
+		</span>
+	</div>
 </div>
-\end{lstlisting}
+\end{html}
 
 \setlua
-
 \section{Overriding Default Handler}
 
 The following code will remove the hook used by reqs, so you can impliment your own if you desire
@@ -309,16 +341,16 @@ These are some configurations that should be placed in \inlinecode{/etc/nginx/si
 
 \begin{lstlisting}
 server {
-    listen 80;
-    listen [::]:80 ipv6only=on;
+	listen 80;
+	listen [::]:80 ipv6only=on;
 
-    server_name localhost;
+	server_name localhost;
 
-    location / {
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header Host $http_host;
-        proxy_pass http://localhost:8080;
-    }
+	location / {
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		proxy_set_header Host $http_host;
+		proxy_pass http://localhost:8080;
+	}
 }
 \end{lstlisting}
 
@@ -327,26 +359,26 @@ server {
 \setnginx
 \begin{lstlisting}
 server {
-    listen 443 ssl spdy; # remove spdy if your Nginx installation does not support it
-    listen [::]:443 ssl spdy ipv6only=on;
+	listen 443 ssl spdy; # remove spdy if your Nginx installation does not support it
+	listen [::]:443 ssl spdy ipv6only=on;
 
-    ssl_certificate cert.pem;
-    ssl_certificate_key cert.key;
+	ssl_certificate cert.pem;
+	ssl_certificate_key cert.key;
 
-    ssl_session_timeout 5m;
+	ssl_session_timeout 5m;
 
-    ssl_protocols SSLv3 TLSv1;
-    ssl_ciphers ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv3:+EXP;
-    ssl_prefer_server_ciphers on;
+	ssl_protocols SSLv3 TLSv1;
+	ssl_ciphers ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv3:+EXP;
+	ssl_prefer_server_ciphers on;
 
-    server_name localhost;
+	server_name localhost;
 
-    location / {
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header Host $http_host;
-        proxy_set_header X-Forwarded-Ssl on;
-        proxy_pass http://localhost:8080;
-    }
+	location / {
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		proxy_set_header Host $http_host;
+		proxy_set_header X-Forwarded-Ssl on;
+		proxy_pass http://localhost:8080;
+	}
 }
 \end{lstlisting}
 

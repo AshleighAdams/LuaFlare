@@ -46,17 +46,25 @@ local function send_message(client, payload)
 end
 
 local function read_message(client)
-	local opcode = string.byte(client:receive(1))
+	local function receive(count)
+		local ret, err = client:receive(count)
+		if ret == nil then
+			error(err)
+		end
+		return ret
+	end
+	
+	local opcode = string.byte(receive(1))
 	local typ = bit.band(opcode, 15)
 	
 	if typ == 1 or typ == 2 then -- text or binary
 	elseif typ == 8 then -- disconnect?
-		return nil, "disconnected"
+		error("disconnected")
 	else
 		assert(false, string.format("unknown opcode %s", typ))
 	end
 	
-	local b1 = string.byte(client:receive(1))
+	local b1 = string.byte(receive(1))
 	local enc = bit.band(b1, 128) == 128
 	local len = 0
 	
@@ -64,25 +72,25 @@ local function read_message(client)
 		len  = bit.band(b1, 127)
 	elseif bit.band(b1, 127) == 126 then -- 2 bytes
 		len = 0
-			+ bit.lshift(string.byte(client:receive(1)), 8)
-			+            string.byte(client:receive(1))
+			+ bit.lshift(string.byte(receive(1)), 8)
+			+            string.byte(receive(1))
 	else -- 8 bytes
 		len = 0
-			+ bit.lshift(string.byte(client:receive(1)), 56)
-			+ bit.lshift(string.byte(client:receive(1)), 48)
-			+ bit.lshift(string.byte(client:receive(1)), 40)
-			+ bit.lshift(string.byte(client:receive(1)), 32)
-			+ bit.lshift(string.byte(client:receive(1)), 24)
-			+ bit.lshift(string.byte(client:receive(1)), 16)
-			+ bit.lshift(string.byte(client:receive(1)),  8)
-			+            string.byte(client:receive(1))
+			+ bit.lshift(string.byte(receive(1)), 56)
+			+ bit.lshift(string.byte(receive(1)), 48)
+			+ bit.lshift(string.byte(receive(1)), 40)
+			+ bit.lshift(string.byte(receive(1)), 32)
+			+ bit.lshift(string.byte(receive(1)), 24)
+			+ bit.lshift(string.byte(receive(1)), 16)
+			+ bit.lshift(string.byte(receive(1)),  8)
+			+            string.byte(receive(1))
 	end
 	
 	local payload
 	
 	if enc then -- need to XOR 
-		local mask = { client:receive(4):byte(1, 4) }
-		local bytes = { client:receive(len):byte(1, len) }
+		local mask = { receive(4):byte(1, 4) }
+		local bytes = { receive(len):byte(1, len) }
 		
 		for i = 1, len do
 			bytes[i] = bit.bxor(bytes[i], mask[((i - 1) % 4) + 1])
@@ -90,7 +98,7 @@ local function read_message(client)
 		
 		payload = string.char(unpack(bytes))
 	else -- no need to XOR
-		payload = client:receive(len)
+		payload = receive(len)
 	end
 	
 	return payload
@@ -156,31 +164,6 @@ reqs.Upgrades["websocket"] = Upgrade_websocket
 local meta = {}
 meta._metatbl = {__index = meta}
 
-function websocket.run()
-	-- resume all coroutines
-	while true do
-		for path, protos in pairs(websocket.registered) do
-			for proto, prototbl in pairs(protos) do
-				for client, thread in pairs(prototbl._client_threads) do
-					--print(string.format("resuming client thread for %s at %s", proto, path))
-					local _, err = coroutine.resume(thread)
-					if err then
-						table.RemoveValue(prototbl._clients, client)
-						prototbl._client_threads[client] = nil
-						print(string.format("websocket: %s at %s: %s", proto, path, err))
-					end
-				end
-			end
-		end
-		coroutine.yield()
-	end
-end
-scheduler.newtask("websockets", websocket.run)
-
-function websocket.done()
-	return false -- TODO: not implimented yet
-end
-
 function websocket.register(path, protocol, callbacks) expects("string", "string", "table")
 	websocket.registered[path] = websocket.registered[path] or {}
 	websocket.registered[path][protocol] = {} -- TODO:
@@ -205,8 +188,8 @@ function websocket.register(path, protocol, callbacks) expects("string", "string
 			end
 			
 			while true do
-				local msg = read_message(client)
-				if not msg then break end -- client disconnected
+				local suc, msg = pcall(read_message, client)
+				if not suc then break end -- client disconnected
 				
 				if obj._callbacks.onmessage then
 					obj._callbacks.onmessage(client, msg)
@@ -217,12 +200,14 @@ function websocket.register(path, protocol, callbacks) expects("string", "string
 				obj._callbacks.ondisconnect(client)
 			end
 			table.RemoveValue(obj._clients, client) -- nil-ify them
-			obj._client_threads[client] = nil
+			--obj._client_threads[client] = nil
 		end
 		
-		local co = coroutine.create(thread)
+		scheduler.newtask(string.format("WebSocket from %s (%s @ %s)", client:getpeername(), protocol, path), thread)
 		table.insert(obj._clients, client)
-		obj._client_threads[client] = co
+		
+		--local co = coroutine.create(thread)
+		--obj._client_threads[client] = co
 	end
 	
 	return setmetatable(obj, meta._metatbl)
@@ -238,3 +223,9 @@ function meta:send(message, client) expects(meta._meta, "string")
 	end
 end
 
+function meta:wait()
+	-- halts execution until a client connects
+	while #self._clients == 0 do
+		coroutine.yield(0.25)
+	end
+end
