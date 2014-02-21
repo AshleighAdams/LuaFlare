@@ -9,6 +9,7 @@ build.zip
 sites/buildserver/build_files/
 sites/buildserver/static/*/build/*
 sites/buildserver/static/*/build/LuaServer2.zip
+sites/kateadams.eu/
 
 # Sessions
 sessions/*
