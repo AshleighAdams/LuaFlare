@@ -52,7 +52,7 @@ end
 
 local posix = require("posix")
 local socket = require("socket")
-
+local url = require("socket.url")
 --# luarocks install xssfilter
 -- And until luarocks supports lua 5.2:
 --# cp /usr/local/share/lua/5.1/xssfilter.lua /usr/local/share/lua/5.2/xssfilter.lua
@@ -308,6 +308,11 @@ function escape.html(input, strict) expects "string"
 		input = input:gsub("\n", "<br />\n")
 	end
 	return input
+end
+escape.attribute = escape.html
+
+function escape.url(input) expects "string"
+	return url.escape(input)
 end
 
 function escape.striptags(input, tbl) expects "string"

@@ -2,8 +2,17 @@ tags = {}
 
 -- meh, doesn't change view, but it produces nicer code
 local allow_inline = false
-
 local generated_html = ""
+
+local attribute_escapers = {}
+
+local function default_attribute_escaper(val)
+	return "\"" .. escape.attribute(val) .. "\""
+end
+
+--attribute_escapers.href = url_attribute_escaper
+--attribute_escapers.src = url_attribute_escaper
+
 function generate_html(first, tbl, depth, parent, section, state)
 	tbl = tbl or {}
 	depth = depth or 0
@@ -42,7 +51,8 @@ function generate_html(first, tbl, depth, parent, section, state)
 			attributes = " " .. tbl.extra
 		elseif tbl.extra and type(tbl.extra) == "table" then
 			for k,v in pairs(tbl.extra) do
-				attributes = attributes .. " " .. k .. "=" .. "\"" .. v .. "\""
+				local attrb_escaper = attribute_escapers[k:lower()] or default_attribute_escaper
+				attributes = attributes .. " " .. k .. "=" .. attrb_escaper(v)
 			end
 		end
 		
