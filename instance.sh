@@ -32,12 +32,12 @@ case "$1" in
 	stop)
 		stop
 		;;
-	install-deamon)
-		echo "Installing deamon..."
-		sudo cp `dirname $0`/luaserver_deamon /etc/init.d/luaserver
+	install-daemon)
+		echo "Installing daemon..."
+		sudo cp `dirname $0`/luaserver_daemon /etc/init.d/luaserver
 		;;
 	*)
-		echo "Usage: $0 {start|stop|install-deamon}"
+		echo "Usage: $0 {start|stop|install-daemon}"
 		exit 1
 		;;
 esac

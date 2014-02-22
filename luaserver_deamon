@@ -99,7 +99,6 @@ wait_for_pids(){
 			exit 1;
 		fi
 	done
-	echo
 }
 
 # We use the pids in so many parts of the script it makes sense to always check them.
@@ -147,8 +146,11 @@ exit_if_not_running(){
 	check_stale_pids
 	if [ "$web_status" != "0" ]; then
 		log_progress_msg "(not running)" || true
-	log_end_msg 0 || true
-		exit
+		
+		if [ -n "$1" ]; then
+			log_end_msg 0 || true
+			exit
+		fi
 	fi
 }
 
@@ -169,9 +171,9 @@ start() {
 	wait_for_pids
 }
 
-## Asks the Unicorn and the Sidekiq if they would be so kind as to stop, if not kills them.
+## Stop it
 stop() {
-	exit_if_not_running
+	exit_if_not_running $1 # pass if to exit if fails fine
 	
 	# If LuaServer is running, tell it to stop
 	if [ "$web_status" = "0" ]; then
@@ -196,11 +198,8 @@ stop() {
 }
 
 restart(){
-	log_daemon_msg "Stopping LuaServer" "luaserver" || true
-	stop
-	log_end_msg 0 || true
-		
 	log_daemon_msg "Restarting LuaServer" "luaserver" || true
+	stop
 	start
 	log_end_msg 0 || true
 }
