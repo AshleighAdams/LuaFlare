@@ -13,7 +13,7 @@ model="coroutine" # fork, pyrate or coroutine
 start(){
 	stop
 	mkdir -p tmp/pids/
-	./luaserver.lua --local --port=$port --threads=$instances --threads-model=$model --out-pid=tmp/pids/luaserver.pid | tee -a log.txt
+	./luaserver.lua --local --port=$port --threads=$instances --threads-model=$model --out-pid=tmp/pids/luaserver.pid >> log.txt
 }
 
 stop(){
