@@ -20,7 +20,7 @@ start(){
 
 stop(){
 	if [ -f $pid_file ]; then
-		kill `cat tmp/pids/luaserver.pid`
+		kill `cat $pid_file`
 		rm $pid_file
 	fi
 }
