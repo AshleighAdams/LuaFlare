@@ -106,4 +106,10 @@ function main()
 	main_loop()
 end
 
+if script.options["out-pid"] ~= nil then
+	local f = io.open(script.options["out-pid"], "w")
+	f:write(tostring(script.pid()))
+	f:close()
+	print("Wrote PID to " .. script.options["out-pid"])
+end
 main()
