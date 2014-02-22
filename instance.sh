@@ -31,7 +31,8 @@ case "$1" in
 		stop
 		;;
 	install-deamon)
-		sudo cp $0 /etc/luaserver
+		echo "Installing deamon..."
+		sudo cp $0 /etc/init.d/luaserver
 		;;
 	*)
 		echo "Usage: $0 {start|stop}"
