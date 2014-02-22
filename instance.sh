@@ -4,6 +4,8 @@ port=8080
 instances=25
 model="coroutine" # fork, pyrate or coroutine
 
+pid_file=/var/run/luaserver/luaserver.pid
+
 #if [ $(whoami) != "root" ]
 #then
 #	echo "error: you must be root to run this"
@@ -13,13 +15,13 @@ model="coroutine" # fork, pyrate or coroutine
 start(){
 	stop
 	mkdir -p tmp/pids/
-	nohup ./luaserver.lua --local --port=$port --threads=$instances --threads-model=$model --out-pid=tmp/pids/luaserver.pid >> log.txt 2>&1 &
+	nohup ./luaserver.lua --local --port=$port --threads=$instances --threads-model=$model --out-pid=$pid_file >> log.txt 2>&1 &
 }
 
 stop(){
-	if [ -f tmp/pids/luaserver.pid ]; then
+	if [ -f $pid_file ]; then
 		kill `cat tmp/pids/luaserver.pid`
-		rm tmp/pids/luaserver.pid
+		rm $pid_file
 	fi
 }
 

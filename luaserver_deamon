@@ -38,10 +38,23 @@ if [ ! -n "$app_root" ]; then
 	app_root="/home/$app_user/LuaServer"
 fi
 if [ ! -n "$pid_path" ]; then
-	pid_path="$app_root/tmp/pids"
+	pid_path="/var/run/luaserver"
 fi
 if [ ! -n "$web_server_pid_path" ]; then
 	web_server_pid_path="$pid_path/luaserver.pid"
+fi
+
+# Before switching to the user, create and chmod the pid directory...
+if ! mkdir -p "$pid_path"; then
+	log_action_msg "failed to create path $pid_path" || true
+	exit 1
+fi
+# Check ownership
+if [ ! `stat -c '%U' $pid_path` = "$app_user" ]; then
+	if ! chown $app_user $pid_path; then
+		log_action_msg "failed to chown $pid_path to $app+user"
+		exit 1
+	fi
 fi
 
 
@@ -61,11 +74,8 @@ fi
 
 ## Gets the pids from the files
 check_pids(){
-	if ! mkdir -p "$pid_path"; then
-		log_progress_msg "(failed to create path $pid_path)" || true
-		log_end_msg 1 || true
-		exit 1
-	fi
+
+	
 	# If there exists a file which should hold the value of the Unicorn pid: read it.
 	if [ -f "$web_server_pid_path" ]; then
 		wpid=$(cat "$web_server_pid_path")
