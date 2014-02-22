@@ -35,6 +35,7 @@ case "$1" in
 	install-daemon)
 		echo "Installing daemon..."
 		sudo cp `dirname $0`/luaserver_daemon /etc/init.d/luaserver
+		sudo update-rc.d luaserver defaults # so it boots on startup
 		;;
 	*)
 		echo "Usage: $0 {start|stop|install-daemon}"
