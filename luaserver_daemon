@@ -74,9 +74,7 @@ fi
 
 ## Gets the pids from the files
 check_pids(){
-
-	
-	# If there exists a file which should hold the value of the Unicorn pid: read it.
+	# If there exists a file which should hold the value of the pid, read it.
 	if [ -f "$web_server_pid_path" ]; then
 		wpid=$(cat "$web_server_pid_path")
 	else
