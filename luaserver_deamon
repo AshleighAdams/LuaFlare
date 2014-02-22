@@ -130,11 +130,7 @@ exit_if_not_running(){
 ## Starts Unicorn and Sidekiq if they're not running.
 start() {
   check_stale_pids
-
-  if [ "$sidekiq_status" != "0" ]; then
-    echo -n "Starting GitLab Unicorn"
-  fi
-
+  
   # Then check if the service is running. If it is: don't start again.
   if [ "$web_status" = "0" ]; then
     echo "LuaServer already running with pid $wpid, not restarting."
