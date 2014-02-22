@@ -32,7 +32,7 @@ case "$1" in
 		;;
 	install-deamon)
 		echo "Installing deamon..."
-		sudo cp $0 /etc/init.d/luaserver
+		echo sudo cp `dirname $0`/luaserver_deamon /etc/init.d/luaserver
 		;;
 	*)
 		echo "Usage: $0 {start|stop}"
