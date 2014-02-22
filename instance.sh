@@ -13,7 +13,7 @@ model="coroutine" # fork, pyrate or coroutine
 start(){
 	stop
 	mkdir -p tmp/pids/
-	./luaserver.lua --local --port=$port --threads=$instances --threads-model=$model --out-pid=tmp/pids/luaserver.pid >> log.txt
+	nohup ./luaserver.lua --local --port=$port --threads=$instances --threads-model=$model --out-pid=tmp/pids/luaserver.pid >> log.txt 2>&1 &
 }
 
 stop(){
@@ -24,16 +24,19 @@ stop(){
 }
 
 case "$1" in
-  start)
-        start
-        ;;
-  stop)
-        stop
-        ;;
-  *)
-        echo "Usage: $0 {start|stop}"
-        exit 1
-        ;;
+	start)
+		start
+		;;
+	stop)
+		stop
+		;;
+	install-deamon)
+		sudo cp $0 /etc/luaserver
+		;;
+	*)
+		echo "Usage: $0 {start|stop}"
+		exit 1
+		;;
 esac
 
 exit
