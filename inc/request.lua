@@ -23,13 +23,19 @@ function Request(client) -- expects("userdata")
 	if not action then return nil end -- just timed out
 	
 	local method, full_url, version = string.match(action, "(%w+) (.+) HTTP/([%d.]+)")
+	version = tonumber(version)
+	local parsed_url = url.parse(full_url)
+	
 	if method == nil or full_url == nil or version == nil then
 		quick_response_client(client, 400) 
 		return nil, "invalid request: failed to parse method, url, or version"
 	end
 	
-	local headers = read_headers(client)
-	if not headers then quick_response_client(client, 400) return nil, "invalid request: failed to parse headers" end
+	local headers, err = read_headers(client, version, parsed_url)
+	if not headers then
+		quick_response_client(client, 400)
+		return nil, "invalid request: failed to parse headers: " .. err
+	end
 	
 	local peer = client:getpeername():match("^(.+):?%d*$") -- cpature .+, : is optional, and digits are optional
 	if script.options["local"] then
@@ -37,8 +43,6 @@ function Request(client) -- expects("userdata")
 		if not peer then return nil, "X-Forwarded-For not set!" end
 	end
 	
-	local parsed_url = url.parse(full_url)
-		
 	local request = {
 		_client = client,
 		_method = method,
@@ -50,7 +54,8 @@ function Request(client) -- expects("userdata")
 		_post_data = nil,
 		_post_string = "",
 		_start_time = util.time(),
-		_peer = peer
+		_peer = peer,
+		_version = version
 	}
 	
 	setmetatable(request, meta)
@@ -157,25 +162,59 @@ function meta:set_upgraded()
 	self.upgraded = true
 end
 
-function read_headers(client)
+function read_headers(client, version, url)
 	local ret = {}
+	local lastheader = nil
 	
 	while true do
 		local s, err = client:receive("*l")
 		
 		if not s or s == "" then break end
-
-		local key, val = string.match(s, "([%a%-]-):%s*(.+)")
-		if key ~= nil then
-			key = util.canonicalize_header(key) -- normalize it!
-			if ret[key] == nil then
-				ret[key] = val
-			else
-				ret[key] = string.format("%s, %s", ret[key], val)
+		
+		if s:sub(1,1) == " " or s:sub(1,1) == "\t" then -- this is a continuation from the previous line
+			if not lastheader then
+				return nil, "can't append to last header (absent)"
 			end
-		else
-			-- TODO: check the spec for what should be done
-			return nil
+			ret[lastheader] = ret[lastheader] .. " " .. val:Trim() -- i think the space should go here
+		else -- This isn't a continuation, parse new header
+			local key, val = string.match(s, "([%a%-]-):%s*(.+)")
+			if key ~= nil then
+				key = util.canonicalize_header(key) -- normalize it!
+				lastheader = key
+				if ret[key] == nil then
+					ret[key] = val
+				else
+					ret[key] = string.format("%s, %s", ret[key], val)
+				end
+			else
+				-- TODO: check the spec for what should be done
+				return nil, "null key for header specified"
+			end
+		end
+	end
+	
+	if version == 1.0 then
+		-- host not needed in 1.0
+	elseif version == 1.1 then
+		if not ret.Host then -- this MUST be sent!
+			return nil, "client failed to send Host header"
+		end
+	elseif version >= 1.2 then
+		local authority = url.authority
+		
+		if authority then
+			if ret.Host then -- check they're the same, error if they're not; not sure what the spec says I should do
+				if authority ~= ret.Host then
+					return nil, string.format("host header (%s) != URL authority (%s)",
+						ret.Host, authority)
+				end
+			else -- Host: wasn't set, set it to authority
+				ret.Host = authority
+			end
+		end
+		
+		if not ret["Host"] then -- this MUST be sent!
+			return nil, "client failed to send Host header or set absolute URL"
 		end
 	end
 	
