@@ -1,21 +1,15 @@
 #!/bin/bash
 
-port=8080
-instances=25
-model="coroutine" # fork, pyrate or coroutine
+action=$1
+pid_file="$2"
+shift 2
+args="$@"
 
-pid_file=/var/run/luaserver/luaserver.pid
-
-#if [ $(whoami) != "root" ]
-#then
-#	echo "error: you must be root to run this"
-#	exit
-#fi
+# $1 ... $n are now the arguments, so $@ will work
 
 start(){
 	stop
-	mkdir -p tmp/pids/
-	nohup ./luaserver.lua --local --port=$port --threads=$instances --threads-model=$model --out-pid=$pid_file >> log.txt 2>&1 &
+	nohup ./luaserver.lua --out-pid=$pid_file $args >> log.txt 2>&1 &
 }
 
 stop(){
@@ -25,7 +19,7 @@ stop(){
 	fi
 }
 
-case "$1" in
+case "$action" in
 	start)
 		start
 		;;

@@ -29,7 +29,6 @@
     <None Include=".gitignore" />
     <None Include="LICENSE" />
     <None Include="README.md" />
-    <None Include="create_instances.sh" />
     <None Include="keys\certificate.pem" />
     <None Include="keys\generatekey.sh" />
     <None Include="keys\key.pem" />
@@ -51,6 +50,8 @@
     <None Include="static\*\favicon.ico" />
     <None Include="static\*\lua_logo.png" />
     <None Include=".project_globals" />
+    <None Include="luaserver_daemon" />
+    <None Include="instance.sh" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="luaserver.lua" />

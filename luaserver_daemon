@@ -31,6 +31,7 @@ test -f /etc/default/luaserver && . /etc/default/luaserver
 # Script variable names should be lower-case not to conflict with
 # internal /bin/sh variables such as PATH, EDITOR or SHELL.
 
+# Daemon arguments
 if [ ! -n "$app_user" ]; then
 	app_user="luaserver"
 fi
@@ -44,15 +45,35 @@ if [ ! -n "$web_server_pid_path" ]; then
 	web_server_pid_path="$pid_path/luaserver.pid"
 fi
 
+# LuaServer arguments
+if [ ! -n "$local" ]; then
+	local=true
+fi
+if [ ! -n "$port" ]; then
+	port=8080
+fi
+if [ ! -n "$threads" ]; then
+	threads=25
+fi
+if [ ! -n "$threads_model" ]; then
+	threads_model="coroutine"
+fi
+
+app_args="--port=$port --threads=$threads --threads-model=$threads_model $extra_args"
+
+if [ ! -n "$local" ]; then
+	app_args="--local $app_args"
+fi
+
 # Before switching to the user, create and chmod the pid directory...
 if ! mkdir -p "$pid_path"; then
-	log_action_msg "failed to create path $pid_path" || true
+	log_failure_msg "failed to create path $pid_path"
 	exit 1
 fi
 # Check ownership
 if [ ! `stat -c '%U' $pid_path` = "$app_user" ]; then
 	if ! chown $app_user $pid_path; then
-		log_action_msg "failed to chown $pid_path to $app_user"
+		log_failure_msg "failed to chown $pid_path to $app_user"
 		exit 1
 	fi
 fi
@@ -65,7 +86,7 @@ fi
 
 # Switch to the luaserver path, exit on failure.
 if ! cd "$app_root" ; then
-	log_action_msg "Failed to cd into $app_root, exiting!" || true
+	log_failure_msg "Failed to cd into $app_root" || true # i know.. i don't need || true, but i like the flow
 	exit 1
 fi
 
@@ -89,9 +110,7 @@ wait_for_pids(){
 	while [ ! -f $web_server_pid_path ]; do
 		sleep 0.1;
 		i=$((i+1))
-		if [ $((i%10)) = 0 ]; then
-			echo -n "."
-		elif [ $((i)) = 301 ]; then
+		if [ $((i)) = 301 ]; then
 			log_progress_msg "(process timed out)" || true
 			log_end_msg 1 || true
 			exit 1;
@@ -163,7 +182,7 @@ start() {
 		exit 0
 	else
 		# Start the web server
-		$app_root/instance.sh start &
+		$app_root/instance.sh start $web_server_pid_path $app_args &
 	fi
 	
 	# Wait for the pids to be planted
@@ -176,7 +195,7 @@ stop() {
 	
 	# If LuaServer is running, tell it to stop
 	if [ "$web_status" = "0" ]; then
-		 $app_root/instance.sh stop
+		 $app_root/instance.sh stop $web_server_pid_path $app_args
 	fi
 	
 	# If something needs to be stopped, lets wait for it to stop. Never use SIGKILL in a script.
@@ -208,9 +227,9 @@ print_status() {
 	check_status
 	
 	if [ "$web_status" = "0" ]; then
-			log_action_msg "LuaServer is running" || true
+			log_success_msg "LuaServer is running" || true
 	else
-			log_action_msg "LuaServer is not running" || true
+			log_failure_msg "LuaServer is not running" || true
 	fi
 }
 
