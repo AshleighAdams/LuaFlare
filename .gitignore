@@ -23,3 +23,5 @@ docs/*.pdf
 docs/*.toc
 docs/*.fdb_latexmk
 
+# Custom command line
+cmdline

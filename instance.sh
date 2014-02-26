@@ -1,22 +1,18 @@
 #!/bin/bash
 
 action=$1
-pid_file="$2"
-shift 2
-args="$@"
+pidfile="$2"
 
-# $1 ... $n are now the arguments, so $@ will work
+cd `dirname $0`
+[ -f ./cmdline ] && args="`cat ./cmdline`"
 
 start(){
-	stop
-	nohup ./luaserver.lua --out-pid=$pid_file $args >> log.txt 2>&1 &
+	nohup ./luaserver.lua --out-pid=$pidfile $args >> log.txt 2>&1 &
+	exit 0
 }
 
 stop(){
-	if [ -f $pid_file ]; then
-		kill `cat $pid_file`
-		rm $pid_file
-	fi
+	echo "notimp"
 }
 
 case "$action" in
