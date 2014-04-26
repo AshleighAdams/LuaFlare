@@ -631,6 +631,7 @@ end
 
 -- detour print, so that it appends the PID infront
 static_print = print
+--[[
 function print(first, ...)
 	local pid = tostring(script.pid()) .. ": "
 	if first == nil then
@@ -638,11 +639,72 @@ function print(first, ...)
 	else
 		return static_print(pid .. tostring(first), ...)
 	end
+end]]
+
+-- include helpers
+
+local rgx = "function$ $maybename$ %($args%)"
+rgx = rgx:Replace("$maybename", "([A-z0-9_%.:]*)")
+rgx = rgx:Replace("$ ", "%s*")
+rgx = rgx:Replace("$args", "([A-z0-9_:, %*]-)")
+function util.translate_luacode(code)
+	code = code:gsub(rgx, function(name, argslist)
+		local args = argslist:Split(",")
+		local expects_tbl = {}
+		local args_tbl = {}
+		local hastype = false
+	
+		local meta_tbl = name:match("(.+):.+")
+		local meta_tbl_check = name:match("(.+)::.+")
+		if meta_tbl_check then
+			hastype = true
+			table.insert(expects_tbl, meta_tbl_check)
+			name = name:Replace("::", ":")
+		elseif meta_tbl then
+			hastype = false
+			table.insert(expects_tbl, "nil")
+		end
+	
+		for _, arg in pairs(args) do
+			local arg_split = arg:Split(":")
+			local arg_name = arg_split[1]:Trim()
+			local arg_type = arg_split[2]
+		
+			table.insert(args_tbl, arg_name)
+		
+			if not arg_type then
+				table.insert(expects_tbl, "nil")
+			else
+				table.insert(expects_tbl, '"' .. arg_type:Trim() .. '"')
+			end
+		
+
+			hastype = hastype or arg_type
+		end
+	
+		local expects_str = ""
+	
+		if hastype then
+			expects_str = " expects(" .. table.concat(expects_tbl, ", ") .. ")"
+		end
+	
+		return string.format("function %s (%s)", name, table.concat(args_tbl, ", ")) .. expects_str
+	end)
+	return code
+end
+
+-- include'd files will have enhanced syntax
+local dofile = function(file, ...)
+	local f = assert(io.open(file, "r"))
+	local code = f:read("*a")
+	f:close()
+	
+	code = util.translate_luacode(code)
+	return loadstring(code, file)()
 end
 
 local stacks = stack()
 local current = stack()
-
 function include(file) expects "string"
 	package.included = package.included or {}
 
