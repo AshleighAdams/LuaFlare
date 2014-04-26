@@ -201,8 +201,7 @@ end
 
 function string.Replace(str, what, with) expects ("string", "string", "string")
 	what = escape.pattern(what)
-	with = escape.pattern(with):gsub("%%", "%%%%") -- gsub needs 2 %'s
-
+	with = with:gsub("%%", "%%%%") -- the 2nd arg of gsub only needs %'s to be escaped
 	return str:gsub(what, with)
 end
 
