@@ -200,7 +200,10 @@ function string.EndsWith(haystack, needle) expects ("string", "string")
 end
 
 function string.Replace(str, what, with) expects ("string", "string", "string")
-	return str:gsub(escape.pattern(what), escape.pattern(with))
+	what = escape.pattern(what)
+	with = escape.pattern(with):gsub("%%", "%%%%") -- gsub needs 2 %'s
+
+	return str:gsub(what, with)
 end
 
 function string.Path(self) expects "string"
