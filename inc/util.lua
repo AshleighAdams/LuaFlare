@@ -232,14 +232,21 @@ function string.Trim(str) expects "string"
 	return str:match("^%s*(.-)%s*$")
 end
 
-function string.Split(self, delimiter) expects("string", "string")
+function string.Split(self, delimiter, options) expects("string", "string")
 	delimiter = escape.pattern(delimiter)
 	
 	local result = {}
 	local from  = 1
 	local delim_from, delim_to = string.find(self, delimiter, from)
 	while delim_from do
-		table.insert(result, string.sub(self, from , delim_from-1 ))
+		local add = true
+		local val = self:sub(from, delim_from - 1)
+		
+		if options and options.remove_empty and val:Trim() == "" then
+			add = false
+		end
+		
+		if add then table.insert(result, val) end
 		from  = delim_to + 1
 		delim_from, delim_to = string.find(self, delimiter, from)
 	end
@@ -646,7 +653,7 @@ end]]
 local rgx = "function$ $maybename$ %($args%)"
 rgx = rgx:Replace("$maybename", "([A-z0-9_%.:]*)")
 rgx = rgx:Replace("$ ", "%s*")
-rgx = rgx:Replace("$args", "([A-z0-9_:, %*]-)")
+rgx = rgx:Replace("$args", "([A-z0-9_, %*&]-)")
 function util.translate_luacode(code)
 	code = code:gsub(rgx, function(name, argslist)
 		local args = argslist:Split(",")
@@ -666,16 +673,27 @@ function util.translate_luacode(code)
 		end
 	
 		for _, arg in pairs(args) do
-			local arg_split = arg:Split(":")
-			local arg_name = arg_split[1]:Trim()
-			local arg_type = arg_split[2]
-		
+			local arg_split = arg:Split(" ", {remove_empty = true})
+			local arg_name, arg_type
+			
+			if #arg_split == 1 then
+				arg_name = arg_split[1]:Trim()
+			else
+				arg_name = arg_split[2]:Trim()
+				arg_type = arg_split[1]:Trim()
+			end
+			
 			table.insert(args_tbl, arg_name)
 		
 			if not arg_type then
 				table.insert(expects_tbl, "nil")
 			else
-				table.insert(expects_tbl, '"' .. arg_type:Trim() .. '"')
+				local len_type = #arg_type
+				if arg_type:sub(len_type, len_type) == "&" then
+					table.insert(expects_tbl, arg_type:sub(1, -2)) -- from the start, to the last but 1 (removing the &)
+				else
+					table.insert(expects_tbl, '"' .. arg_type .. '"')
+				end
 			end
 		
 
