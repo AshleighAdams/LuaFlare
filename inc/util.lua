@@ -589,6 +589,8 @@ X-WebKit-CSP
 X-Content-Type-Options
 X-Powered-By
 X-UA-Compatible
+X-Sendfile
+X-Accel-Redirect
 ]]
 do
 	local split = canonical_headers:Split("\n")

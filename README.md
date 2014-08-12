@@ -272,6 +272,10 @@ server {
 		proxy_set_header Host $http_host;
 		proxy_pass http://localhost:8080;
 	}
+	location /./ { # this is for X-Accel-Redirect
+		internal;
+		root /path/to/luaserver/;
+	}
 }
 ```
 
@@ -301,6 +305,10 @@ server {
 		proxy_set_header Host $http_host;
 		proxy_set_header X-Forwarded-Ssl on;
 		proxy_pass http://localhost:8080;
+	}
+	location /./ { # this is for X-Accel-Redirect
+		internal;
+		root /path/to/luaserver/;
 	}
 }
 

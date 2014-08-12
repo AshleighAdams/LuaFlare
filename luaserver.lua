@@ -92,6 +92,8 @@ function main()
 --no-reload                Don't automatically reload ar_*.lua scripts when
                            they've changed.
 --max-etag-size=size       Max size to generate etag hashes for
+--x-accel-redirect=path    Use Nginx's X-Accel-Redirect to send files; path is the internal location (the example site uses /internal/)
+--x-sendfile               Use mod_sendfile to send files.
 ]])
 		return
 	end

@@ -1,6 +1,7 @@
 local mimetypes = require("mimetypes")
 local httpstatus = require("httpstatus")
 local md5 = require("md5")
+require("lfs")
 
 local meta = {}
 meta.__index = meta
@@ -64,8 +65,19 @@ function meta:set_file(path) expects(meta, "string")
 	self:set_header("Content-Type", mimetypes.guess(path) or "text/html")
 	self._file = path
 	
-	self._reply = file:read("*all")
-	file:close()
+	if script.options["x-accel-redirect"] ~= nil then
+		file:close()
+		self:set_header("X-Accel-Redirect", script.options["x-accel-redirect"] .. path)
+		return
+	elseif script.options["x-sendfile"] ~= nil then
+		file:close()
+		local fullpath = lfs.currentdir() .. "/" .. path
+		self:set_header("X-Sendfile", fullpath)
+		return
+	else
+		self._reply = file:read("*all")
+		file:close()
+	end
 	
 	do -- support for HTTP Range
 		local req = self:request()
