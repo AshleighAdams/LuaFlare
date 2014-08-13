@@ -321,12 +321,12 @@ server {
 # To Do
 <!--- U+2610 (☐, 'BALLOT BOX'), U+2611 (☑, 'BALLOT BOX WITH CHECK'), and U+2612 (☒, 'BALLOT BOX WITH X') --->
 
-- ☑ Cookie Support
-- ☑ Session libary
-- ☒ Global table support for sessions
-- ☐ Rewrite template generate_html to be cleaner & easier to follow
-- ☑ Add the additional command --help
-- ☑ Add the additional command --version
+- [x] Cookie Support
+- [x] Session libary
+- [ ] Global table support for sessions
+- [ ] Rewrite template generate_html to be cleaner & easier to follow
+- [x] Add the additional command --help
+- [x] Add the additional command --version
 
 # Functions Provided
 

@@ -64,7 +64,7 @@ do
 			end
 			
 			if s or w then
-				print("sent ", s or w)
+				--print("sent ", s or w)
 				data = data:sub((s or w) + 1, -1)
 			end
 			
