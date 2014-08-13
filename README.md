@@ -327,6 +327,7 @@ server {
 - [ ] Rewrite template generate_html to be cleaner & easier to follow
 - [x] Add the additional command --help
 - [x] Add the additional command --version
+- [ ] Remove other threading methods, only keep coroutines
 
 # Functions Provided
 
