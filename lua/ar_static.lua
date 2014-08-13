@@ -2,6 +2,7 @@ require("lfs")
 local mimetypes = require("mimetypes")
 
 local static_dir = "static/"
+local count = 0
 
 local function itterate_dir(dir, callback, ...)
 	assert(dir and callback)
@@ -48,7 +49,8 @@ local function add_resource(filename, host)
 	end
 	
 	--print("adding resource `" .. filename .. "' as `" .. pattern .. "'")
-	print("//" .. host .. pattern .. " -> " .. filename)
+	--print("//" .. host .. pattern .. " -> " .. filename)
+	count = count + 1
 	reqs.AddPattern(host, pattern, serve_file)
 end
 
@@ -58,6 +60,9 @@ for folder in lfs.dir(static_dir) do
 		itterate_dir(static_dir .. folder .. "/", add_resource, folder)
 	end
 end
+
+print(string.format("%d static resources registered (%s)", count, "N/A"))
+count = 0
 
 --load sites static's dir
 
@@ -73,5 +78,11 @@ for filename in lfs.dir("sites/") do
 			end
 		end
 		
+		print(string.format("%d static resources registered (%s)", count, filename))
+		count = 0
+		
 	end
+	
 end
+
+
