@@ -1,8 +1,25 @@
 local url = require("socket.url")
 local socket = require("socket")
+local httpstatus = require("httpstatus")
 
 local meta = {}
 meta.__index = meta
+
+local trusted_proxies = {}
+for _, hostname in pairs ((script.options["trusted-reverse-proxies"] or "localhost"):Split(",")) do
+	-- potentially look up the IP
+	trusted_proxies[hostname] = true
+	local resolved, info = socket.dns.toip(hostname)
+	
+	if not resolved then
+		print(string.format("trusted reverse proxy: could not resolve %s: %s", hostname, info))
+	else
+		for k,ip in pairs(info.ip) do
+			trusted_proxies[ip] = true
+			print(string.format("trusted reverse proxy: %s (%s)", ip, hostname))
+		end
+	end
+end
 
 local function quick_response(request, err)
 	local response = Response(request)
@@ -11,10 +28,11 @@ local function quick_response(request, err)
 end
 
 local function quick_response_client(client, err)
-	client:send("HTTP/1.1 " .. tostring(err) .. "\n")
-	client:send("Server: luaserver\n")
-	client:send("Content-Length: 0\n")
-	client:send("\n")
+	local errstr = httpstatus.know_statuses[err] or "Unknown"
+	client:send(string.format("HTTP/1.1 %d %s\r\n", err, errstr))
+	client:send("Server: luaserver\r\n")
+	client:send("Content-Length: 0\r\n")
+	client:send("\r\n")
 end
 
 -- TODO: replace error messages with something meaningful
@@ -38,9 +56,14 @@ function Request(client) -- expects("userdata")
 	end
 	
 	local peer = client:getpeername():match("^(.+):?%d*$") -- cpature .+, : is optional, and digits are optional
-	if script.options["local"] then
-		peer = headers["X-Forwarded-For"]
-		if not peer then return nil, "X-Forwarded-For not set!" end
+	if script.options["reverse-proxy"] then
+		if not trusted_proxies[peer] then
+			quick_response_client(client, 403) -- forbidden
+			return nil, "reverse-proxy: " .. peer .. " is not trusted!"
+		end
+		
+		peer = headers["X-Real-IP"]
+		if not peer then return nil, "X-Real-IP not set!" end
 	end
 	
 	local request = {

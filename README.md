@@ -36,18 +36,24 @@ they may be automatically reloaded too.
 
 ## Command Line Arguments
 
-| Command                    | Default Value | Allowed Values          | Info                                       |
-| -------------------------- | ------------- | ----------------------- | ------------------------------------------ |
-| --port=\<number\>          | 8080          | 0-65535                 | Set the port to run on                     |
-| --threads=\<number\>       | 2             | 0-\*                    | How many threads to create                 |
-| --threads-model=\<string\> | coroutine     | coroutine, fork, pyrate | How will Lua create the threads?           |
-| --host=\<string\>	         | \*            | \*                      | Bind to this address                       |
-| -l, --local                | false         | true, false             | Set the host to "localhost"                |
-| -t, --unit-test            | false         | true, false             | Perform unit tests and quit                |
-| -h, --help                 | false         | true, false             | Show the help information then quit        |
-| -v, --version              | false         | true, false             | Show the version information then quit     |
-| --no-reload                | false         | true, false             | Do not automatically reload scripts        |
-| --max-etag-size=\<size\>   | 64MiB         | 0-\*                    | Maximium size to generate ETags for        |
+| Command                              | Default Value | Allowed Values          | Info                                                    |
+| ------------------------------------ | ------------- | ----------------------- | ------------------------------------------------------- |
+| --port=\<number\>                    | 8080          | 0-65535                 | Set the port to run on.                                 |
+| --threads=\<number\>                 | 2             | 0-\*                    | How many threads to create.                             |
+| --threads-model=\<string\>           | coroutine     | coroutine, fork, pyrate | How will Lua create the threads?                        |
+| --host=\<string\>	                   | \*            | \*                      | Bind to this address.                                   |
+| -l, --local                          | false         | true, false             | Set the host to "localhost".                            |
+| -t, --unit-test                      | false         | true, false             | Perform unit tests and quit.                            |
+| -h, --help                           | false         | true, false             | Show the help information then quit.                    |
+| -v, --version                        | false         | true, false             | Show the version information then quit.                 |
+| --no-reload                          | false         | true, false             | Do not automatically reload scripts.                    |
+| --max-etag-size=\<size\>             | 64MiB         | 0-\*                    | Maximium size to generate ETags for.                    |
+| --reverse-proxy                      | false         | true, false             | Require X-Real-IP and X-Forward-For.                    |
+| --trusted-reverse-proxies=\<string\> | localhost     | host1,host2,...,hostn   | Comma delimitered list of trusted hosts.                |
+| --x-accel-redirect=\<path\>          | "" \[/./\]    | \*                      | Serve static content with X-Accel-Redirect (Nginx).     |
+| --x-sendfile                         | false         | true, false             | Serve static content with X-Sendfile (mod_xsendfile).   |
+| --chunk-size                         | 131072        | 0-\*                    | Number of bytes to send per chunk.                      |
+
 
 ## Handle a Page
 

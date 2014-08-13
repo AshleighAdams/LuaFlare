@@ -395,6 +395,10 @@ function script.pid() -- attempt to locate the PID of the process
 	return posix.getpid("pid")
 end
 
+function script.instance() -- TODO: other thread types will bee removed soon, so coroutines are fine
+	return tostring(coroutine.running()):match("0x(%x+)")
+end
+
 function script.current_file(depth)
 	return debug.getinfo((depth or 1) + 1).source:sub(2)
 end
@@ -640,15 +644,11 @@ end
 
 -- detour print, so that it appends the PID infront
 static_print = print
---[[
-function print(first, ...)
-	local pid = tostring(script.pid()) .. ": "
-	if first == nil then
-		return static_print(pid, ...)
-	else
-		return static_print(pid .. tostring(first), ...)
-	end
-end]]
+
+function print(...)
+	local id = script.instance()
+	static_print(id, ...)
+end
 
 -- include helpers
 

@@ -6,6 +6,15 @@ package.cpath = "./libs/?.lua;" .. package.cpath
 
 dofile("inc/hooks.lua")
 dofile("inc/util.lua")
+
+local shorthands = {
+	v = "version",
+	l = "local",
+	t = "unit-test",
+	h = "help"
+}
+script.parse_arguments(arg, shorthands)
+
 dofile("inc/htmlwriter.lua")
 dofile("inc/requesthooks.lua")
 dofile("inc/request.lua")
@@ -20,15 +29,6 @@ local posix = require("posix")
 local configor = require("configor")
 
 require("lfs")
-
-local shorthands = {
-	v = "version",
-	l = "local",
-	t = "unit-test",
-	h = "help"
-}
-
-script.parse_arguments(arg, shorthands)
 	
 local port = tonumber(script.options.port) or 8080
 local threads = tonumber(script.options.threads) or 2 -- how many threads to create
@@ -81,19 +81,29 @@ function main()
 	elseif script.options.help then
 		print = static_print
 		print([[
---port=number              Port to bind to (default 8080)
---threads=number           Number of threads to create (default 2)
---threads-model=string     Threading mode to use (default 
---host=string              The address to bind to (default *)
--l, --local                Equilivent to --host=localhost
--t, --unit-test            Perfom unit tests and quit
--h, --help                 Show this help
--v, --version              Print out version information and quit.
---no-reload                Don't automatically reload ar_*.lua scripts when
-                           they've changed.
---max-etag-size=size       Max size to generate etag hashes for
---x-accel-redirect=path    Use Nginx's X-Accel-Redirect to send files; path is the internal location (the example site uses /internal/)
---x-sendfile               Use mod_sendfile to send files.
+--port=number                     Port to bind to (default 8080).
+--threads=number                  Number of threads to create (default 2).
+--threads-model=string            Threading mode to use (default coroutine).
+--host=string                     The address to bind to (default *).
+-l, --local                       Equilivent to: --host=localhost
+-t, --unit-test                   Perfom unit tests and quit.
+-h, --help                        Show this help.
+-v, --version                     Print out version information and quit.
+--no-reload                       Don't automatically reload ar_*.lua scripts
+                                  when they've changed.
+--max-etag-size=size              Max size to generate etag hashes for. (default
+                                  64MiB).
+--reverse-proxy                   Require X-Real-IP and X-Forward-For.
+--trusted-reverse-proxies=string  Comma delimitered list of trusted reverse
+                                  proxies.
+--x-accel-redirect=path           Use Nginx's X-Accel-Redirect to send static
+                                  content; path is the internal location (the 
+                                  example site uses /./)
+--x-sendfile                      Use mod_xsendfile to send static content.
+--chunk-size                      Number of bytes to send per chunk (default
+                                  128KiB (1024*128).  Lower values means less
+                                  susceptible to fuzzing attacks, but lower
+                                  transfer speeds.
 ]])
 		return
 	end

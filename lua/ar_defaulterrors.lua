@@ -33,7 +33,7 @@ error_template = tags.html
 		},
 		tags.div {class = "footer"}
 		{
-			string.format("pid: %i", script.pid())
+			string.format("instance: %s", script.instance())
 		}
 	}
 }

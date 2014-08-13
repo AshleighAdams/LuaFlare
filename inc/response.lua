@@ -157,12 +157,14 @@ function meta:use_etag()
 end
 
 -- finish
+local x_powered_by = _VERSION:gsub("Lua ", "Lua/")
 function meta:send() expects(meta)
 	if self._sent then return end -- we've already sent it
 	self._sent = true -- mark future calls to send as done
 	
 	self:set_header("Content-Length", self._reply:len())
-
+	self:set_header("X-Powered-By", x_powered_by)
+	
 	-- ETag support
 	local ifnonematch = self:request():headers()["If-None-Match"]
 	if self:use_etag() then
