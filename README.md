@@ -268,8 +268,7 @@ server {
 	server_name localhost;
 
 	location / {
-		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-		proxy_set_header Host $http_host;
+		include /etc/nginx/proxy_params;
 		proxy_pass http://localhost:8080;
 	}
 	location /./ { # this is for X-Accel-Redirect
@@ -301,9 +300,8 @@ server {
 	server_name localhost;
 
 	location / {
-		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-		proxy_set_header Host $http_host;
-		proxy_set_header X-Forwarded-Ssl on;
+		include /etc/nginx/proxy_params;
+		# proxy_set_header X-Forwarded-Ssl on;
 		proxy_pass http://localhost:8080;
 	}
 	location /./ { # this is for X-Accel-Redirect
