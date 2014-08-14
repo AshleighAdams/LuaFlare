@@ -1,3 +1,7 @@
+
+local httpstatus = require("httpstatus")
+local template = include("template-error.lua")
+
 local function on_error(why, request, response)
 	print("error:", why.type, request:url())
 end
@@ -8,66 +12,14 @@ local function on_lua_error(err, trace, args)
 end
 hook.Add("LuaError", "log errors", on_lua_error)
 
-local error_type_to_str = {
-	[401] = "Not Authorized",
-	[404] = "Resource Not Found",
-	[501] = "Internal Server Error"
-}
-
-error_template = tags.html
-{
-	tags.head
-	{
-		tags.title { "Error" },
-		tags.link {rel = "stylesheet", type = "text/css", href = "/error_style.css"}
-	},
-	tags.body
-	{
-		tags.div {class = "bg_wrapper"}
-		{
-			tags.div {class = "wrapper"}
-			{
-				tags.p {style = "font-size: 22; margin-top: 0px; border-bottom: 1px solid #dddddd"} {"Error!"},
-				tags.SECTION
-			}
-		},
-		tags.div {class = "footer"}
-		{
-			string.format("instance: %s", script.instance())
-		}
-	}
-}
-
 local function basic_error(why, req, res)
 	res:clear_content()
 	
-	local content = tags.div
-	{
-		tags.p { "There was an error while processing your request!" },
-		tags.div {class = "box"}
-		{
-			"while requesting",
-			tags.code
-			{
-				req:url()
-			},
-			" an error of type ",
-			tags.code
-			{
-				tostring(why.type) .. " (" .. (error_type_to_str[why.type] or "unknown") .. ")"
-			},
-			" was encountered",
-			(function()
-				if why.message then
-					return tags.code { "\n\n" .. why.message }
-				end
-			end)()
-		}
-	}
+	local errcode = why.type or 500
+	local errstr = string.format("%i %s", errcode, httpstatus.know_statuses[errcode] or "Unknown")
+	local msg = why.message or req:url()
 	
-	error_template.to_response(res, 0)
-	content.to_response(res)
-	error_template.to_response(res, 1)
+	template:make(errstr, errstr, msg).to_response(res)
 end
 hook.Add("Error", "basic error", basic_error)
 
@@ -80,6 +32,7 @@ function line_from(file, line_targ)
 	end
 	return ""
 end
+
 
 local function basic_lua_error(err, trace, vars, args)
 	local req = args[1]
@@ -137,7 +90,6 @@ local function basic_lua_error(err, trace, vars, args)
 	local content =
 	tags.div
 	{
-		tags.p { "A Lua error was encountered while trying to process your request!" },
 		tags.div {class = "box", style="margin-bottom: 5px;"}
 		{
 			err
@@ -154,8 +106,6 @@ local function basic_lua_error(err, trace, vars, args)
 		}
 	}
 	
-	error_template.to_response(res, 0)
-	content.to_response(res)
-	error_template.to_response(res, 1)
+	template:make("500 Internal Server Error", "500 Internal Server Error", "", content).to_response(res)
 end
 hook.Add("LuaError", "basic error", basic_lua_error)
