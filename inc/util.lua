@@ -720,7 +720,13 @@ local dofile = function(file, ...)
 	f:close()
 	
 	code = util.translate_luacode(code)
-	return loadstring(code, file)()
+	local f, err = loadstring(code, file)
+	
+	if not f then
+		print(string.format("failed to loadstring: %s", err))
+	end
+	
+	return f(...)
 end
 
 local stacks = stack()
