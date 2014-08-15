@@ -17,6 +17,7 @@ return {
 						background: black;
 						color: ]] .. (fgcol or "white") .. [[;
 						font-family: "ProximaNovaCond",serif;
+						position: relative;
 					}
 					h1 {
 						font-size: 28pt;
@@ -62,6 +63,7 @@ return {
 						width: 800px;
 						margin: auto auto;
 						padding-top: ]] .. (content == nil and "20%" or "5%") .. [[;
+						padding-bottom: 275px /* height of the mountains */
 					}
 				]]},
 				tags.script
