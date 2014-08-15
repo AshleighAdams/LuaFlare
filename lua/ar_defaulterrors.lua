@@ -24,13 +24,19 @@ end
 hook.Add("Error", "basic error", basic_error)
 
 function line_from(file, line_targ)
-	for line in io.lines(file) do 
-		line_targ = line_targ - 1
-		if line_targ == 0 then
-			return line
+	local ret = nil
+	
+	pcall(function()
+		for line in io.lines(file) do 
+			line_targ = line_targ - 1
+			if line_targ == 0 then
+				ret = line
+				break
+			end
 		end
-	end
-	return ""
+	end)
+	
+	return ret
 end
 
 
@@ -38,8 +44,27 @@ local function basic_lua_error(err, trace, vars, args)
 	local req = args[1]
 	local res = args[2]
 	
-	trace = trace or "stack trace unavailble"
+	if trace then -- make the trace look pretty
+		local split = trace:Split("\n")
+		table.remove(split, 1) -- remove the silly stack trace: text
+		trace = {}
+		
+		for k,v in pairs(split) do
+			if k == 1 and v:match("inc/hooks%.lua:%d+: in function '__concat'") then
+				-- ignore this one
+			else
+				local str = v:gsub("%[string \"(.-)\"%]", "%1")
+				table.insert(trace, str)
+			end
+		end
+		
+		trace = table.concat(trace, "\n")
+	else
+		trace = "stack trace unavailble"
+	end
+	
 	print(err, trace)
+	
 	
 	local strvars = ""
 	
@@ -51,15 +76,18 @@ local function basic_lua_error(err, trace, vars, args)
 	res:clear_content()
 	res:set_status(500)
 	
-	local line_num = err:match("%.lua%:(%d+)%:")
+	local line_num = err:match(":(%d+)%:")
 	local line
 	local code = ""
 	
 	if line_num ~= nil then
-		local file = err:match("(.+):" .. line_num .. ": ")
+		-- for the loadfile format, and loadstring format
+		local file = err:match("%[string \"(.-%.lua)") or err:match("(.-%.lua)")
+		
 		line_num = tonumber(line_num)
 		
-		line = line_from(file, line_num):gsub("\t", "")
+		line = line_from(file, line_num) or string.format("could not locate source for %s", file)
+		line = line:Trim("\t", "")
 	else
 		line = hook.Call("LuaGetLine", err)
 		
@@ -77,7 +105,8 @@ local function basic_lua_error(err, trace, vars, args)
 			local typ = type(vars[varname])
 			
 			if typ == "table" then
-				val = to_lua_table(vars[varname])
+				local with = "{ -- " .. tostring(vars[varname])
+				val = to_lua_table(vars[varname]):gsub("{", with, 1)
 			end
 			
 			code = code .. "local " .. varname .. " = " .. val .. "\n"

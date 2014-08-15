@@ -50,7 +50,10 @@ function threadpool:step() expects(threadpool._meta)
 	for i, co in ipairs(self.routines) do
 		if coroutine.status(co) ~= "dead" then -- shouldnt happen
 			local suc, err = coroutine.resume(co)
-			if not suc then print(err) end
+			if not suc then
+				print("============== ERROR ===============")
+				print(err)
+			end
 		else
 			print("coroutine died")
 			table.remove(self.routines, i)
