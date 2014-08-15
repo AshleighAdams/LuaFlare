@@ -44,6 +44,8 @@ local function basic_lua_error(err, trace, vars, args)
 	local req = args[1]
 	local res = args[2]
 	
+	print(err, trace or "no trace") -- print the raw uncleaned trace (as the cleaning stuff might omit important information...  for 99.99999% of cases though it should be fine.
+	
 	if trace then -- make the trace look pretty
 		local split = trace:Split("\n")
 		table.remove(split, 1) -- remove the silly stack trace: text
@@ -52,6 +54,8 @@ local function basic_lua_error(err, trace, vars, args)
 		for k,v in pairs(split) do
 			if k == 1 and v:match("inc/hooks%.lua:%d+: in function '__concat'") then
 				-- ignore this one
+			elseif v:Trim():StartsWith("inc/requesthooks.lua") then
+				break -- after this is internal LuaServer stuff
 			else
 				local str = v:gsub("%[string \"(.-)\"%]", "%1")
 				table.insert(trace, str)
@@ -62,10 +66,7 @@ local function basic_lua_error(err, trace, vars, args)
 	else
 		trace = "stack trace unavailble"
 	end
-	
-	print(err, trace)
-	
-	
+		
 	local strvars = ""
 	
 	for k,v in pairs(vars) do
@@ -119,13 +120,18 @@ local function basic_lua_error(err, trace, vars, args)
 	local content = tags.div
 	{
 		tags.br,
-		tags.div {class = "box nowrap", style = "font-family: monospace; margin-bottom: 5px;"}
+		tags.h3 { "Variables" },
+		tags.div {style = "font-family: monospace; margin-bottom: 5px;"}
 		{
-			code,
-			br_tag,
+			code
+		},
+		tags.h3 { "Line" },
+		tags.div {style = "font-family: monospace; margin-bottom: 5px;"}
+		{
 			line
 		},
-		tags.div {class = "box nowrap"}
+		tags.h3 { "Stack Trace" },
+		tags.div
 		{
 			trace
 		}
