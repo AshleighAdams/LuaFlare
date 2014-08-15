@@ -93,7 +93,10 @@ return {
 						tags.h1 { heading },
 						info
 					},
-					content or {}
+					tags.div { style = "display: table; margin: 0 auto;" }
+					{
+						content or {}
+					}
 				}
 			}
 		}

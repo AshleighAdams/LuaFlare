@@ -87,13 +87,9 @@ local function basic_lua_error(err, trace, vars, args)
 	local br_tag = tags.br
 	if code == "" then br_tag = "" end
 	
-	local content =
-	tags.div
+	local content = tags.div
 	{
-		tags.div {class = "box", style="margin-bottom: 5px;"}
-		{
-			err
-		},
+		tags.br,
 		tags.div {class = "box nowrap", style = "font-family: monospace; margin-bottom: 5px;"}
 		{
 			code,
@@ -106,6 +102,6 @@ local function basic_lua_error(err, trace, vars, args)
 		}
 	}
 	
-	template:make("500 Internal Server Error", "500 Internal Server Error", "", content).to_response(res)
+	template:make("500 Internal Server Error", "500 Internal Server Error", err, content).to_response(res)
 end
 hook.Add("LuaError", "basic error", basic_lua_error)
