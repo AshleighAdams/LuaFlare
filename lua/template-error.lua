@@ -1,6 +1,6 @@
 
 return {
-	make = function(self, title, heading, info, content)
+	make = function(self, title, heading, info, content, fgcol, bgcol)
 		local template = tags.html
 		{
 			tags.head
@@ -15,7 +15,7 @@ return {
 					body {
 						margin: 0;
 						background: black;
-						color: white;
+						color: ]] .. (fgcol or "white") .. [[;
 						font-family: "ProximaNovaCond",serif;
 					}
 					h1 {
@@ -37,6 +37,14 @@ return {
 						bottom: 0;
 						z-index:-1;
 					}
+					div.background
+					{
+						width: 100%;
+						height: 100%;
+						position: absolute;
+						background: ]] .. (bgcol or "transparent") .. [[;
+						z-index:-1;
+					}
 		
 					div.moon
 					{
@@ -53,7 +61,7 @@ return {
 					{
 						width: 800px;
 						margin: auto auto;
-						margin-top: ]] .. (content == nil and "20%" or "5%") .. [[;
+						padding-top: ]] .. (content == nil and "20%" or "5%") .. [[;
 					}
 				]]},
 				tags.script
@@ -84,8 +92,10 @@ return {
 				tags.div { class = "moon", id = "moon" },
 				tags.div { class = "sun" }
 				{
-					tags.div { class = "mountains", id = "mnt" }
-				},
+					tags.div { class = "mountains", id = "mnt" },
+					
+				},tags.div { class = "background" },
+				
 				tags.div { class = "wrapper" }
 				{
 					tags.center
