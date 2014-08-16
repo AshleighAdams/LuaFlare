@@ -18,24 +18,24 @@ function Response(request)
 	return ret
 end
 
-function meta:request() expects(meta)
+function meta::request()
 	return self._request
 end
 
-function meta:client() expects(meta)
+function meta::client()
 	return self._client
 end
 
-function meta:set_status(what) expects(meta, "number")
+function meta::set_status(number what)
 	assert(self and what)
 	self._status = what
 end
 
-function meta:append(str) expects(meta, "string")
+function meta::append(string str)
 	self._reply = self._reply .. str
 end
 
-function meta:clear() expects(meta)
+function meta::clear()
 	assert(self)
 	self._status = 200
 	self._content_type = "text/html"
@@ -44,17 +44,17 @@ function meta:clear() expects(meta)
 	self._tosend_cookies = nil
 end
 
-function meta:clear_headers() expects(meta)
+function meta::clear_headers()
 	self._headers = {}
 end
 
-function meta:clear_content() expects(meta)
+function meta::clear_content()
 	local status = self._status
 	self:clear()
 	self._status = status
 end
 
-function meta:set_file(path) expects(meta, "string")
+function meta::set_file(string path)-- expects(meta, "string")
 	local file = io.open(path, "rb")
 	
 	if not file then
@@ -116,28 +116,28 @@ function meta:set_file(path) expects(meta, "string")
 	return true
 end
 
-function meta:set_header(name, value) expects(meta, "string", "*")
+function meta::set_header(string name, * value) -- expects(meta, "string", "*")
 	name = util.canonicalize_header(name)
 	self._headers[name] = tostring(value)
 end
 
-function meta:remove_header(name, value) expects(meta, "string")
+function meta::remove_header(string name)
 	name = util.canonicalize_header(name)
 	self._headers[name] = nil
 end
 
-function meta:set_cookie(name, value, path, domain, lifetime) expects(meta, "string", "string")
+function meta::set_cookie(string name, string value, path, domain, lifetime)
 	self._tosend_cookies = self._tosend_cookies or {}
 	self._tosend_cookies[name] = {value=value, lifetime=lifetime, path=path, domain=domain}
 
 end
 
-function meta:etag()
+function meta::etag()
 	return string.format([[W/"%s"]], md5.sumhexa(self._reply))
 end
 
 local max_etag_size
-function meta:use_etag()
+function meta::use_etag()
 	if max_etag_size == nil then
 		local multi = {k = 1, M = 2, G = 3, T = 4, P = 5, E = 6, Z = 7, Y = 8}
 		local tmp = script.options["max-etag-size"] or "64 MiB"
@@ -158,7 +158,7 @@ end
 
 -- finish
 local x_powered_by = _VERSION:gsub("Lua ", "Lua/")
-function meta:send() expects(meta)
+function meta::send()
 	if self._sent then return end -- we've already sent it
 	self._sent = true -- mark future calls to send as done
 	
