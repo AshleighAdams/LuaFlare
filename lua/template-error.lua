@@ -69,18 +69,10 @@ return {
 				]]},
 				tags.script
 				{[[
-					var offset = 2560/2;
-					var rotate = 0;
 					setInterval(function  () {
-						// move the mountains
-						//var mnt = document.getElementById('mnt');
-						//offset += 1;
-						//mnt.style.backgroundPositionX = window.innerWidth/2 + offset + "px";
-						//mnt.style.backgroundPositionY = "bottom -100px";
-				
 						// rotate the moon
 						var moon = document.getElementById('moon');
-						rotate += 2;
+						var rotate = (new Date().getTime() / 50) % 360.0;
 						var str = "rotate(" + rotate + "deg)";
 						moon.style["-webkit-transform"] = str;
 						moon.style["-moz-transform"] = str;
@@ -110,7 +102,7 @@ return {
 						},
 						tags.div { style = "overflow: show;" }
 						{
-							tags.div { class = "mountains", id = "mnt" }
+							tags.div { class = "mountains" }
 							{
 								tags.div { class = "moon", id = "moon" }
 							}
