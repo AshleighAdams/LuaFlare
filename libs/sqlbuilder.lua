@@ -5,7 +5,7 @@ sqlbuilder._VERSION = "sql-builder 0.1"
 sqlbuilder.select = function(what, tbl)
 	local ret = {}
 	local options = ""
-	local prefix = " WHERE"
+	local prefix = "WHERE"
 	local limit
 
 	local query = string.format("SELECT %s FROM `%s`", escape.sql(what), escape.sql(tbl))
@@ -14,14 +14,16 @@ sqlbuilder.select = function(what, tbl)
 		local op = op
 		return function(key, value)
 			if type(value) == "string" then
-			value = string.format([["%s"]], escape.sql(value))
+				value = string.format([["%s"]], escape.sql(value))
 			else
 				value = escape.sql(tostring(value))
 			end
 			key = escape.sql(tostring(key))
 
-			query = string.format("%s%s %s %s %s", query, prefix, key, op, value)
-			prefix = ""
+			query = string.format("%s %s %s %s %s", query, prefix, key, op, value)
+			prefix = "AND"
+			
+			return ret
 		end
 	end
 
@@ -33,6 +35,7 @@ sqlbuilder.select = function(what, tbl)
 
 	ret.limit = function(number)
 		limit = number
+		return ret
 	end
 
 	ret.get = function()
@@ -45,3 +48,32 @@ end
 
 return sqlbuilder
 
+--[[
+-- concept:
+
+local user = req:params().user
+local pass = hash_password(req:params().pass)
+
+sqlbuilder.fromtable({
+	SELECT = "*",
+	FROM = "tbl",
+	WHERE = {
+		{
+			{"user", "=", user}
+			"AND",
+			{"pass", "=", pass}
+		},
+		"OR",
+		{
+			{"user", "=", user},
+			"AND",
+			{"pass", "=", ""} -- idk, just to show the thingy
+		}
+	},
+	LIMIT = 1
+})
+
+-- yields:
+-- SELECT * FROM `tbl` WHERE (user="Kobra" AND pass="a94...f2e") OR (user="Kobra" AND pass="") LIMIT 1
+
+]]
