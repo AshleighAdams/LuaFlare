@@ -48,7 +48,7 @@ return {
 					{
 						width: 128px;
 						height: 128px;
-						top: 75px;
+						top: 80px;
 						left: 50%;
 						position: relative;
 						background-image: url("/luaserver/moon.png");
