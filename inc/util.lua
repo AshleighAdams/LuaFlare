@@ -655,7 +655,7 @@ end
 local rgx = "function$ $maybename$ %($args%)"
 rgx = rgx:Replace("$maybename", "([A-z0-9_%.:]*)")
 rgx = rgx:Replace("$ ", "%s*")
-rgx = rgx:Replace("$args", "([A-z0-9_, %*&]-)")
+rgx = rgx:Replace("$args", "([A-z0-9_, %*&%.]-)")
 function util.translate_luacode(code)
 	code = code:gsub(rgx, function(name, argslist)
 		local args = argslist:Split(",")
@@ -675,7 +675,7 @@ function util.translate_luacode(code)
 		end
 	
 		for _, arg in pairs(args) do
-			local arg_split = arg:Split(" ", {remove_empty = true})
+			local arg_split = arg:Trim():Split(" ", {remove_empty = true})
 			local arg_name, arg_type
 			
 			if #arg_split == 1 then
@@ -714,7 +714,7 @@ function util.translate_luacode(code)
 end
 
 -- include'd files will have enhanced syntax
-local dofile = function(file, ...)
+--[[local]] dofile = function(file, ...)
 	local f = assert(io.open(file, "r"))
 	local code = f:read("*a")
 	f:close()

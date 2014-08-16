@@ -52,12 +52,13 @@ local function basic_lua_error(err, trace, vars, args)
 		trace = {}
 		
 		for k,v in pairs(split) do
-			if k == 1 and v:match("inc/hooks%.lua:%d+: in function '__concat'") then
+			local str = v:gsub("%[string \"(.-)\"%]", "%1")
+			
+			if k == 1 and str:match("inc/hooks%.lua:%d+: in function '__concat'") then
 				-- ignore this one
-			elseif v:Trim():StartsWith("inc/requesthooks.lua") then
+			elseif str:Trim():StartsWith("inc/requesthooks.lua") then
 				break -- after this is internal LuaServer stuff
 			else
-				local str = v:gsub("%[string \"(.-)\"%]", "%1")
 				table.insert(trace, str)
 			end
 		end

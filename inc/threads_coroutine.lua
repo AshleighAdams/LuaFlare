@@ -5,9 +5,15 @@ routines = routines or {}
 
 -- to take the options 'n stuff from caller, and imports
 do
+	local depth = 1
+	while true do
+		if not pcall(debug.getlocal, depth + (1 + 2), 1) then break end -- + 1 for next, itt, + 2 for pcall scopes
+		depth = depth + 1
+	end
+	
 	local i = 1
 	while true do
-		local name, val = debug.getlocal(4, i)
+		local name, val = debug.getlocal(depth, i)
 		if name ~= nil then
 			_ENV[name] = val
 		else
