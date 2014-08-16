@@ -105,58 +105,58 @@ function Request(client) -- expects("userdata")
 	return request
 end
 
-function meta:method() expects(meta)
+function meta::method()
 	return self._method
 end
 
-function meta:params() expects(meta)
+function meta::params()
 	return self._params
 end
 
-function meta:post_data() expects(meta)
+function meta::post_data()
 	if self._post_data == nil then
 		self._post_data = parse_params(self._post_string)
 	end
 	return self._post_data
 end
 
-function meta:post_string() expects(meta)
+function meta::post_string()
 	return self._post_string
 end
 
-function meta:headers() expects(meta)
+function meta::headers()
 	return self._headers
 end
 
-function meta:url() expects(meta)
+function meta::url()
 	return self._url
 end
 
-function meta:full_url() expects(meta)
+function meta::full_url()
 	return self._full_url
 end
 
-function meta:parsed_url() expects(meta)
+function meta::parsed_url()
 	return self._parsed_url
 end
 
-function meta:client() expects(meta)
+function meta::client()
 	return self._client
 end
 
-function meta:start_time() expects(meta)
+function meta::start_time()
 	return self._start_time
 end
 
-function meta:total_time() expects(meta)
+function meta::total_time()
 	return util.time() - self._start_time
 end
 
-function meta:peer() expects(meta)
+function meta::peer()
 	return self._peer
 end
 
-function meta:parse_cookies() expects(meta)
+function meta::parse_cookies()
 	local cookie_str = self:headers().Cookie or ""
 	self._cookies = {}
 
@@ -171,17 +171,17 @@ function meta:parse_cookies() expects(meta)
 	end
 end
 
-function meta:get_cookie(name) expects(meta, "string")
+function meta::get_cookie(string name)
 	if not self._cookies then self:parse_cookies() end
 	return self._cookies[name]
 end
 
 -- some util stuff we need
-function meta:is_upgraded() expects(meta)
+function meta::is_upgraded()
 	return self.upgraded == true
 end
 
-function meta:set_upgraded()
+function meta::set_upgraded()
 	self.upgraded = true
 end
 

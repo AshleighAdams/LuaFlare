@@ -1,7 +1,7 @@
 scheduler = {}
 scheduler.tasks = {}
 
-function scheduler.newtask(name, func) expects("string", "function")
+function scheduler.newtask(string name, function func) -- expects("string", "function")
 	table.insert(scheduler.tasks, {
 		name = name,
 		co = coroutine.create(func),
