@@ -256,3 +256,22 @@ local function get_info(req, res)
 	res:append("session = " .. escape.html(table.ToString(data)))
 end
 reqs.AddPattern("*", "/info", get_info)
+
+
+function translate(req, res, filename)
+	filename = filename:Trim()
+	
+	if filename:match("%.%.") ~= nil then
+		return res:halt(403, "Path contains \"..\"!") -- forbidden
+	elseif filename:StartsWith("/") then
+		return res:halt(403, "Path starts with \"/\"!") -- forbidden
+	end
+	
+	local f = assert(io.open(filename, "r"))
+	local code = util.translate_luacode(f:read("*a"))
+	f:close()
+	
+	res:append(code)
+	res:set_header("Content-Type", "text/plain")
+end
+reqs.AddPattern("*", "/translate/(.+)", translate)

@@ -54,6 +54,11 @@ function meta::clear_content()
 	self._status = status
 end
 
+function meta::halt(number code, reason) -- default code is?
+	self:set_status(code)
+	hook.Call("Error", {type = code, message = reason}, self:request(), self)
+end
+
 function meta::set_file(string path)-- expects(meta, "string")
 	local file = io.open(path, "rb")
 	
