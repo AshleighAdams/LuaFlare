@@ -47,18 +47,23 @@ local function basic_lua_error(err, trace, vars, args)
 	print(err, trace or "no trace") -- print the raw uncleaned trace (as the cleaning stuff might omit important information...  for 99.99999% of cases though it should be fine.
 	
 	if trace then -- make the trace look pretty
+		local blame = err:match("(.-:%d-:)")
+		local atblame = blame == nil
+		
 		local split = trace:Split("\n")
-		table.remove(split, 1) -- remove the silly stack trace: text
+		-- table.remove(split, 1) -- remove the silly stack trace: text
 		trace = {}
 		
 		for k,v in pairs(split) do
 			local str = v:gsub("%[string \"(.-)\"%]", "%1")
 			
-			if k == 1 and str:match("inc/hooks%.lua:%d+: in function '__concat'") then
-				-- ignore this one
+			if v:Trim():StartsWith(blame) then
+				atblame = true -- we can start adding traces
 			elseif str:Trim():StartsWith("inc/requesthooks.lua") then
 				break -- after this is internal LuaServer stuff
-			else
+			end
+			
+			if atblame then
 				table.insert(trace, str)
 			end
 		end
@@ -83,9 +88,8 @@ local function basic_lua_error(err, trace, vars, args)
 	local code = ""
 	
 	if line_num ~= nil then
-		-- for the loadfile format, and loadstring format
+		-- for the loadfile format, and loadstring format		
 		local file = err:match("%[string \"(.-%.lua)") or err:match("(.-%.lua)")
-		
 		line_num = tonumber(line_num)
 		
 		line = line_from(file, line_num) or string.format("could not locate source for %s", file)
