@@ -38,13 +38,31 @@ hook.Call = function (name, ...)
 		return
 	end
 	
-	for k,func in pairs(hooktbl) do
+	for k,_func in pairs(hooktbl) do
 		local args = {...}
+		local func = _func -- make a reference, so that inside on_error, it always referes to this itteration
 		local bound = function() return func(unpack(args)) end
 		
 		local function on_error(err)
 			local variables = {}
-			local idx = 1
+			local idx
+			
+			-- get the upvalues for the func
+			--[[
+			idx = 1
+			while true do
+				local ln, lv = debug.getupvalue(func, idx)
+				if ln ~= nil then
+					variables[ln] = lv
+				else
+					break
+				end
+				idx = 1 + idx
+			end
+			]]
+			
+			-- get the locals
+			idx = 1
 			while true do
 				local ln, lv = debug.getlocal(2, idx)
 				if ln ~= nil then

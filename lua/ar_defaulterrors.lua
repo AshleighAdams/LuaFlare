@@ -103,19 +103,35 @@ local function basic_lua_error(err, trace, vars, args)
 	end
 	
 	local done = {}
-	for varname in line:gmatch("[A-z_][A-z0-9]*") do
-		if vars[varname] ~= nil and not done[varname] then
-			done[varname] = true
-			
-			local val = to_lua_value(vars[varname])
-			local typ = type(vars[varname])
-			
+	
+	local DISPLAY_ALL_VARS = false
+	if DISPLAY_ALL_VARS then
+		for varname, var in pairs(vars) do
+			local val = to_lua_value(var)
+			local typ = type(var)
+	
 			if typ == "table" then
-				local with = "{ -- " .. tostring(vars[varname])
-				val = to_lua_table(vars[varname]):gsub("{", with, 1)
+				local with = "{ -- " .. tostring(var)
+				val = to_lua_table(var):gsub("{", with, 1)
 			end
-			
+	
 			code = code .. "local " .. varname .. " = " .. val .. "\n"
+		end
+	else
+		for varname in line:gmatch("[A-z_][A-z0-9]*") do
+			if vars[varname] ~= nil and not done[varname] then
+				done[varname] = true
+			
+				local val = to_lua_value(vars[varname])
+				local typ = type(vars[varname])
+			
+				if typ == "table" then
+					local with = "{ -- " .. tostring(vars[varname])
+					val = to_lua_table(vars[varname]):gsub("{", with, 1)
+				end
+			
+				code = code .. "local " .. varname .. " = " .. val .. "\n"
+			end
 		end
 	end
 	
