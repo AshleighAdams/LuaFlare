@@ -44,7 +44,7 @@ local function basic_lua_error(err, trace, vars, args)
 	local req = args[1]
 	local res = args[2]
 	
-	print(err, trace or "no trace") -- print the raw uncleaned trace (as the cleaning stuff might omit important information...  for 99.99999% of cases though it should be fine.
+	warn("%s: %s", err, trace or "no trace") -- print the raw uncleaned trace (as the cleaning stuff might omit important information...  for 99.99999% of cases though it should be fine.
 	
 	if trace then -- make the trace look pretty
 		local blame = err:match("(.-:%d-:)")

@@ -23,7 +23,7 @@ function scheduler.run()
 			local t = util.time() - st
 			
 			if t > 0.5 then -- warn if > 0.5 seconds...
-				print(string.format("scheduler: warning: %s: took %ds to execute!", tbl.name, t))
+				warn("scheduler: warning: %s: took %ds to execute!", tbl.name, t)
 			end
 			
 			if not isnoterr then -- something went wrong
@@ -31,7 +31,7 @@ function scheduler.run()
 				
 				-- did it die of natural causes?
 				if ret ~= "cannot resume dead coroutine" then
-					print(string.format("scheduler: Lua error: %s", ret))
+					warn("scheduler: Lua error: %s", ret)
 				end
 			else
 				-- run 66 times per second by default

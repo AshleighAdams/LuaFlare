@@ -267,7 +267,8 @@ function translate(req, res, filename)
 		return res:halt(403, "Path starts with \"/\"!") -- forbidden
 	end
 	
-	local f = assert(io.open(filename, "r"))
+	local f = io.open(filename, "r")
+	if not f then return res:halt(404, filename) end
 	local code = util.translate_luacode(f:read("*a"))
 	f:close()
 	

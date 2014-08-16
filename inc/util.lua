@@ -650,6 +650,14 @@ function print(...)
 	static_print(id, ...)
 end
 
+local col_red = "\x1b[31;1m"
+local col_reset = "\x1b[0m"
+function warn(str, ...) expects("string") -- print a warning to stderr
+	local outstr = string.format("%s%s%s", col_red, str:format(...), col_reset)
+	hook.Call("Warning", outstr)
+	print(outstr)
+end
+
 -- include helpers
 
 local rgx = "function$ $maybename$ %($args%)"
@@ -723,7 +731,7 @@ end
 	local f, err = loadstring(code, file)
 	
 	if not f then
-		print(string.format("failed to loadstring: %s", err))
+		warn("failed to loadstring: %s", err)
 		return error(err, -1)
 	end
 	
