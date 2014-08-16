@@ -724,6 +724,7 @@ local dofile = function(file, ...)
 	
 	if not f then
 		print(string.format("failed to loadstring: %s", err))
+		return error(err, -1)
 	end
 	
 	return f(...)
@@ -731,9 +732,10 @@ end
 
 local stacks = stack()
 local current = stack()
-function include(file) expects "string"
+function include(file, ...) expects "string"
 	package.included = package.included or {}
 
+	local err = nil -- if this != nil at the end, call error with this string
 	local path = file:Path()
 	file = file:sub(path:len() + 1)
 
@@ -748,9 +750,12 @@ function include(file) expects "string"
 		end
 		
 		stacks:push(on_dep)
-			local ret = {dofile(current:value() .. file)}
-			-- Add it to the registry
-			do
+			local ret = {pcall(dofile, current:value() .. file, ...)}
+			local success = table.remove(ret, 1) -- pcall returns `succeded, f()`, remove the top value
+			
+			if success == false then -- failed to compile...
+				err = ret[1] -- the top of the ret table == the error string
+			else -- Add it to the registry
 				local file = current:value() .. file
 				package.included[file] = package.included[file] or {}
 
@@ -782,6 +787,7 @@ function include(file) expects "string"
 		stacks:pop()
 	current:pop()
 	
+	if err ~= nil then error(string.format("while including: %s: %s", file, err), -1) end
 	return unpack(ret), deps
 end
 	
