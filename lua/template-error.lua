@@ -69,8 +69,8 @@ return {
 				]]},
 				tags.script
 				{[[
-					setInterval(function  () {
-						// rotate the moon
+					function rotate_moon()
+					{
 						var moon = document.getElementById('moon');
 						var rotate = (new Date().getTime() / 50) % 360.0;
 						var str = "rotate(" + rotate + "deg)";
@@ -79,7 +79,9 @@ return {
 						moon.style["-ms-transform"] = str;
 						moon.style["-o-transform"] = str;
 						moon.style["transform"] = str;
-					}, 1/24*1000);
+					}
+					setInterval(rotate_moon, 1/24*1000);
+					document.addEventListener('DOMContentLoaded', rotate_moon, false);
 				]]}
 			},
 			tags.body
@@ -104,7 +106,7 @@ return {
 						{
 							tags.div { class = "mountains" }
 							{
-								tags.div { class = "moon", id = "moon" }
+								tags.div { class = "moon", id = "moon", onload = "rotate_moon();" }
 							}
 						}
 					}
