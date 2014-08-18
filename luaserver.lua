@@ -104,6 +104,8 @@ function main()
                                   128KiB (1024*128).  Lower values means less
                                   susceptible to fuzzing attacks, but lower
                                   transfer speeds.
+--display-all-vars                On a Lua error, show all variables, not just
+                                  related.
 ]])
 		return
 	end

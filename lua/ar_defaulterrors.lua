@@ -104,8 +104,7 @@ local function basic_lua_error(err, trace, vars, args)
 	
 	local done = {}
 	
-	local DISPLAY_ALL_VARS = false
-	if DISPLAY_ALL_VARS then
+	if script.options["display-all-vars"] then
 		for varname, var in pairs(vars) do
 			local val = to_lua_value(var)
 			local typ = type(var)
