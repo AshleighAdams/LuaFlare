@@ -12,7 +12,7 @@
 # Author: Kate Adams <self@kateadams.eu>
 
 USER="kobra"
-DIR="/home/$USER/LuaServer"
+DIR="/home/$USER/LuaServer" # TODO: make this dynamic
 
 NAME="luaserver"
 DESC="Lua web server"
