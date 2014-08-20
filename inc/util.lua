@@ -653,7 +653,11 @@ end
 local col_red = "\x1b[31;1m"
 local col_reset = "\x1b[0m"
 function warn(str, ...) expects("string") -- print a warning to stderr
-	local outstr = string.format("%s%s%s", col_red, str:format(...), col_reset)
+	if #{...} ~= 0 then
+		str = string.format(str, ...)
+	end
+	
+	local outstr = string.format("%s%s%s", col_red, str, col_reset)
 	hook.Call("Warning", outstr)
 	print(outstr)
 end
