@@ -51,6 +51,11 @@ end
 
 reqs.Upgrades = {}
 
+local function func_string(func) expects("function")
+	local info = debug.getinfo(func)
+	return string.format("%s @ %s:%d", info.name or "function", info.source or "unknown", info.linedefined or -1)
+end
+
 reqs.OnRequest = function(request, response)
 	local hits = {}
 	local req_url = request:url()
@@ -60,9 +65,7 @@ reqs.OnRequest = function(request, response)
 		local f = reqs.Upgrades[ug]
 		
 		if not f then
-			print("no upgrade for " .. ug)
-			response:set_status(501)
-			hook.Call("Error", {type = 501, message = "Invalid upgrade"}, request, response)
+			response:halt(500, "Invalid upgrade: " .. ug)
 			return
 		end
 		
@@ -82,11 +85,17 @@ reqs.OnRequest = function(request, response)
 	end
 	
 	if #hits == 0 then
-		response:set_status(404)
-		hook.Call("Error", {type = 404}, request, response)
+		response:halt(404)
 	elseif #hits ~= 1 then
-		response:set_status(501)
-		hook.Call("Error", {type = 501, message = "page clash"}, request, response)
+		local lines = {"The following hooks are conflicted with this request:", ""}
+		for k,v in pairs(hits) do
+			local line = string.format("%s as %s with arguments %s", 
+				v.hook.url, func_string(v.hook.func), table.concat(v.res, ", "))
+			table.insert(lines, line)
+		end
+		local lines = table.concat(lines, "\n")
+		warn(lines)
+		response:halt(409 --[[conflict]], lines)
 	else
 		hits[1].hook.func(request, response, unpack(hits[1].res))
 	end

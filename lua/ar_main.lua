@@ -258,7 +258,7 @@ end
 reqs.AddPattern("*", "/info", get_info)
 
 
-function translate(req, res, filename)
+local function translate(req, res, filename)
 	filename = filename:Trim()
 	
 	if filename:match("%.%.") ~= nil then
@@ -276,3 +276,13 @@ function translate(req, res, filename)
 	res:set_header("Content-Type", "text/plain")
 end
 reqs.AddPattern("*", "/translate/(.+)", translate)
+
+
+local function conflict1(req, res, ...)
+	res:append("OK - 1: " .. table.concat({...}, ", "))
+end
+local function conflict2(req, res, ...)
+	res:append("OK - 2: " .. table.concat({...}, ", "))
+end
+reqs.AddPattern("*", "/conflict/(*)", conflict1)
+reqs.AddPattern("*", "/conflict/(%d+)", conflict2)
