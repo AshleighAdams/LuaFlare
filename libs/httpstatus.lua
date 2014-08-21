@@ -1,8 +1,12 @@
 local httpstatus = {}
 
 httpstatus.know_statuses = {
+	-- 1XX
 	[100] = "Continue",
 	[101] = "Switching Protocols",
+	[102] = "Processing",
+	
+	-- 2XX
 	[200] = "OK",
 	[201] = "Created",
 	[202] = "Accepted",
@@ -10,14 +14,23 @@ httpstatus.know_statuses = {
 	[204] = "No Content",
 	[205] = "Reset Content",
 	[206] = "Partial Content",
+	[207] = "Multi-Status",
+	[208] = "Already Reported",
+	
+	[226] = "IM Used",
+	
+	-- 3XX
 	[300] = "Multiple Choices",
 	[301] = "Moved Permanently",
 	[302] = "Found",
 	[303] = "See Other",
 	[304] = "Not Modified",
 	[305] = "Use Proxy",
+	
 	[307] = "Temporary Redirect",
 	[308] = "Permanent Redirect",
+	
+	-- 4XX
 	[400] = "Bad Request",
 	[401] = "Unauthorized",
 	[402] = "Payment Required",
@@ -37,13 +50,36 @@ httpstatus.know_statuses = {
 	[416] = "Requested Range Not Satisfiable",
 	[417] = "Expectation Failed",
 	[418] = "I'm a teapot",
+	
 	[420] = "Enhance Your Calm",
+	
+	[422] = "Unprocessable Entity",
+	
+	[423] = "Locked",
+	[424] = "Failed Dependency",
+	
+	[426] = "Upgrade Required",
+	
+	[428] = "Precondition Required",
+	[429] = "Too Many Requests",
+	
+	[431] = "Request Header Fields Too Large",
+	
+	[451] = "Unavailable For Legal Reasons",
+	
+	-- 5XX
 	[500] = "Internal Server Error",
 	[501] = "Not Implemented",
 	[502] = "Bad Gateway",
 	[503] = "Service Unavailable",
 	[504] = "Gateway Timeout",
-	[505] = "HTTP Version Not Supported"
+	[505] = "HTTP Version Not Supported",
+	[506] = "Variant Also Negotiates",
+	[507] = "Insufficient Storage",
+	[508] = "Loop Detected",
+	
+	[510] = "Not Extended",
+	[511] = "Network Authentication Required",
 }
 
 function httpstatus.tostring(number) expects "number"
