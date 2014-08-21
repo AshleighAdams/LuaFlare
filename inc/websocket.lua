@@ -113,22 +113,27 @@ local function Upgrade_websocket(request, response)
 	local version  = request:headers()["Sec-WebSocket-Version"]
 	
 	if not key or not protocol or not version then
-		print(key, protocol, version)
-		response:set_status(501)
+		print("Upgrade [websocket] failed:", key, protocol, version)
+		response:halt(400, "The header Sec-Websocket-Key, Sec-WebSocket-Protocol, or Sec-WebSocket-Version was not set!") -- bad request
 		response:send()
 		return
 	end
 	
 	local path_tbl = websocket.registered[request:url()]
 	if not path_tbl then
-		response:set_status(404)
+		response:halt(404, string.format("A web socket is not listening at %s", request:url()))
 		response:send()
 		return
 	end
 	
 	local proto = path_tbl[protocol]
 	if not proto then
-		response:set_status(404)
+		response:halt(404, 
+			string.format("A web socket is not listening at %s with the protocol %s",
+				request:url(),
+				protocol
+			)
+		)
 		response:send()
 		return
 	end
