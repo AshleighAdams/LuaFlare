@@ -53,7 +53,7 @@ they may be automatically reloaded too.
 | --x-accel-redirect=\<path\>          | "" \[/./\]    | \*                      | Serve static content with X-Accel-Redirect (Nginx).       |
 | --x-sendfile                         | false         | true, false             | Serve static content with X-Sendfile (mod_xsendfile).     |
 | --chunk-size                         | 131072        | 0-\*                    | Number of bytes to send per chunk.                        |
-| --scheduler-tick-rate=\<number\>     | 66            | 0-\*                    | The fallback tickrate (Hz) for a schedual that yields nil.|
+| --scheduler-tick-rate=\<number\>     | 60            | 0-\*                    | The fallback tickrate (Hz) for a schedual that yields nil.|
 
 
 ## Handle a Page

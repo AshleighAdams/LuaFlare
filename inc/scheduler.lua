@@ -13,7 +13,7 @@ function scheduler.newtask(string name, function func) -- expects("string", "fun
 	})
 end
 
-scheduler.tick_rate = 1 / ( tonumber(script.options["scheduler-tick-rate"]) or 66 )
+scheduler.tick_rate = 1 / ( tonumber(script.options["scheduler-tick-rate"]) or 60 )
 function scheduler.run()
 	local t = util.time()
 	for k, tbl in pairs(scheduler.tasks) do
@@ -35,8 +35,7 @@ function scheduler.run()
 					warn("scheduler: Lua error: %s", ret)
 				end
 			else
-				-- run 66 times per second by default
-				-- TODO: add option to control default
+				-- run scheduler.tick_rate times per second by default
 				tbl.nexttime = util.time() + (ret or scheduler.tick_rate)
 				
 				tbl.lasttickrate = (ret or scheduler.tick_rate)
