@@ -13,6 +13,7 @@ function scheduler.newtask(string name, function func) -- expects("string", "fun
 	})
 end
 
+scheduler.tick_rate = 1 / ( tonumber(script.options["scheduler-tick-rate"]) or 66 )
 function scheduler.run()
 	local t = util.time()
 	for k, tbl in pairs(scheduler.tasks) do
@@ -36,9 +37,9 @@ function scheduler.run()
 			else
 				-- run 66 times per second by default
 				-- TODO: add option to control default
-				tbl.nexttime = util.time() + (ret or 0.01667)
+				tbl.nexttime = util.time() + (ret or scheduler.tick_rate)
 				
-				tbl.lasttickrate = (ret or 0.01667)
+				tbl.lasttickrate = (ret or scheduler.tick_rate)
 				tbl.exectime = tbl.exectime + t
 			end
 		end

@@ -106,6 +106,8 @@ function main()
                                   transfer speeds.
 --display-all-vars                On a Lua error, show all variables, not just
                                   related.
+--scheduler-tick-rate=number      The fallback tickrate (Hz) for a schedual that
+                                  yields nil. (default 66).
 ]])
 		return
 	end
