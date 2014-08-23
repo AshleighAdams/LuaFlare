@@ -12,10 +12,16 @@ function threadpool.create(threads, func) expects("number", "function")
 	tp.finished = 0
 	
 	tp.thread_function = function()
-		while not tp.quit do
-			func(tp:dequeue())
-			tp.finished = tp.finished + 1
-		end
+		xpcall(function()
+			while not tp.quit do
+				func(tp:dequeue())
+				tp.finished = tp.finished + 1
+			end
+		end, function(err)
+			-- () around coroutine.running() to force ignore the 2nd ret value, might not be needed, but better safe than sorry
+			local costr = tostring( (coroutine.running()) ):match("0x(.+)")
+			warn("thread %s died: %s\n%s", costr, err, debug.traceback())
+		end)
 	end
 	
 	for i=1, threads do
@@ -54,8 +60,9 @@ function threadpool:step() expects(threadpool._meta)
 				warn(err)
 			end
 		else
-			warn("coroutine died")
+			warn("coroutine %s died, remaking...", tostring(co):match("0x(.+)"))
 			table.remove(self.routines, i)
+			table.insert(self.routines, coroutine.create(self.thread_function))
 		end
 	end
 end
