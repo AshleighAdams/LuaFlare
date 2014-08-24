@@ -42,7 +42,16 @@ function Request(client) -- expects("userdata")
 	
 	local method, full_url, version = string.match(action, "(%w+) (.+) HTTP/([%d.]+)")
 	version = tonumber(version)
-	local parsed_url = url.parse(full_url)
+	
+	local parsed_url
+	-- is the host embedded in the GET path? (HTTP 1.2 and up only)
+	if version >= 1.2 and not full_url:StartsWith("/") then
+		parsed_url = url.parse(full_url)
+	else
+		-- add a dot at the front of the path to ensure that it is treated as a path, and not a full URL.
+		parsed_url = url.parse("." .. full_url)
+		parsed_url.path = parsed_url.path:sub(2) -- remove the dot we added.
+	end
 	
 	if method == nil or full_url == nil or version == nil then
 		quick_response_client(client, 400) 
