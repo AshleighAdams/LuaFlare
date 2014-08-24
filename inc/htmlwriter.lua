@@ -222,7 +222,7 @@ end
 
 generate_tag("SECTION", {section_marker = true})
 generate_tag("NOESCAPE", {noescape = true})
-generate_tag("html")
+generate_tag("html", {pre_text = "<!DOCTYPE html>\n"})
 generate_tag("head")
 generate_tag("body")
 generate_tag("script", {escape_function = escape.striptags})
