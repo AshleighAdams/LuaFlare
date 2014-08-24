@@ -62,6 +62,9 @@ function generate_html(first, tbl, depth, parent, section, state)
 		end
 		
 		if section == state.current_section then
+			if tbl.tag_options.pre_text then
+				generated_html = tabs .. tbl.tag_options.pre_text:gsub("\n", "\n" .. tabs) .. generated_html
+			end
 			generated_html = generated_html .. tabs .. "<" .. tbl.name .. attributes .. endbit
 		end
 		
