@@ -21,10 +21,11 @@ for _, hostname in pairs ((script.options["trusted-reverse-proxies"] or "localho
 	end
 end
 
-local function quick_response(request, err)
+local function quick_response(request, err, why)
 	local response = Response(request)
-	response:set_status(err)
+	response:halt(err, why)
 	response:send()
+	return why
 end
 
 local function quick_response_client(client, err)
@@ -98,17 +99,17 @@ function Request(client) -- expects("userdata")
 		local len = request:headers()["Content-Length"]
 		
 		if len == nil then -- send them a length required
-			quick_response(request, 411)
-			return nil, "Length required"
+			return nil, quick_response(request, 411, "Length required")
 		end
 		
 		local post, err = client:receive(tonumber(len))
-		if post == nil then quick_response(request, 400) return nil, "failed to read post data (" .. len .. ") bytes: " .. err end
+		if post == nil then
+			return nil, quick_response(request, 400, "failed to read post data (" .. len .. ") bytes: " .. err)
+		end
 		
 		request._post_string = post
 	else
-		quick_response(request, 501)
-		return  nil, method .. " not supported"
+		return nil, quick_response(request, 501, method .. " not supported")
 	end
 	
 	return request
