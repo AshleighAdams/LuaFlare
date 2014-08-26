@@ -54,6 +54,7 @@ they may be automatically reloaded too.
 | --x-sendfile                         | false         | true, false             | Serve static content with X-Sendfile (mod_xsendfile).     |
 | --chunk-size                         | 131072        | 0-\*                    | Number of bytes to send per chunk.                        |
 | --scheduler-tick-rate=\<number\>     | 60            | 0-\*                    | The fallback tickrate (Hz) for a schedual that yields nil.|
+| --max-post-length=\<number\>         | ""            | 0-\*, ""                | The maximum length of the post data.                      |
 
 
 ## Handle a Page

@@ -108,6 +108,7 @@ function main()
                                   related.
 --scheduler-tick-rate=number      The fallback tickrate (Hz) for a schedual that
                                   yields nil. (default 60).
+--max-post-length=number          The maximum length of the post data.
 ]])
 		return
 	end

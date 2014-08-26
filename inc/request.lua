@@ -93,18 +93,22 @@ function Request(client) -- expects("userdata")
 	
 	setmetatable(request, meta)
 	
+	local maxpostlength = tonumber(script.options["max-post-length"])
+	
 	-- read the post data
 	if method == "GET" or method == "HEAD" then
 	elseif method == "POST" then
-		local len = request:headers()["Content-Length"]
+		local len = tonumber(request:headers()["Content-Length"])
 		
 		if len == nil then -- send them a length required
 			return nil, quick_response(request, 411, "Length required")
+		elseif maxpostlength ~= nil and len > maxpostlength then
+			return nil, quick_response(request, 413, "Maximum post data length exceeded")
 		end
 		
 		local post, err = client:receive(tonumber(len))
 		if post == nil then
-			return nil, quick_response(request, 400, "failed to read post data (" .. len .. ") bytes: " .. err)
+			return nil, quick_response(request, 400, "Failed to read post data (" .. len .. " bytes): " .. err)
 		end
 		
 		request._post_string = post
