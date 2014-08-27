@@ -85,8 +85,8 @@ function main()
 --threads=number                  Number of threads to create (default 2).
 --threads-model=string            Threading mode to use (default coroutine).
 --host=string                     The address to bind to (default *).
--l, --local                       Equilivent to: --host=localhost
--t, --unit-test                   Perfom unit tests and quit.
+-l, --local                       Equivalent to: --host=localhost
+-t, --unit-test                   Perform unit tests and quit.
 -h, --help                        Show this help.
 -v, --version                     Print out version information and quit.
 --no-reload                       Don't automatically reload ar_*.lua scripts
@@ -106,7 +106,7 @@ function main()
                                   transfer speeds.
 --display-all-vars                On a Lua error, show all variables, not just
                                   related.
---scheduler-tick-rate=number      The fallback tickrate (Hz) for a schedual that
+--scheduler-tick-rate=number      The fallback tickrate (Hz) for a schedule that
                                   yields nil. (default 60).
 --max-post-length=number          The maximum length of the post data.
 ]])
