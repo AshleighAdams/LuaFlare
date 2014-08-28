@@ -36,6 +36,8 @@ local function generate_resource_patern(pattern)
 end
 
 reqs.AddPattern = function(host, url, func)
+	local original_url = url
+	
 	host = generate_host_patern(host)
 	url = generate_resource_patern(url)
 	
@@ -46,7 +48,7 @@ reqs.AddPattern = function(host, url, func)
 		end
 	end
 	
-	table.insert(reqs.PatternsRegistered, {host = host, url = url, func = func})
+	table.insert(reqs.PatternsRegistered, {host = host, url = url, func = func, original_url = original_url})
 end
 
 reqs.Upgrades = {}
@@ -90,7 +92,7 @@ reqs.OnRequest = function(request, response)
 		local lines = {"The following hooks are conflicted with this request:", ""}
 		for k,v in pairs(hits) do
 			local line = string.format("%s as %s with arguments %s", 
-				v.hook.url, func_string(v.hook.func), table.concat(v.res, ", "))
+				v.hook.original_url, func_string(v.hook.func), table.concat(v.res, ", "))
 			table.insert(lines, line)
 		end
 		local lines = table.concat(lines, "\n")
