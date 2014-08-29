@@ -1,4 +1,25 @@
+--[[
+Copyright (c) 2014 Kate Adams
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+]]
+
 local configor = {}
+
+-- this function is just type checking
+if not expects then expects = function() end end
+
 -- configor node
 local node = {}
 node._meta = {}
@@ -46,23 +67,23 @@ end
 
 
 function node:name()  expects(node._meta)
-	return self._name
+	return rawget(self, "_name")
 end
 function node:data()
-	return self._value
+	return rawget(self, "_value")
 end
 function node:set_name(name) expects(node._meta, "string")
-	self._name = name
+	rawset(self, "_name", name)
 end
 function node:parent() expects(node._meta)
-	return self._parent
+	return rawget(self, "_parent")
 end
 
 function node:has_children() expects(node._meta)
-	return table.Count(self._children) ~= 0
+	return table.Count(self:children()) ~= 0
 end
 function node:children() expects(node._meta)
-	return self._children
+	return rawget(self, "_children")
 end
 function node:get_child(key) expects(node._meta, "string")
 	local cache = rawget(self, "_cache")
@@ -127,29 +148,29 @@ end
 
 local function inrange(val, ...)
 	local args = {...}
-	
+	local count = 0
 	for i = 1, #args do
 		local min, max = args[i][1], args[i][2]
-		if not (val >= from and val <= to) then
-			return false
+		if val >= min and val <= max then
+			return true
 		end
 	end
-	return true
+	return false
 end
 -- returns end position, string
 local function parse_hex(str, pos, len)
-	if pos + 1 < len then
+	if pos + 2 > len then
 		return nil, "not enough room to parse hex literal"
 	end
 	
-	local a = str:sub(pos, pos):lower()
-	local b = str:sub(pos + 1, pos + 1):lower()
+	local a = str:sub(pos + 1, pos + 1):lower()
+	local b = str:sub(pos + 2, pos + 2):lower()
 	
-	if not inrange(a, {"a", "f"}, {"0", "9"}) or not inrange(a, {"a", "f"}, {"0", "9"}) then
+	if not inrange(a, {"a", "f"}, {"0", "9"}) or not inrange(b, {"a", "f"}, {"0", "9"}) then
 		return nil, "invalid hex digit: 0x" .. a .. b
 	end
 	
-	return 2, tonumber(a .. b, 16)
+	return 3, tonumber(a .. b, 16) -- ("xFF"):len() == 3
 end
 
 local literals = {
@@ -233,7 +254,7 @@ local function tokenize(str)
 		elseif char == '"' then
 			local endpos, val = parse_quotes(str, pos)
 			if endpos == nil then
-				return nil, string.format("error parsing string literal: %s (started line %i)", val, cur_line)
+				return nil, string.format("%i: error parsing string literal: %s", cur_line, val)
 			end
 			pos = endpos
 			table.insert(ret, {type="string", value=val, line=cur_line})
@@ -250,7 +271,6 @@ end
 
 local function parse(tokens)
 	local root_node = node(nil, "root")
-	
 	local current_node = root_node
 	local new_node = nil
 	
@@ -275,7 +295,7 @@ local function parse(tokens)
 		elseif token.type == "operator" then
 			if token.operator == "{" then
 				if not new_node then
-					return nil, string.format("%i: no parent to asign children", token.cur_line)
+					return nil, string.format("%i: no parent to assign children", token.line)
 				end
 				current_node = new_node
 				new_node = nil
@@ -283,18 +303,19 @@ local function parse(tokens)
 				current_node = current_node:parent()
 				new_node = nil
 				if current_node == nil then
-					return nil, string.format("%i: unexpected '}'", token.cur_line)
+					return nil, string.format("%i: unexpected '}'", token.line)
 				end
 			else
-				return nil, string.format("%i: unknown operator '%s'", token.cur_line, token.operator)
+				return nil, string.format("%i: unknown operator '%s'", token.line, token.operator)
 			end
 		end
 		
 		i = i + 1
 	end
 	
-	-- TODO: check all have been closed
-	--print(root_node, parent_node, current_node)
+	if current_node ~= root_node then
+		return nil, string.format("%i: expected operator '}' at EOF", tokens[#tokens].line)
+	end
 	return root_node
 end
 
