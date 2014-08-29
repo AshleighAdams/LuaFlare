@@ -434,7 +434,7 @@ function script.parse_arguments(args, shorthands) expects "table"
 			script.options[long] = true
 		elseif short then
 			local opts = short
-			for i = 0, opts:len() do
+			for i = 1, opts:len() do
 				local opt = opts:sub(i, i)
 				local key = shorthands[opt] or opt
 				script.options[key] = true
