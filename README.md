@@ -270,8 +270,7 @@ Example Nginx config:
 
 ```nginx
 server {
-	listen 80;
-	listen [::]:80 ipv6only=on;
+	listen [::]:80;
 
 	server_name localhost;
 
@@ -293,8 +292,7 @@ you should also create a server to handle HTTPS.  For exmaple:
 
 ```nginx
 server {
-	listen 443 ssl spdy;
-	listen [::]:443 ssl spdy ipv6only=on;
+	listen [::]:443 ssl spdy;
 
 	ssl_certificate cert.pem;
 	ssl_certificate_key cert.key;
