@@ -81,6 +81,7 @@ function main()
 	elseif script.options.help then
 		print = static_print
 		print([[
+--config=path                     Load and save arguments to this file.
 --port=number                     Port to bind to (default 8080).
 --threads=number                  Number of threads to create (default 2).
 --threads-model=string            Threading mode to use (default coroutine).
