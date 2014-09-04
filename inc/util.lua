@@ -701,9 +701,9 @@ end
 -- detour print, so that it appends the PID infront
 static_print = print
 
-function print(...)
+function print(first, ...)
 	local id = script.instance()
-	static_print(id, ...)
+	static_print(id .." ".. tostring(first), ...)
 end
 
 local col_red = "\x1b[31;1m"

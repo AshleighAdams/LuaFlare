@@ -263,7 +263,7 @@ end)
 # Behind Nginx
 
 It is recommended that you run LuaServer behind Nginx to prevent many types of attacks, and other things
-provided by Nginx, such as compression.
+provided by Nginx, such as compression.  The daemon runs as the user `daemon`, so it's recommended you also run Nginx with the user `daemon` too.
 
 ## HTTP
 
@@ -271,6 +271,7 @@ Example Nginx config:
 
 ```nginx
 server {
+	listen 80;
 	listen [::]:80;
 
 	server_name localhost;
@@ -281,7 +282,7 @@ server {
 	}
 	location /./ { # this is for X-Accel-Redirect
 		internal;
-		root /path/to/luaserver/;
+		root /usr/share/luaserver/;
 	}
 }
 ```
@@ -293,6 +294,7 @@ you should also create a server to handle HTTPS.  For exmaple:
 
 ```nginx
 server {
+	listen 443      ssl spdy;
 	listen [::]:443 ssl spdy;
 
 	ssl_certificate cert.pem;
@@ -313,7 +315,7 @@ server {
 	}
 	location /./ { # this is for X-Accel-Redirect
 		internal;
-		root /path/to/luaserver/;
+		root /usr/share/luaserver/;
 	}
 }
 

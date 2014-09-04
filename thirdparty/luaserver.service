@@ -1,0 +1,14 @@
+[Unit]
+Description=Lua web server
+After=network.target
+
+[Service]
+User=daemon
+WorkingDirectory=/usr/share/luaserver/
+ExecStart=/usr/bin/luaserver --config=config.cfg
+KillMode=process
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
+
