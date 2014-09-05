@@ -22,8 +22,6 @@ if not expects then expects = function() end end
 
 -- configor node
 local node = {}
-node._meta = {}
-setmetatable(node, node._meta)
 
 node.to_string = {}
 node.to_string.string = function(val) return val end
@@ -36,7 +34,7 @@ node.from_string.number = function(str, def) local r = tonumber(str) return r ~=
 node.from_string.boolean = function(str, def) return str == "" and def, true or str == "true", false end
 
 
-function node._meta.__call(t, parent, name)
+function node.make(parent, name)
 	local nde = {}
 	nde._name = name
 	nde._value = ""
@@ -48,7 +46,7 @@ function node._meta.__call(t, parent, name)
 	nde._missed_cache = false
 	nde._cache = {} -- this is the cache for accessing child nodes (needed so sorting is the same)
 	
-	setmetatable(nde, node._meta)
+	setmetatable(nde, node)
 	
 	if parent then
 		parent:add_child(nde)
@@ -57,35 +55,34 @@ function node._meta.__call(t, parent, name)
 	return nde
 end
 
-function node._meta.__index(tbl, key) expects("table", "string")
-	if rawget(node, key) then
+function node.__index(tbl, key) expects("table", "string")
+	if rawget(node, key) then -- for __call method, yield this
 		return rawget(node, key)
 	end
-	
-	return rawget(tbl, "_self"):get_child(key) or node(rawget(tbl, "_self"), key)
+	return rawget(tbl, "_self"):get_child(key) or node.make(rawget(tbl, "_self"), key)
 end
 
 
-function node:name()  expects(node._meta)
+function node:name()  expects(node)
 	return rawget(self, "_name")
 end
 function node:data()
 	return rawget(self, "_value")
 end
-function node:set_name(name) expects(node._meta, "string")
+function node:set_name(name) expects(node, "string")
 	rawset(self, "_name", name)
 end
-function node:parent() expects(node._meta)
+function node:parent() expects(node)
 	return rawget(self, "_parent")
 end
 
-function node:has_children() expects(node._meta)
+function node:has_children() expects(node)
 	return table.Count(self:children()) ~= 0
 end
-function node:children() expects(node._meta)
+function node:children() expects(node)
 	return rawget(self, "_children")
 end
-function node:get_child(key) expects(node._meta, "string")
+function node:get_child(key) expects(node, "string")
 	local cache = rawget(self, "_cache")
 	if cache[key] then return cache[key] end
 	
@@ -97,10 +94,10 @@ function node:get_child(key) expects(node._meta, "string")
 	end
 	return nil -- wasn't found
 end
-function node:add_child(node) expects(node._meta, node._meta)
+function node:add_child(node) expects(node, node)
 	table.insert(self._children, node)
 end
-function node:remove_child(node) expects(node._meta, node._meta)
+function node:remove_child(node) expects(node, node)
 	local name = node:name()
 	if self._cache[name] == node then self._cache[name] = nil end
 	for k,v in pairs(self._children) do
@@ -111,7 +108,7 @@ function node:remove_child(node) expects(node._meta, node._meta)
 	end
 end
 
-function node:value(default) expects(node._meta, "*")
+function node:value(default) expects(node, "*")
 	local typ = type(default)
 	if typ == self._value_type then
 		return self._cached_val
@@ -136,7 +133,7 @@ function node:value(default) expects(node._meta, "*")
 	
 	return val
 end
-function node:set_value(value) expects("*", "*")
+function node:set_value(value) expects(node, "*")
 	local typ = type(value)
 	
 	self._value = node.to_string[typ](value)
@@ -270,7 +267,7 @@ local function tokenize(str)
 end
 
 local function parse(tokens)
-	local root_node = node(nil, "root")
+	local root_node = node.make(nil, "root")
 	local current_node = root_node
 	local new_node = nil
 	
@@ -400,11 +397,11 @@ local function serialize_nodes(nodes, depth)
 	return ret
 end
 
-function configor.savestring(cfg) expects(node._meta)
+function configor.savestring(cfg) expects(node)
 	return serialize_nodes(cfg:children(), 0)
 end
 
-function configor.savefile(cfg, path) expects(node._meta)
+function configor.savefile(cfg, path) expects(node)
 	local file, err = io.open(path, "w")
 	if not file then return err end
 	
