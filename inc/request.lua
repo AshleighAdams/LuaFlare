@@ -65,17 +65,6 @@ function Request(client) -- expects("userdata")
 		return nil, "invalid request: failed to parse headers: " .. err
 	end
 	
-	local peer = client:getpeername():match("^(.+):?%d*$") -- cpature .+, : is optional, and digits are optional
-	if script.options["reverse-proxy"] then
-		if not trusted_proxies[peer] then
-			quick_response_client(client, 403) -- forbidden
-			return nil, "reverse-proxy: " .. peer .. " is not trusted!"
-		end
-		
-		peer = headers["X-Real-IP"]
-		if not peer then return nil, "X-Real-IP not set!" end
-	end
-	
 	local request = {
 		_client = client,
 		_method = method,
@@ -87,11 +76,22 @@ function Request(client) -- expects("userdata")
 		_post_data = nil,
 		_post_string = "",
 		_start_time = util.time(),
-		_peer = peer,
+		_peer = client:getpeername():match("^(.+):?%d*$"),
 		_version = version
 	}
-	
 	setmetatable(request, meta)
+	
+	-- update peer
+	if script.options["reverse-proxy"] then
+		if not trusted_proxies[request._peer] then
+			return nil, quick_response(request, 403, "reverse-proxy: " .. request._peer .. " is not trusted!")
+		end
+		
+		local peer = headers["X-Real-IP"]
+		if not peer then return nil, quick_response(request, 400, "X-Real-IP not set!") end
+		request._peer = peer
+	end
+	
 	
 	local maxpostlength = tonumber(script.options["max-post-length"])
 	
