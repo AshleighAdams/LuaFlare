@@ -190,6 +190,11 @@ function meta::get_cookie(string name)
 	return self._cookies[name]
 end
 
+function meta::cookies()
+	if not self._cookies then self:parse_cookies() end
+	return self._cookies
+end
+
 -- some util stuff we need
 function meta::is_upgraded()
 	return self.upgraded == true
