@@ -186,8 +186,7 @@ function meta::parse_cookies()
 end
 
 function meta::get_cookie(string name)
-	if not self._cookies then self:parse_cookies() end
-	return self._cookies[name]
+	return self:cookies()[name]
 end
 
 function meta::cookies()
