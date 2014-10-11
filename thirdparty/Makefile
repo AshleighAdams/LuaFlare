@@ -34,4 +34,8 @@ install-service:
 	systemctl enable luaserver.service
 	systemctl restart luaserver.service
 
-install: install-bin install-shared install-service
+install-nginx-site:
+	$(CP) luaserver.nginx /etc/nginx/sites-enabled/luaserver
+	systemctl restart nginx.service
+
+install: install-bin install-shared install-service install-nginx-site
