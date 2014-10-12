@@ -10,6 +10,22 @@ hook.Add("Request", "statistics - hits", increase_hit_counter)
 local load_data = {}
 local load_max = 0
 
+local warn_data = {}
+local function on_warning(msg)
+	local last = warn_data[#warn_data]
+	if last and last.message == msg then
+		last.count = last.count + 1
+		last.time = os.time()
+		return
+	end
+	table.insert(warn_data, {message = msg, time = os.time(), count = 1})
+	
+	if #warn_data > 5 then
+		table.remove(warn_data, 1)
+	end
+end
+hook.Add("Warning", "statistics - warnings", on_warning)
+
 local function query()
 	while true do
 		do -- hits
@@ -48,7 +64,10 @@ local function stats(req, res)
 		template.graph("Load Average", "", load_data, load_max),
 		
 		template.section("Scheduler"),
-		template.scheduler_info()
+		template.scheduler_info(),
+		
+		template.section("Warnings"),
+		template.warnings(warn_data)
 	})
 end
 

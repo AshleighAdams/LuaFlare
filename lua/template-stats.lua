@@ -37,6 +37,16 @@ function template.make(req, res, contents)
 				{
 					padding-right: 15px;
 					padding-left: 15px;
+				}
+				div.warning
+				{
+					background-color: #eee;
+					font-family: monospace;
+					overflow-x: auto;
+					white-space: nowrap;
+					height: auto;
+					line-height:1em;
+					max-height: 7em;
 				}]]
 			}
 		},
@@ -129,6 +139,30 @@ function template.scheduler_info()
 	end
 	
 	return template.table(rows)
+end
+
+function template.warnings(warnings)
+	local elms = {}
+	
+	if #warnings == 0 then
+		return "Nothing found!"
+	end
+	
+	for k,warning in pairs(warnings) do
+		table.insert(elms, tags.div
+		{
+			tags.h3 { os.date("%Y/%m/%d %H:%M:%S", warning.time) .. " x " .. warning.count },
+			tags.div { class = "warning" }
+			{
+				warning.message
+			}
+		})
+	end
+	
+	return tags.div
+	{
+		unpack(elms)
+	}
 end
 
 return template
