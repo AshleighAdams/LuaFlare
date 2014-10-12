@@ -728,7 +728,7 @@ function warn(str, ...) expects("string") -- print a warning to stderr
 	end
 	
 	local outstr = string.format("%s%s%s", col_red, str, col_reset)
-	hook.Call("Warning", outstr)
+	hook.Call("Warning", str)
 	print(outstr)
 end
 
