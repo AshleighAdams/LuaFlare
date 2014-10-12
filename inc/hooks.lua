@@ -12,18 +12,6 @@ hook.Add = function(hookname, name, func)
 	hooktbl[name] = func
 end
 
-hook.PushFatalErrors = function()
-	hook.fatal_section = hook.fatal_section + 1
-end
-
-hook.PopFatalErrors = function()
-	hook.fatal_section = hook.fatal_section - 1
-end
-
-hook.FatalSection = function()
-	return hook.fatal_section > 0
-end
-
 hook.Remove = function(hookname, name)
 	local hooktbl = hook.hooks[hookname]
 	if hooktbl == nil then
@@ -33,6 +21,20 @@ hook.Remove = function(hookname, name)
 end
 
 hook.Call = function (name, ...)
+	local hooktbl = hook.hooks[name]
+	if hooktbl == nil then
+		return
+	end
+	
+	for k, func in pairs(hooktbl) do
+		local ret = {func(...)}
+		if #ret ~= 0 then
+			return unpack(ret)
+		end
+	end
+end
+
+hook.SafeCall = function (name, ...)
 	local hooktbl = hook.hooks[name]
 	if hooktbl == nil then
 		return
@@ -78,20 +80,13 @@ hook.Call = function (name, ...)
 			return {err, debug.traceback(), variables}
 		end
 		
-		local ret
-		if hook.FatalSection() then
-			ret = {true, bound()}
-		else
-			ret = {xpcall(bound, on_error)}
-		end
+		local ret = {xpcall(bound, on_error)}
 		
 		if not ret[1] then
 			local msg = ret[2][1]
 			local trace = ret[2][2]
 			local vars = ret[2][3]
-			hook.PushFatalErrors()
 			hook.Call("LuaError", msg, trace, vars, args)
-			hook.PopFatalErrors()
 		else -- if there was a return value, return it, otherwise continue calling the hooks
 			table.remove(ret, 1)
 			if #ret ~= 0 then
