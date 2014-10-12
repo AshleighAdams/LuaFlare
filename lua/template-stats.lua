@@ -100,7 +100,7 @@ end
 
 function template.scheduler_info()
 	local rows = {
-		{tags.b{"Name"}, tags.b{"Age"}, tags.b{"Tick Rate (/s)"}, tags.b{"CPU Time (s)"}, tags.b{"CPU Time (/s)"}}
+		{tags.b{"Name"}, tags.b{"Age"}, tags.b{"Tick Rate"}, tags.b{"CPU Time"}, tags.b{"CPU Time (/s)"}}
 	}
 	
 	local totalcpu_time = 0
@@ -115,12 +115,16 @@ function template.scheduler_info()
 	for k,task in pairs(scheduler.tasks) do
 		local cputs = task.exectime / (util.time() - task.born)
 		
+		local tr = task.lasttickrate >= 1
+			and (tostring(task.lasttickrate) .. "s")
+			or  (tostring(1/task.lasttickrate) .. "/s")
+		
 		table.insert(rows, {
 			task.name,
-			string.format("%d s", util.time() - task.born),
-			tags.span {style="float:right;"} {string.format("%.3f", 1/task.lasttickrate)},
-			tags.span {style="float:right;"} {string.format("%.3f (%.2f%%)", task.exectime, task.exectime / totalcpu_time * 100)},
-			tags.span {style="float:right;"} {string.format("%.3f (%.2f%%)", cputs, cputs / totalcpu_time_persec * 100)}
+			tags.span {style="float:right;"} {string.format("%ds", util.time() - task.born)},
+			tags.span {style="float:right;"} {tr},
+			tags.span {style="float:right;"} {string.format("%.3fs (%.2f%%)", task.exectime, task.exectime / totalcpu_time * 100)},
+			tags.span {style="float:right;"} {string.format("%.3fms (%.2f%%)", cputs * 1000, cputs / totalcpu_time_persec * 100)}
 		})
 	end
 	
