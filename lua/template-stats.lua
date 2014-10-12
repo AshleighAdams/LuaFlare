@@ -145,7 +145,7 @@ function template.warnings(warnings)
 	local elms = {}
 	
 	if #warnings == 0 then
-		return "Nothing found!"
+		return "None."
 	end
 	
 	for k,warning in pairs(warnings) do
