@@ -32,6 +32,11 @@ function template.make(req, res, contents)
 					background-color: blue;
 					display: inline-block;
 					vertical-align: bottom;
+				}
+				td
+				{
+					padding-right: 15px;
+					padding-left: 15px;
 				}]]
 			}
 		},
@@ -74,6 +79,52 @@ end
 
 function template.section(name)
 	return tags.h1 { name }
+end
+
+function template.table(rows)
+	local rows_elms = {}
+	
+	for k,row in pairs(rows) do
+		local cols = {}
+		for kk,col in pairs(row) do
+			table.insert(cols, tags.td {col})
+		end
+		table.insert(rows_elms, tags.tr { unpack(cols) })
+	end
+	
+	return tags.table
+	{
+		unpack(rows_elms)
+	}
+end
+
+function template.scheduler_info()
+	local rows = {
+		{tags.b{"Name"}, tags.b{"Age"}, tags.b{"Tick Rate (/s)"}, tags.b{"CPU Time (s)"}, tags.b{"CPU Time (/s)"}}
+	}
+	
+	local totalcpu_time = 0
+	local totalcpu_time_persec = 0
+	
+	for k, task in pairs(scheduler.tasks) do
+		totalcpu_time         = totalcpu_time          + task.exectime
+		totalcpu_time_persec  = totalcpu_time_persec   + task.exectime / (util.time() - task.born)
+	end
+	
+	
+	for k,task in pairs(scheduler.tasks) do
+		local cputs = task.exectime / (util.time() - task.born)
+		
+		table.insert(rows, {
+			task.name,
+			string.format("%d s", util.time() - task.born),
+			tags.span {style="float:right;"} {string.format("%.3f", 1/task.lasttickrate)},
+			tags.span {style="float:right;"} {string.format("%.3f (%.2f%%)", task.exectime, task.exectime / totalcpu_time * 100)},
+			tags.span {style="float:right;"} {string.format("%.3f (%.2f%%)", cputs, cputs / totalcpu_time_persec * 100)}
+		})
+	end
+	
+	return template.table(rows)
 end
 
 return template

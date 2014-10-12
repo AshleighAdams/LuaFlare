@@ -41,16 +41,14 @@ end
 scheduler.newtask("statistics query", query)
 
 local function stats(req, res)
-	local hitsrand = {}
-	
-	for i = 1, template.bars do
-		hitsrand[i] = math.random(1, 100)
-	end
 	
 	template.make(req, res, {
 		template.section("Generic"),
 		template.graph("Hits", "/m", hits_data),
-		template.graph("Load Average", "", load_data, load_max)
+		template.graph("Load Average", "", load_data, load_max),
+		
+		template.section("Scheduler"),
+		template.scheduler_info()
 	})
 end
 
