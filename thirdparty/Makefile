@@ -17,6 +17,7 @@ install-shared-files:
 	$(CP) -r ../libs   $(LUASERVER_DIR)/
 	$(CP) -r ../lua    $(LUASERVER_DIR)/
 	$(CP) -r ../static $(LUASERVER_DIR)/
+	$(CP) -r ../keys   $(LUASERVER_DIR)/
 	
 	$(MKDIR) $(LUASERVER_DIR)/sessions
 	$(MKDIR) $(LUASERVER_DIR)/sites
