@@ -121,6 +121,7 @@ local function Upgrade_websocket(request, response)
 	
 	local path_tbl = websocket.registered[request:url()]
 	if not path_tbl then
+		print("WebSocket at path not found")
 		response:halt(404, string.format("A web socket is not listening at %s", request:url()))
 		response:send()
 		return
@@ -128,6 +129,8 @@ local function Upgrade_websocket(request, response)
 	
 	local proto = path_tbl[protocol]
 	if not proto then
+		print("WebSocket proto not found")
+		
 		response:halt(404, 
 			string.format("A web socket is not listening at %s with the protocol %s",
 				request:url(),
@@ -154,6 +157,9 @@ local function Upgrade_websocket(request, response)
 	
 	-- client now should be a websocket protocol
 	client:settimeout(0)
+	client.peer = request:peer()
+	client.request = request -- so we can take cookies and stuffs
+	
 	proto.newclient(client)
 	
 	--	send_message(client, "hello")
@@ -208,7 +214,7 @@ function websocket.register(path, protocol, callbacks) expects("string", "string
 			--obj._client_threads[client] = nil
 		end
 		
-		scheduler.newtask(string.format("WebSocket from %s (%s @ %s)", client:getpeername(), protocol, path), thread)
+		scheduler.newtask(string.format("ws://%s/%s (%s)", client.peer, path, protocol), thread)
 		table.insert(obj._clients, client)
 		
 		--local co = coroutine.create(thread)
