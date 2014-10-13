@@ -33,6 +33,10 @@ function template.make(req, res, contents)
 					display: inline-block;
 					vertical-align: bottom;
 				}
+				div.overflowbar
+				{
+					background-color: red;
+				}
 				td
 				{
 					padding-right: 15px;
@@ -60,17 +64,19 @@ function template.make(req, res, contents)
 	}.to_response(res)
 end
 
-function template.graph(title, units, data, max)
-	if max == nil then
-		for k,v in ipairs(data) do
-			if not max or v > max then max = v end
-		end
+function template.graph(title, units, data, argmax)
+	local max = argmax
+	for k,v in ipairs(data) do
+		if not max or v > max then max = v end
 	end
 
 	local bars = {}
 	for k,v in ipairs(data) do
+		local class = "bar"
+		if argmax ~= nil and v > argmax then class = class .. " overflowbar" end
+		
 		table.insert(bars, tags.div { 
-			class = "bar",
+			class = class,
 			style = "height: " .. tostring(v/max*100) .. "%",
 			title = tostring(v) .. units
 		})
@@ -151,7 +157,7 @@ function template.warnings(warnings)
 	for k,warning in pairs(warnings) do
 		table.insert(elms, tags.div
 		{
-			tags.h3 { os.date("%Y/%m/%d %H:%M:%S", warning.time) .. " x " .. warning.count },
+			tags.h3 { os.date("%Y/%m/%d %H:%M:%S", warning.time) .. " \xd7 " .. warning.count },
 			tags.div { class = "warning" }
 			{
 				warning.message
