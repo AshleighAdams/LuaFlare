@@ -319,14 +319,39 @@ function escape.pattern(input) expects "string" -- defo do not use string.Replac
 	return (string.gsub(input, "[%(%)%.%%%+%-%*%?%[%]%^%$]", "%%%1"))
 end
 
+local http_safe = {}
+local http_replacements = {}
+
+for i = 32, 126 do
+	http_safe[string.char(i)] = true
+end
+http_safe['"'] = nil
+http_safe["'"] = nil
+http_safe["<"] = nil
+http_safe[">"] = nil
+http_safe["\t"] = true
+http_safe["\n"] = true
+http_safe["\r"] = true
+
+http_replacements["&"] = "&amp;"
+http_replacements['"'] = "&quot;"
+http_replacements["'"] = "&apos;"
+http_replacements["<"] = "&lt;"
+http_replacements[">"] = "&gt;"
+
+local function http_safechar(char)
+	return http_safe[char] and char or http_replacements[char] or string.format("&#%d;", string.byte(char))
+end
+
 function escape.html(input, strict) expects "string"
 	if strict == nil then strict = true end
 	
-	input = input:gsub("&", "&amp;")
+	input = input:gsub(".", http_safechar)
+	--[[input = input:gsub("&", "&amp;")
 	input = input:gsub('"', "&quot;")
 	input = input:gsub("'", "&apos;")
 	input = input:gsub("<", "&lt;")
-	input = input:gsub(">", "&gt;")
+	input = input:gsub(">", "&gt;")]]
 	
 	if strict then
 		input = input:gsub("\t", "&nbsp;&nbsp;&nbsp;&nbsp;")
