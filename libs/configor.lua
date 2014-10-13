@@ -17,21 +17,30 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 local configor = {}
 
+local function table_count(tbl)
+	local count = 0
+	for k,v in next, tbl do
+		count = count + 1
+	end
+	
+	return count
+end
+
 -- this function is just type checking
 if not expects then expects = function() end end
 
 -- configor node
 local node = {}
 
-node.to_string = {}
-node.to_string.string = function(val) return val end
-node.to_string.number = function(val) return tostring(val) end
-node.to_string.boolean = function(val) return tostring(val) end
+configor.to_string = {}
+configor.to_string.string = function(val) return val end
+configor.to_string.number = function(val) return tostring(val) end
+configor.to_string.boolean = function(val) return tostring(val) end
 
-node.from_string = {}
-node.from_string.string = function(str, def) return str == "" and def or str, str == "" end
-node.from_string.number = function(str, def) local r = tonumber(str) return r ~= nil and r or def, r == nil end
-node.from_string.boolean = function(str, def) return str == "" and def, true or str == "true", false end
+configor.from_string = {}
+configor.from_string.string = function(str, def) return str == "" and def or str, str == "" end
+configor.from_string.number = function(str, def) local r = tonumber(str) return r ~= nil and r or def, r == nil end
+configor.from_string.boolean = function(str, def) return str == "" and def, true or str == "true", false end
 
 
 function node.make(parent, name)
@@ -77,7 +86,7 @@ function node:parent() expects(node)
 end
 
 function node:has_children() expects(node)
-	return table.Count(self:children()) ~= 0
+	return table_count(self:children()) ~= 0
 end
 function node:children() expects(node)
 	return rawget(self, "_children")
@@ -119,8 +128,8 @@ function node:value(default) expects(node, "*")
 		-- this allows some form of type saftey
 	end
 	
-	local from_str = node.from_string[typ]
-	if from_str == nil then error("no node.fromstring." .. typ .. " defined", 2) end
+	local from_str = configor.from_string[typ]
+	if from_str == nil then error("no configor.from_string." .. typ .. " defined", 2) end
 	
 	local val, changed = from_str(self._value, default)
 	
@@ -136,7 +145,7 @@ end
 function node:set_value(value) expects(node, "*")
 	local typ = type(value)
 	
-	self._value = node.to_string[typ](value)
+	self._value = configor.to_string[typ](value)
 	self._value_type = typ
 	self._cached_val = value
 end
@@ -360,6 +369,7 @@ until true end
 replacements["'"] = "\\'"
 replacements['"'] = '\\"'
 replacements["	"] = "	" -- tab
+replacements["\\"] = "\\\\" -- replace a backslash with 2 backslashes
 
 
 local function quotify(str)
