@@ -43,24 +43,6 @@ do
 	-- needs to be coroutine-ified
 	local chunksize = script.options["chunk-size"] or 1024*128
 	function meta:send(data)
-		--[[
-		local len = #data
-		print(string.format("sending %i bytes (%i chunks)", len, 1 + len / chunksize))
-		
-		--self.parent:settimeout(0)
-		for i = 1, len, chunksize do
-			local bytes_wrote, err, ukn = self.parent:send(data, i, i + chunksize - 1)
-			
-			print( tostring(i / len * 100) .. "%" )
-			
-			if err then
-				print(string.format("failed sending chunk %i/%i: %s", 1 + i/chunksize, 1 + len/chunksize, err))
-				return nil, err
-			end
-			
-			coroutine.yield()
-		end]]
-		
 		self.parent:settimeout(0)
 		while #data > 0 do
 			local s, err, w = self.parent:send(data, 1, chunksize)
@@ -70,7 +52,6 @@ do
 			end
 			
 			if s or w then
-				--print("sent ", s or w)
 				data = data:sub((s or w) + 1, -1)
 			end
 			

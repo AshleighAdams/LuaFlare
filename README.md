@@ -41,7 +41,7 @@ they may be automatically reloaded too.
 | --config=\<path\>                    |               | \*                      | Load and save arguments to this file.                     |
 | --port=\<number\>                    | 8080          | 0-65535                 | Set the port to run on.                                   |
 | --threads=\<number\>                 | 2             | 0-\*                    | How many threads to create.                               |
-| --threads-model=\<string\>           | coroutine     | coroutine, fork, pyrate | How will Lua create the threads?                          |
+| --threads-model=\<string\>           | coroutine     | coroutine, pyrate       | How will Lua create the threads?                          |
 | --host=\<string\>                    | \*            | \*                      | Bind to this address.                                     |
 | -l, --local                          | false         | true, false             | Set the host to "localhost".                              |
 | -t, --unit-test                      | false         | true, false             | Perform unit tests and quit.                              |

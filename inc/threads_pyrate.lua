@@ -1,8 +1,14 @@
 -- to take the options 'n stuff from caller, and imports
 do
+	local depth = 1
+	while true do
+		if not pcall(debug.getlocal, depth + (1 + 2), 1) then break end -- + 1 for next, itt, + 2 for pcall scopes
+		depth = depth + 1
+	end
+	
 	local i = 1
 	while true do
-		local name, val = debug.getlocal(4, i)
+		local name, val = debug.getlocal(depth, i)
 		if name ~= nil then
 			_ENV[name] = val
 		else
@@ -11,6 +17,28 @@ do
 		i = 1 + i
 	end
 end
+
+local wrap
+do
+	local meta = {}
+	
+	function meta.__index(tbl, k)
+		if meta[k] then 
+			return meta[k]
+		end
+		return function(tbl, ...)
+			return tbl.parent[k](tbl.parent, ...)
+		end
+	end
+	
+	wrap = function(conn)
+		local w = {}
+		w.parent = conn
+		
+		return setmetatable(w, meta)
+	end
+end
+
 
 -- https://github.com/vapourismo/pyrate
 require("pyrate")
@@ -43,8 +71,11 @@ function main_loop()
 				if not suc then print("ssl failed: ", err) end
 			end
 			
-			handle_client(client)
-			client:close()
+			client = wrap(client)
+			
+			if not handle_client(client) then
+				client:close()
+			end
 		end
 	end
 	
