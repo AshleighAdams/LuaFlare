@@ -29,7 +29,8 @@ function template.make(req, res, contents)
 				{
 					height: 100%;
 					width: ]]..template.barwidth..[[px;
-					background-color: blue;
+					background-color: rgba(0,0,255, 0.1);
+					border-top: 1px solid blue;
 					display: inline-block;
 					vertical-align: bottom;
 				}
