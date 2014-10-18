@@ -34,9 +34,23 @@ function template.make(req, res, contents)
 					display: inline-block;
 					vertical-align: bottom;
 				}
+				
+				@-webkit-keyframes flashred {
+					0%   {background-color: rgba(255,0,0, 0.5);}
+					100%  {background-color: rgba(255,0,0, 0.1);}
+				}
+				@keyframes flashred {
+					0%   {background-color: rgba(255,0,0, 0.5);}
+					100%  {background-color: rgba(255,0,0, 0.1);}
+				}
+				
 				div.overflowbar
 				{
-					background-color: red;
+					background-color: rgba(255,0,0, 0.1);
+					border-top-color: red;
+					
+					-webkit-animation: flashred 1s infinite alternate;
+					animation: flashred 1s infinite alternate;
 				}
 				td
 				{
@@ -74,7 +88,9 @@ function template.graph(title, units, data, argmax)
 	local bars = {}
 	for k,v in ipairs(data) do
 		local class = "bar"
-		if argmax ~= nil and v > argmax then class = class .. " overflowbar" end
+		if argmax ~= nil and v > argmax then
+			class = class .. " overflowbar"
+		end
 		
 		table.insert(bars, tags.div { 
 			class = class,
@@ -83,10 +99,16 @@ function template.graph(title, units, data, argmax)
 		})
 	end
 	
+	local gradient
+	if argmax ~= nil and max > argmax then
+		local perc = ((1 - argmax / max) * 100) .. "%"
+		gradient = "background: linear-gradient(to bottom, rgba(0,0,0,0) "..perc..", #eee "..perc..");"
+	end
+	
 	return tags.div
 	{
 		tags.h2 { string.format("%s: %s%s", title, tostring(data[#data]), units) },
-		tags.div { class = "graph" }
+		tags.div { class = "graph", style = gradient }
 		{
 			tags.div { class = "bar", style = "height: 100%; width: 0px" },
 			unpack(bars)
