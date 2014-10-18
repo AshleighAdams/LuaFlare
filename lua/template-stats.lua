@@ -24,6 +24,7 @@ function template.make(req, res, contents)
 					height: 100px;
 					font-size: 0;
 					vertical-align: top;
+					overflow-y: hidden;
 				}
 				div.bar
 				{

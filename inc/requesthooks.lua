@@ -137,7 +137,7 @@ function hosts.process_request(req, res)
 	local page, args, errcode, errstr = host:match(req:url())
 	
 	-- failed, try wildcard
-	if not page and errcode == 404 then
+	if not page and errcode == 404 and not host.options.no_fallback then
 		page, args, errcode, errstr = hosts.any:match(req:url())
 	end
 	
