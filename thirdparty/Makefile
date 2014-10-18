@@ -1,6 +1,6 @@
 PREFIX=$(DESTDIR)/usr
 LUASERVER_DIR=$(PREFIX)/share/luaserver
-USER=daemon
+USER=www-data
 
 CP=cp --remove-destination
 MKDIR=mkdir -p

@@ -3,7 +3,7 @@ Description=Lua web server
 After=network.target
 
 [Service]
-User=daemon
+User=www-data
 WorkingDirectory=/usr/share/luaserver/
 ExecStart=/usr/bin/luaserver --config=config.cfg
 KillMode=process
