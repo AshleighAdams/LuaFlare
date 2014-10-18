@@ -190,7 +190,7 @@ return fact(4)]]
 		
 	template.to_response(res, 3)
 end
-reqs.AddPattern("*", "/runlua", run_lua_page)
+hosts.developer:add("/runlua", run_lua_page)
 
 hook.Add("LuaGetLine", "locate runstring", function(err)
 	local line_num = err:match('%[string "runlua"]:(%d+): ')
@@ -255,7 +255,7 @@ local function get_info(req, res)
 
 	res:append("session = " .. escape.html(table.ToString(data)))
 end
-reqs.AddPattern("*", "/info", get_info)
+hosts.developer:add("/info", get_info)
 
 
 local function translate(req, res, filename)
@@ -275,7 +275,7 @@ local function translate(req, res, filename)
 	res:append(code)
 	res:set_header("Content-Type", "text/plain")
 end
-reqs.AddPattern("*", "/translate/(.+)", translate)
+hosts.developer:add("/translate/(.+)", translate)
 
 
 local function conflict1(req, res, ...)
@@ -284,5 +284,5 @@ end
 local function conflict2(req, res, ...)
 	res:append("OK - 2: " .. table.concat({...}, ", "))
 end
-reqs.AddPattern("*", "/conflict/(*)", conflict1)
-reqs.AddPattern("*", "/conflict/(%d+)", conflict2)
+hosts.developer:add("/conflict/(*)", conflict1)
+hosts.developer:add("/conflict/(%d+)", conflict2)

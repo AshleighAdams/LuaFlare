@@ -71,4 +71,4 @@ local function stats(req, res)
 	})
 end
 
-reqs.AddPattern("*", "/stats", stats)
+hosts.developer:add("/stats", stats)

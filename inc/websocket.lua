@@ -170,7 +170,7 @@ local function Upgrade_websocket(request, response)
 	--end
 end
 
-reqs.Upgrades["websocket"] = Upgrade_websocket
+hosts.upgrades["websocket"] = Upgrade_websocket
 
 local meta = {}
 meta._metatbl = {__index = meta}

@@ -51,7 +51,7 @@ local function add_resource(filename, host)
 	--print("adding resource `" .. filename .. "' as `" .. pattern .. "'")
 	--print("//" .. host .. pattern .. " -> " .. filename)
 	count = count + 1
-	reqs.AddPattern(host, pattern, serve_file)
+	hosts.get(host):add(pattern, serve_file)
 end
 
 -- load global static dir

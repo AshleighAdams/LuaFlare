@@ -5,4 +5,4 @@ local function exampleerror(req, res, str)
 	req:append("done")
 end
 
-reqs.AddPattern("*", "/exampleerror/(*)", exampleerror)
+hosts.developer:add("/exampleerror/(*)", exampleerror)

@@ -1,11 +1,8 @@
-reqs = {}
-reqs.PatternsRegistered = {}
-reqs.FilesRegistered = {}
-
-local function valid_host(target, what)
-	target = target or "main"
-	return string.match(target, what) ~= nil
-end
+hosts = {}
+hosts.hosts = {}
+hosts.upgrades = {}
+hosts.host_meta = {}
+hosts.host_meta.__index = hosts.host_meta
 
 local function generate_host_patern(what) -- TODO: use pattern_escape, can't replace the *
 	local pattern = what
@@ -20,86 +17,150 @@ local function generate_host_patern(what) -- TODO: use pattern_escape, can't rep
 	-- now, allow things like *domain.net, or *.domain.net, *domain.net*
 	pattern = string.gsub(pattern, "*", ".+")
 	
-	return pattern
+	return "^" .. pattern .. "$"
 end
-
 local function generate_resource_patern(pattern)
-	--pattern = string.gsub(pattern, "*", ".+")
-	-- 0 to '/' - 1, '/' + 1 to '\' - 1, '\' + 1 to 255
-	-- 0x2f == '/'; 0x5c == '\\'
-	-- [\x00-\x2e\x30-\x5b\x5d-\xff]+
-	-- how to gsub this?
-	-- [%w%s!-.:-@%%%]%[-\xff]-
-	-- [%%w%%s!-.:-@%%%%%%]%%[-\xff]-
 	pattern = string.gsub(pattern, "*", "[%%w%%s!-.:-@%%%%%%]%%[-\xff]-")
 	return "^" .. pattern .. "$"
 end
 
-reqs.AddPattern = function(host, url, func)
-	local original_url = url
+
+function hosts.get(host, options)
+	if hosts.hosts[host] then return hosts.hosts[host] end
+	local obj = setmetatable({
+		pattern = generate_host_patern(host),
+		pages = {},
+		options = options
+	}, hosts.host_meta)
 	
-	host = generate_host_patern(host)
-	url = generate_resource_patern(url)
-	
-	for k, v in ipairs(reqs.PatternsRegistered) do -- already exists, overwrite it and warn
-		if v.host == host and v.url == url then
-			v.func = func
-			return
-		end
-	end
-	
-	table.insert(reqs.PatternsRegistered, {host = host, url = url, func = func, original_url = original_url})
+	hosts.hosts[host] = obj
+	return obj
 end
 
-reqs.Upgrades = {}
-
-local function func_string(func) expects("function")
-	local info = debug.getinfo(func)
-	return string.format("%s @ %s:%d", info.name or "function", info.source or "unknown", info.linedefined or -1)
-end
-
-reqs.OnRequest = function(request, response)
+function hosts.match(host)
 	local hits = {}
-	local req_url = request:url()
 	
-	if request:headers().Connection and request:headers().Upgrade and request:headers().Connection:lower():match("upgrade") ~= nil then
-		local ug = (request:headers().Upgrade or ""):lower()
-		local f = reqs.Upgrades[ug]
-		
-		if not f then
-			response:halt(500, "Invalid upgrade: " .. ug)
-			return
+	for k,v in pairs(hosts.hosts) do
+		if k ~= "*" and host:match(v.pattern) then
+			table.insert(hits, v)
 		end
-		
-		f(request, response)
-		return
 	end
 	
-	for k,v in ipairs(reqs.PatternsRegistered) do
-		if valid_host(request:headers().Host, v.host) then
-			local pattern = v.url -- there is a hack, so we detect the start end end of the string (not partial)
-			local res = { string.match(req_url, pattern) }
-			
-			if #res ~= 0 then
-				table.insert(hits, {hook = v, res = res})
-			end
+	local c = #hits
+	
+	if c == 0 then
+		return hosts.any
+	elseif c == 1 then
+		return hits[1]
+	else
+		local err
+		
+		if #hits == 2 then
+			err = "Host conflict between: " .. table.concat(hits, " and ")
+		else
+			err = "Host conflict between: " .. table.concat(hits, ", "):gsub(", (.-)$", ", and %1")
+		end
+		
+		return nil, err
+	end
+end
+
+function hosts.host_meta:add(pattern, callback) expects(hosts.host_meta, "string", "function")
+	local page = {
+		pattern = generate_resource_patern(pattern),
+		original_pattern = pattern,
+		callback = callback
+	}
+	self.pages[pattern] = page
+end
+
+function hosts.host_meta:match(url) expects(hosts.host_meta, "string")
+	local hits = {}
+	
+	for k,page in pairs(self.pages) do
+		local args = {url:match(page.pattern)}
+		if #args ~= 0 then
+			table.insert(hits, {page = page, args = args})
 		end
 	end
 	
 	if #hits == 0 then
-		response:halt(404)
-	elseif #hits ~= 1 then
+		return nil, nil, 404
+	elseif #hits == 1 then
+		return hits[1].page, hits[1].args
+	else
+		local function func_string(func) expects("function")
+			local info = debug.getinfo(func)
+			return string.format("%s @ %s:%d", info.name or "function", info.source or "unknown", info.linedefined or -1)
+		end
 		local lines = {"The following hooks are conflicted with this request:", ""}
+		
 		for k,v in pairs(hits) do
 			local line = string.format("%s as %s with arguments %s", 
-				v.hook.original_url, func_string(v.hook.func), table.concat(v.res, ", "))
+				v.page.original_pattern, func_string(v.page.callback), table.concat(v.args, ", "))
 			table.insert(lines, line)
 		end
+		
 		local lines = table.concat(lines, "\n")
 		warn(lines)
-		response:halt(409 --[[conflict]], lines)
-	else
-		hits[1].hook.func(request, response, unpack(hits[1].res))
+		
+		return nil, nil, 409, lines
 	end
 end
-hook.Add("Request", "default", reqs.OnRequest)
+
+function hosts.upgrade_request(request, response) -- check for upgrade
+	if request:headers().Connection and request:headers().Upgrade and request:headers().Connection:lower():match("upgrade") ~= nil then
+		local ug = (request:headers().Upgrade or ""):lower()
+		local f = hosts.upgrades[ug]
+		
+		if not f then
+			response:halt(500, "Invalid upgrade: " .. ug)
+			return true
+		end
+		
+		f(request, response)
+		return true
+	end
+	return false
+end
+
+function hosts.process_request(req, res)
+	-- check to see if we should upgrade, and if we did, return
+	if hosts.upgrade_request(req, res) then return end
+	
+	local host, err = hosts.match(req:host())
+	if not host then -- conflict between hosts
+		warn(err)
+		return res:halt(409, err)
+	end
+	
+	local page, args, errcode, errstr = host:match(req:url())
+	
+	-- failed, try wildcard
+	if not page and errcode == 404 then
+		page, args, errcode, errstr = hosts.any:match(req:url())
+	end
+	
+	if not page then
+		return res:halt(errcode, errstr)
+	end
+	
+	page.callback(req, res, table.unpack(args))
+end
+hook.Add("Request", "default", hosts.process_request)
+
+hosts.any = hosts.get("*")
+hosts.developer = hosts.any
+
+-- backwards compatability
+local reqs_fallback = {
+	AddPattern = function(host, url, func)
+		hosts.get(host):add(url, func)
+	end,
+	Upgrades = hosts.upgrades
+}
+
+reqs = setmetatable({}, {__index = function(self, k)
+	warn("reqs." .. k .. " has been depricated! Use `hosts.get(host):add(pattern, function)`.\n" .. debug.traceback("", 2))
+	return reqs_fallback[k]
+end})

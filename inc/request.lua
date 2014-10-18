@@ -170,6 +170,10 @@ function meta::peer()
 	return self._peer
 end
 
+function meta::host()
+	return self:headers().Host or "localhost"
+end
+
 function meta::parse_cookies()
 	local cookie_str = self:headers().Cookie or ""
 	self._cookies = {}
