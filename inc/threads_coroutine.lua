@@ -1,5 +1,6 @@
 local threadpool = require("luaserver.threadpool")
 local scheduler = require("luaserver.scheduler")
+local hook = require("luaserver.hook")
 
 -- detours shit to coroutinify it
 routines = routines or {}
@@ -136,13 +137,13 @@ function main_loop()
 	local server, err = socket.bind(host, port)
 	assert(server, err)
 	
-	hook.Call("ReloadScripts") -- load all of our scritps, before forking anything!
+	hook.SafeCall("ReloadScripts") -- load all of our scritps, before forking anything!
 	
 	local function callback(client)
 		client:settimeout(5) -- 5 seconds until a timeout
 		
 		if not script.options["no-reload"] then
-			hook.Call("ReloadScripts")
+			hook.SafeCall("ReloadScripts")
 		end
 		
 		if https then

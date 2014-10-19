@@ -49,7 +49,9 @@ function handle_client(client)
 		if request:is_upgraded() then return true end -- don't close the connection!!!
 		response:send()
 		
-		if not request:headers().Connection:lower():match("keep%-alive") then -- break if the connection is not being kept alive
+		if not request:headers().Connection 
+		or not request:headers().Connection:lower():match("keep%-alive") 
+		then -- break if the connection is not being kept alive
 			break
 		end
 	end
