@@ -60,7 +60,7 @@ local function basic_lua_error(err, trace, vars, args)
 		for k,v in pairs(split) do
 			local str = v:gsub("%[string \"(.-)\"%]", "%1")
 			
-			if v:Trim():StartsWith(blame) then
+			if blame and v:Trim():StartsWith(blame) then
 				atblame = true -- we can start adding traces
 			elseif str:Trim():StartsWith("inc/requesthooks.lua") then
 				break -- after this is internal LuaServer stuff

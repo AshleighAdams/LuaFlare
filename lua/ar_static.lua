@@ -21,8 +21,9 @@ end
 local Months = {Jan=1,Feb=2,Mar=3,Apr=4,May=5,Jun=6,Jul=7,Aug=8,Sep=9,Oct=10,Nov=11,Dec=12}
 
 local function add_resource(filename, host)
-	pattern = filename:Replace(static_dir .. host, "") -- remove our dir
-	pattern = escape.pattern(pattern)
+	local path = filename:Replace(static_dir .. host, "") -- remove our dir
+	-- :add no longer takes a pattern, so don't escape it
+	--pattern = escape.pattern(pattern)
 		
 	local function serve_file(req, res)
 		local ifmod = req:headers()["If-Modified-Since"]
@@ -53,7 +54,7 @@ local function add_resource(filename, host)
 	--print("adding resource `" .. filename .. "' as `" .. pattern .. "'")
 	--print("//" .. host .. pattern .. " -> " .. filename)
 	count = count + 1
-	hosts.get(host):add(pattern, serve_file)
+	hosts.get(host):add(path, serve_file)
 end
 
 -- load global static dir

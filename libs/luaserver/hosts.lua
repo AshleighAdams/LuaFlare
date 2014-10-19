@@ -19,7 +19,7 @@ local function generate_host_patern(what) -- TODO: use pattern_escape, can't rep
 	
 	return "^" .. pattern .. "$"
 end
-local function generate_resource_patern(pattern)
+local function generate_resource_patern(string pattern)
 	pattern = string.gsub(pattern, "*", "[%%w%%s!-.:-@%%%%%%]%%[-\xff]-")
 	return "^" .. pattern .. "$"
 end
@@ -30,6 +30,7 @@ function hosts.get(string host, options)
 	local obj = setmetatable({
 		pattern = generate_host_patern(host),
 		pages = {},
+		page_patterns = {},
 		options = options
 	}, hosts.host_meta)
 	
@@ -65,19 +66,31 @@ function hosts.match(string host)
 	end
 end
 
-function hosts.host_meta::add(string pattern, function callback)
+function hosts.host_meta::addpattern(string pattern, function callback)
 	local page = {
 		pattern = generate_resource_patern(pattern),
 		original_pattern = pattern,
 		callback = callback
 	}
-	self.pages[pattern] = page
+	self.page_patterns[pattern] = page
+end
+
+function hosts.host_meta::add(string url, function callback)
+	local page = {
+		url = url,
+		callback = callback
+	}
+	self.pages[url] = page
 end
 
 function hosts.host_meta::match(string url)
 	local hits = {}
 	
-	for k,page in pairs(self.pages) do
+	if self.pages[url] then -- should we test against patterns too?
+		table.insert(hits, {page = self.pages[url], args = {url}})
+	end
+	
+	for k,page in pairs(self.page_patterns) do
 		local args = {url:match(page.pattern)}
 		if #args ~= 0 then
 			table.insert(hits, {page = page, args = args})
@@ -142,6 +155,7 @@ function hosts.process_request(req, res)
 	end
 	
 	if not page then
+		assert(errcode)
 		return res:halt(errcode, errstr)
 	end
 	

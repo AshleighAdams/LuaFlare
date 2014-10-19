@@ -241,7 +241,12 @@ local function get_info(req, res)
 	res:append("<h2>Hosts & Pages</h2>")
 	
 	for k,host in pairs(hosts.hosts) do
-		res:append("<h3>" .. escape.html(k) .. "</h3>")
+		res:append("<h3>" .. escape.html(k) .. " - Patterns</h3>")
+		for kk,page in pairs(host.page_patterns) do
+			res:append(kk .. "<br/>")
+		end
+		
+		res:append("<h3>" .. escape.html(k) .. " - Direct</h3>")
 		for kk,page in pairs(host.pages) do
 			res:append(kk .. "<br/>")
 		end
@@ -289,7 +294,7 @@ local function translate(req, res, filename)
 	res:append(code)
 	res:set_header("Content-Type", "text/plain")
 end
-hosts.developer:add("/translate/(.+)", translate)
+hosts.developer:addpattern("/translate/(.+)", translate)
 
 
 local function conflict1(req, res, ...)
@@ -298,5 +303,5 @@ end
 local function conflict2(req, res, ...)
 	res:append("OK - 2: " .. table.concat({...}, ", "))
 end
-hosts.developer:add("/conflict/(*)", conflict1)
-hosts.developer:add("/conflict/(%d+)", conflict2)
+hosts.developer:addpattern("/conflict/(*)", conflict1)
+hosts.developer:addpattern("/conflict/(%d+)", conflict2)

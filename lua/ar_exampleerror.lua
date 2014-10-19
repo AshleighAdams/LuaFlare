@@ -6,4 +6,4 @@ local function exampleerror(req, res, str)
 	req:append("done")
 end
 
-hosts.developer:add("/exampleerror/(*)", exampleerror)
+hosts.developer:addpattern("/exampleerror/(*)", exampleerror)
