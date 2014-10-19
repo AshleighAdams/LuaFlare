@@ -25,7 +25,7 @@ local function generate_resource_patern(pattern)
 end
 
 
-function hosts.get(host, options)
+function hosts.get(string host, options)
 	if hosts.hosts[host] then return hosts.hosts[host] end
 	local obj = setmetatable({
 		pattern = generate_host_patern(host),
@@ -37,7 +37,7 @@ function hosts.get(host, options)
 	return obj
 end
 
-function hosts.match(host)
+function hosts.match(string host)
 	local hits = {}
 	
 	for k,v in pairs(hosts.hosts) do
@@ -65,7 +65,7 @@ function hosts.match(host)
 	end
 end
 
-function hosts.host_meta:add(pattern, callback) expects(hosts.host_meta, "string", "function")
+function hosts.host_meta::add(string pattern, function callback)
 	local page = {
 		pattern = generate_resource_patern(pattern),
 		original_pattern = pattern,
@@ -74,7 +74,7 @@ function hosts.host_meta:add(pattern, callback) expects(hosts.host_meta, "string
 	self.pages[pattern] = page
 end
 
-function hosts.host_meta:match(url) expects(hosts.host_meta, "string")
+function hosts.host_meta::match(string url)
 	local hits = {}
 	
 	for k,page in pairs(self.pages) do
@@ -161,7 +161,7 @@ local reqs_fallback = {
 }
 
 _G.reqs = setmetatable({}, {__index = function(self, k)
-	warn("reqs." .. k .. " has been depricated! Use `hosts.get(host):add(pattern, function)`.\n" .. debug.traceback("", 2))
+	warn("reqs." .. k .. " has been depricated! Use hosts.\n" .. debug.traceback("", 2))
 	return reqs_fallback[k]
 end})
 
