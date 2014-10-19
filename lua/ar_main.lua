@@ -2,6 +2,7 @@ local session = require("luaserver.session")
 local hosts = require("luaserver.hosts")
 local hook = require("luaserver.hook")
 local tags = require("luaserver.tags")
+local escape = require("luaserver.util.escape")
 
 local template = tags.html
 {
@@ -237,6 +238,15 @@ local function get_info(req, res)
 	end
 	res:append("</table>")
 	
+	res:append("<h2>Hosts & Pages</h2>")
+	
+	for k,host in pairs(hosts.hosts) do
+		res:append("<h3>" .. escape.html(k) .. "</h3>")
+		for kk,page in pairs(host.pages) do
+			res:append(kk .. "<br/>")
+		end
+	end
+	--[[
 	res:append("<table>")
 	res:append(string.format("<td>%s</td><td>%s</td>", "<b>Host</b>&nbsp;&nbsp;&nbsp;&nbsp;", "<b>URL</b>"))
 	for _, hk in pairs(reqs.PatternsRegistered) do
@@ -246,6 +256,7 @@ local function get_info(req, res)
 		res:append("</tr>")
 	end
 	res:append("/<table>")
+	]]
 
 	local last = tonumber(req:get_cookie("hits")) or 0
 	res:append(tostring(last) .. "<br/>\n")
