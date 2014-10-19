@@ -2,10 +2,19 @@
 
 -- for require() to check modules path
 package.path = "./libs/?.lua;" .. package.path
-package.cpath = "./libs/?.lua;" .. package.cpath
+package.cpath = "./libs/?.so;" .. package.cpath
 
-dofile("inc/hooks.lua")
 dofile("inc/util.lua")
+
+local socket = require("socket")
+local ssl = require("ssl")
+local posix = require("posix")
+local configor = require("configor")
+local lfs = require("lfs")
+
+local hook = require("luaserver.hook")
+local util = require("luaserver.util")
+local script = require("luaserver.util.script")
 
 local shorthands = {
 	v = "version",
@@ -15,20 +24,10 @@ local shorthands = {
 }
 script.parse_arguments(arg, shorthands)
 
-dofile("inc/htmlwriter.lua")
-dofile("inc/requesthooks.lua")
 dofile("inc/request.lua")
 dofile("inc/response.lua")
 dofile("inc/savetotable.lua")
-dofile("inc/scheduler.lua")
-dofile("inc/websocket.lua")
 
-local socket = require("socket")
-local ssl = require("ssl")
-local posix = require("posix")
-local configor = require("configor")
-
-require("lfs")
 	
 local port = tonumber(script.options.port) or 8080
 local threads = tonumber(script.options.threads) or 2 -- how many threads to create

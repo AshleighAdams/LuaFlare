@@ -1,3 +1,7 @@
+local lfs = require("lfs")
+local util = require("luaserver.util")
+local hook = require("luaserver.hook")
+
 local reload_time = script.options["reload-time"] or 5 -- default to every 5 seconds
 
 local time_table = {}

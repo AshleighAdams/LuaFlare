@@ -1,6 +1,7 @@
 local url = require("socket.url")
 local socket = require("socket")
-local httpstatus = require("httpstatus")
+local httpstatus = require("luaserver.httpstatus")
+local script = require("luaserver.util.script")
 
 local meta = {}
 meta.__index = meta

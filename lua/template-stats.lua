@@ -1,3 +1,6 @@
+local tags = require("luaserver.tags")
+local scheduler = require("luaserver.scheduler")
+
 local template = {}
 template.barwidth = 1;
 template.graphwidth = 800;

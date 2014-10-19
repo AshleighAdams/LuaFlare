@@ -1,4 +1,7 @@
-local session = require("session")
+local session = require("luaserver.session")
+local hosts = require("luaserver.hosts")
+local hook = require("luaserver.hook")
+local tags = require("luaserver.tags")
 
 local template = tags.html
 {

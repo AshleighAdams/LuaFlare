@@ -1,3 +1,4 @@
+local tags = require("luaserver.tags")
 
 return {
 	make = function(self, title, heading, info, content, fgcol, bgcol)

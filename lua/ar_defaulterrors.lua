@@ -1,5 +1,8 @@
 
-local httpstatus = require("httpstatus")
+local httpstatus = require("luaserver.httpstatus")
+local hook = require("luaserver.hook")
+local tags = require("luaserver.tags")
+
 local template = include("template-error.lua")
 
 local function on_error(why, request, response)

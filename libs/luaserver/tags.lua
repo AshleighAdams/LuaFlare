@@ -1,4 +1,6 @@
-tags = {}
+local escape = require("luaserver.util.escape")
+
+local tags = {}
 
 -- meh, doesn't change view, but it produces nicer code
 local allow_inline = false
@@ -13,7 +15,7 @@ end
 --attribute_escapers.href = url_attribute_escaper
 --attribute_escapers.src = url_attribute_escaper
 
-function generate_html(first, tbl, depth, parent, section, state)
+local function generate_html(first, tbl, depth, parent, section, state)
 	tbl = tbl or {}
 	depth = depth or 0
 	state = state or {current_section = 0, escape_this = true} -- references
@@ -136,7 +138,7 @@ function generate_html(first, tbl, depth, parent, section, state)
 	end
 end
 
-function is_extra_data(tbl) -- extra data must use {key=value} syntax at least once, and not {value}
+local function is_extra_data(tbl) -- extra data must use {key=value} syntax at least once, and not {value}
 	local count = 0
 	for k,v in pairs(tbl) do
 		count = count + 1
@@ -145,7 +147,7 @@ function is_extra_data(tbl) -- extra data must use {key=value} syntax at least o
 	return count ~= #tbl
 end
 
-function last_of(str, pattern)
+local function last_of(str, pattern)
 	if (pattern == '' or pattern == nil) then
 		return nil
 	end
@@ -161,7 +163,7 @@ function last_of(str, pattern)
 	return previous
 end
 
-function end_tab_depth(str)
+local function end_tab_depth(str)
 	local lastof = (last_of(str, "\n.+") or 0) + 1
 	local lastline = str:sub(lastof)
 	local tabs = 0
@@ -175,7 +177,7 @@ function end_tab_depth(str)
 	return tabs
 end
 
-function start_tab_depth(str)
+local function start_tab_depth(str)
 	local depth = 0
 	
 	for i=2, str:len() do
@@ -187,7 +189,7 @@ function start_tab_depth(str)
 	return depth
 end
 
-function generate_tag(name, options)
+local function generate_tag(name, options)
 	options = options or {}
 	
 	tags[name] = function(tbl)
@@ -262,48 +264,5 @@ generate_tag("form")
 generate_tag("input")
 generate_tag("textarea")
 
---[[
 
-tags.html
-{
-	tags.head
-	{
-		tags.title
-		{
-			"Hello, world"
-		}
-	},
-	tags.body
-	{
-		tags.div {class = "test"}
-		{
-			"This is a really nice generation thingy",
-			tags.br, tags.br,
-			"Do you like my logo?",
-			tags.br,
-			tags.img {src = "/logo.png"}
-		}
-	}
-}.print()
-
-produces:
-
-<html>
-	<head>
-		<title>
-			Hello, world
-		</title>
-	</head>
-	<body>
-		<div class="test">
-			This is a really nice generation thingy
-			<br />
-			<br />
-			Do you like my logo?
-			<br />
-			<img src="/logo.png" />
-		</div>
-	</body>
-</html>
-
-]]
+return tags

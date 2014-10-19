@@ -1,5 +1,5 @@
-local mimetypes = require("mimetypes")
-local httpstatus = require("httpstatus")
+local mimetypes = require("luaserver.mimetypes")
+local httpstatus = require("luaserver.httpstatus")
 local md5 = require("md5")
 require("lfs")
 

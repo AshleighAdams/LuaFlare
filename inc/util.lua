@@ -1,4 +1,8 @@
 local configor = require("configor")
+local stack = require("luaserver.util.stack")
+local escape = require("luaserver.util.escape")
+local script = require("luaserver.util.script")
+local util
 
 -- All extensions to inbuilt libs use ThisCase
 expects_types = {}
@@ -66,22 +70,10 @@ function expects(...)
 	end
 end
 
-local posix = require("posix")
-local socket = require("socket")
-local url = require("socket.url")
---# luarocks install xssfilter
--- And until luarocks supports lua 5.2:
---# cp /usr/local/share/lua/5.1/xssfilter.lua /usr/local/share/lua/5.2/xssfilter.lua
-require("xssfilter")
-local xss_filter = xssfilter.new({})
 
--- incase these libs wen't created
 table = table or {}
 string = string or {}
 math = math or {}
-escape = escape or {}
-script = script or {}
-util = util or {}
 
 ------ Table functions
 function PrintTable(tbl, done, depth) expects "table"
@@ -315,85 +307,6 @@ function math.SecureRandom(min, max) expects("number", "number")
 end
 ------- escape functions, try not to use string.Replace, as it is slower than raw gsub
 
-function escape.pattern(input) expects "string" -- defo do not use string.Replace, else revusion err	
-	return (string.gsub(input, "[%(%)%.%%%+%-%*%?%[%]%^%$]", "%%%1"))
-end
-
-local http_safe = {}
-local http_replacements = {}
-
-for i = 32, 126 do
-	http_safe[string.char(i)] = true
-end
-http_safe['"'] = nil
-http_safe["'"] = nil
-http_safe["<"] = nil
-http_safe[">"] = nil
-http_safe["\t"] = true
-http_safe["\n"] = true
-http_safe["\r"] = true
-
-http_replacements["&"] = "&amp;"
-http_replacements['"'] = "&quot;"
-http_replacements["'"] = "&apos;"
-http_replacements["<"] = "&lt;"
-http_replacements[">"] = "&gt;"
-
-local function http_safechar(char)
-	return http_safe[char] and char or http_replacements[char] or string.format("&#%d;", string.byte(char))
-end
-
-function escape.html(input, strict) expects "string"
-	if strict == nil then strict = true end
-	
-	input = input:gsub(".", http_safechar)
-	--[[input = input:gsub("&", "&amp;")
-	input = input:gsub('"', "&quot;")
-	input = input:gsub("'", "&apos;")
-	input = input:gsub("<", "&lt;")
-	input = input:gsub(">", "&gt;")]]
-	
-	if strict then
-		input = input:gsub("\t", "&nbsp;&nbsp;&nbsp;&nbsp;")
-		input = input:gsub("\n", "<br />\n")
-	end
-	return input
-end
-escape.attribute = escape.html
-
-function escape.url(input) expects "string"
-	return url.escape(input)
-end
-
-function escape.striptags(input, tbl) expects "string"
-	local html, message = xss_filter:filter(input)
-	
-	if html then
-	   return html
-	elseif message then
-		error(message)
-	end
-	error("what?")
-end
-
-function escape.sql(input) expects "string"	
-	input = input:gsub("'", "\\'")
-	input = input:gsub("\"", "\\\"")
-	
-	return input
-end
-
-function escape.argument(input) expects "string"
-	input = input:gsub(" ", "\\ ")	
-	input = input:gsub("'", "\\'")
-	input = input:gsub("\"", "\\\"")
-	input = input:gsub("\n", "\\n")
-	input = input:gsub("\r", "\\r")
-	input = input:gsub("\b", "\\b")
-	input = input:gsub("\t", "\\t")
-	
-	return input
-end
 
 ------- os.*
 
@@ -431,311 +344,8 @@ function os.platform()
 	return _platform, _version
 end
 
-------- script.*
-function script.pid() -- attempt to locate the PID of the process
-	return posix.getpid("pid")
-end
-
-function script.instance() -- TODO: other thread types will bee removed soon, so coroutines are fine
-	return tostring(coroutine.running()):match("0x(%x+)")
-end
-
-function script.current_file(depth)
-	return debug.getinfo((depth or 1) + 1).source:sub(2)
-end
-
-function script.current_path(depth)
-	return debug.getinfo((depth or 1) + 1).source:sub(2):Path()
-end
-
-function script.local_path(path) expects "string"
-	return (script.current_path(2):match("(sites/.-/).*") or "") .. path
-end
-
-function script.instance_info()
-	return string.format("on %d", script.pid())
-end
-
-script.options = {}
-script.arguments = {}
-script.filename = ""
-script.cfg_blacklist = {
-	version = true,
-	help = true,
-	config = true,
-	["out-pid"] = true,
-	["unit-test"] = true
-}
-
-function script.parse_arguments(args, shorthands) expects "table"
-	script.filename = args[0]
-	shorthands = shorthands or {}
-	
-	for k, v in ipairs(args) do
-		local long_set, val = v:match("^%-%-(.+)=(.+)$")
-		local long = v:match("^%-%-(.+)$")
-		local short = v:match("^%-(.+)$")
-		
-		if long_set then
-			script.options[long_set] = val
-		elseif long then
-			script.options[long] = true
-		elseif short then
-			local opts = short
-			for i = 1, opts:len() do
-				local opt = opts:sub(i, i)
-				local key = shorthands[opt] or opt
-				script.options[key] = true
-			end
-		else
-			table.insert(script.arguments, v)
-		end
-	end
-	
-	-- if --config is set, then load and update it
-	if type(script.options.config) == "string" then
-		local save_config = false
-		local path = script.options.config
-		
-		print(string.format("loading options from %s", path))
-		local cfg, err = configor.loadfile(path)
-		
-		if err then
-			warn(string.format("%s:%s", path, err))
-			os.exit(1)
-		end
-		
-		for _, node in pairs(cfg.arguments:children()) do
-			local name, value = node:name(), node:data()
-			local new = script.options[name]
-			
-			if script.cfg_blacklist[name] ~= nil then
-				-- ignore this...
-			elseif new == nil then -- not updating anything, retreive the stored option...
-				script.options[name] = value
-			elseif new ~= nil and new ~= value then
-				-- a new value was specified, update the config's value
-				new = tostring(new)
-				print(string.format("updating %s's %s with \"%s\" (was \"%s\")", path, name, new, value))
-				cfg.arguments[name]:set_value(new)
-				save_config = true
-			else
-				-- param matches that of the config...
-			end
-		end
-		
-		-- add any none-existing-config arguments
-		for name, value in pairs(script.options) do
-			if script.cfg_blacklist[name] == nil and cfg.arguments[name]:data() ~= tostring(value) then
-				print(string.format("new option %s in %s with value \"%s\"", name, path, value))
-				cfg.arguments[name]:set_value(value)
-				save_config = true
-			end
-		end
-		
-		if save_config then
-			print(string.format("writing configuration changes to %s", path))
-			configor.savefile(cfg, path)
-		end
-	end
-end
 
 
------ util.*
-function util.time()
-	return socket.gettime()
-end
-
-function util.ItterateDir(dir, recursive, callback, ...) expects("string", "boolean", "function")
-	assert(dir and recursive ~= nil and callback)
-	
-	for file in lfs.dir(dir) do
-		if lfs.attributes(dir .. file, "mode") == "file" then
-			callback(dir .. file, ...)
-		elseif recursive and file ~= "." and file ~= ".." and lfs.attributes(dir .. file, "mode") == "directory" then
-			itterate_dir(dir .. file .. "/", recursive, callback, ...)
-		end
-	end
-end
-
-function util.DirExists(dir) expects "string"
-	return lfs.attributes(dir, "mode") == "directory"
-end
-
-function util.Dir(base_dir, recursive) expects "string"
-	local ret = {}
-	
-	local itt_dir = function(dir)
-		for filename in lfs.dir(dir) do
-			if filename ~= "." and filename ~= ".." then
-			
-				local file = dir .. file
-				if util.DirExists(file) then
-					table.insert(ret, {name=file .. "/", dir=true})
-					if recursive then itt_dir(file .. "/") end
-				else
-					table.insert(ret, {name=file, dir=false})
-				end
-				
-			end
-		end
-	end
-	
-	itt_dir(base_dir)
-	return ret
-end
-
-function util.EnsurePath(path) expects "string" -- false = already exists, true = didn't
-	if util.DirExists(path) then return false end
-	
-	local split = path:Split("/")
-	local cd = ""
-	
-	for k,v in ipairs(split) do
-		cd = cd .. v .. "/"
-		
-		if not util.DirExists(path) then
-			assert(lfs.mkdir(cd))
-		end
-	end
-	
-	return true
-end
-
-local canonical_headers = [[
-Accept
-Accept-Charset
-Accept-Encoding
-Accept-Language
-Accept-Datetime
-Authorization
-Cache-Control
-Connection
-Cookie
-Content-Length
-Content-MD5
-Content-Type
-Date
-Expect
-From
-Host
-Permanent
-If-Match
-If-Modified-Since
-If-None-Match
-If-Range
-If-Unmodified-Since
-Max-Forwards
-Origin
-Pragma
-Proxy-Authorization
-Range
-Referer
-TE
-Upgrade
-User-Agent
-Via
-Warning
-X-Requested-With
-DNT
-X-Forwarded-For
-X-Forwarded-Proto
-Front-End-Https
-X-ATT-DeviceId
-X-Wap-Profile
-Proxy-Connection
-Access-Control-Allow-Origin
-Accept-Ranges
-Age
-Allow
-Cache-Control
-Connection
-Content-Encoding
-Content-Language
-Content-Length
-Content-Location
-Content-MD5
-Content-Disposition
-Content-Range
-Content-Type
-Date
-ETag
-Expires
-Last-Modified
-Link
-Location
-P3P
-Pragma
-Proxy-Authenticate
-Refresh
-Retry-After
-Permanent
-Server
-Set-Cookie
-Status
-Strict-Transport-Security
-Trailer
-Transfer-Encoding
-Vary
-Via
-Warning
-WWW-Authenticate
-X-Frame-Options
-X-XSS-Protection
-Content-Security-Policy
-X-Content-Security-Policy
-X-WebKit-CSP
-X-Content-Type-Options
-X-Powered-By
-X-UA-Compatible
-X-Sendfile
-X-Accel-Redirect
-]]
-do
-	local split = canonical_headers:Split("\n")
-	canonical_headers = {}
-
-	for k, v in pairs(split) do
-		local hdr = v:Trim()
-		if hdr ~= "" then
-			canonical_headers[hdr:lower()] = hdr
-		end
-	end
-end
-
-function util.canonicalize_header(header) expects "string"
-	local lwr = header:lower()
-	return canonical_headers[lwr] or header
-end
-
------ other
-
-local stack
-do
-	local meta = {}
-	meta._meta = {__index = meta}
-	
-	function stack()
-		local ret = {_tbl = {}}
-		return setmetatable(ret, meta._meta)
-	end
-	
-	function meta:push(val) expects (meta._meta)
-		table.insert(self._tbl, val)
-	end
-	
-	function meta:pop() expects (meta._meta)
-		table.remove(self._tbl, 1)
-	end
-	
-	function meta:value() expects (meta._meta)
-		return self._tbl[1]
-	end
-	
-	function meta:all() expects (meta._meta)
-		return self._tbl
-	end
-end
 
 -- detour print, so that it appends the PID infront
 static_print = print
@@ -757,71 +367,9 @@ function warn(str, ...) expects("string") -- print a warning to stderr
 	print(outstr)
 end
 
+
 -- include helpers
-
-local rgx = "function$ $maybename$ %($args%)"
-rgx = rgx:Replace("$maybename", "([A-z0-9_%.:]*)")
-rgx = rgx:Replace("$ ", "%s*")
-rgx = rgx:Replace("$args", "([A-z0-9_, %*&%.]-)")
-function util.translate_luacode(code)
-	code = code:gsub(rgx, function(name, argslist)
-		local args = argslist:Split(",")
-		local expects_tbl = {}
-		local args_tbl = {}
-		local hastype = false
-	
-		local meta_tbl = name:match("(.+):.+")
-		local meta_tbl_check = name:match("(.+)::.+")
-		if meta_tbl_check then
-			hastype = true
-			table.insert(expects_tbl, meta_tbl_check)
-			name = name:Replace("::", ":")
-		elseif meta_tbl then
-			hastype = false
-			table.insert(expects_tbl, "nil")
-		end
-	
-		for _, arg in pairs(args) do
-			local arg_split = arg:Trim():Split(" ", {remove_empty = true})
-			local arg_name, arg_type
-			
-			if #arg_split == 1 then
-				arg_name = arg_split[1]:Trim()
-			else
-				arg_name = arg_split[2]:Trim()
-				arg_type = arg_split[1]:Trim()
-			end
-			
-			table.insert(args_tbl, arg_name)
-		
-			if not arg_type then
-				table.insert(expects_tbl, "nil")
-			else
-				local len_type = #arg_type
-				if arg_type:sub(len_type, len_type) == "&" then
-					table.insert(expects_tbl, arg_type:sub(1, -2)) -- from the start, to the last but 1 (removing the &)
-				else
-					table.insert(expects_tbl, '"' .. arg_type .. '"')
-				end
-			end
-		
-
-			hastype = hastype or arg_type
-		end
-	
-		local expects_str = ""
-	
-		if hastype then
-			expects_str = " expects(" .. table.concat(expects_tbl, ", ") .. ")"
-		end
-	
-		return string.format("function %s (%s)", name, table.concat(args_tbl, ", ")) .. expects_str
-	end)
-	return code
-end
-
--- include'd files will have enhanced syntax
---[[local]] dofile = function(file, ...)
+dofile = function(file, ...)
 	local f = assert(io.open(file, "r"))
 	local code = f:read("*a")
 	f:close()
@@ -897,4 +445,24 @@ function include(file, ...) expects "string"
 	if err ~= nil then error(string.format("while including: %s: %s", file, err), -1) end
 	return unpack(ret), deps
 end
+
+util = require("luaserver.util")
+
+local real_require = require
+function require(mod)
+	if package.loaded[mod] then
+		return package.loaded[mod]
+	elseif package.preload[mod] then
+		return real_require(mod)
+	end
 	
+	local file = package.searchpath(mod, package.path)
+	
+	if file then
+		local m = dofile(file)
+		package.loaded[mod] = m
+		return m
+	end
+	
+	return real_require(mod)
+end

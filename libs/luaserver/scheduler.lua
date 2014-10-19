@@ -1,4 +1,7 @@
-scheduler = {}
+local util = require("luaserver.util")
+local script = require("luaserver.util.script")
+
+local scheduler = {}
 scheduler.tasks = {}
 
 function scheduler.newtask(string name, function func) -- expects("string", "function")
@@ -61,40 +64,4 @@ function scheduler.done()
 	return #scheduler.tasks == 0
 end
 
-function scheduler.schedinfo(req, res)
-	local elms = {}
-	
-	local totalcpu_time = 0
-	local totalcpu_time_persec = 0
-	
-	for k, task in pairs(scheduler.tasks) do
-		totalcpu_time         = totalcpu_time          + task.exectime
-		totalcpu_time_persec  = totalcpu_time_persec   + task.exectime / (util.time() - task.born)
-	end
-	
-	for k, task in pairs(scheduler.tasks) do
-		local cputs = task.exectime / (util.time() - task.born)
-		local trate = 
-		table.insert(elms, tags.div
-		{
-			tags.b{ task.name },
-			tags.br,
-			string.format("spent %f seconds executing (%f%%)", task.exectime, task.exectime / totalcpu_time * 100),
-			tags.br,
-			string.format("tick rate = %d per second", 1/task.lasttickrate),
-			tags.br,
-			string.format("age = %f seconds", util.time() - task.born),
-			tags.br,
-			string.format("cpu time/s = %f (%f%%)", cputs, cputs / totalcpu_time_persec * 100),
-			tags.br,
-			tags.br,
-		})
-	end
-	
-	tags.html
-	{
-		unpack(elms)
-	}.to_response(res)
-end
-
-reqs.AddPattern("*", "/schedinfo", scheduler.schedinfo)
+return scheduler

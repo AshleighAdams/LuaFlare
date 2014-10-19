@@ -1,4 +1,5 @@
-local threadpool = require("threadpool")
+local threadpool = require("luaserver.threadpool")
+local scheduler = require("luaserver.scheduler")
 
 -- detours shit to coroutinify it
 routines = routines or {}

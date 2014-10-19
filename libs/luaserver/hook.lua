@@ -1,4 +1,4 @@
-hook = {}
+local hook = {}
 hook.hooks = {}
 hook.fatal_section = 0
 
@@ -95,3 +95,5 @@ hook.SafeCall = function (name, ...)
 		end
 	end
 end
+
+return hook

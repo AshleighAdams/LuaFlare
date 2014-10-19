@@ -1,5 +1,7 @@
 require("lfs")
-local mimetypes = require("mimetypes")
+local mimetypes = require("luaserver.mimetypes")
+local escape = require("luaserver.util.escape")
+local hosts = require("luaserver.hosts")
 
 local static_dir = "static/"
 local count = 0

@@ -1,4 +1,4 @@
-hosts = {}
+local hosts = {} -- make require("luaserver.hosts") like
 hosts.hosts = {}
 hosts.upgrades = {}
 hosts.host_meta = {}
@@ -137,7 +137,7 @@ function hosts.process_request(req, res)
 	local page, args, errcode, errstr = host:match(req:url())
 	
 	-- failed, try wildcard
-	if not page and errcode == 404 and not host.options.no_fallback then
+	if not page and errcode == 404 and (not host.options or not host.options.no_fallback) then
 		page, args, errcode, errstr = hosts.any:match(req:url())
 	end
 	
@@ -160,7 +160,9 @@ local reqs_fallback = {
 	Upgrades = hosts.upgrades
 }
 
-reqs = setmetatable({}, {__index = function(self, k)
+_G.reqs = setmetatable({}, {__index = function(self, k)
 	warn("reqs." .. k .. " has been depricated! Use `hosts.get(host):add(pattern, function)`.\n" .. debug.traceback("", 2))
 	return reqs_fallback[k]
 end})
+
+return hosts

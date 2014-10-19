@@ -1,10 +1,13 @@
-websocket = {}
-websocket.TEXT = 129
-websocket.registered = {}
 
+local hosts = require("luaserver.hosts")
+local scheduler = require("luaserver.scheduler")
 local sha1 = require("sha1")
 local bit = require("bit")
 local base64 = require("base64")
+
+local websocket = {}
+websocket.TEXT = 129
+websocket.registered = {}
 
 local function send_message(client, payload)
 	local len = payload:len()
@@ -240,3 +243,5 @@ function meta:wait()
 		coroutine.yield(0.25)
 	end
 end
+
+return websocket

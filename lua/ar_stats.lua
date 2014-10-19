@@ -1,3 +1,7 @@
+local hook = require("luaserver.hook")
+local hosts = require("luaserver.hosts")
+local scheduler = require("luaserver.scheduler")
+
 local template = include("template-stats.lua")
 
 local hits_data = {}
