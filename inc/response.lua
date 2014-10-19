@@ -167,6 +167,10 @@ function meta::send()
 	if self._sent then return end -- we've already sent it
 	self._sent = true -- mark future calls to send as done
 	
+	if self._headers["Content-Type"] == "text/html" then
+		self:append("\n<!-- "..(self:request():total_time() * 1000).." ms -->\n")
+	end
+	
 	self:set_header("Content-Length", self._reply:len())
 	self:set_header("X-Powered-By", x_powered_by)
 	
