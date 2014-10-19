@@ -263,7 +263,7 @@ end)
 # Behind Nginx
 
 It is recommended that you run LuaServer behind Nginx to prevent many types of attacks, and other things
-provided by Nginx, such as compression.  The daemon runs as the user `daemon`, so it's recommended you also run Nginx with the user `daemon` too.
+provided by Nginx, such as compression.  The daemon runs as the user `www-data`, so it's recommended you also run Nginx with the user `www-data` too.
 
 ## HTTP
 
