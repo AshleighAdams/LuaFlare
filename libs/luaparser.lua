@@ -24,17 +24,6 @@ parser.tokenchars_unjoinable = {
 	["}"] = true, [";"] = true, [","] = true
 }
 
--- things that modify the scope
-parser.scope_ins = {
-	["do"] = true, ["then"] = true, ["repeat"] = true
-}
-parser.scope_both = {
-	["else"] = true
-}
-parser.scope_out = {
-	["end"] = true, ["elseif"] = true, ["until"] = true
-}
-
 parser.escapers = {
 	["x(..)"] = function(str)
 		return string.char(tonumber(str, 16))
@@ -256,6 +245,128 @@ function parser.tokenize(code) expects("string")
 	end
 	
 	return tokens
+end
+
+-- things that create scopes
+parser.scope_create = {
+	["do"] = true, ["then"] = true, ["repeat"] = true, ["else"] = true, ["function"] = true
+}
+-- ends scopes
+parser.scope_destroy = {
+	["end"] = true, ["elseif"] = true, ["until"] = true, ["else"] = true
+}
+
+function parser.read_scopes(tokens) expects("table")
+	local root_scope = {
+		starts = 1,
+		ends = -1,
+		starttoken = tokens[1],
+		locals = {},
+		children = {}
+	}
+	
+	local scope = root_scope
+	
+	local function push_scope(cur)
+		local nscope = {
+			parent = scope,
+			starts = cur.range[2], -- end of keyword
+			ends = -1,
+			starttoken = cur,
+			locals = {},
+			children = {}
+		}
+		table.insert(scope.children, nscope)
+		scope = nscope
+	end
+	
+	local function pop_scope(cur)
+		scope.ends = cur.range[1] -- start of keyword
+		scope.endtoken = cur
+		scope = assert(scope.parent)
+	end
+	
+	for k, t in pairs(tokens) do
+		t.scope = scope
+		
+		if t.type == "keyword" then
+			local val = t.value
+			
+			if parser.scope_destroy[val] then
+				pop_scope(t)
+			end if parser.scope_create[val] then -- both can be triggered, needs to be this order too
+				push_scope(t)
+			end
+			
+			local tkpos = k
+			local function next_token(peek)
+				tkpos = tkpos + 1
+				local r = tokens[tkpos]
+				
+				if not r then
+					if peek then tkpos = tkpos - 1 end
+					return nil, nil
+				elseif r.type == "whitespace" or r.type == "newline" then
+					local nt, p = next_token(peek)
+					if peek then tkpos = tkpos - 1 end
+					return nt, p
+				else
+					if peek then tkpos = tkpos - 1 end
+					return r, tkpos
+				end
+			end
+			
+			if val == "local" then -- locals (does not read local function's scope)
+				
+				local nt = next_token(true)
+				
+				if nt.type == "keyword" and nt.value == "function" then -- local function
+					next_token()
+					local n = next_token()
+					assert(n.type == "identifier")
+					table.insert(scope.locals, {name = n.value, range = n.range, token = n})
+				else
+					while true do
+						local n = next_token()
+						assert(n.type == "identifier")
+						table.insert(scope.locals, {name = n.value, range = n.range, token = n})
+						
+						n = next_token(true)
+						if not (n.type == "token" and n.value == ",") then
+							break
+						else
+							next_token()
+						end
+					end
+				end
+				
+			elseif val == "function" then -- read arguments
+				
+				while true do
+					local nt = next_token()
+					if not nt then break end
+					if nt.type == "token" and nt.value == ":" then -- : -> self
+						table.insert(scope.locals, {name = "self", range = nt.range, token = nt})
+					end
+					if nt.type == "token" and nt.value == "(" then break end
+				end
+				
+				while true do
+					local nt = next_token()
+					if not nt then break end
+					if nt.type == "token" and nt.value == ")" then break end
+					
+					if nt.type == "identifier" then
+						table.insert(scope.locals, {name = nt.value, range = nt.range, token = nt, argument = true})
+					end
+				end
+				
+			end
+		end
+	end
+	
+	assert(root_scope == scope)
+	return root_scope
 end
 
 return parser

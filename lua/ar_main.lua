@@ -314,16 +314,29 @@ local function tokenize(req, res, filename)
 	f:close()
 	
 	local tokens = parser.tokenize(code)
-	local buff = {}
-	
 	hook.Call("ModifyTokens", tokens)
 	hook.Call("OptimizeTokens", tokens)
+	local scope = parser.read_scopes(tokens)
 	
-	for k,token in pairs(tokens) do
-		table.insert(buff, token.chunk)
+	local function printscope(scope, depth)
+		depth = depth or ""
+		local locals = {}
+		for k,v in pairs(scope.locals) do
+			if v.argument then
+				table.insert(locals, "("..v.name..")")
+			else
+				table.insert(locals, v.name)
+			end
+		end
+		res:append(depth.."scope {\n")
+		res:append(depth.."\tlocals: " .. table.concat(locals, ", ") .. "\n")
+		for k,v in pairs(scope.children) do
+			printscope(v, depth.."\t")
+		end
+		res:append(depth.."}\n")
 	end
+	printscope(scope)
 	
-	res:append(table.concat(buff))
 	res:set_header("Content-Type", "text/plain")
 end
 hosts.developer:addpattern("/tokenize/(.+)", tokenize)
