@@ -17,7 +17,7 @@ parser.keywords = {
 parser.tokenchars_joinable = {
 	["+"] = true, ["-"] = true, ["*"] = true, ["/"] = true, ["%"] = true,
 	["^"] = true, ["#"] = true, ["="] = true, ["~"] = true, ["<"] = true,
-	[">"] = true, ["."] = true, ["::"] = true
+	[">"] = true, ["."] = true, [":"] = true
 }
 parser.tokenchars_unjoinable = {
 	["("] = true, [")"] = true, ["["] = true, ["]"] = true, ["{"] = true,

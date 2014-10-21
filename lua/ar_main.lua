@@ -296,6 +296,28 @@ local function translate(req, res, filename)
 end
 hosts.developer:addpattern("/translate/(.+)", translate)
 
+local parser = require("luaparser")
+local function tokenize(req, res, filename)
+	filename = filename:Trim()
+	
+	if filename:match("%.%.") ~= nil then
+		return res:halt(403, "Path contains \"..\"!") -- forbidden
+	elseif filename:StartsWith("/") then
+		return res:halt(403, "Path starts with \"/\"!") -- forbidden
+	end
+	
+	local f = io.open(filename, "r")
+	if not f then return res:halt(404, filename) end
+	local code = util.translate_luacode(f:read("*a"))
+	f:close()
+	
+	local tokens = parser.tokenize(code)
+	
+	res:append(table.ToString(tokens))
+	res:set_header("Content-Type", "text/plain")
+end
+hosts.developer:addpattern("/tokenize/(.+)", tokenize)
+
 
 local function conflict1(req, res, ...)
 	res:append("OK - 1: " .. table.concat({...}, ", "))
