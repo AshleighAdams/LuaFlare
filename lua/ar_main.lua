@@ -297,8 +297,9 @@ end
 hosts.developer:addpattern("/translate/(.+)", translate)
 
 
-local parser = require("luaparser")
+local parser = require("luaserver.util.luaparser")
 local escape = require("luaserver.util.escape")
+
 local function tokenize(req, res, filename)
 	filename = filename:Trim()
 	
@@ -358,13 +359,87 @@ local function tokenize(req, res, filename)
 			res:append("parent scope:\n")
 			for k,l in pairs(scope.locals) do
 				if l.range[1] < tk.range[1] then
-					res:append(string.format("%s\n", l.name))
+					res:append(string.format("\t%s\n", l.name))
 				end
 			end
 			scope = scope.parent
 		end
-	else
+	elseif params.scope then
 		printscope(scope)
+	else
+		res:append([[
+			<style>
+				body {
+					font-family: monospace;
+					background-color: #333;
+					color: #fff;
+					line-height: 60%;
+				}
+				.whitespace {
+				}
+				.keyword {
+					font-weight: bold;
+				}
+				.string {
+					color: yellow;
+				}
+				.number {
+					color: orange;
+				}
+				.comment {
+					color: #aaa;
+				}
+				.identifier {
+					/*color: #acf;*/
+					/*text-decoration: underline;*/
+				}
+				.function {
+					color: #acf;
+				}
+				.indexed {
+					color: #afc;
+				}
+			</style>
+		]])
+		
+		local identifier_ids = {}
+		local id = 1
+		
+		local function next_token(pos, count)
+			local k,t = pos,nil
+			count = count or 1
+			while count > 0 do
+				k = k + 1
+				t = tokens[k]
+				if not t then break
+				elseif not (t.type == "whitespace" or t.type == "newline") then
+					count = count - 1
+				end
+			end
+			return t,k
+		end
+		
+		for k,t in pairs(tokens) do
+			if t.type == "newline" then
+				res:append("<br/>\n")
+			else
+				local class = t.type
+				
+				local nt = next_token(k)
+				if nt and nt.type == "token" and nt.value == "(" then
+					class = class .. " function"
+				elseif nt and nt.type == "token" and (   nt.value == "." 
+				                                      or nt.value == ":"
+				                                      or nt.value == "[") then
+					class = class .. " indexed"
+				end
+				
+				res:append("<span class='" .. escape.attribute(class) .. "'>")
+				res:append(escape.html(t.chunk))
+				res:append("</span>")
+			end
+		end
+		return
 	end
 	
 	res:set_header("Content-Type", "text/plain")

@@ -1,5 +1,22 @@
 local parser = {}
-local stringreader = require("luaparser.stringreader")
+parser.strict = false
+function parser.problem(str, depth)
+	if parser.strict then
+		error(str, (depth or 1) + 1)
+	end
+end
+
+function parser.assert(...)
+	if parser.strict then
+		local vals = table.pack(...)
+		if not vals[1] then
+			error(vals[2] or "assert failed", 2)
+		end
+		return table.unpack(vals)
+	end
+end
+
+local stringreader = require("luaserver.util.luaparser.stringreader")
 
 parser.keywords = {
 	["and"] = true,        ["break"] = true,
@@ -59,8 +76,12 @@ function parser.tokenize(code) expects("string")
 		table.insert(tokens, tkn)
 		
 		if tkn.type == "unknown" then
-			local ptkn = tokens[#tokens - 1] or error()
-			error(string.format("failed to tokenize at line %d (char: %q, previous chunk: %s)", tkn.line, tkn.value, ptkn.chunk), 3)
+			--local ptkn = tokens[#tokens - 1] or error()
+			local near = ""
+			for i = #tokens - 1, #tokens - 10 do
+				near = tokens[i].chunk .. near
+			end
+			parser.problem(string.format("failed to tokenize at line %d (char: %q, near: %s)", tkn.line, tkn.value, near), 3)
 		elseif tkn.type == "newline" then
 			_line = _line + 1
 		end
@@ -323,12 +344,12 @@ function parser.read_scopes(tokens) expects("table")
 				if nt.type == "keyword" and nt.value == "function" then -- local function
 					next_token()
 					local n = next_token()
-					assert(n.type == "identifier")
+					parser.assert(n.type == "identifier")
 					table.insert(scope.locals, {name = n.value, range = n.range, token = n})
 				else
 					while true do
 						local n = next_token()
-						assert(n.type == "identifier")
+						parser.assert(n.type == "identifier")
 						table.insert(scope.locals, {name = n.value, range = n.range, token = n})
 						
 						n = next_token(true)
@@ -364,7 +385,7 @@ function parser.read_scopes(tokens) expects("table")
 				
 				while true do
 					local n = next_token()
-					assert(n.type == "identifier")
+					parser.assert(n.type == "identifier")
 					table.insert(scope.locals, {name = n.value, range = n.range, token = n})
 					
 					n = next_token(true)
@@ -376,10 +397,25 @@ function parser.read_scopes(tokens) expects("table")
 				end
 				
 			end
+		elseif t.type == "identifier" then
+			
+			local curscope = t.scope
+			while curscope do
+				for k,v in pairs(curscope.locals) do
+					if v.name == t.value and v.range[1] < t.range[1] then
+						t.defined = v
+						v.defines = v.defines or {}
+						table.insert(v.defines, t)
+						break
+					end
+				end
+				curscope = curscope.parent
+			end
+			
 		end
 	end
 	
-	assert(root_scope == scope)
+	parser.assert(root_scope == scope)
 	return root_scope
 end
 

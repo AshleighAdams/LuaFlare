@@ -1,4 +1,4 @@
-local parser = require("luaparser")
+local parser = require("luaserver.util.luaparser")
 local hook = require("luaserver.hook")
 
 local rgx = "function$ $maybename$ %($args%)"

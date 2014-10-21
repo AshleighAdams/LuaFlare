@@ -1,7 +1,8 @@
 local mimetypes = require("luaserver.mimetypes")
 local httpstatus = require("luaserver.httpstatus")
+local script = require("luaserver.util.script")
 local md5 = require("md5")
-require("lfs")
+local lfs = require("lfs")
 
 local meta = {}
 meta.__index = meta
