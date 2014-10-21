@@ -335,7 +335,37 @@ local function tokenize(req, res, filename)
 		end
 		res:append(depth.."}\n")
 	end
-	printscope(scope)
+	
+	local params = req:params()
+	if params.line then
+		local tk
+		local curline, line = 1, tonumber(params.line) or 1
+		for k,t in pairs(tokens) do
+			if t.type == "newline" then
+				curline = curline + 1
+			end
+			if curline >= line then
+				tk = t
+				break
+			end
+		end
+		
+		assert(tk)
+		
+		local locals = {}
+		local scope = tk.scope
+		while scope do
+			res:append("parent scope:\n")
+			for k,l in pairs(scope.locals) do
+				if l.range[1] < tk.range[1] then
+					res:append(string.format("%s\n", l.name))
+				end
+			end
+			scope = scope.parent
+		end
+	else
+		printscope(scope)
+	end
 	
 	res:set_header("Content-Type", "text/plain")
 end
