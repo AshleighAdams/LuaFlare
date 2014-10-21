@@ -2,6 +2,7 @@ local configor = require("configor")
 local stack = require("luaserver.util.stack")
 local escape = require("luaserver.util.escape")
 local script = require("luaserver.util.script")
+local hook = require("luaserver.hook")
 local util
 
 -- All extensions to inbuilt libs use ThisCase
