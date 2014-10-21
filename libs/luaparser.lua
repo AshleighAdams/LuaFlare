@@ -56,7 +56,7 @@ parser.escapers = {
 	["%]"] = function() return "]" end
 }
 
-function parser.tokenize(string code)
+function parser.tokenize(code) expects("string")
 	local tokens = {}
 	local reader = stringreader.new(code)
 	
@@ -81,14 +81,28 @@ function parser.tokenize(string code)
 	while not reader:eof() do
 		local mode = reader:peek()
 		
-		if reader:peek(2) == "--" then
+		if _startpos == 1 and reader:peek(2) == "#!" then
+			local buff = {}
+			while reader:peek() ~= "\n" and reader:peek(2) ~= "\r\n" do
+				table.insert(buff, reader:read())
+			end
+			
+			add_token({
+				type = "hashbang",
+				value = table.concat(buff)
+			})
+		elseif reader:peek(2) == "--" then
 			
 			reader:read(2) --
 			local block = reader:peek() == "["
 			local value
 			
 			if not block then
-				value = reader:readmatch("(.-)\r?\n")
+				local buff = {}
+				while reader:peek() ~= "\n" and reader:peek(2) ~= "\r\n" do
+					table.insert(buff, reader:read())
+				end
+				value = table.concat(buff)
 			else
 				reader:read()
 				local equals = ""

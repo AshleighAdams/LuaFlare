@@ -5,6 +5,7 @@ package.path = "./libs/?.lua;" .. package.path
 package.cpath = "./libs/?.so;" .. package.cpath
 
 dofile("inc/util.lua")
+dofile("inc/syntax_extensions.lua")
 
 local socket = require("socket")
 local ssl = require("ssl")

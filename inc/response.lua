@@ -121,7 +121,7 @@ function meta::set_file(string path)-- expects(meta, "string")
 	return true
 end
 
-function meta::set_header(string name, * value) -- expects(meta, "string", "*")
+function meta::set_header(string name, any value) -- expects(meta, "string", "*")
 	name = util.canonicalize_header(name)
 	self._headers[name] = tostring(value)
 end

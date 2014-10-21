@@ -1,9 +1,12 @@
+local parser = require("luaparser")
+local hook = require("luaserver.hook")
+
 local rgx = "function$ $maybename$ %($args%)"
 rgx = rgx:Replace("$maybename", "([A-z0-9_%.:]*)")
 rgx = rgx:Replace("$ ", "%s*")
 rgx = rgx:Replace("$args", "([A-z0-9_, %*&%.]-)")
 
-local function translate_luacode(code)
+local function translate_luacode_regex(code)
 	code = code:gsub(rgx, function(name, argslist)
 		local args = argslist:Split(",")
 		local expects_tbl = {}
@@ -57,7 +60,23 @@ local function translate_luacode(code)
 	
 		return string.format("function %s (%s)", name, table.concat(args_tbl, ", ")) .. expects_str
 	end)
+	
 	return code
 end
 
-return translate_luacode
+
+local function translate_luacode_tokens(code)
+	local tokens = parser.tokenize(code)
+	local buff = {}
+	
+	hook.Call("ModifyTokens", tokens)
+	hook.Call("OptimizeTokens", tokens)
+	
+	for k,token in pairs(tokens) do
+		table.insert(buff, token.chunk)
+	end
+	
+	return table.concat(buff)
+end
+
+return translate_luacode_tokens --regex

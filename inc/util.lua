@@ -54,7 +54,9 @@ function expects(...)
 			if not valid then
 				error(string.format("argument #%i (%s): incompatible (%s)", i, name, reason), err_level)
 			end
-		elseif arg == "*" then -- anything but nil
+		elseif arg == "*" then
+			error("DEPRICATED!")
+		elseif arg == "any" then -- anything but nil
 			if val == nil then
 				error(string.format("argument #%i (%s) expected a value (got nil)", i, name), err_level)
 			end
@@ -467,3 +469,7 @@ function require(mod)
 	
 	return real_require(mod)
 end
+
+
+
+

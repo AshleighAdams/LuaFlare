@@ -296,7 +296,9 @@ local function translate(req, res, filename)
 end
 hosts.developer:addpattern("/translate/(.+)", translate)
 
+
 local parser = require("luaparser")
+local escape = require("luaserver.util.escape")
 local function tokenize(req, res, filename)
 	filename = filename:Trim()
 	
@@ -308,12 +310,20 @@ local function tokenize(req, res, filename)
 	
 	local f = io.open(filename, "r")
 	if not f then return res:halt(404, filename) end
-	local code = util.translate_luacode(f:read("*a"))
+	local code = f:read("*a")
 	f:close()
 	
 	local tokens = parser.tokenize(code)
+	local buff = {}
 	
-	res:append(table.ToString(tokens))
+	hook.Call("ModifyTokens", tokens)
+	hook.Call("OptimizeTokens", tokens)
+	
+	for k,token in pairs(tokens) do
+		table.insert(buff, token.chunk)
+	end
+	
+	res:append(table.concat(buff))
 	res:set_header("Content-Type", "text/plain")
 end
 hosts.developer:addpattern("/tokenize/(.+)", tokenize)

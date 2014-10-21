@@ -117,7 +117,7 @@ function node:remove_child(node) expects(node, node)
 	end
 end
 
-function node:value(default) expects(node, "*")
+function node:value(default) expects(node, "any")
 	local typ = type(default)
 	if typ == self._value_type then
 		return self._cached_val
@@ -142,7 +142,7 @@ function node:value(default) expects(node, "*")
 	
 	return val
 end
-function node:set_value(value) expects(node, "*")
+function node:set_value(value) expects(node, "any")
 	local typ = type(value)
 	
 	self._value = configor.to_string[typ](value)

@@ -31,7 +31,7 @@ function threadpool.create(threads, func) expects("number", "function")
 	return setmetatable(tp, threadpool._meta)
 end
 
-function threadpool:enqueue(object) expects(threadpool._meta, "*")
+function threadpool:enqueue(object) expects(threadpool._meta, "any")
 	self.added = self.added + 1
 	table.insert(self.queue, object)
 end
