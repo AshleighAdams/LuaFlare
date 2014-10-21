@@ -43,7 +43,7 @@ do
 	end
 	
 	-- needs to be coroutine-ified
-	local chunksize = script.options["chunk-size"] or 1024*128
+	local chunksize = script.options["chunk-size"] or 1024*64
 	function meta:send(data)
 		self.parent:settimeout(0)
 		while #data > 0 do
