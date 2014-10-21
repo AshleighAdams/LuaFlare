@@ -360,6 +360,20 @@ function parser.read_scopes(tokens) expects("table")
 						table.insert(scope.locals, {name = nt.value, range = nt.range, token = nt, argument = true})
 					end
 				end
+			elseif val == "for" then
+				
+				while true do
+					local n = next_token()
+					assert(n.type == "identifier")
+					table.insert(scope.locals, {name = n.value, range = n.range, token = n})
+					
+					n = next_token(true)
+					if not (n.type == "token" and n.value == ",") then
+						break
+					else
+						next_token()
+					end
+				end
 				
 			end
 		end
