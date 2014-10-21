@@ -241,15 +241,15 @@ function parser.tokenize(code) expects("string")
 			add_token(token)
 			
 		elseif mode == "\n" then
-			add_token({
-				type = "newline",
-			})
 			reader:read()
-		elseif mode == "\r" and reader:peek(2) == "\r\n" then
 			add_token({
 				type = "newline",
 			})
+		elseif mode == "\r" and reader:peek(2) == "\r\n" then
 			reader:read(2)
+			add_token({
+				type = "newline",
+			})
 		elseif mode:match("%s") then
 			add_token({
 				type = "whitespace",
