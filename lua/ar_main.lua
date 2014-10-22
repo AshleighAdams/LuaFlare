@@ -318,7 +318,7 @@ local function tokenize(req, res, filename)
 	hook.Call("ModifyTokens", tokens)
 	hook.Call("OptimizeTokens", tokens)
 	local scope = parser.read_scopes(tokens)
-	
+		
 	local function printscope(scope, depth)
 		depth = depth or ""
 		local locals = {}
@@ -359,7 +359,7 @@ local function tokenize(req, res, filename)
 			res:append("parent scope:\n")
 			for k,l in pairs(scope.locals) do
 				if l.range[1] < tk.range[1] then
-					res:append(string.format("\t%s\n", l.name))
+					res:append(string.format("\t%s%s\n", l.name, l.argument and "*" or ""))
 				end
 			end
 			scope = scope.parent
@@ -373,9 +373,16 @@ local function tokenize(req, res, filename)
 					font-family: monospace;
 					background-color: #333;
 					color: #fff;
-					line-height: 60%;
+					/*line-height: 60%;*/
+				}
+				table {
+					/*line-height: 60%;*/
 				}
 				.whitespace {
+					/*border: 1px solid #2a2a2a;*/
+					border-bottom: 1px solid #3f3f3f;
+					margin-left: 1px;
+					margin-right: 1px;
 				}
 				.keyword {
 					font-weight: bold;
@@ -394,16 +401,39 @@ local function tokenize(req, res, filename)
 					/*text-decoration: underline;*/
 				}
 				.function {
-					color: #acf;
+					/*color: #acf;*/
+					font-style: oblique;
 				}
-				.indexed {
+				.indexer {
 					color: #afc;
 				}
+				td.lines {
+					text-align: right;
+					color: #aaa;
+				}
+				.token {
+					/*border: 1px solid #555;*/
+					color: acf;
+				}
+				.newline {
+					color: #3f3f3f;
+				}
 			</style>
+			Key: <span class='keyword'>keyword</span> <span class='string'>string</span> <span class='number'>number</span> <span class='comment'>comment</span
+			> <span class='identifier'>identifier</span> <span class='function'>function</span> <span class='indexer'>indexer</span> <span class='token'>token</span
+			> <span class='whitespace'>whitespace</span>
 		]])
 		
 		local identifier_ids = {}
 		local id = 1
+		
+		local lines = {}
+		for k,v in ipairs(tokens) do
+			if v.type == "newline" then
+				table.insert(lines, #lines + 1)
+			end
+		end
+		lines = table.concat(lines, "<br/>\n")
 		
 		local function next_token(pos, count)
 			local k,t = pos,nil
@@ -419,26 +449,41 @@ local function tokenize(req, res, filename)
 			return t,k
 		end
 		
-		for k,t in pairs(tokens) do
+		res:append("<table>")
+		res:append("<td class='lines'>")
+		res:append(lines)
+		res:append("</td><td class='code'>")
+		for k,t in ipairs(tokens) do
 			if t.type == "newline" then
-				res:append("<br/>\n")
+				res:append("<span class='newline'>&#8629;</span><br\n/>")
 			else
 				local class = t.type
 				
-				local nt = next_token(k)
-				if nt and nt.type == "token" and nt.value == "(" then
-					class = class .. " function"
-				elseif nt and nt.type == "token" and (   nt.value == "." 
-				                                      or nt.value == ":"
-				                                      or nt.value == "[") then
-					class = class .. " indexed"
+				if t.defines ~= nil then
+					class = class .. " defines"
 				end
 				
+				local nt = next_token(k)
+				if t.type == "identifier" and nt and nt.type == "token" and nt.value == "(" then
+					class = class .. " function"
+				end
+				if t.indexer then
+					class = class .. " indexer"
+				end
+				--[[elseif t.type == "identifier" and nt and nt.type == "token" and (
+				                                         nt.value == "." 
+				                                      or nt.value == ":"
+				                                      or nt.value == "["
+				                                      ) then
+					class = class .. " indexed"
+				end
+				]]
 				res:append("<span class='" .. escape.attribute(class) .. "'>")
 				res:append(escape.html(t.chunk))
 				res:append("</span>")
 			end
 		end
+		res:append("</td></table>")
 		return
 	end
 	

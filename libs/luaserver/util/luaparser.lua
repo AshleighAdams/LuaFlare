@@ -28,7 +28,9 @@ parser.keywords = {
 	["not"] = true,        ["or"] = true,
 	["repeat"] = true,     ["return"] = true,
 	["then"] = true,       ["until"] = true,
-	["while"] = true
+	["while"] = true,
+	-- value keywords
+	["false"] = true, ["true"] = true, ["nil"] = true
 }
 
 parser.tokenchars_joinable = {
@@ -48,6 +50,13 @@ parser.escapers = {
 	["0(%d%d?%d?)"] = function(str)
 		return string.char(tonumber(str)) -- is it base 10?
 	end,
+	["u{(%x-)}"] = function(str) -- this may be incorrect.... untested
+		local ret = ""
+		for i = 1, #str, 2 do
+			ret = ret .. string.char(tonumber(str:sub(i, i + 1), 16))
+		end
+		return ret
+	end,
 	["a"] = function() return "\a" end,
 	["b"] = function() return "\b" end,
 	["f"] = function() return "\f" end,
@@ -62,18 +71,39 @@ parser.escapers = {
 	["%]"] = function() return "]" end
 }
 
+parser.brackets_create = {
+	["{"] = true, ["("] = true, ["["] = true
+}
+parser.brackets_destroy = {
+	["}"] = true, [")"] = true, ["]"] = true
+}
+
 function parser.tokenize(code) expects("string")
 	local tokens = {}
 	local reader = stringreader.new(code)
 	
 	local _line = 1
 	local _startpos = 1
+	local _prev = nil
+	local _bracket = nil
+	local _brackets = {}
 	
 	local function add_token(tkn) -- fills some special info in too
 		tkn.line = _line
 		tkn.range = {_startpos, reader._position - 1}
 		tkn.chunk = code:sub(tkn.range[1], tkn.range[2])
 		table.insert(tokens, tkn)
+		
+		if tkn.type == "token" then
+			if parser.brackets_destroy[tkn.value] then
+				table.remove(_brackets, #_brackets)
+				_bracket = _brackets[#_brackets]
+			end
+			if parser.brackets_create[tkn.value] then
+				table.insert(_brackets, tkn.value)
+				_bracket = _brackets[#_brackets]
+			end
+		end
 		
 		if tkn.type == "unknown" then
 			--local ptkn = tokens[#tokens - 1] or error()
@@ -84,6 +114,8 @@ function parser.tokenize(code) expects("string")
 			parser.problem(string.format("failed to tokenize at line %d (char: %q, near: %s)", tkn.line, tkn.value, near), 3)
 		elseif tkn.type == "newline" then
 			_line = _line + 1
+		elseif tkn.type ~= "whitespace" and tkn.type ~= "comment" then
+			_prev = tkn
 		end
 		_startpos = reader._position
 	end
@@ -212,8 +244,22 @@ function parser.tokenize(code) expects("string")
 					value = id
 				})
 			else
+				local isindexer = false
+				
+				if _prev ~= nil and _prev.type == "token" then
+					if _prev.value == "."
+						or (_bracket == "{" and _prev.value == ",") -- todo: check if inside { $here = $exp }
+						or _prev.value == ":"
+						or _prev.value == "::"
+						or _prev.value == "{"
+					then
+						isindexer = true
+					end
+				end
+				
 				add_token({
 					type = "identifier",
+					indexer = isindexer,
 					value = id
 				})
 			end
@@ -367,7 +413,7 @@ function parser.read_scopes(tokens) expects("table")
 					local nt = next_token()
 					if not nt then break end
 					if nt.type == "token" and nt.value == ":" then -- : -> self
-						table.insert(scope.locals, {name = "self", range = nt.range, token = nt})
+						table.insert(scope.locals, {name = "self", range = nt.range, token = nt, argument = true})
 					end
 					if nt.type == "token" and nt.value == "(" then break end
 				end
@@ -399,24 +445,60 @@ function parser.read_scopes(tokens) expects("table")
 			end
 		elseif t.type == "identifier" then
 			
-			local curscope = t.scope
-			while curscope do
-				for k,v in pairs(curscope.locals) do
-					if v.name == t.value and v.range[1] < t.range[1] then
-						t.defined = v
-						v.defines = v.defines or {}
-						table.insert(v.defines, t)
-						break
-					end
-				end
-				curscope = curscope.parent
-			end
+			-- if we're appending to a table, don't assign the value to the definition
+			local prev = parser.previous_token(tokens, k)
 			
+			if prev.type ~= "token" or not ( prev.value == "."
+			                              or prev.value == ":"
+			                              or prev.value == ","
+			                              or prev.value == "{" ) then -- the 2nd part will only be evaulated if type == "token"
+				local curscope = t.scope
+				while curscope do
+					for k,v in pairs(curscope.locals) do
+						if v.name == t.value and v.range[1] < t.range[1] then
+							t.defined = v
+							v.token.defines = v.token.defines or {}
+							table.insert(v.token.defines, t)
+							break
+						end
+					end
+					curscope = curscope.parent
+				end
+			end
 		end
 	end
 	
 	parser.assert(root_scope == scope)
 	return root_scope
+end
+
+function parser.next_token(tokens, k, count) expects("table", "number", nil)
+	count = count or 1
+	local tk, n = nil, k
+	while count > 0 do
+		n = n + 1
+		tk = tokens[n]
+		if not tk then
+			return nil, nil
+		elseif tk.type ~= "whitespace" and tk.type ~= "newline" and tk.type ~= "comment" then
+			count = count - 1
+		end
+	end
+	return tk, n
+end
+function parser.previous_token(tokens, k, count) expects("table", "number", nil)
+	count = count or 1
+	local tk, n = nil, k
+	while count > 0 do
+		n = n - 1
+		tk = tokens[n]
+		if not tk then
+			return nil, nil
+		elseif tk.type ~= "whitespace" and tk.type ~= "newline" and tk.type ~= "comment" then
+			count = count - 1
+		end
+	end
+	return tk, n
 end
 
 return parser
