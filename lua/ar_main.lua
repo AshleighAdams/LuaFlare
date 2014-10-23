@@ -299,6 +299,7 @@ hosts.developer:addpattern("/translate/(.+)", translate)
 
 local parser = require("luaserver.util.luaparser")
 local escape = require("luaserver.util.escape")
+local util = require("luaserver.util")
 
 local function tokenize(req, res, filename)
 	filename = filename:Trim()
@@ -314,11 +315,20 @@ local function tokenize(req, res, filename)
 	local code = f:read("*a")
 	f:close()
 	
+	local tstart, ttokens, thooks, tscope
+	tstart = util.time()
 	local tokens = parser.tokenize(code)
+	ttokens = util.time() - tstart
+	
+	tstart = util.time()
 	hook.Call("ModifyTokens", tokens)
 	hook.Call("OptimizeTokens", tokens)
+	thooks = util.time() - tstart
+	
+	tstart = util.time()
 	local scope = parser.read_scopes(tokens)
-		
+	tscope = util.time() - tstart
+	
 	local function printscope(scope, depth)
 		depth = depth or ""
 		local locals = {}
@@ -369,14 +379,14 @@ local function tokenize(req, res, filename)
 	else
 		res:append([[
 			<style>
+				div, p, a, li, td { -webkit-text-size-adjust:none; }
 				body {
 					font-family: monospace;
+					font-size: 11pt;
 					background-color: #333;
 					color: #fff;
-					/*line-height: 60%;*/
 				}
 				table {
-					/*line-height: 60%;*/
 				}
 				.whitespace {
 					/*border: 1px solid #2a2a2a;*/
@@ -411,6 +421,9 @@ local function tokenize(req, res, filename)
 					text-align: right;
 					color: #aaa;
 				}
+				td.code {
+					white-space: nowrap;
+				}
 				.token {
 					/*border: 1px solid #555;*/
 					color: acf;
@@ -421,8 +434,12 @@ local function tokenize(req, res, filename)
 			</style>
 			Key: <span class='keyword'>keyword</span> <span class='string'>string</span> <span class='number'>number</span> <span class='comment'>comment</span
 			> <span class='identifier'>identifier</span> <span class='function'>function</span> <span class='indexer'>indexer</span> <span class='token'>token</span
-			> <span class='whitespace'>whitespace</span>
+			> <span class='whitespace'>whitespace</span> <br/>
 		]])
+		
+		res:append("Tokens: " .. (ttokens*1000) .. "ms ")
+		res:append("Hooks: " .. (thooks*1000) .. "ms ")
+		res:append("Scope: " .. (tscope*1000) .. "ms ")
 		
 		local identifier_ids = {}
 		local id = 1
@@ -470,14 +487,6 @@ local function tokenize(req, res, filename)
 				if t.indexer then
 					class = class .. " indexer"
 				end
-				--[[elseif t.type == "identifier" and nt and nt.type == "token" and (
-				                                         nt.value == "." 
-				                                      or nt.value == ":"
-				                                      or nt.value == "["
-				                                      ) then
-					class = class .. " indexed"
-				end
-				]]
 				res:append("<span class='" .. escape.attribute(class) .. "'>")
 				res:append(escape.html(t.chunk))
 				res:append("</span>")
