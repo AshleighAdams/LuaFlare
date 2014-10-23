@@ -245,7 +245,7 @@ function meta::send()
 	end
 
 	if self:request():method() == "HEAD" then
-		self.set_reply("") -- HEAD should yield same headers, but no body
+		self:set_reply("") -- HEAD should yield same headers, but no body
 	end
 	tosend = tosend .. "\r\n" .. self:reply()
 	
