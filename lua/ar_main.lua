@@ -420,9 +420,12 @@ local function tokenize(req, res, filename)
 				td.lines {
 					text-align: right;
 					color: #aaa;
+					vertical-align: top;
+					padding-right: 1em;
 				}
 				td.code {
 					white-space: nowrap;
+					vertical-align: top;
 				}
 				.token {
 					/*border: 1px solid #555;*/
@@ -445,11 +448,9 @@ local function tokenize(req, res, filename)
 		local id = 1
 		
 		local lines = {}
-		for k,v in ipairs(tokens) do
-			if v.type == "newline" then
-				table.insert(lines, #lines + 1)
-			end
-		end
+		code:gsub("\r?\n", function()
+			table.insert(lines, #lines + 1)
+		end)
 		lines = table.concat(lines, "<br/>\n")
 		
 		local function next_token(pos, count)

@@ -184,7 +184,9 @@ function template.scheduler_info()
 	end
 	
 	return {
-		tags.span {string.format("idletime: %fs", scheduler.idletime())},
+		template.table({
+			{tags.b{"Idle Time"}, string.format("%fs", scheduler.idletime())}
+		}),
 		template.table(rows)
 	}
 end
