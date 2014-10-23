@@ -121,10 +121,17 @@ local function add_expects(tokens)
 			
 			local ct = #types
 			for i = 1, ct do
+				local tktype = "string"
+				local val = types[i]
+				
+				if     val == "nil"        then tktype = "keyword"
+				elseif val:sub(1,1) ~= '"' then tktype = "identifier"
+				end
+				
 				table.insert(tokens, k, {
-					type = "string",
-					value = types[i],
-					chunk = types[i]
+					type = tktype,
+					value = val,
+					chunk = val
 				})
 				k = k + 1
 					
