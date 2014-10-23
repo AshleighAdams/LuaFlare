@@ -9,7 +9,14 @@ meta.__index = meta
 
 function Response(request)
 	if not request then error("request expected", 2) end
-	local ret = {_status = 200, _reply = "", _headers = {}, _request = request, _client = request:client()}
+	local ret = {
+		_status = 200,
+		_reply = {},
+		_reply_len = 0,
+		_headers = {},
+		_request = request,
+		_client = request:client()
+	}
 	setmetatable(ret, meta)
 	
 	ret:set_header("Server", "luaserver")
@@ -32,15 +39,36 @@ function meta::set_status(number what)
 	self._status = what
 end
 
+function meta::set_reply(string str)
+	self._reply_cache = nil
+	self._reply = {str}
+	self._reply_len = str:len()
+end
+
 function meta::append(string str)
-	self._reply = self._reply .. str
+	self._reply_cache = nil
+	table.insert(self._reply, str)
+	self._reply_len = self._reply_len + str:len()
+end
+
+function meta::reply()
+	if self._reply_cache == nil then
+		self._reply_cache = table.concat(self._reply)
+	end
+	return self._reply_cache
+end
+
+function meta::reply_length()
+	return self._reply_len
 end
 
 function meta::clear()
 	assert(self)
 	self._status = 200
 	self._content_type = "text/html"
-	self._reply = ""
+	self._reply_len = 0
+	self._reply = {}
+	self._reply_cache = nil
 	self.file = nil
 	self._tosend_cookies = nil
 end
@@ -80,10 +108,10 @@ function meta::set_file(string path)-- expects(meta, "string")
 		local fullpath = lfs.currentdir() .. "/" .. path
 		self:set_header("X-Sendfile", fullpath)
 		return
-	else
-		self._reply = file:read("*all")
-		file:close()
 	end
+	
+	local reply = file:read("*all")
+	file:close()
 	
 	do -- support for HTTP Range
 		local req = self:request()
@@ -95,7 +123,7 @@ function meta::set_file(string path)-- expects(meta, "string")
 				res:set_header("Accept-Ranges", "bytes") -- let them know that we can accept ranges
 			else
 				local from, to = string.match(headers.Range, "bytes=(%d+)-(%d*)")
-				local len = self._reply:len()
+				local len = reply:len()
 				
 				print("client wants range " .. from .. " to " .. tostring(to))
 				from = tonumber(from) or 0
@@ -107,18 +135,20 @@ function meta::set_file(string path)-- expects(meta, "string")
 					self:set_status(httpstatus.fromstring("Requested Range Not Satisfiable"))
 					-- tell them how long the file is
 					self:set_header("Content-Range", "bytes */" .. len)
-					self._reply = "" -- nulify the response
+					reply = "" -- nulify the response
 				else
 					self:set_status(httpstatus.fromstring("Partial Content"))
 					self:set_header("Content-Range", string.format("bytes %i-%i/%i", from, to, len))
 					
 					-- add one to convert from 0 index to 1 index; C "a[n]" == Lua "a[n + 1]"
-					self._reply = self._reply:sub(from + 1, to + 1)
+					reply = reply:sub(from + 1, to + 1)
 				end
 			end
 		end
 	end
 	
+	self:clear()
+	self:set_reply(reply)
 	return true
 end
 
@@ -139,7 +169,7 @@ function meta::set_cookie(string name, string value, path, domain, lifetime)
 end
 
 function meta::etag()
-	return string.format([[W/"%s"]], md5.sumhexa(self._reply))
+	return string.format([[W/"%s"]], md5.sumhexa(self:reply()))
 end
 
 local max_etag_size
@@ -159,7 +189,7 @@ function meta::use_etag()
 		max_etag_size = number * multi
 	end
 
-	return self._status == 200 and (self._reply:len()) < max_etag_size
+	return self._status == 200 and (self:reply_length()) < max_etag_size
 end
 
 -- finish
@@ -172,7 +202,7 @@ function meta::send()
 		self:append("\n<!-- "..(self:request():total_time() * 1000).." ms -->\n")
 	end
 	
-	self:set_header("Content-Length", self._reply:len())
+	self:set_header("Content-Length", self:reply_length())
 	self:set_header("X-Powered-By", x_powered_by)
 	
 	-- ETag support
@@ -180,7 +210,7 @@ function meta::send()
 	if self:use_etag() then
 		local etag = self:etag()
 		if ifnonematch ~= nil and ifnonematch == etag then -- they've supplied an etag, and it matches
-			self._reply = ""
+			self:set_reply("")
 			self:remove_header("Content-Length")
 			self:set_status(304)
 		end
@@ -215,9 +245,9 @@ function meta::send()
 	end
 
 	if self:request():method() == "HEAD" then
-		self._reply = "" -- HEAD should yield same headers, but no body
+		self.set_reply("") -- HEAD should yield same headers, but no body
 	end
-	tosend = tosend .. "\r\n" .. self._reply
+	tosend = tosend .. "\r\n" .. self:reply()
 	
 	local client = self:client()
 	client:settimeout(-1)

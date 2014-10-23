@@ -209,7 +209,7 @@ local function generate_tag(name, options)
 		node.to_response = function(response, section)
 			local gen = generate_html(true, node, nil, nil, section)
 			
-			local at_tabs = end_tab_depth(response._reply)
+			local at_tabs = end_tab_depth(response:reply())
 			local start_depth = start_tab_depth(gen)
 			
 			local extra_tabs = string.rep("\t", at_tabs - start_depth)
