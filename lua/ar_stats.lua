@@ -9,7 +9,7 @@ local hits = 0
 local function increase_hit_counter()
 	hits = hits + 1
 end
-hook.Add("Request", "statistics - hits", increase_hit_counter)
+hook.add("Request", "statistics - hits", increase_hit_counter)
 
 local load_data = {}
 local load_max = 0
@@ -28,7 +28,7 @@ local function on_warning(msg)
 		table.remove(warn_data, 1)
 	end
 end
-hook.Add("Warning", "statistics - warnings", on_warning)
+hook.add("Warning", "statistics - warnings", on_warning)
 
 local function query()
 	while true do

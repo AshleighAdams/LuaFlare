@@ -1,48 +1,62 @@
 local hook = {}
 hook.hooks = {}
-hook.fatal_section = 0
 
-hook.Add = function(hookname, name, func)
+-- rebuilt thee priority table
+function hook.invalidate(hookname)
+	local hooktbl = hook.hooks[hookname]
+	if hooktbl == nil then return end
+	
+	local callorder = {__mode = "v"} -- weak values
+	for k,v in pairs(hooktbl.attached) do
+		table.insert(callorder, v)
+	end
+	table.sort(callorder, function(a,b)
+		return a.priority < b.priority
+	end)
+	hooktbl.callorder = callorder
+end
+
+hook.add = function(hookname, name, func, priority)
 	local hooktbl = hook.hooks[hookname]
 	if hooktbl == nil then
-		hooktbl = {}
+		hooktbl = {attached = {}, callorder = {}}
 		hook.hooks[hookname] = hooktbl
 	end
 	
-	hooktbl[name] = func
+	hooktbl.attached[name] = {func = func, name = name, priority = priority or 0}
+	hook.invalidate(hookname)
 end
 
-hook.Remove = function(hookname, name)
+hook.remove = function(hookname, name)
 	local hooktbl = hook.hooks[hookname]
-	if hooktbl == nil then
-		return
-	end
-	hooktbl[name] = nil
+	if hooktbl == nil then return end
+	hooktbl.attached[name] = nil
+	hook.invalidate(hookname)
 end
 
-hook.Call = function (name, ...)
+hook.call = function (name, ...)
 	local hooktbl = hook.hooks[name]
 	if hooktbl == nil then
 		return
 	end
 	
-	for k, func in pairs(hooktbl) do
-		local ret = {func(...)}
+	for k, v in ipairs(hooktbl.callorder) do
+		local ret = {v.func(...)}
 		if #ret ~= 0 then
 			return unpack(ret)
 		end
 	end
 end
 
-hook.SafeCall = function (name, ...)
+hook.safe_call = function (name, ...)
 	local hooktbl = hook.hooks[name]
 	if hooktbl == nil then
 		return
 	end
 	
-	for k,_func in pairs(hooktbl) do
+	for k,v in ipairs(hooktbl.callorder) do
 		local args = {...}
-		local func = _func -- make a reference, so that inside on_error, it always referes to this itteration
+		local func = v.func -- make a reference, so that inside on_error, it always referes to this itteration
 		local bound = function() return func(unpack(args)) end
 		
 		local function on_error(err)
@@ -94,6 +108,22 @@ hook.SafeCall = function (name, ...)
 			end
 		end
 	end
+end
+
+hook.Call = function(...)
+	return hook.call(...)
+end
+
+hook.SafeCall = function(...)
+	return hook.safe_call(...)
+end
+
+hook.Add = function(...)
+	return hook.add(...)
+end
+
+hook.Remove = function(...)
+	return hook.remove(...)
 end
 
 return hook

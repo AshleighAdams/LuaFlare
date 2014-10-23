@@ -63,4 +63,4 @@ local function reload_scripts()
 		end
 	end
 end
-hook.Add("ReloadScripts", "reload scripts", reload_scripts)
+hook.add("ReloadScripts", "reload scripts", reload_scripts)

@@ -138,7 +138,7 @@ function main_loop()
 	local server, err = socket.bind(host, port)
 	assert(server, err)
 	
-	hook.SafeCall("ReloadScripts") -- load all of our scritps, before forking anything!
+	hook.safe_call("ReloadScripts") -- load all of our scritps, before forking anything!
 	
 	local function callback(client)
 		client:settimeout(5) -- 5 seconds until a timeout
@@ -168,11 +168,11 @@ function main_loop()
 			server:settimeout(0)
 		end
 		
-		print("accept", tp:done(), scheduler.idletime())
+		--print("accept", tp:done(), scheduler.idletime())
 		local client = server:accept()
 		
 		if not script.options["no-reload"] then
-			hook.SafeCall("ReloadScripts")
+			hook.safe_call("ReloadScripts")
 		end
 		
 		if client then tp:enqueue(client) end

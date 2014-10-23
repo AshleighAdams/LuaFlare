@@ -173,4 +173,4 @@ local function add_expects(tokens)
 		end
 	end
 end
-hook.Add("ModifyTokens", "Lua function args strict typing", add_expects)
+hook.add("ModifyTokens", "Lua function args strict typing", add_expects)

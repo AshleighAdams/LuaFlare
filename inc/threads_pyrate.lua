@@ -47,7 +47,7 @@ function main_loop()
 	local server, err = socket.bind(host, port)
 	assert(server, err)
 	
-	hook.Call("ReloadScripts") -- load all of our scritps, before forking anything!
+	hook.safe_call("ReloadScripts") -- load all of our scritps, before forking anything!
 	
 	print("creating threads")
 	assert(threads > 0)
@@ -60,7 +60,7 @@ function main_loop()
 			client:settimeout(5) -- 5 seconds until a timeout
 			
 			if not script.options["no-reload"] then
-				hook.Call("ReloadScripts")
+				hook.safe_call("ReloadScripts")
 			end
 			
 			if https then

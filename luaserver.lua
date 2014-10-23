@@ -45,7 +45,7 @@ function handle_client(client)
 		print(request:peer()  .. " " .. request:method()  .. " " .. request:url())
 		
 		local response = Response(request)
-			hook.SafeCall("Request", request, response) -- okay, lets invoke whatever is hooked
+			hook.safe_call("Request", request, response) -- okay, lets invoke whatever is hooked
 		
 		if request:is_upgraded() then return true end -- don't close the connection!!!
 		response:send()

@@ -90,7 +90,7 @@ return fact(4)]]
 			end
 			
 			local function timeout()
-				hook.Call("Error", {type = 501, message = "code took too long to execute"}, req, res)
+				hook.call("Error", {type = 501, message = "code took too long to execute"}, req, res)
 				error("function timed out", 2)
 			end
 			
@@ -196,7 +196,7 @@ return fact(4)]]
 end
 hosts.developer:add("/runlua", run_lua_page)
 
-hook.Add("LuaGetLine", "locate runstring", function(err)
+hook.add("LuaGetLine", "locate runstring", function(err)
 	local line_num = err:match('%[string "runlua"]:(%d+): ')
 	
 	if line_num then
@@ -321,8 +321,8 @@ local function tokenize(req, res, filename)
 	ttokens = util.time() - tstart
 	
 	tstart = util.time()
-	hook.Call("ModifyTokens", tokens)
-	hook.Call("OptimizeTokens", tokens)
+	hook.call("ModifyTokens", tokens)
+	hook.call("OptimizeTokens", tokens)
 	thooks = util.time() - tstart
 	
 	tstart = util.time()

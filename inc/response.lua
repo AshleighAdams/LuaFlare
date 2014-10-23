@@ -85,14 +85,14 @@ end
 
 function meta::halt(number code, reason) -- default code is?
 	self:set_status(code)
-	hook.Call("Error", {type = code, message = reason}, self:request(), self)
+	hook.call("Error", {type = code, message = reason}, self:request(), self)
 end
 
 function meta::set_file(string path)-- expects(meta, "string")
 	local file = io.open(path, "rb")
 	
 	if not file then
-		hook.Call("Error", {type = 404}, self:request(), self)
+		hook.call("Error", {type = 404}, self:request(), self)
 		return false
 	end
 	

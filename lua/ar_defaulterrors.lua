@@ -8,12 +8,12 @@ local template = include("template-error.lua")
 local function on_error(why, request, response)
 	print("error:", why.type, request:url())
 end
-hook.Add("Error", "log errors", on_error)
+hook.add("Error", "log errors", on_error)
 
 local function on_lua_error(err, trace, args)
 	print("lua error:", err)--, trace)
 end
-hook.Add("LuaError", "log errors", on_lua_error)
+hook.add("LuaError", "log errors", on_lua_error)
 
 local function basic_error(why, req, res)
 	res:clear_content()
@@ -24,7 +24,7 @@ local function basic_error(why, req, res)
 	
 	template:make(errstr, errstr, msg).to_response(res)
 end
-hook.Add("Error", "basic error", basic_error)
+hook.add("Error", "basic error", basic_error)
 
 function line_from(file, line_targ)
 	local ret = nil
@@ -98,7 +98,7 @@ local function basic_lua_error(err, trace, vars, args)
 		line = line_from(file, line_num) or string.format("could not locate source for %s", file)
 		line = line:Trim("\t", "")
 	else
-		line = hook.Call("LuaGetLine", err)
+		line = hook.call("LuaGetLine", err)
 		
 		if line == nil then
 			line = "could not locate source"
@@ -162,4 +162,4 @@ local function basic_lua_error(err, trace, vars, args)
 	
 	template:make("500 Internal Server Error", "500 Internal Server Error", err, content).to_response(res)
 end
-hook.Add("LuaError", "basic error", basic_lua_error)
+hook.add("LuaError", "basic error", basic_lua_error)
