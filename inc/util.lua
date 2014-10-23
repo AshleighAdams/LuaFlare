@@ -1,7 +1,6 @@
 local configor = require("configor")
 local stack = require("luaserver.util.stack")
 local escape = require("luaserver.util.escape")
-local script = require("luaserver.util.script")
 local hook = require("luaserver.hook")
 local util
 
@@ -351,12 +350,14 @@ end
 
 
 -- detour print, so that it appends the PID infront
+--[[
 static_print = print
 
 function print(first, ...)
 	local id = script.instance()
 	static_print(id .." ".. tostring(first), ...)
 end
+]]
 
 local col_red = "\x1b[31;1m"
 local col_reset = "\x1b[0m"
