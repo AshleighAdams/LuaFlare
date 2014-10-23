@@ -1,6 +1,7 @@
 local tags = require("luaserver.tags")
 local scheduler = require("luaserver.scheduler")
 local script = require("luaserver.util.script")
+local hook = require("luaserver.hook")
 
 local template = {}
 template.barwidth = 1;
@@ -189,6 +190,21 @@ function template.scheduler_info()
 		}),
 		template.table(rows)
 	}
+end
+
+function template.hook_info()
+	local rows = {
+		{ tags.b{"Hook"}, tags.b{"Priority"}, tags.b{"Name"} }
+	}
+	
+	for k,v in pairs(hook.hooks) do	
+		table.insert(rows, { tags.b{tostring(k)} })
+		for kk,vv in ipairs(v.callorder) do
+			table.insert(rows, { "", tostring(vv.priority), tostring(vv.name) })
+		end
+	end
+	
+	return template.table(rows)
 end
 
 function template.warnings(warnings)

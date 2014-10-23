@@ -14,6 +14,10 @@ hook.add("Request", "statistics - hits", increase_hit_counter)
 local load_data = {}
 local load_max = 0
 
+local memory_data = {}
+local memory_max = 0
+local memory_units = "ukn"
+
 local warn_data = {}
 local function on_warning(msg)
 	local last = warn_data[#warn_data]
@@ -55,6 +59,24 @@ local function query()
 			if #load_data > template.bars then table.remove(load_data, 1) end
 		end
 		
+		do
+			local p = assert(io.popen("cat /proc/meminfo"))
+			local out = p:read("*a")
+			p:close()
+			
+			if memory_max == 0 then
+				local total, units = out:match("MemTotal:%s*(%d+)%s*(.-)\n")
+				memory_max = assert(tonumber(total))
+				memory_units = " " .. units
+			end
+			
+			local aval = assert(out:match("MemAvailable:%s*(%d+)"))
+			local free = memory_max - tonumber(aval)
+			
+			table.insert(memory_data, free)
+			if #memory_data > template.bars then table.remove(memory_data, 1) end
+		end
+		
 		coroutine.yield(60)
 	end
 end
@@ -66,9 +88,13 @@ local function stats(req, res)
 		template.section("Generic"),
 		template.graph("Hits", "/m", hits_data),
 		template.graph("Load Average", "", load_data, load_max),
+		template.graph("Memory", memory_units, memory_data, memory_max),
 		
 		template.section("Scheduler"),
 		template.scheduler_info(),
+		
+		template.section("Hooks"),
+		template.hook_info(),
 		
 		template.section("Warnings"),
 		template.warnings(warn_data)
