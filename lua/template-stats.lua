@@ -183,7 +183,10 @@ function template.scheduler_info()
 		})
 	end
 	
-	return template.table(rows)
+	return {
+		tags.span {string.format("idletime: %fs", scheduler.idletime())},
+		template.table(rows)
+	}
 end
 
 function template.warnings(warnings)
