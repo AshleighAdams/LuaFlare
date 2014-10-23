@@ -168,6 +168,7 @@ function main_loop()
 			server:settimeout(0)
 		end
 		
+		print("accept", tp:done(), scheduler.idletime())
 		local client = server:accept()
 		
 		if not script.options["no-reload"] then
