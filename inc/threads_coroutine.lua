@@ -43,9 +43,10 @@ do
 	end
 	
 	-- needs to be coroutine-ified
-	local chunksize = script.options["chunk-size"] or 1024*64
+	local chunksize = script.options["chunk-size"] or 512 -- 1KiB chunks
 	function meta:send(data)
 		self.parent:settimeout(0)
+		
 		while #data > 0 do
 			local s, err, w = self.parent:send(data, 1, chunksize)
 			if not s and err ~= "timeout" then
@@ -142,10 +143,6 @@ function main_loop()
 	local function callback(client)
 		client:settimeout(5) -- 5 seconds until a timeout
 		
-		if not script.options["no-reload"] then
-			hook.SafeCall("ReloadScripts")
-		end
-		
 		if https then
 			client, err = ssl.wrap(client, params)
 			assert(client, err)
@@ -164,16 +161,21 @@ function main_loop()
 	local tp = threadpool.create(threads, callback)
 	
 	while true do
-		if tp:done() and scheduler.done() then
-			server:settimeout(-1)
+		if tp:done() then
+			-- we can block on accept() for this long...
+			server:settimeout(scheduler.idletime())
 		else
 			server:settimeout(0)
 		end
 		
 		local client = server:accept()
+		
+		if not script.options["no-reload"] then
+			hook.SafeCall("ReloadScripts")
+		end
+		
 		if client then tp:enqueue(client) end
 		tp:step()
 		scheduler.run()
-		scheduler.idle()
 	end
 end

@@ -48,16 +48,15 @@ function scheduler.run()
 	end
 end
 
-function scheduler.idle()
-	local t = util.time() + 0.1
+function scheduler.idletime()
+	local t
 	for k, tbl in pairs(scheduler.tasks) do
-		if tbl.nexttime < t then
+		if t == nil or tbl.nexttime < t then
 			t = tbl.nexttime
 		end
 	end
 	
-	t = t - util.time()
-	posix.nanosleep(0, t * 1000000000)
+	return t == nil and -1 or math.max(0, t - util.time())
 end
 
 function scheduler.done()
