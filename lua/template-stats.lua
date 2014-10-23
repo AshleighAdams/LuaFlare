@@ -1,5 +1,6 @@
 local tags = require("luaserver.tags")
 local scheduler = require("luaserver.scheduler")
+local script = require("luaserver.util.script")
 
 local template = {}
 template.barwidth = 1;
@@ -70,6 +71,13 @@ function template.make(req, res, contents)
 					height: auto;
 					line-height:1em;
 					max-height: 7em;
+				}
+				footer
+				{
+					text-align: center;
+					font-size: 0.75em;
+					font-family: monospace;
+					color: gray;
 				}]]
 			}
 		},
@@ -78,6 +86,10 @@ function template.make(req, res, contents)
 			tags.main
 			{
 				unpack(contents)
+			},
+			tags.footer
+			{
+				"Instance: " .. script.instance()
 			}
 		}
 	}.to_response(res)
