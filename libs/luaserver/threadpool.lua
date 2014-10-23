@@ -25,8 +25,11 @@ function threadpool.create(threads, func) expects("number", "function")
 	end
 	
 	for i=1, threads do
-		table.insert(tp.routines, coroutine.create(tp.thread_function))
+		local co = coroutine.create(tp.thread_function)
+		script.instance_names[co] = tostring(i)
+		table.insert(tp.routines, co)
 	end
+	print("created " .. threads .. " threads")
 	
 	return setmetatable(tp, threadpool._meta)
 end
@@ -62,7 +65,9 @@ function threadpool:step() expects(threadpool._meta)
 		else
 			warn("coroutine %s died, remaking...", tostring(co):match("0x(.+)"))
 			table.remove(self.routines, i)
-			table.insert(self.routines, coroutine.create(self.thread_function))
+			local co = coroutine.create(self.thread_function)
+			script.instance_names[co] = tostring(i)
+			table.insert(self.routines, co)
 		end
 	end
 end

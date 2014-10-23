@@ -1,4 +1,5 @@
 local configor = require("configor")
+local util = require("luaserver.util")
 
 local script = {}
 
@@ -6,9 +7,37 @@ function script.pid() -- attempt to locate the PID of the process
 	return posix.getpid("pid")
 end
 
-function script.instance() -- TODO: other thread types will bee removed soon, so coroutines are fine
-	return tostring(coroutine.running()):match("0x(%x+)")
+script.instance_names = {}
+script.instance_names_last = 0
+
+function script.instance()
+	local ret = script.instance_names[coroutine.running()]
+	if not ret then
+		script.instance_names_last = script.instance_names_last + 1
+		script.instance_names[coroutine.running()] = "unnamed: " .. script.instance_names_last
+		ret = script.instance_names[coroutine.running()]
+	end
+	return script.pid() .. ":" .. ret
 end
+
+--[[ -- enable this to check for things slowing coroutines down
+local real_resume = coroutine.resume
+local real_yield = coroutine.yield
+local co_depth = {}
+
+function coroutine.resume(co, ...)
+	table.insert(co_depth, util.time())
+	return real_resume(co, ...)
+end
+
+function coroutine.yield(...)
+	local t = util.time() - table.remove(co_depth, #co_depth)
+	if t > 0.1 then
+		print((t*1000).."ms", debug.traceback())
+	end
+	return real_yield(...)
+end
+]]
 
 function script.current_file(depth)
 	return debug.getinfo((depth or 1) + 1).source:sub(2)

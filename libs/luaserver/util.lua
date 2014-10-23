@@ -1,10 +1,11 @@
-local util = {
-	canonicalize_header = require("luaserver.util.canonicalize_header"),
-	escape              = require("luaserver.util.escape"),
-	script              = require("luaserver.util.script"),
-	stack               = require("luaserver.util.stack"),
-	translate_luacode   = require("luaserver.util.translate_luacode"),
-}
+local util = {}
+package.loaded["luaserver.util"] = util
+
+util.canonicalize_header = require("luaserver.util.canonicalize_header")
+util.escape              = require("luaserver.util.escape")
+util.script              = require("luaserver.util.script")
+util.stack               = require("luaserver.util.stack")
+util.translate_luacode   = require("luaserver.util.translate_luacode")
 
 do
 	local socket = require("socket")
