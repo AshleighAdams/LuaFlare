@@ -57,6 +57,9 @@ parser.escapers = {
 		end
 		return ret
 	end,
+	["(%d%d?%d?)"] = function(str)
+		return string.char(tonumber(str))
+	end,
 	["a"] = function() return "\a" end,
 	["b"] = function() return "\b" end,
 	["f"] = function() return "\f" end,
@@ -197,7 +200,7 @@ function parser.tokenize(code) expects("string")
 							end
 						end
 						
-						if not got then error("unknown escape sequence " .. reader:peek()) end
+						if not got then parser.problem("unknown escape sequence " .. reader:peek()) end
 						
 					else
 						table.insert(buff, char)
