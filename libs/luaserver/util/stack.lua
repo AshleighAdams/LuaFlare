@@ -13,11 +13,11 @@ function meta:push(val) expects (meta)
 end
 
 function meta:pop() expects (meta)
-	table.remove(self._tbl, 1)
+	return table.remove(self._tbl, #self._tbl)
 end
 
 function meta:value() expects (meta)
-	return self._tbl[1]
+	return self._tbl[#self._tbl]
 end
 
 function meta:all() expects (meta)
