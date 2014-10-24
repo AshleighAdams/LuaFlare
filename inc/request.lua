@@ -128,11 +128,11 @@ function meta::params()
 	return self._params
 end
 
-function meta::post_data()
-	if self._post_data == nil then
-		self._post_data = parse_params(self._post_string)
+function meta::post_params()
+	if self._post_params == nil then
+		self._post_params = parse_params(self._post_string)
 	end
-	return self._post_data
+	return self._post_params
 end
 
 function meta::post_string()
