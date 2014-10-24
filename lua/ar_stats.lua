@@ -1,8 +1,79 @@
 local hook = require("luaserver.hook")
 local hosts = require("luaserver.hosts")
 local scheduler = require("luaserver.scheduler")
+local script = require("luaserver.util.script")
 
 local template = include("template-stats.lua")
+
+
+
+local function read_file_contents(file, f)
+	local f = assert((f or io.open)(file, "r"))
+	local ret = f:read("*a")
+	f:close()
+	return ret
+end
+
+local function get_proc_meminfo(pid)
+	assert(pid)
+	
+	local pids = {pid}
+	read_file_contents("pgrep -P "..pid, io.popen):gsub("(.-)\n",
+		function(pid)
+			if pid == "" then return end 
+			table.insert(pids, pid) 
+		end
+	)
+	
+	local ret = {}
+	
+	for k, cpid in ipairs(pids) do
+		local f = "/proc/"..cpid
+		
+		do
+			local t = io.open(f.."/cmdline", "r")
+			if not t then goto continue end
+			t:close()
+		end
+		
+		local task = {
+			name = read_file_contents(f.."/comm"):match("(.+)\n"),
+			mem = 0,
+			modules = {},
+			pid = cpid
+		}
+		
+		local map = {}
+		local meminfo = read_file_contents(f.."/maps")
+		
+		if meminfo == "" then goto continue end
+		
+		meminfo:gsub("(%x+)%-(%x+)%s-(.-)%s-(%x+)%s-(%x+:%x+)%s-(%x+)%s-(.-)\r?\n", 
+			function(from, to, perms, offset, dev, inode, name)
+				name = name:match("^%s*(.-)%s*$")
+				
+				map[name] = map[name] or {name = name, mem = 0, chunks = 0}
+				local mod = map[name]
+				
+				local mem = tonumber(to, 16) - tonumber(from, 16)
+				mod.chunks = mod.chunks + 1
+				mod.mem = mod.mem + mem
+				task.mem = task.mem + mem
+			end
+		)
+		
+		for k,v in pairs(map) do
+			table.insert(task.modules, v)
+		end
+		table.sort(task.modules, function(a,b) return a.name < b.name end)
+		table.insert(ret, task)
+		::continue::
+	end
+	
+	return ret
+end
+
+
 
 local hits_data = {}
 local hits = 0
@@ -89,6 +160,9 @@ local function stats(req, res)
 		template.graph("Hits", "/m", hits_data),
 		template.graph("Load Average", "", load_data, load_max),
 		template.graph("Memory", memory_units, memory_data, memory_max),
+		
+		template.section("Memory Map"),
+		template.mem_info(get_proc_meminfo(script.pid())),
 		
 		template.section("Scheduler"),
 		template.scheduler_info(),

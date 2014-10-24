@@ -154,6 +154,21 @@ function template.table(rows)
 	}
 end
 
+function template.mem_info(info)
+	local elms = {}
+	
+	for k,proc in pairs(info) do
+		table.insert(elms, tags.h3 { string.format("%s (%.2f MiB)", proc.name, proc.mem / 1024 / 1024) })
+		local rows = {{ tags.b{"Memory"}, tags.b{"Name"} }}
+		for k, mod in pairs(proc.modules) do
+			table.insert(rows, {string.format("%d KiB", mod.mem / 1024), mod.name})
+		end
+		table.insert(elms, template.table(rows))
+	end
+	
+	return elms
+end
+
 function template.scheduler_info()
 	local rows = {
 		{tags.b{"Name"}, tags.b{"Age"}, tags.b{"Tick Rate"}, tags.b{"CPU Time"}, tags.b{"CPU Time (/s)"}}
