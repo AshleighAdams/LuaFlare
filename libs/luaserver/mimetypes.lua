@@ -50,7 +50,7 @@ do -- parse the systems mime types file, if it exists
 	print(string.format("loaded %i mime types", table.Count(mimetypes.types)))
 end
 
-function mimetypes.guess(path)
+function mimetypes.guess(string path)
 	local ext = path:match("^.*%.(.-)$") or ""
 	return mimetypes.types[ext]
 end
