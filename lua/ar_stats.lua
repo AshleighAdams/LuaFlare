@@ -5,8 +5,6 @@ local script = require("luaserver.util.script")
 
 local template = include("template-stats.lua")
 
-
-
 local function read_file_contents(file, f)
 	local f = assert((f or io.open)(file, "r"))
 	local ret = f:read("*a")
@@ -77,6 +75,7 @@ end
 
 local hits_data = {}
 local hits = 0
+local hits_max = 0
 local function increase_hit_counter()
 	hits = hits + 1
 end
@@ -105,11 +104,50 @@ local function on_warning(msg)
 end
 hook.add("Warning", "statistics - warnings", on_warning)
 
+function update_csv_files()
+	local function write(file, first, data)
+		local f = io.open(file, "w")
+		f:write(first .. "\n")
+		for k,v in ipairs(data) do
+			f:write(string.format("%d, %f\n", v.time, v.data))
+		end
+		f:close()
+	end
+	
+	write(".stats-hits.csv", "time, hits/m", hits_data)
+	write(".stats-load.csv", "time, load average", load_data)
+	write(".stats-mem.csv", "time, memory (MiB)", memory_data)
+end
+
+function load_csv_files()
+	local function read(file, out_data)
+		local f = io.open(file, "r")
+		if not f then return end
+		f:read("*l") -- remove the header line
+		f:read("*a"):gsub("(.-), (.-)\n", function(a, b)
+			table.insert(out_data, {time = tonumber(a), data = tonumber(b)})
+		end)
+		f:close()
+	end
+	
+	read(".stats-hits.csv", hits_data)
+	read(".stats-load.csv", load_data)
+	read(".stats-mem.csv",  memory_data)
+end
+load_csv_files()
+
 local function query()
 	while true do
 		do -- hits
-			table.insert(hits_data, hits)
+			table.insert(hits_data, {time = os.time(), data = hits})
 			if #hits_data > template.bars then table.remove(hits_data, 1) end
+			
+			
+			local max = 1
+			for k,v in pairs(hits_data) do
+				if v.data > max then max = v.data end
+			end
+			hits_max = max
 			hits = 0
 		end
 		
@@ -126,7 +164,7 @@ local function query()
 			local la = uptime:read("*l"):match("load average: ([%d.]+)")
 			la = assert(tonumber(la or ""))
 			
-			table.insert(load_data, la)
+			table.insert(load_data, {time = os.time(), data = la})
 			if #load_data > template.bars then table.remove(load_data, 1) end
 		end
 		
@@ -137,17 +175,19 @@ local function query()
 			
 			if memory_max == 0 then
 				local total, units = out:match("MemTotal:%s*(%d+)%s*(.-)\n")
-				memory_max = assert(tonumber(total))
+				memory_max = assert(tonumber(total)) / 1024
+				assert(units == "kB")
 				memory_units = " " .. units
 			end
 			
 			local aval = assert(out:match("MemAvailable:%s*(%d+)"))
-			local free = memory_max - tonumber(aval)
+			local free = memory_max - tonumber(aval) / 1024
 			
-			table.insert(memory_data, free)
+			table.insert(memory_data, {time = os.time(), data = free})
 			if #memory_data > template.bars then table.remove(memory_data, 1) end
 		end
 		
+		update_csv_files()
 		coroutine.yield(60)
 	end
 end
@@ -157,9 +197,13 @@ local function stats(req, res)
 	
 	template.make(req, res, {
 		template.section("Generic"),
-		template.graph("Hits", "/m", hits_data),
-		template.graph("Load Average", "", load_data, load_max),
-		template.graph("Memory", memory_units, memory_data, memory_max),
+		template.google_graph("Hits", "hits"),
+		template.google_graph("Load Average", "load"),
+		template.google_graph("Memory", "mem"),
+		
+		--template.graph("Hits", "/m", hits_data),
+		--template.graph("Load Average", "", load_data, load_max),
+		--template.graph("Memory", memory_units, memory_data, memory_max),
 		
 		template.section("Memory Map"),
 		template.mem_info(get_proc_meminfo(script.pid())),
@@ -172,7 +216,25 @@ local function stats(req, res)
 		
 		template.section("Warnings"),
 		template.warnings(warn_data)
-	})
+	}, {hits_max = hits_max, load_max = load_max, memory_max = memory_max})
+end
+
+local function stats_hits_csv(req, res)
+	res:set_file(".stats-hits.csv")
+	res:set_header("Content-Type", "text/plain")
+end
+
+local function stats_load_csv(req, res)
+	res:set_file(".stats-load.csv")
+	res:set_header("Content-Type", "text/plain")
+end
+
+local function stats_mem_csv(req, res)
+	res:set_file(".stats-mem.csv")
+	res:set_header("Content-Type", "text/plain")
 end
 
 hosts.developer:add("/stats", stats)
+hosts.developer:add("/stats/hits.csv", stats_hits_csv)
+hosts.developer:add("/stats/load.csv", stats_load_csv)
+hosts.developer:add("/stats/mem.csv",  stats_mem_csv)

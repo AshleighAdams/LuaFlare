@@ -8,12 +8,60 @@ template.barwidth = 1;
 template.graphwidth = 800;
 template.bars = template.graphwidth / template.barwidth
 
-function template.make(req, res, contents)
+function template.make(req, res, contents, info)
 	tags.html
 	{
 		tags.head
 		{
 			tags.title { "LuaServer Statistics" },
+			tags.script { src = "//www.google.com/jsapi" },
+			tags.script { src = "//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js" },
+			tags.script { src = "/stats/jquery.csv-0.71.min.js" },
+			tags.script
+			{
+				[[
+				google.load("visualization", "1", {packages:["corechart"]});
+				google.setOnLoadCallback(draw_chart);
+				
+				function update_chart(url, id, max)
+				{
+					$.get(url, function(rawdata)
+					{
+						var array_data = $.csv.toArrays(rawdata, {onParseValue: $.csv.hooks.castToScalar});
+						var data = new google.visualization.arrayToDataTable(array_data);
+						
+						var view = new google.visualization.DataView(data);
+						view.setColumns([{
+							type: 'datetime',
+							label: 'time',
+							calc: function (dt, row) {
+								return new Date(dt.getValue(row, 0)*1000);
+							}
+						},1]);
+						
+						var options = {
+						   title: "",
+						   vAxis: {title: data.getColumnLabel(1), viewWindow: {min: 0}, minValue: 0, maxValue: max},
+						   //hAxis: {title: data.getColumnLabel(0), minValue: data.getColumnRange(0).min, maxValue: data.getColumnRange(0).max},
+						   //vAxis: {title: data.getColumnLabel(1), minValue: data.getColumnRange(1).min, maxValue: data.getColumnRange(1).max},
+						   legend: "none",
+						   curveType: "function",
+						};
+						
+						var chart = new google.visualization.AreaChart(document.getElementById(id));
+						chart.draw(view, options);
+					})
+				}
+				
+				function draw_chart()
+				{
+					update_chart("/stats/hits.csv", "graph-hits", ]]..info.hits_max..[[);
+					update_chart("/stats/load.csv", "graph-load", ]]..info.load_max..[[);
+					update_chart("/stats/mem.csv", "graph-mem", ]]..info.memory_max..[[);
+					setTimeout(draw_chart, 1000 * 60)
+				}
+				]]
+			},
 			tags.style
 			{
 [[				main
@@ -96,22 +144,29 @@ function template.make(req, res, contents)
 	}.to_response(res)
 end
 
+function template.google_graph(title, id)
+	return {
+		tags.h2 { title },
+		tags.div { id = "graph-" .. id }
+	}	
+end
+
 function template.graph(title, units, data, argmax)
 	local max = argmax
 	for k,v in ipairs(data) do
-		if not max or v > max then max = v end
+		if not max or v.data > max then max = v.data end
 	end
 
 	local bars = {}
 	for k,v in ipairs(data) do
 		local class = "bar"
-		if argmax ~= nil and v > argmax then
+		if argmax ~= nil and v.data > argmax then
 			class = class .. " overflowbar"
 		end
 		
 		table.insert(bars, tags.div { 
 			class = class,
-			style = "height: " .. tostring(v/max*100) .. "%",
+			style = "height: " .. tostring(v.data/max*100) .. "%",
 			title = tostring(v) .. units
 		})
 	end
@@ -124,7 +179,7 @@ function template.graph(title, units, data, argmax)
 	
 	return tags.div
 	{
-		tags.h2 { string.format("%s: %s%s", title, tostring(data[#data]), units) },
+		tags.h2 { string.format("%s: %s%s", title, tostring(data[#data].data), units) },
 		tags.div { class = "graph", style = gradient }
 		{
 			tags.div { class = "bar", style = "height: 100%; width: 0px" },
