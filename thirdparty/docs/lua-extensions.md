@@ -16,6 +16,10 @@ Test `self` against `meta`.
 
 Tests `arg` against `meta`.
 
+### arg=default `function(msg="hello")`
+
+Set `arg` to `default` if `arg == nil` (placed before `expects()`).
+
 ## How `expects()` works
 
 `expects()` will examine the stack, and compare it with the arguments that have been passed to it.

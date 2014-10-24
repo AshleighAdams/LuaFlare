@@ -10,6 +10,7 @@ local function add_expects(tokens)
 	local function parse_func(k)
 		local table_to = {}
 		local types, checktypes = {}, false
+		local default_values = {}
 		local name = ""
 		
 		while true do
@@ -71,6 +72,53 @@ local function add_expects(tokens)
 					error("needs 1 or 2 identifiers to an argument type, got " .. #ids)
 				end
 				
+				if t.value == "=" then
+					local prev, pi = parser.previous_token(tokens, k, 1)
+					if not parser.assert(prev.type == "identifier", "identifier expected near function " .. table.concat(table_to, ".") .. name) then return end
+					
+					local exp = ""
+					local brackets_in  = { ["{"] = true, ["["] = true, ["("] = true }
+					local brackets_out = { ["}"] = true, ["]"] = true, [")"] = true }
+					local depth = 0
+					-- do NOT allow a new line!
+					local nt, ni = parser.next_token(tokens, k, 1)
+					for i = pi + 1, ni do
+						tokens[i].remove = true
+					end
+					
+					while nt ~= nil do
+						if nt.type == "newline" then
+							return parser.problem("expected expression to end near function " .. table.concat(table_to, ".") .. name)
+						elseif nt.type == "token" then
+							if brackets_in[nt.value] then
+								depth = depth + 1
+							elseif brackets_out[nt.value] then
+								depth = depth + 1
+								if depth < 0 then
+									return parser.problem("too many brackets closed in expression near function " .. table.concat(table_to, ".") .. name)
+								end
+							end
+						end
+						
+						exp = exp .. nt.chunk
+						nt.remove = true
+						
+						ni = ni + 1
+						nt = tokens[ni]
+						if depth == 0 then
+							if nt.type == "token" and (nt.value == "," or nt.value == ")") then
+								break
+							end
+						end
+					end
+					
+					default_values[#types] = {exp = exp, id = prev}
+					if nt.type == "token" and nt.value == ")" then
+						ni = ni - 1
+					end
+					k = ni
+				end
+				
 				ids = {}
 				raw = false
 			end
@@ -89,12 +137,30 @@ local function add_expects(tokens)
 					value=t.value,
 					raw = israw
 				})
-			elseif t.type == "token" and t.value == "," then
+			elseif t.type == "token" and (t.value == "," or t.value == "=") then
 				check_arg_type()
 			elseif t.type == "token" and t.value == ")" then
 				check_arg_type()
 				break
 			end
+		end
+		
+		for i = 1, #types do
+			local default = default_values[i]
+			if not default then goto continue end
+			
+			k = k + 1
+			local arg = default.id.value
+			local exp = default.exp
+			
+			local str = string.format(" if %s == nil then %s = %s end", arg, arg, exp)
+			table.insert(tokens, k, {
+				type = "custom",
+				value = str,
+				chunk = str
+			})
+			
+			::continue::
 		end
 		
 		if checktypes then
