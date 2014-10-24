@@ -91,7 +91,7 @@ function hosts.host_meta::match(string url)
 	end
 	
 	for k,page in pairs(self.page_patterns) do
-		local args = table.pack(url:match(page.pattern)})
+		local args = table.pack(url:match(page.pattern))
 		if #args ~= 0 then
 			table.insert(hits, {page = page, args = args})
 		end

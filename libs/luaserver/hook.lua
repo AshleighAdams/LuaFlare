@@ -41,7 +41,7 @@ hook.call = function (name, ...)
 	end
 	
 	for k, v in ipairs(hooktbl.callorder) do
-		local ret = table.pack(v.func(...)})
+		local ret = table.pack(v.func(...))
 		if #ret ~= 0 then
 			return table.unpack(ret)
 		end
