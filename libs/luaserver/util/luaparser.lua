@@ -4,16 +4,21 @@ function parser.problem(str, depth)
 	if parser.strict then
 		error(str, (depth or 1) + 1)
 	end
+	warn(str)
 end
 
 function parser.assert(...)
-	if parser.strict then
-		local vals = table.pack(...)
-		if not vals[1] then
+	local vals = table.pack(...)
+	
+	if not vals[1] then
+		if parser.strict then
 			error(vals[2] or "assert failed", 2)
+		else
+			warn(vals[2] or "assert failed")
 		end
-		return table.unpack(vals)
 	end
+	
+	return table.unpack(vals)
 end
 
 local stringreader = require("luaserver.util.luaparser.stringreader")
