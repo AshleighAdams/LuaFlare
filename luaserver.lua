@@ -132,4 +132,16 @@ if script.options["out-pid"] ~= nil then
 	f:close()
 	print("Wrote PID to " .. script.options["out-pid"])
 end
+
+-- update task name:
+do
+	local f = io.open("/proc/self/comm", "r")
+	if f then
+		f:close()
+		f = io.open("/proc/self/comm", "w")
+		f:write("luaserver")
+		f:close()
+	end
+end
+
 main()
