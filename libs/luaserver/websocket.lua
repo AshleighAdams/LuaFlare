@@ -217,7 +217,7 @@ function websocket.register(path, protocol, callbacks) expects("string", "string
 			--obj._client_threads[client] = nil
 		end
 		
-		scheduler.newtask(string.format("ws://%s/%s (%s)", client.peer, path, protocol), thread)
+		scheduler.newtask(string.format("ws://%s%s (%s)", client.peer, path, protocol), thread)
 		table.insert(obj._clients, client)
 		
 		--local co = coroutine.create(thread)
