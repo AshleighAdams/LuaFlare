@@ -51,3 +51,9 @@ If the passed type is a table, it will ensure the value table contains the same 
 `function(meta& a)`
 
 `function(a) expects(meta)`
+
+### 4 - Complex
+
+`function meta::dosomething(string arg, meta& other, string message = "hello")`
+
+`function meta:dosomething(arg, other, message) if message == nil then message = "hello" end expects(meta, "string", meta, "string")`
