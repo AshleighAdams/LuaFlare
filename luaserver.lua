@@ -17,8 +17,8 @@ do -- for require() to check modules path
 	package.cpath = luaserver.lib_path .. "/libs/?.so;" .. tcp
 end
 
-dofile("inc/util.lua")
-dofile("inc/syntax_extensions.lua")
+dofile(luaserver.lib_path .. "/inc/util.lua")
+dofile(luaserver.lib_path .. "/inc/syntax_extensions.lua")
 
 local socket = require("socket")
 local ssl = require("ssl")
@@ -38,9 +38,9 @@ local shorthands = {
 }
 script.parse_arguments(arg, shorthands)
 
-dofile("inc/request.lua")
-dofile("inc/response.lua")
-dofile("inc/savetotable.lua")
+dofile(luaserver.lib_path .. "/inc/request.lua")
+dofile(luaserver.lib_path .. "/inc/response.lua")
+dofile(luaserver.lib_path .. "/inc/savetotable.lua")
 
 	
 local port = tonumber(script.options.port) or 8080
@@ -134,7 +134,7 @@ usage:
 		local thread_mdl = script.options["threads-model"] or "coroutine"
 		dofile(string.format("inc/threads_%s.lua", thread_mdl))
 	
-		dofile("inc/autorun.lua")
+		dofile(luaserver.lib_path .. "/inc/autorun.lua")
 		assert(main_loop, "`main_loop()` is not defined!")
 	
 		main_loop()
@@ -165,5 +165,4 @@ do
 	end
 end
 
-local _ = require("luaserver")
 main()
