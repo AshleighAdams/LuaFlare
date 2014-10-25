@@ -160,6 +160,9 @@ function main_loop()
 	
 	local tp = threadpool.create(threads, callback)
 	
+	-- loaded now, call the hook
+	hook.call("Loaded")
+	
 	while true do
 		if tp:done() then
 			-- we can block on accept() for this long...

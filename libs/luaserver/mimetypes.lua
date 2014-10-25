@@ -1,3 +1,5 @@
+local hook = require("luaserver.hook")
+
 local mimetypes = {}
 
 mimetypes.types = { -- basic types
@@ -29,7 +31,7 @@ mimetypes.types = { -- basic types
 	["bin"] = "application/octet-stream"
 }
 
-do -- parse the systems mime types file, if it exists
+function mimetypes.load()
 	local file = io.open("/etc/mime.types", "r")
 	
 	if file then -- success, we found it
@@ -46,9 +48,10 @@ do -- parse the systems mime types file, if it exists
 			end
 		until true end
 	end
-	
+	--asd = d..h
 	print(string.format("loaded %i mime types", table.Count(mimetypes.types)))
 end
+hook.add("Loaded", "load /etc/mime.types", mimetypes.load)
 
 function mimetypes.guess(string path)
 	local ext = path:match("^.*%.(.-)$") or ""
