@@ -17,13 +17,16 @@ function hook.invalidate(hookname)
 end
 
 hook.add = function(hookname, name, func, priority)
+	priority = priority or 0
+	expects("any", "any", "function", "number")
+	
 	local hooktbl = hook.hooks[hookname]
 	if hooktbl == nil then
 		hooktbl = {attached = {}, callorder = {}}
 		hook.hooks[hookname] = hooktbl
 	end
 	
-	hooktbl.attached[name] = {func = func, name = name, priority = priority or 0}
+	hooktbl.attached[name] = {func = func, name = name, priority = priority}
 	hook.invalidate(hookname)
 end
 
@@ -100,7 +103,9 @@ hook.safe_call = function (name, ...)
 			local msg = ret[2][1]
 			local trace = ret[2][2]
 			local vars = ret[2][3]
-			hook.Call("LuaError", msg, trace, vars, args)
+			
+			warn("Lua error: %s\n%s", msg, trace)
+			hook.call("LuaError", msg, trace, vars, args)
 		else -- if there was a return value, return it, otherwise continue calling the hooks
 			table.remove(ret, 1)
 			if #ret ~= 0 then

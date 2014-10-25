@@ -10,11 +10,6 @@ local function on_error(why, request, response)
 end
 hook.add("Error", "log errors", on_error)
 
-local function on_lua_error(err, trace, args)
-	print("lua error:", err)--, trace)
-end
-hook.add("LuaError", "log errors", on_lua_error)
-
 local function basic_error(why, req, res)
 	res:clear_content()
 	
