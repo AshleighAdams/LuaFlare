@@ -35,18 +35,18 @@ function template.make(req, res, contents, info)
 							type: 'datetime',
 							label: 'time',
 							calc: function (dt, row) {
-								return new Date(dt.getValue(row, 0)*1000);
+								var ret = new Date(dt.getValue(row, 0)*1000);
+								return {v:ret, f: ret.toString()};
 							}
 						},1]);
 						
 						var options = {
-						   title: "",
-						   vAxis: {title: data.getColumnLabel(1), viewWindow: {min: 0}, minValue: 0, maxValue: max},
-						   //hAxis: {title: data.getColumnLabel(0), minValue: data.getColumnRange(0).min, maxValue: data.getColumnRange(0).max},
-						   //vAxis: {title: data.getColumnLabel(1), minValue: data.getColumnRange(1).min, maxValue: data.getColumnRange(1).max},
-						   legend: "none",
-						   curveType: "function",
-						   lineWidth: 0,
+							title: "",
+							vAxis: {title: data.getColumnLabel(1), viewWindow: {min: 0}, minValue: 0, maxValue: max},
+							hAxis: {format: "HH:mm"},
+							legend: "none",
+							curveType: "function",
+							lineWidth: 0,
 						};
 						
 						var chart = new google.visualization.AreaChart(document.getElementById(id));
