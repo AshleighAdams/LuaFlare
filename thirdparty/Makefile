@@ -5,6 +5,7 @@ USER=www-data
 NGINX_DIR=$(DESTDIR)/etc/nginx
 NGINX_SITE_HTTP_PORT=80
 NGINX_SITE_HTTPS_PORT=443
+LUA_DEPENDS=bit lfs md5 posix socket ssl systemd.daemon
 
 # tools
 CP=cp --remove-destination
@@ -15,6 +16,17 @@ VERSION=`git describe --tags --always`
 LUASERVER_DIR_STR=$(subst $(DESTDIR),,$(LUASERVER_DIR))
 
 all:
+
+check-dependencies:
+	@for dep in $(LUA_DEPENDS) ; do \
+		echo -n "checking $$dep... "; \
+		if lua -l $$dep -e "" 2> /dev/null; then\
+			echo "okay"; \
+		else \
+			echo "fail"; \
+			exit 1; \
+		fi; \
+	done
 
 install-bin:
 	cp ../luaserver.lua $(PREFIX)/bin/luaserver
@@ -56,4 +68,4 @@ install-nginx-site:
 	ln -sf $(NGINX_DIR)/sites-available/luaserver $(NGINX_DIR)/sites-enabled/luaserver
 	systemctl restart nginx.service
 
-install: install-bin install-shared install-service install-nginx-site
+install: check-dependencies install-bin install-shared install-service install-nginx-site
