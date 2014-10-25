@@ -225,6 +225,39 @@ function template.mem_info(info)
 	return elms
 end
 
+local ignore_packages = {
+	_G = true, math = true, string = true, os = true, package = true, io = true, bit = true, bit32 = true, table = true,
+	coroutine = true, debug = true
+}
+
+function template.package_info()
+	local rows = {}
+	
+	for k,v in pairs(package.loaded) do
+		local name = k
+		local version
+		
+		if ignore_packages[name] then goto continue end
+		
+		if type(v) == "table" then
+			version = v.VERSION or v._VERSION or v.version or v._version or tags.i{"Unknown"}
+		else
+			version = tags.i{"Unknown"}
+		end
+		local location = package.searchpath(name, package.path) or package.searchpath(name, package.cpath) or tags.i{"Unknown"}
+		
+		table.insert(rows, {name, version, location})
+		::continue::
+	end
+	
+	table.sort(rows, function(a,b)
+		return a[1] < b[1]
+	end)
+	
+	table.insert(rows, 1, { tags.b{"Name"}, tags.b{"Version"}, tags.b{"Location"} })
+	return template.table(rows)
+end
+
 function template.scheduler_info()
 	local rows = {
 		{tags.b{"Name"}, tags.b{"Age"}, tags.b{"Tick Rate"}, tags.b{"CPU Time"}, tags.b{"CPU Time (/s)"}}

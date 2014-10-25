@@ -208,6 +208,9 @@ local function stats(req, res)
 		template.section("Memory Map"),
 		template.mem_info(get_proc_meminfo(script.pid())),
 		
+		template.section("Packages"),
+		template.package_info(),
+		
 		template.section("Scheduler"),
 		template.scheduler_info(),
 		
