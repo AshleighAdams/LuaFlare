@@ -1,6 +1,8 @@
 return {
 	_VERSION     = "LuaServer git",
-	hook         = require("luaserver.hook"),
+	config_path  = ".", -- config-marker
+	lib_path     = ".", -- lib-marker
+	--[[hook         = require("luaserver.hook"),
 	hosts        = require("luaserver.hosts"),
 	httpstatus   = require("luaserver.httpstatus"),
 	mimetypes    = require("luaserver.mimetypes"),
@@ -9,5 +11,5 @@ return {
 	tags         = require("luaserver.tags"),
 	threadpool   = require("luaserver.threadpool"),
 	util         = require("luaserver.util"),
-	websocket    = require("luaserver.websocket"),
+	websocket    = require("luaserver.websocket"),]]
 }

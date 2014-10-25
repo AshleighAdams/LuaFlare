@@ -1,8 +1,21 @@
 #!/usr/bin/env lua
 
--- for require() to check modules path
-package.path = "./libs/?.lua;" .. package.path
-package.cpath = "./libs/?.so;" .. package.cpath
+local luaserver
+do -- for require() to check modules path
+	local tp, tcp = package.path, package.cpath
+	
+	local path = arg[0]:match("(.+)/")
+	if path:sub(-4, -1) == "/bin" then
+		path = path:sub(1, -5) .. "/lib/luaserver"
+	end
+	
+	package.path = path .. "/libs/?.lua;" .. tp
+	package.cpath = path .. "/libs/?.so;" .. tcp
+	print(path)
+	luaserver = require("luaserver")
+	package.path = luaserver.lib_path .. "/libs/?.lua;" .. tp
+	package.cpath = luaserver.lib_path .. "/libs/?.so;" .. tcp
+end
 
 dofile("inc/util.lua")
 dofile("inc/syntax_extensions.lua")
@@ -73,17 +86,18 @@ local params = {
 
 function main()
 	if script.options["unit-test"] then
-		print = static_print
 		include("inc/unittests.lua")
 		return unit_test()
 	elseif script.options.version then
-		print = static_print
 		print(string.format("LuaServer 2.0 (%s)", _VERSION))
 		return
 	elseif script.options.help then
-		print = static_print
 		print([[
---config=path                     Load and save arguments to this file.
+usage:
+    luaserver listen [OPTIONS]...
+    luaserver mount NAME PATH
+    luaserver unmount NAME
+
 --port=number                     Port to bind to (default 8080).
 --threads=number                  Number of threads to create (default 2).
 --threads-model=string            Threading mode to use (default coroutine).
@@ -116,14 +130,21 @@ function main()
 		return
 	end
 	
+	if script.arguments[1] == "listen" then
+		local thread_mdl = script.options["threads-model"] or "coroutine"
+		dofile(string.format("inc/threads_%s.lua", thread_mdl))
 	
-	local thread_mdl = script.options["threads-model"] or "coroutine"
-	dofile(string.format("inc/threads_%s.lua", thread_mdl))
+		dofile("inc/autorun.lua")
+		assert(main_loop, "`main_loop()` is not defined!")
 	
-	dofile("inc/autorun.lua")
-	assert(main_loop, "`main_loop()` is not defined!")
-	
-	main_loop()
+		main_loop()
+	elseif script.arguments[1] == "mount" then
+		error("not yet implimented")
+	elseif script.arguments[1] == "unmount" then
+		error("not yet implimented")
+	elseif script.arguments[1] then
+		print("unknown action " .. script.arguments[1])
+	end
 end
 
 if script.options["out-pid"] ~= nil then

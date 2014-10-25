@@ -1,6 +1,7 @@
 local lfs = require("lfs")
 local util = require("luaserver.util")
 local hook = require("luaserver.hook")
+local luaserver = require("luaserver")
 
 local reload_time = script.options["reload-time"] or 5 -- default to every 5 seconds
 
@@ -51,10 +52,11 @@ local function reload_scripts()
 	if util.time() < next_run then return end
 	next_run = util.time() + reload_time
 	
-	autorun("lua/")
+	autorun(luaserver.config_path .. "/lua/")
 	
-	for filename in lfs.dir("sites/") do
-		local file = "sites/" .. filename
+	local sites_dir = luaserver.config_path .. "/sites/"
+	for filename in lfs.dir(sites_dir) do
+		local file = sites_dir .. filename
 		
 		if filename ~= "." and filename ~= ".." and lfs.attributes(file, "mode") == "directory" then
 			if lfs.attributes(file .. "/lua", "mode") == "directory" then

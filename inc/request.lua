@@ -2,25 +2,28 @@ local url = require("socket.url")
 local socket = require("socket")
 local httpstatus = require("luaserver.httpstatus")
 local script = require("luaserver.util.script")
-
+local hook = require("luaserver.hook")
 local meta = {}
 meta.__index = meta
 
 local trusted_proxies = {}
-for _, hostname in pairs ((script.options["trusted-reverse-proxies"] or "localhost"):Split(",")) do
-	-- potentially look up the IP
-	trusted_proxies[hostname] = true
-	local resolved, info = socket.dns.toip(hostname)
+local function load_trusted_proxies()
+	for _, hostname in pairs ((script.options["trusted-reverse-proxies"] or "localhost"):Split(",")) do
+		-- potentially look up the IP
+		trusted_proxies[hostname] = true
+		local resolved, info = socket.dns.toip(hostname)
 	
-	if not resolved then
-		print(string.format("trusted reverse proxy: could not resolve %s: %s", hostname, info))
-	else
-		for k,ip in pairs(info.ip) do
-			trusted_proxies[ip] = true
-			print(string.format("trusted reverse proxy: %s (%s)", ip, hostname))
+		if not resolved then
+			print(string.format("trusted reverse proxy: could not resolve %s: %s", hostname, info))
+		else
+			for k,ip in pairs(info.ip) do
+				trusted_proxies[ip] = true
+				print(string.format("trusted reverse proxy: %s (%s)", ip, hostname))
+			end
 		end
 	end
 end
+hook.add("Loaded", "load trusted reverse proxies", load_trusted_proxies)
 
 local function quick_response(request, err, why)
 	local response = Response(request)

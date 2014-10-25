@@ -1,9 +1,10 @@
-require("lfs")
+local lfs = require("lfs")
 local mimetypes = require("luaserver.mimetypes")
 local escape = require("luaserver.util.escape")
 local hosts = require("luaserver.hosts")
+local luaserver = require("luaserver")
 
-local static_dir = "static/"
+local static_dir = luaserver.config_path .. "/static/"
 local count = 0
 
 local function itterate_dir(dir, callback, ...)
@@ -69,8 +70,9 @@ count = 0
 
 --load sites static's dir
 
-for filename in lfs.dir("sites/") do
-	local file = "sites/" .. filename .. "/static/"
+local sitespath = luaserver.config_path .. "/sites/"
+for filename in lfs.dir(sitespath) do
+	local file = sitespath .. filename .. "/static/"
 	static_dir = file
 	
 	if filename ~= "." and filename ~= ".." and lfs.attributes(file, "mode") == "directory" then

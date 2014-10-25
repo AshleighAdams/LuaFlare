@@ -5,8 +5,8 @@ After=network.target
 [Service]
 Type=notify
 User=www-data
-WorkingDirectory=/usr/share/luaserver/
-ExecStart=/usr/bin/luaserver --config=config.cfg --systemd
+WorkingDirectory=LUASERVER_LIB_DIR
+ExecStart=/usr/bin/luaserver listen --systemd
 KillMode=process
 Restart=on-abort
 

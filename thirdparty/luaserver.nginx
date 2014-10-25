@@ -15,7 +15,7 @@ server {
 	}
 	location /./ { # this is for X-Accel-Redirect
 		internal;
-		root LUASERVER_PATH;
+		root LUASERVER_CFG_DIR/;
 	}
 }
 
@@ -23,8 +23,8 @@ server {
 	listen NGINX_SITE_HTTPS_PORT ssl spdy;
 	listen [::]:NGINX_SITE_HTTPS_PORT ssl spdy ipv6only=on;
 
-	ssl_certificate /usr/share/luaserver/keys/certificate.pem;
-	ssl_certificate_key /usr/share/luaserver/keys/key.pem;
+	ssl_certificate LUASERVER_CFG_DIR/keys/certificate.pem;
+	ssl_certificate_key LUASERVER_CFG_DIR/keys/key.pem;
 
 	ssl_session_timeout 5m;
 
@@ -46,6 +46,6 @@ server {
 	}
 	location /./ { # this is for X-Accel-Redirect
 		internal;
-		root LUASERVER_PATH;
+		root LUASERVER_CFG_DIR/;
 	}
 }
