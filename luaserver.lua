@@ -89,7 +89,7 @@ function main()
 		include("inc/unittests.lua")
 		return unit_test()
 	elseif script.options.version then
-		print(string.format("LuaServer 2.0 (%s)", _VERSION))
+		print(string.format("%s (%s)", luaserver._VERSION, _VERSION))
 		return
 	elseif script.options.help then
 		print([[
