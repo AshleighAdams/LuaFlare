@@ -2,7 +2,7 @@
 local threadpool = {}
 threadpool._meta = {__index = threadpool}
 
-function threadpool.create(threads, func) expects("number", "function")
+function threadpool.create(number threads, function func)
 	local tp = {}
 	tp.queue = {}
 	tp.quit = false
@@ -20,7 +20,7 @@ function threadpool.create(threads, func) expects("number", "function")
 		end, function(err)
 			-- () around coroutine.running() to force ignore the 2nd ret value, might not be needed, but better safe than sorry
 			local costr = tostring( (coroutine.running()) ):match("0x(.+)")
-			warn("thread %s died: %s\n%s", costr, err, debug.traceback())
+			warn("thread %s died: %s", costr, err)--, debug.traceback())
 		end)
 	end
 	
@@ -34,12 +34,12 @@ function threadpool.create(threads, func) expects("number", "function")
 	return setmetatable(tp, threadpool._meta)
 end
 
-function threadpool:enqueue(object) expects(threadpool._meta, "any")
+function threadpool::enqueue(any object)
 	self.added = self.added + 1
 	table.insert(self.queue, object)
 end
 
-function threadpool:dequeue() expects(threadpool._meta)
+function threadpool::dequeue()
 	while not self.quit do
 		local obj = self.queue[1]
 		if obj ~= nil then
@@ -51,19 +51,19 @@ function threadpool:dequeue() expects(threadpool._meta)
 	end
 end
 
-function threadpool:done() expects(threadpool._meta)
+function threadpool::done()
 	return self.added == self.finished
 end
 
-function threadpool:step() expects(threadpool._meta)
+function threadpool:step()
 	for i, co in ipairs(self.routines) do
 		if coroutine.status(co) ~= "dead" then -- shouldnt happen
 			local suc, err = coroutine.resume(co)
 			if not suc then
-				warn(err)
+				warn("%s\n%s", err, debug.traceback(co))
 			end
 		else
-			warn("coroutine %s died, remaking...", tostring(co):match("0x(.+)"))
+			warn("coroutine %d died, remaking...", i)
 			table.remove(self.routines, i)
 			local co = coroutine.create(self.thread_function)
 			script.instance_names[co] = tostring(i)

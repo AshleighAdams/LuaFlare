@@ -16,8 +16,7 @@ local function random_string(length)
 	return ret
 end
 
-function session.get(req, res, session_name)
-	session_name = session_name or "session"
+function session.get(req, res, string session_name = "session")
 	local id = req:get_cookie(session_name)
 
 	if id ~= nil then -- make sure it contains only valid chars!

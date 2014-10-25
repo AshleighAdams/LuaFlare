@@ -1,3 +1,5 @@
+local hook = require("luaserver.hook")
+
 local hosts = {} -- make require("luaserver.hosts") like
 hosts.hosts = {}
 hosts.upgrades = {}
