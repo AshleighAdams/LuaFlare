@@ -3,9 +3,10 @@ Description=Lua web server
 After=network.target
 
 [Service]
+Type=notify
 User=www-data
 WorkingDirectory=/usr/share/luaserver/
-ExecStart=/usr/bin/luaserver --config=config.cfg
+ExecStart=/usr/bin/luaserver --config=config.cfg --systemd
 KillMode=process
 Restart=on-abort
 
