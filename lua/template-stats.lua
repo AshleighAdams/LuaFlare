@@ -46,6 +46,7 @@ function template.make(req, res, contents, info)
 						   //vAxis: {title: data.getColumnLabel(1), minValue: data.getColumnRange(1).min, maxValue: data.getColumnRange(1).max},
 						   legend: "none",
 						   curveType: "function",
+						   lineWidth: 0,
 						};
 						
 						var chart = new google.visualization.AreaChart(document.getElementById(id));
@@ -58,7 +59,7 @@ function template.make(req, res, contents, info)
 					update_chart("/stats/hits.csv", "graph-hits", ]]..info.hits_max..[[);
 					update_chart("/stats/load.csv", "graph-load", ]]..info.load_max..[[);
 					update_chart("/stats/mem.csv", "graph-mem", ]]..info.memory_max..[[);
-					setTimeout(draw_chart, 1000 * 60)
+					]]..(req:params().update and "setTimeout(draw_chart, 1000 * 60)" or "")..[[
 				}
 				]]
 			},
