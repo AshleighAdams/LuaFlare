@@ -1,6 +1,6 @@
 server {
-	listen 80;
-	listen [::]:80 ipv6only=on;
+	listen NGINX_SITE_HTTP_PORT;
+	listen [::]:NGINX_SITE_HTTP_PORT ipv6only=on;
 
 	server_name localhost;
 
@@ -15,13 +15,13 @@ server {
 	}
 	location /./ { # this is for X-Accel-Redirect
 		internal;
-		root /usr/share/luaserver/;
+		root LUASERVER_PATH;
 	}
 }
 
 server {
-	listen 443 ssl spdy;
-	listen [::]:443 ssl spdy ipv6only=on;
+	listen NGINX_SITE_HTTPS_PORT ssl spdy;
+	listen [::]:NGINX_SITE_HTTPS_PORT ssl spdy ipv6only=on;
 
 	ssl_certificate /usr/share/luaserver/keys/certificate.pem;
 	ssl_certificate_key /usr/share/luaserver/keys/key.pem;
@@ -46,6 +46,6 @@ server {
 	}
 	location /./ { # this is for X-Accel-Redirect
 		internal;
-		root /usr/share/luaserver/;
+		root LUASERVER_PATH;
 	}
 }

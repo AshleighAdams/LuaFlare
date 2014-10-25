@@ -1,4 +1,5 @@
 return {
+	_VERSION     = "LuaServer git",
 	hook         = require("luaserver.hook"),
 	hosts        = require("luaserver.hosts"),
 	httpstatus   = require("luaserver.httpstatus"),
