@@ -48,7 +48,7 @@ function mimetypes.load()
 			end
 		until true end
 	end
-	--asd = d..h
+	
 	print(string.format("loaded %i mime types", table.Count(mimetypes.types)))
 end
 hook.add("Loaded", "load /etc/mime.types", mimetypes.load)
