@@ -2,6 +2,7 @@ local hook = require("luaserver.hook")
 local hosts = require("luaserver.hosts")
 local scheduler = require("luaserver.scheduler")
 local script = require("luaserver.util.script")
+local vfs = require("luaserver.virtualfilesystem")
 
 local template = include("template-stats.lua")
 
@@ -104,6 +105,11 @@ local function on_warning(msg)
 end
 hook.add("Warning", "statistics - warnings", on_warning)
 
+local path_statshits = vfs.locate("/.stats-hits.csv")
+local path_statsload = vfs.locate("/.stats-load.csv")
+local path_statsmem = vfs.locate("/.stats-mem.csv")
+print(path_statsload)
+
 function update_csv_files()
 	local function write(file, first, data)
 		local f = io.open(file, "w")
@@ -114,9 +120,9 @@ function update_csv_files()
 		f:close()
 	end
 	
-	write(".stats-hits.csv", "time, hits/m", hits_data)
-	write(".stats-load.csv", "time, load average", load_data)
-	write(".stats-mem.csv", "time, memory (MiB)", memory_data)
+	write(path_statshits, "time, hits/m", hits_data)
+	write(path_statsload, "time, load average", load_data)
+	write(path_statsmem, "time, memory (MiB)", memory_data)
 end
 
 function load_csv_files()
@@ -130,9 +136,9 @@ function load_csv_files()
 		f:close()
 	end
 	
-	read(".stats-hits.csv", hits_data)
-	read(".stats-load.csv", load_data)
-	read(".stats-mem.csv",  memory_data)
+	read(path_statshits, hits_data)
+	read(path_statsload, load_data)
+	read(path_statsmem,  memory_data)
 end
 load_csv_files()
 
@@ -223,17 +229,17 @@ local function stats(req, res)
 end
 
 local function stats_hits_csv(req, res)
-	res:set_file(".stats-hits.csv")
+	res:set_file(path_statshits)
 	res:set_header("Content-Type", "text/plain")
 end
 
 local function stats_load_csv(req, res)
-	res:set_file(".stats-load.csv")
+	res:set_file(path_statsload)
 	res:set_header("Content-Type", "text/plain")
 end
 
 local function stats_mem_csv(req, res)
-	res:set_file(".stats-mem.csv")
+	res:set_file(path_statsmem)
 	res:set_header("Content-Type", "text/plain")
 end
 

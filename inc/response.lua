@@ -1,3 +1,4 @@
+local luaserver = require("luaserver")
 local mimetypes = require("luaserver.mimetypes")
 local httpstatus = require("luaserver.httpstatus")
 local script = require("luaserver.util.script")
@@ -88,6 +89,7 @@ function meta::halt(number code, reason) -- default code is?
 	hook.call("Error", {type = code, message = reason}, self:request(), self)
 end
 
+local cfg_path = luaserver.config_path
 function meta::set_file(string path)-- expects(meta, "string")
 	local file = io.open(path, "rb")
 	
@@ -101,7 +103,15 @@ function meta::set_file(string path)-- expects(meta, "string")
 	
 	if script.options["x-accel-redirect"] ~= nil then
 		file:close()
-		self:set_header("X-Accel-Redirect", script.options["x-accel-redirect"] .. path)
+		
+		local tpath
+		if not path:StartsWith(cfg_path) then
+			warn("X-Accel-Redirect outside of virtual root filesystem: %s", path)
+		else
+			tpath = path:sub(cfg_path:len() + 1, -1)
+		end
+		
+		self:set_header("X-Accel-Redirect", script.options["x-accel-redirect"] .. tpath)
 		return
 	elseif script.options["x-sendfile"] ~= nil then
 		file:close()

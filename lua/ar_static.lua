@@ -2,7 +2,7 @@ local lfs = require("lfs")
 local mimetypes = require("luaserver.mimetypes")
 local escape = require("luaserver.util.escape")
 local hosts = require("luaserver.hosts")
-local luaserver = require("luaserver")
+local vfs = require("luaserver.virtualfilesystem")
 
 local static_dir = luaserver.config_path .. "/static/"
 local count = 0
