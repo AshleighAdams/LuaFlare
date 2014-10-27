@@ -57,9 +57,6 @@ install-shared-files:
 	$(MKDIR) $(LUASERVER_CFG_DIR)/sessions
 	$(MKDIR) $(LUASERVER_CFG_DIR)/sites
 	
-	# create a link from the lib dir.  This is because Nginx has and X-Accel-Redirect
-	#$(LN) $(LUASERVER_CFG_DIR)/sites $(LUASERVER_LIB_DIR)/sites
-	
 	$(CP) -r ../luaserver.cfg $(LUASERVER_CFG_DIR)/luaserver.cfg
 
 install-shared-ownership:
@@ -73,8 +70,8 @@ install-service:
 		| $(SED) "s|LUASERVER_LIB_DIR|$(LUASERVER_LIB_DIR_STR)|g" \
 		| $(SED) "s|LUASERVER_CFG_DIR|$(LUASERVER_CFG_DIR_STR)|g" \
 		> $(SYSTEMD_SERVICE_DIR)/luaserver.service
-	systemctl daemon-reload
-	systemctl enable luaserver.service
+	systemctl daemon-reload && \
+	systemctl enable luaserver.service && \
 	systemctl restart luaserver.service
 
 install-nginx-site:
