@@ -7,7 +7,7 @@ SYSTEMD_SERVICE_DIR=$(DESTDIR)/etc/systemd/system
 USER=www-data
 NGINX_SITE_HTTP_PORT=80
 NGINX_SITE_HTTPS_PORT=443
-LUA_DEPENDS=bit lfs md5 posix socket ssl systemd.daemon
+LUA_DEPENDS=bit lfs md5 posix socket ssl systemd.daemon xssfilter
 
 # tools
 CP=cp --remove-destination
