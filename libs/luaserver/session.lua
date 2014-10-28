@@ -1,8 +1,11 @@
+local luaserver = require("luaserver")
 
 local session = {}
 local posix = require("posix")
 local meta = {}
 meta._meta = {__index = meta}
+
+local session_path = luaserver.config_path .. "/sessions/"
 
 session.valid_chars = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789"
 local function random_string(length)
@@ -35,19 +38,19 @@ function meta:construct(req, res, session_name, id)
 	if id == nil then		
 		while true do -- generate one
 			id = random_string(32)
-			if table.load("sessions/" .. session_name .. "_" .. id) == nil then
+			if table.load(session_path .. session_name .. "_" .. id) == nil then
 				break
 			end
 		end
 
 		print(req:peer() .. " generated a new sesion id: " .. id)
-		table.save({}, "sessions/" .. session_name .. "_" .. id)
+		table.save({}, session_path .. session_name .. "_" .. id)
 		res:set_cookie(session_name, id)
 	end
 
 	self._id = id
 	self._session_name = session_name
-	self._data = table.load("sessions/" .. session_name .. "_" .. id)
+	self._data = table.load(session_path .. session_name .. "_" .. id)
 
 	if self._data == nil then
 		print(req:peer() .. " sent a none-existing (expired?) session id!")
@@ -57,7 +60,7 @@ end
 
 function meta:save()
 	util.EnsurePath("sessions/")
-	table.save(self:data(), "sessions/" .. self._session_name .. "_" .. self:id())
+	table.save(self:data(), session_path .. self._session_name .. "_" .. self:id())
 end
 
 function meta:id()
