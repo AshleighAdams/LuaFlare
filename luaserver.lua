@@ -4,7 +4,7 @@ local function usage()
 	print([[
 usage:
     luaserver listen [OPTIONS]...
-    luaserver mount NAME PATH
+    luaserver mount PATH NAME
     luaserver unmount NAME
 
 --port=number                     Port to bind to (default 8080).
@@ -70,6 +70,7 @@ local lfs = require("lfs")
 local hook = require("luaserver.hook")
 local util = require("luaserver.util")
 local script = require("luaserver.util.script")
+local escape = require("luaserver.util.escape")
 
 local shorthands = {
 	v = "version",
@@ -144,9 +145,21 @@ function main()
 	
 		main_loop()
 	elseif script.arguments[1] == "mount" then
-		error("not yet implimented")
+		local dir = script.arguments[2]
+		local name = script.arguments[3]
+		if not dir then print("error: expected PATH") return usage() end
+		if not name then print("error: expected NAME") return usage() end
+		
+		name = luaserver.config_path .. "/sites/" .. name
+		os.execute(string.format("ln -s \"`pwd`/%s\" \"%s\"", escape.argument(dir), escape.argument(name)))
+		return
 	elseif script.arguments[1] == "unmount" then
-		error("not yet implimented")
+		local name = script.arguments[2]
+		if not name then print("error: expected NAME") return usage() end
+		
+		name = luaserver.config_path .. "/sites/" .. name
+		os.execute(string.format("rm -r \"%s\"", escape.argument(name)))
+		return
 	elseif script.arguments[1] then
 		print("unknown action " .. script.arguments[1])
 	end
