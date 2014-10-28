@@ -4,8 +4,16 @@ _comreply_opt()
 {
 	case $1 in
 	--max-etag-size)
-		# only list, never fill it in (current is always emptystr)
-		COMPREPLY=( $(compgen -W "B KB KiB MB MiB GB GiB TB TiB PB PiB" -- "") )
+		local valid="B KB KiB MB MiB GB GiB TB TiB PB PiB"
+		local cur=`echo $2 | egrep -o [A-Za-z]+`
+		local num=`echo $2 | egrep -o [0-9]+`
+		
+		local reply=( $(compgen -W "$valid" -- "$cur") )
+		local i=0
+		
+		for value in "${reply[@]}"; do
+			COMPREPLY[i++]="$1=$num$value"
+		done
 		;;
 	*)
 		COMPREPLY=()
