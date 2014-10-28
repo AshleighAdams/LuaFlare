@@ -1,5 +1,18 @@
 # bash completion for luaserver
 
+_comreply_opt()
+{
+	case $1 in
+	--max-etag-size)
+		# only list, never fill it in (current is always emptystr)
+		COMPREPLY=( $(compgen -W "B KB KiB MB MiB GB GiB TB TiB PB PiB" -- "") )
+		;;
+	*)
+		COMPREPLY=()
+		;;
+	esac
+}
+
 _luaserver()
 {
 	local cur prev opts fileopts actions
@@ -23,8 +36,9 @@ _luaserver()
 		fi
 		
 		if [[ "$cur" == *"="* ]]; then
-			#local opt=`echo $cur | egrep -o -- "--.+=" | sed "s|=||g"`
-			COMPREPLY=()
+			local opt=`echo $cur | egrep -o -- "--.+=" | sed "s|=||g"`
+			local curarg=`echo $cur | egrep -o -- "=.+" | sed "s|=||g"`
+			_comreply_opt $opt $curarg
 		fi
 		
 		return 0
