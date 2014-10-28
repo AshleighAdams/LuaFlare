@@ -38,7 +38,6 @@ they may be automatically reloaded too.
 
 | Command                              | Default Value | Allowed Values          | Info                                                      |
 | ------------------------------------ | ------------- | ----------------------- | --------------------------------------------------------- |
-| --config=\<path\>                    |               | \*                      | Load and save arguments to this file.                     |
 | --port=\<number\>                    | 8080          | 0-65535                 | Set the port to run on.                                   |
 | --threads=\<number\>                 | 2             | 0-\*                    | How many threads to create.                               |
 | --threads-model=\<string\>           | coroutine     | coroutine, pyrate       | How will Lua create the threads?                          |

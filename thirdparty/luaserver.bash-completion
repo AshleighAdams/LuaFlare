@@ -1,0 +1,53 @@
+# bash completion for luaserver
+
+_luaserver()
+{
+	local cur prev opts fileopts actions
+	COMPREPLY=()
+	cur="${COMP_WORDS[COMP_CWORD]}"
+	prev="${COMP_WORDS[COMP_CWORD-1]}"
+	prev2="${COMP_WORDS[COMP_CWORD-2]}"
+	
+	# not sure if i should enable this, default software doesn't autocomplete options (such as apt-get)
+	opts="--help --version --port= --threads= --threads-model= --host= --local --unit-test --no-reload --max-etag-size= --reverse-proxy --trusted-reverse-proxies= --x-accel-redirect= --x-sendfile --chunk-size= --scheduler-tick-rate= --max-post-length= --systemd"
+	shortopts="-l -t -h -v"
+	actions="listen mount unmount"
+	
+	if [[ "$cur" == "--"* ]]; then
+		COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+		if [[ ${#COMPREPLY[@]} == 1 ]]; then
+			if [[ $COMPREPLY == *"=" ]]; then
+				compopt -o nospace
+			fi
+		fi
+		
+		if [[ "$cur" == *"="* ]]; then
+			#local opt=`echo $cur | egrep -o -- "--.+=" | sed "s|=||g"`
+			COMPREPLY=()
+		fi
+		
+		return 0
+	elif [[ "$cur" == "-"* ]]; then
+		COMPREPLY=( $(compgen -W "${shortopts}" -- ${cur}) )
+		return 0
+	elif [[ "$COMP_CWORD" == "1" ]]; then
+		COMPREPLY=( $(compgen -W "${actions}" -- ${cur}) )
+		return 0
+	elif [[ "$COMP_CWORD" == "2" && "$prev" == "mount" ]]; then
+		# list directories
+		COMPREPLY=( $(compgen -d -S "/" -- ${cur}) )
+		return 0
+	elif [[ "$COMP_CWORD" == "3" && "$prev2" == "mount" ]]; then
+		# we wan't a new name to be input, so don't reply anything
+		COMPREPLY=()
+		return 0
+	elif [[ "$COMP_CWORD" == "2" && "$prev" == "unmount" ]]; then
+		local mounted=$(ls LUASERVER_CFG_DIR/sites/)
+		COMPREPLY=( $(compgen -W "${mounted}" -- ${cur}) )
+		return 0
+	fi
+	
+	return 0
+}
+
+complete -F _luaserver luaserver

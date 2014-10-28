@@ -3,6 +3,7 @@ PREFIX=$(DESTDIR)/usr
 LUASERVER_LIB_DIR=$(PREFIX)/lib/luaserver
 LUASERVER_CFG_DIR=$(DESTDIR)/etc/luaserver
 NGINX_DIR=$(DESTDIR)/etc/nginx
+BASH_COMPLETION_DIR=$(DESTDIR)/etc/bash_completion.d
 SYSTEMD_SERVICE_DIR=$(DESTDIR)/etc/systemd/system
 USER=www-data
 NGINX_SITE_HTTP_PORT=80
@@ -84,5 +85,11 @@ install-nginx-site:
 	
 	$(LN) $(NGINX_DIR)/sites-available/luaserver $(NGINX_DIR)/sites-enabled/luaserver
 	systemctl restart nginx.service
+
+install-bash-completion:
+	$(CAT) luaserver.bash-completion \
+		| $(SED) "s|LUASERVER_LIB_DIR|$(LUASERVER_LIB_DIR_STR)|g" \
+		| $(SED) "s|LUASERVER_CFG_DIR|$(LUASERVER_CFG_DIR_STR)|g" \
+	> "$(BASH_COMPLETION_DIR)/luaserver"
 
 install: check-dependencies install-bin install-shared install-service install-nginx-site
