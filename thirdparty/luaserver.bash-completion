@@ -23,7 +23,7 @@ _comreply_opt()
 
 _luaserver()
 {
-	local cur prev opts fileopts actions
+	local cur prev opts shortopts actions
 	COMPREPLY=()
 	cur="${COMP_WORDS[COMP_CWORD]}"
 	prev="${COMP_WORDS[COMP_CWORD-1]}"
