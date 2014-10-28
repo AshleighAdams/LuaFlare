@@ -92,4 +92,4 @@ install-bash-completion:
 		| $(SED) "s|LUASERVER_CFG_DIR|$(LUASERVER_CFG_DIR_STR)|g" \
 	> "$(BASH_COMPLETION_DIR)/luaserver"
 
-install: check-dependencies install-bin install-shared install-service install-nginx-site
+install: check-dependencies install-bin install-shared install-service install-nginx-site install-bash-completion
