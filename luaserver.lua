@@ -1,5 +1,46 @@
 #!/usr/bin/env lua
 
+local function usage()
+	print([[
+usage:
+    luaserver listen [OPTIONS]...
+    luaserver mount NAME PATH
+    luaserver unmount NAME
+
+--port=number                     Port to bind to (default 8080).
+--threads=number                  Number of threads to create (default 2).
+--threads-model=string            Threading mode to use (default coroutine).
+--host=string                     The address to bind to (default *).
+-l, --local                       Equivalent to: --host=localhost
+-t, --unit-test                   Perform unit tests and quit.
+-h, --help                        Show this help.
+-v, --version                     Print out version information and quit.
+--no-reload                       Don't automatically reload ar_*.lua scripts
+                                  when they've changed.
+--max-etag-size=size              Max size to generate etag hashes for. (default
+                                  64MiB).
+--reverse-proxy                   Require X-Real-IP and X-Forward-For.
+--trusted-reverse-proxies=string  Comma delimitered list of trusted reverse
+                                  proxies.
+--x-accel-redirect=path           Use Nginx's X-Accel-Redirect to send static
+                                  content; path is the internal location (the 
+                                  example site uses /./)
+--x-sendfile                      Use mod_xsendfile to send static content.
+--chunk-size                      Number of bytes to send per chunk (default
+                                  128KiB (1024*128).  Lower values means less
+                                  susceptible to fuzzing attacks, but lower
+                                  transfer speeds.
+--display-all-vars                On a Lua error, show all variables, not just
+                                  related.
+--scheduler-tick-rate=number      The fallback tickrate (Hz) for a schedule that
+                                  yields nil. (default 60).
+--max-post-length=number          The maximum length of the post data.
+]])
+end
+
+-- so we can exit ASAP, for bash completion speedy-ness
+if arg[1] == "--help" then return usage() end
+
 local luaserver
 do -- for require() to check modules path
 	local tp, tcp = package.path, package.cpath
@@ -89,45 +130,9 @@ function main()
 		include("inc/unittests.lua")
 		return unit_test()
 	elseif script.options.version then
-		print(string.format("%s (%s)", luaserver._VERSION, _VERSION))
-		return
+		return print(string.format("%s (%s)", luaserver._VERSION, _VERSION))
 	elseif script.options.help then
-		print([[
-usage:
-    luaserver listen [OPTIONS]...
-    luaserver mount NAME PATH
-    luaserver unmount NAME
-
---port=number                     Port to bind to (default 8080).
---threads=number                  Number of threads to create (default 2).
---threads-model=string            Threading mode to use (default coroutine).
---host=string                     The address to bind to (default *).
--l, --local                       Equivalent to: --host=localhost
--t, --unit-test                   Perform unit tests and quit.
--h, --help                        Show this help.
--v, --version                     Print out version information and quit.
---no-reload                       Don't automatically reload ar_*.lua scripts
-                                  when they've changed.
---max-etag-size=size              Max size to generate etag hashes for. (default
-                                  64MiB).
---reverse-proxy                   Require X-Real-IP and X-Forward-For.
---trusted-reverse-proxies=string  Comma delimitered list of trusted reverse
-                                  proxies.
---x-accel-redirect=path           Use Nginx's X-Accel-Redirect to send static
-                                  content; path is the internal location (the 
-                                  example site uses /./)
---x-sendfile                      Use mod_xsendfile to send static content.
---chunk-size                      Number of bytes to send per chunk (default
-                                  128KiB (1024*128).  Lower values means less
-                                  susceptible to fuzzing attacks, but lower
-                                  transfer speeds.
---display-all-vars                On a Lua error, show all variables, not just
-                                  related.
---scheduler-tick-rate=number      The fallback tickrate (Hz) for a schedule that
-                                  yields nil. (default 60).
---max-post-length=number          The maximum length of the post data.
-]])
-		return
+		return usage()
 	end
 	
 	if script.arguments[1] == "listen" then
