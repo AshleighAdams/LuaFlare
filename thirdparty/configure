@@ -2,9 +2,7 @@
 
 local config = [[
 PREFIX = $(DESTDIR)%PREFIX
-# empty = the system's provided one
-LUA_VERSION =
-LUA = lua$(LUA_VERSION)
+LUA = %LUA
 
 # tools
 CP = %cp --remove-destination
@@ -91,6 +89,11 @@ local function set_prefix()
 	local prefix = find_arg("prefix", "/usr")
 	print("prefix: " .. prefix)
 	config = config:gsub("%%PREFIX", prefix)
+end
+
+local function set_lua()
+	local v = find_arg("lua", "lua")
+	config = config:gsub("%%LUA", v)
 end
 
 local function set_tools()
@@ -189,6 +192,7 @@ end
 install = {}
 
 set_prefix()
+set_lua()
 set_tools()
 set_user()
 set_nginx()
