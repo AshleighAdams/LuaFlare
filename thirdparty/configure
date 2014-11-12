@@ -1,30 +1,31 @@
 #!/usr/bin/env lua
 
 local config = [[
-PREFIX = $(DESTDIR)%PREFIX
-LUA = %LUA
+PREFIX = $(DESTDIR)%PREFIX%
+LUA = %LUA%
+LUA_DEPENDS = %LUA_DEPENDS%
 
 # tools
-CP = %cp --remove-destination
-MKDIR = %mkdir -p
-CAT = %cat
-SED = %sed
-LN = %ln -sf
-GIT = %git
+CP = %cp% --remove-destination
+MKDIR = %mkdir% -p
+CAT = %cat%
+SED = %sed%
+LN = %ln% -sf
+GIT = %git%
 
-USER = %USER
-SERVICE_SYSTEM = %SERVICE
-NGINX_SITE_HTTP_PORT = %NGINX_HTTP_PORT
-NGINX_SITE_HTTPS_PORT = %NGINX_HTTPS_PORT
+USER = %USER%
+SERVICE_SYSTEM = %SERVICE%
+NGINX_SITE_HTTP_PORT = %NGINX_HTTP_PORT%
+NGINX_SITE_HTTPS_PORT = %NGINX_HTTPS_PORT%
 
 
 LUASERVER_LIB_DIR       = $(PREFIX)/lib/luaserver
 LUASERVER_LIB_DIR_STR   = $(subst $(DESTDIR),,$(LUASERVER_LIB_DIR))
 LUASERVER_CFG_DIR       = $(DESTDIR)/etc/luaserver
 LUASERVER_CFG_DIR_STR   = $(subst $(DESTDIR),,$(LUASERVER_CFG_DIR))
-NGINX_DIR               = $(DESTDIR)%NGINX_DIR
-BASH_COMPLETION_DIR     = $(DESTDIR)#%BASH_COMPLETION_DIR
-SYSTEMD_UNIT_DIR        = $(DESTDIR)#%SYSTEMD_UNIT_DIR
+NGINX_DIR               = $(DESTDIR)%NGINX_DIR%
+BASH_COMPLETION_DIR     = $(DESTDIR)#%BASH_COMPLETION_DIR%
+SYSTEMD_UNIT_DIR        = $(DESTDIR)#%SYSTEMD_UNIT_DIR%
 
 # auto
 VERSION=`$(GIT) describe --tags --always`
@@ -75,9 +76,9 @@ end
 
 local function find_arg(name, default)
 	name = escape_pattern(name)
-	local patt = string.format("--%s=(.+)", name)
+	local patt = string.format("%%-%%-%s=(.+)", name)
 	for k,v in pairs(arg) do
-		local found = v:match(patt)
+		local found = v:match(patt) or (v:match("%-%-" .. name) and "" or nil)
 		if found then return found end
 	end
 	
@@ -88,19 +89,19 @@ end
 local function set_prefix()
 	local prefix = find_arg("prefix", "/usr")
 	print("prefix: " .. prefix)
-	config = config:gsub("%%PREFIX", prefix)
+	config = config:gsub("%%PREFIX%%", prefix)
 end
 
 local function set_lua()
 	local v = find_arg("lua", "lua")
-	config = config:gsub("%%LUA", v)
+	config = config:gsub("%%LUA%%", v)
 end
 
 local function set_tools()
 	local tools = {"cp", "mkdir", "cat", "sed", "ln", "git"}
 	for k,tool in ipairs(tools) do
 		local path = find_program(tool)
-		config = config:gsub("%%" .. escape_pattern(tool), path)
+		config = config:gsub("%%" .. escape_pattern(tool) .. "%%", path)
 	end
 end
 
@@ -108,13 +109,14 @@ local function set_user()
 	local user = find_arg("user", "www-data")
 	
 	print("user: " .. user)
-	config = config:gsub("%%USER", escape_gsub(user))
+	config = config:gsub("%%USER%%", escape_gsub(user))
 end
 
 local function set_nginx()
+	if find_arg("no-nginx") ~= nil then return end
+	
 	-- make sure they have nginx installed
-	local nginx = find_program("nginx", false)
-	if not nginx then return end
+	local nginx = find_program("nginx")
 	
 	local proc = io.popen(nginx.." -V 2> /dev/stdout")
 	local output = proc:read("*a")
@@ -127,15 +129,15 @@ local function set_nginx()
 	end
 	
 	print("nginx dir: " .. location)
-	config = config:gsub("%%NGINX_DIR", location)
+	config = config:gsub("%%NGINX_DIR%%", location)
 	
 	local http_port = find_arg("nginx-http-port", "80")
 	local https_port = find_arg("nginx-https-port", "443")
 	
 	print("nginx http/https ports: " .. http_port .. " & " .. https_port)
 	
-	config = config:gsub("%%NGINX_HTTP_PORT", http_port)
-	config = config:gsub("%%NGINX_HTTPS_PORT", https_port)
+	config = config:gsub("%%NGINX_HTTP_PORT%%", http_port)
+	config = config:gsub("%%NGINX_HTTPS_PORT%%", https_port)
 	table.insert(install, "install-nginx-site")
 end
 
@@ -146,18 +148,18 @@ local function set_system_service()
 		system_service = find_arg("system-service")
 	elseif find_program("systemd", false) then
 		system_service = "systemd"
-	elseif find_program("upstart", false) then
+	elseif find_program("initctl", false) then
 		system_service = "upstart"
 	elseif find_program("init", false) then
 		system_service = "sysvinit"
+	else
+		print("no system service manager found")
+		return
 	end
 	
 	print("system service: " .. system_service)
-	config = config:gsub("%%SERVICE", system_service or "")
-	
-	if system_service ~= nil then
-		table.insert(install, "install-service")
-	end
+	table.insert(install, "install-service")
+	config = config:gsub("%%SERVICE%%", system_service or "")
 	
 	if system_service == "systemd" then
 		local unit_path = find_arg("systemd-unit-path")
@@ -171,7 +173,9 @@ local function set_system_service()
 		end
 		
 		print("systemd unit path: " .. unit_path)
-		config = config:gsub("#%%SYSTEMD_UNIT_DIR", unit_path)
+		config = config:gsub("#%%SYSTEMD_UNIT_DIR%%", unit_path)
+		
+		table.insert(lua_depends, "systemd.daemon")
 	end
 end
 
@@ -186,10 +190,11 @@ local function set_bash_dir()
 	table.insert(install, "install-bash-completion")
 	
 	print("bash completion dir: " .. path)
-	config = config:gsub("#%%BASH_COMPLETION_DIR", path)
+	config = config:gsub("#%%BASH_COMPLETION_DIR%%", path)
 end
 
 install = {}
+lua_depends = {"bit", "lfs", "md5", "posix", "socket", "ssl", "xssfilter"}
 
 set_prefix()
 set_lua()
@@ -199,6 +204,7 @@ set_nginx()
 set_system_service()
 set_bash_dir()
 
+config = config:gsub("%%LUA_DEPENDS%%", escape_gsub(table.concat(lua_depends, " ")))
 config = config .. "install-extra: " .. table.concat(install, " ")
 
 local f = assert(io.open("config", "w"))

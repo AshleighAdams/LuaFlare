@@ -1,11 +1,6 @@
 include config
 
-LUA_DEPENDS = bit lfs md5 posix socket ssl xssfilter
-ifeq ("$(SERVICE_SYSTEM)","systemd")	
-	LUA_DEPENDS += systemd.daemon
-endif
-
-all: check-dependencies
+all:
 
 check-dependencies:
 	@if $(LUA) -v > /dev/null; then \
@@ -83,7 +78,7 @@ install-nginx-site:
 		> "$(NGINX_DIR)/sites-available/luaserver";
 	
 	$(LN) $(NGINX_DIR)/sites-available/luaserver $(NGINX_DIR)/sites-enabled/luaserver
-	systemctl restart nginx.service
+	service nginx restart # systemd / upstart should impliment this
 
 install-bash-completion:
 	$(CAT) luaserver.bash-completion \
@@ -91,4 +86,4 @@ install-bash-completion:
 		| $(SED) "s|LUASERVER_CFG_DIR|$(LUASERVER_CFG_DIR_STR)|g" \
 	> "$(BASH_COMPLETION_DIR)/luaserver"
 
-install: install-bin install-shared install-extra
+install: check-dependencies install-bin install-shared install-extra
