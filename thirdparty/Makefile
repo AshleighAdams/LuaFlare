@@ -66,16 +66,12 @@ ifeq ($(SERVICE_SYSTEM),systemd)
 	systemctl daemon-reload && \
 	systemctl enable luaserver.service && \
 	systemctl restart luaserver.service
-else
-ifeq ($(SERVICE_SYSTEM),sysvinit)
+else ifeq ($(SERVICE_SYSTEM),sysvinit)
 	$(error Sysvinit not imp)
-else
-ifeq ($(SERVICE_SYSTEM),upstart)
+else ifeq ($(SERVICE_SYSTEM),upstart)
 	$(error Upstart not imp)
 else
 	$(error Unknown service system $(SERVICE_SYSTEM))
-endif
-endif
 endif
 
 install-nginx-site:
