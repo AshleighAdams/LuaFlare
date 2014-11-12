@@ -13,6 +13,16 @@ do
 		depth = depth + 1
 	end
 	
+	local version = tonumber(_VERSION:match("[%d%.]+"))
+	local _ENV = _ENV
+	
+	if version <= 5.1 then
+		-- simulate _ENV
+		_ENV = setmetatable({}, {__newindex = function(self, k, v)
+			getfenv()[k] = v
+		end})
+	end
+	
 	local i = 1
 	while true do
 		local name, val = debug.getlocal(depth, i)

@@ -58,6 +58,7 @@ do -- for require() to check modules path
 	package.cpath = luaserver.lib_path .. "/libs/?.so;" .. tcp
 end
 
+dofile(luaserver.lib_path .. "/inc/compatibility-5.1.lua")
 dofile(luaserver.lib_path .. "/inc/util.lua")
 dofile(luaserver.lib_path .. "/inc/syntax_extensions.lua")
 
