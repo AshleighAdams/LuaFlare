@@ -1,0 +1,23 @@
+#!upstart
+description     "Lua web server"
+author          "Kate Adams <self@kateadams.eu>"
+
+# /etc/init/luaserver.conf
+
+# no start option as you might not want it to auto-start
+# This might not be supported - you might need a: start on runlevel [3]
+#stop on runlevel [!2345]
+
+start on runlevel [2345]
+stop on runlevel [016]
+
+
+# if you want it to automatically restart if it crashes, leave the next line in
+respawn
+
+script
+    cd LUASERVER_LIB_DIR
+    sudo -u USER "LUASERVER_BIN_DIR/luaserver" listen >> /var/log/luaserver.log 2>&1
+end script
+
+# exec start-stop-daemon --start --make-pidfile --pidfile /var/run/luaserver.pid --chuid USER --exec "LUASERVER_BIN_DIR/luaserver" listen >> /var/log/luaserver.log 2>&1
