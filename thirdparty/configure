@@ -39,16 +39,18 @@ local function escape_gsub(i)
 	return (i:gsub("%%", "%%%%"))
 end
 
+local paths
 local function find_program(name, shoulderror)
-	local paths = {
-		"/bin/?",
-		"/sbin/?",
-		"/usr/bin/?",
-		"/usr/sbin/?",
-		"/usr/local/bin/?",
-		"/usr/local/sbin/?",
-		"?" -- last attempt
-	}
+	if not paths then
+		paths = {}
+		
+		local path_env = os.getenv("PATH"):gsub("([^:]+)", function(path)
+			table.insert(paths, path .. "/?")
+			if path:sub(-4) == "/bin" then
+				table.insert(paths, path:sub(1, -5) .. "/sbin/?")
+			end
+		end)
+	end
 	
 	io.stdout:write("locating " .. name .. "... ")
 	name = escape_gsub(name)
