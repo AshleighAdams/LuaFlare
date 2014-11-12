@@ -1,35 +1,40 @@
 #!/usr/bin/env lua
 
 local config = [[
-PREFIX = $(DESTDIR)%PREFIX%
-LUA = %LUA%
-LUA_DEPENDS = %LUA_DEPENDS%
+PREFIX = $(DESTDIR)%PREFIX
+LUA = %LUA
+LUA_DEPENDS = %LUA_DEPENDS
 
 # tools
-CP = %cp% --remove-destination
-MKDIR = %mkdir% -p
-CAT = %cat%
-SED = %sed%
-LN = %ln% -sf
-GIT = %git%
+CP = %cp --remove-destination
+MKDIR = %mkdir -p
+CAT = %cat
+SED = %sed
+LN = %ln -sf
+GIT = %git
 
-USER = %USER%
-SERVICE_SYSTEM = %SERVICE%
-NGINX_SITE_HTTP_PORT = %NGINX_HTTP_PORT%
-NGINX_SITE_HTTPS_PORT = %NGINX_HTTPS_PORT%
+USER = %USER
+SERVICE_SYSTEM = %SERVICE
+NGINX_SITE_HTTP_PORT = %NGINX_HTTP_PORT
+NGINX_SITE_HTTPS_PORT = %NGINX_HTTPS_PORT
 
 
 LUASERVER_LIB_DIR       = $(PREFIX)/lib/luaserver
 LUASERVER_LIB_DIR_STR   = $(subst $(DESTDIR),,$(LUASERVER_LIB_DIR))
 LUASERVER_CFG_DIR       = $(DESTDIR)/etc/luaserver
 LUASERVER_CFG_DIR_STR   = $(subst $(DESTDIR),,$(LUASERVER_CFG_DIR))
-NGINX_DIR               = $(DESTDIR)%NGINX_DIR%
-BASH_COMPLETION_DIR     = $(DESTDIR)#%BASH_COMPLETION_DIR%
-SYSTEMD_UNIT_DIR        = $(DESTDIR)#%SYSTEMD_UNIT_DIR%
+NGINX_DIR               = $(DESTDIR)%NGINX_DIR
+BASH_COMPLETION_DIR     = $(DESTDIR)%BASH_COMPLETION_DIR
+SYSTEMD_UNIT_DIR        = $(DESTDIR)%SYSTEMD_UNIT_DIR
 
 # auto
 VERSION=`$(GIT) describe --tags --always`
 ]]
+
+local vars = {}
+local function set_var(key, value)
+	vars[key] = value
+end
 
 local function escape_pattern(i)
 	return (i:gsub("[%-%+%(%)%[%]%.%?]", "%%%1"))
@@ -91,19 +96,19 @@ end
 local function set_prefix()
 	local prefix = find_arg("prefix", "/usr")
 	print("prefix: " .. prefix)
-	config = config:gsub("%%PREFIX%%", prefix)
+	set_var("PREFIX", prefix)
 end
 
 local function set_lua()
 	local v = find_arg("lua", "lua")
-	config = config:gsub("%%LUA%%", v)
+	set_var("LUA", v)
 end
 
 local function set_tools()
 	local tools = {"cp", "mkdir", "cat", "sed", "ln", "git"}
 	for k,tool in ipairs(tools) do
 		local path = find_program(tool)
-		config = config:gsub("%%" .. escape_pattern(tool) .. "%%", path)
+		set_var(tool, path)
 	end
 end
 
@@ -111,7 +116,7 @@ local function set_user()
 	local user = find_arg("user", "www-data")
 	
 	print("user: " .. user)
-	config = config:gsub("%%USER%%", escape_gsub(user))
+	set_var("USER", user)
 end
 
 local function set_nginx()
@@ -131,15 +136,15 @@ local function set_nginx()
 	end
 	
 	print("nginx dir: " .. location)
-	config = config:gsub("%%NGINX_DIR%%", location)
+	set_var("NGINX_DIR", location)
 	
 	local http_port = find_arg("nginx-http-port", "80")
 	local https_port = find_arg("nginx-https-port", "443")
 	
 	print("nginx http/https ports: " .. http_port .. " & " .. https_port)
 	
-	config = config:gsub("%%NGINX_HTTP_PORT%%", http_port)
-	config = config:gsub("%%NGINX_HTTPS_PORT%%", https_port)
+	set_var("NGINX_HTTP_PORT", http_port)
+	set_var("NGINX_HTTPS_PORT", https_port)
 	table.insert(install, "install-nginx-site")
 end
 
@@ -161,7 +166,7 @@ local function set_system_service()
 	
 	print("system service: " .. system_service)
 	table.insert(install, "install-service")
-	config = config:gsub("%%SERVICE%%", system_service or "")
+	set_var("SERVICE", system_service)
 	
 	if system_service == "systemd" then
 		local unit_path = find_arg("systemd-unit-path")
@@ -175,7 +180,7 @@ local function set_system_service()
 		end
 		
 		print("systemd unit path: " .. unit_path)
-		config = config:gsub("#%%SYSTEMD_UNIT_DIR%%", unit_path)
+		set_var("SYSTEMD_UNIT_DIR", unit_path)
 		
 		table.insert(lua_depends, "systemd.daemon")
 	end
@@ -192,7 +197,7 @@ local function set_bash_dir()
 	table.insert(install, "install-bash-completion")
 	
 	print("bash completion dir: " .. path)
-	config = config:gsub("#%%BASH_COMPLETION_DIR%%", path)
+	set_var("BASH_COMPLETION_DIR", path)
 end
 
 install = {}
@@ -206,10 +211,20 @@ set_nginx()
 set_system_service()
 set_bash_dir()
 
-config = config:gsub("%%LUA_DEPENDS%%", escape_gsub(table.concat(lua_depends, " ")))
+set_var("LUA_DEPENDS", table.concat(lua_depends, " "))
+
+config = config:gsub("%%([A-Za-z_][A-Za-z0-9_]+)", function(name)
+	local ret = vars[name]
+	if not ret then
+		print("warning: unusued variable " .. name)
+		return ""
+	end
+	return ret
+end)
 config = config .. "install-extra: " .. table.concat(install, " ")
 
 local f = assert(io.open("config", "w"))
 f:write(config)
 f:close()
 
+print("configuring complete")
