@@ -45,7 +45,7 @@ local luaserver
 do -- for require() to check modules path
 	local tp, tcp = package.path, package.cpath
 	
-	local path = arg[0]:match("(.+)/")
+	local path = arg[0]:match("(.+)/") or "."
 	if path:sub(-4, -1) == "/bin" then
 		path = path:sub(1, -5) .. "/lib/luaserver"
 	end
