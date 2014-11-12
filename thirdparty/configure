@@ -1,0 +1,203 @@
+#!/usr/bin/env lua
+
+local config = [[
+PREFIX = $(DESTDIR)%PREFIX
+# empty = the system's provided one
+LUA_VERSION =
+LUA = lua$(LUA_VERSION)
+
+# tools
+CP = %cp --remove-destination
+MKDIR = %mkdir -p
+CAT = %cat
+SED = %sed
+LN = %ln -sf
+GIT = %git
+
+USER = %USER
+SERVICE_SYSTEM = %SERVICE
+NGINX_SITE_HTTP_PORT = %NGINX_HTTP_PORT
+NGINX_SITE_HTTPS_PORT = %NGINX_HTTPS_PORT
+
+
+LUASERVER_LIB_DIR       = $(PREFIX)/lib/luaserver
+LUASERVER_LIB_DIR_STR   = $(subst $(DESTDIR),,$(LUASERVER_LIB_DIR))
+LUASERVER_CFG_DIR       = $(DESTDIR)/etc/luaserver
+LUASERVER_CFG_DIR_STR   = $(subst $(DESTDIR),,$(LUASERVER_CFG_DIR))
+NGINX_DIR               = $(DESTDIR)%NGINX_DIR
+BASH_COMPLETION_DIR     = $(DESTDIR)#%BASH_COMPLETION_DIR
+SYSTEMD_UNIT_DIR        = $(DESTDIR)#%SYSTEMD_UNIT_DIR
+
+# auto
+VERSION=`$(GIT) describe --tags --always`
+]]
+
+local function escape_pattern(i)
+	return (i:gsub("[%-%+%(%)%[%]%.%?]", "%%%1"))
+end
+
+local function escape_gsub(i)
+	return (i:gsub("%%", "%%%%"))
+end
+
+local function find_program(name, shoulderror)
+	local paths = {
+		"/bin/?",
+		"/sbin/?",
+		"/usr/bin/?",
+		"/usr/sbin/?",
+		"/usr/local/bin/?",
+		"/usr/local/sbin/?",
+		"?" -- last attempt
+	}
+	
+	io.stdout:write("locating " .. name .. "... ")
+	name = escape_gsub(name)
+	
+	for k,path in ipairs(paths) do
+		path = path:gsub("%?", name)
+		local got = io.open(path, "r")
+		
+		if got then
+			got:close()
+			print("okay: " .. path)
+			return path
+		end
+	end
+	
+	if shoulderror == nil or shoulderror == true then
+		print("error: not found")
+		os.exit(1)
+	else
+		print("not found")
+	end
+	
+	return nil
+end
+
+local function find_arg(name, default)
+	name = escape_pattern(name)
+	local patt = string.format("--%s=(.+)", name)
+	for k,v in pairs(arg) do
+		local found = v:match(patt)
+		if found then return found end
+	end
+	
+	return default
+end
+
+
+local function set_prefix()
+	local prefix = find_arg("prefix", "/usr")
+	print("prefix: " .. prefix)
+	config = config:gsub("%%PREFIX", prefix)
+end
+
+local function set_tools()
+	local tools = {"cp", "mkdir", "cat", "sed", "ln", "git"}
+	for k,tool in ipairs(tools) do
+		local path = find_program(tool)
+		config = config:gsub("%%" .. escape_pattern(tool), path)
+	end
+end
+
+local function set_user()
+	local user = find_arg("user", "www-data")
+	
+	print("user: " .. user)
+	config = config:gsub("%%USER", escape_gsub(user))
+end
+
+local function set_nginx()
+	-- make sure they have nginx installed
+	local nginx = find_program("nginx", false)
+	if not nginx then return end
+	
+	local proc = io.popen(nginx.." -V 2> /dev/stdout")
+	local output = proc:read("*a")
+	proc:close()
+	
+	local location = output:match("%-%-conf%-path=(.-)/nginx%.conf")
+	if not location then
+		print("could not locate nginx's configuration path")
+		os.exit(1)
+	end
+	
+	print("nginx dir: " .. location)
+	config = config:gsub("%%NGINX_DIR", location)
+	
+	local http_port = find_arg("nginx-http-port", "80")
+	local https_port = find_arg("nginx-https-port", "443")
+	
+	print("nginx http/https ports: " .. http_port .. " & " .. https_port)
+	
+	config = config:gsub("%%NGINX_HTTP_PORT", http_port)
+	config = config:gsub("%%NGINX_HTTPS_PORT", https_port)
+	table.insert(install, "install-nginx-site")
+end
+
+local function set_system_service()
+	local system_service
+	
+	if find_arg("system-service") then
+		system_service = find_arg("system-service")
+	elseif find_program("systemd", false) then
+		system_service = "systemd"
+	elseif find_program("upstart", false) then
+		system_service = "upstart"
+	elseif find_program("init", false) then
+		system_service = "sysvinit"
+	end
+	
+	print("system service: " .. system_service)
+	config = config:gsub("%%SERVICE", system_service or "")
+	
+	if system_service ~= nil then
+		table.insert(install, "install-service")
+	end
+	
+	if system_service == "systemd" then
+		local unit_path = find_arg("systemd-unit-path")
+		
+		if not unit_path then
+			local systemctl = io.popen(find_program("systemctl") .. " show")
+			local output = systemctl:read("*a")
+			systemctl:close()
+			
+			unit_path = output:match("UnitPath=(.-)%s")
+		end
+		
+		print("systemd unit path: " .. unit_path)
+		config = config:gsub("#%%SYSTEMD_UNIT_DIR", unit_path)
+	end
+end
+
+local function set_bash_dir()
+	local p = io.popen(find_program("locate") .. " bash_completion.d")
+	local path = p:read("*l")
+	p:close()
+	
+	if not path then
+		return print("bash completion path not found")
+	end
+	table.insert(install, "install-bash-completion")
+	
+	print("bash completion dir: " .. path)
+	config = config:gsub("#%%BASH_COMPLETION_DIR", path)
+end
+
+install = {}
+
+set_prefix()
+set_tools()
+set_user()
+set_nginx()
+set_system_service()
+set_bash_dir()
+
+config = config .. "install-extra: " .. table.concat(install, " ")
+
+local f = assert(io.open("config", "w"))
+f:write(config)
+f:close()
+

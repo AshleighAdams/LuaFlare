@@ -1,33 +1,22 @@
-# vars
-PREFIX=$(DESTDIR)/usr
-LUASERVER_LIB_DIR=$(PREFIX)/lib/luaserver
-LUASERVER_CFG_DIR=$(DESTDIR)/etc/luaserver
-NGINX_DIR=$(DESTDIR)/etc/nginx
-BASH_COMPLETION_DIR=$(DESTDIR)/etc/bash_completion.d
-SYSTEMD_SERVICE_DIR=$(DESTDIR)/etc/systemd/system
-USER=www-data
-NGINX_SITE_HTTP_PORT=80
-NGINX_SITE_HTTPS_PORT=443
-LUA_DEPENDS=bit lfs md5 posix socket ssl systemd.daemon xssfilter
+include config
 
-# tools
-CP=cp --remove-destination
-MKDIR=mkdir -p
-CAT=cat
-SED=sed
-LN=ln -sf
+LUA_DEPENDS = bit lfs md5 posix socket ssl xssfilter
+ifeq ("$(SERVICE_SYSTEM)","systemd")	
+	LUA_DEPENDS += systemd.daemon
+endif
 
-# auto
-VERSION=`git describe --tags --always`
-LUASERVER_LIB_DIR_STR=$(subst $(DESTDIR),,$(LUASERVER_LIB_DIR))
-LUASERVER_CFG_DIR_STR=$(subst $(DESTDIR),,$(LUASERVER_CFG_DIR))
-
-all:
+all: check-dependencies
 
 check-dependencies:
+	@if $(LUA) -v > /dev/null; then \
+		echo "Lua$(LUA_VERSION) found"; \
+	else \
+		echo "Lua$(LUA_VERSION) not found"; \
+		exit 1; \
+	fi;
 	@for dep in $(LUA_DEPENDS) ; do \
 		echo -n "checking $$dep... "; \
-		if lua -l $$dep -e "" 2> /dev/null; then\
+		if $(LUA) -l $$dep -e "" 2> /dev/null; then \
 			echo "okay"; \
 		else \
 			echo "fail"; \
@@ -67,13 +56,25 @@ install-shared-ownership:
 install-shared: install-shared-files install-shared-ownership
 
 install-service:
+ifeq ($(SERVICE_SYSTEM),systemd)
 	$(CAT) luaserver.service \
 		| $(SED) "s|LUASERVER_LIB_DIR|$(LUASERVER_LIB_DIR_STR)|g" \
 		| $(SED) "s|LUASERVER_CFG_DIR|$(LUASERVER_CFG_DIR_STR)|g" \
-		> $(SYSTEMD_SERVICE_DIR)/luaserver.service
+		> $(SYSTEMD_UNIT_DIR)/luaserver.service
 	systemctl daemon-reload && \
 	systemctl enable luaserver.service && \
 	systemctl restart luaserver.service
+else
+ifeq ($(SERVICE_SYSTEM),sysvinit)
+	$(error Sysvinit not imp)
+else
+ifeq ($(SERVICE_SYSTEM),upstart)
+	$(error Upstart not imp)
+else
+	$(error Unknown service system $(SERVICE_SYSTEM))
+endif
+endif
+endif
 
 install-nginx-site:
 	$(CAT) luaserver.nginx \
@@ -92,4 +93,4 @@ install-bash-completion:
 		| $(SED) "s|LUASERVER_CFG_DIR|$(LUASERVER_CFG_DIR_STR)|g" \
 	> "$(BASH_COMPLETION_DIR)/luaserver"
 
-install: check-dependencies install-bin install-shared install-service install-nginx-site install-bash-completion
+install: install-bin install-shared install-extra
