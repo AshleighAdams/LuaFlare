@@ -22,7 +22,7 @@ check-dependencies:
 install-bin:
 	$(CAT) ../luaserver.lua \
 		| $(SED) "s|#!/usr/bin/env lua|#!/usr/bin/env $(LUA)|" \
-		> $(PREFIX)/bin/luaserver
+		> $(LUASERVER_BIN_DIR)/luaserver
 
 install-shared-files:
 	$(MKDIR) $(LUASERVER_LIB_DIR)
@@ -52,22 +52,28 @@ install-shared-ownership:
 
 install-shared: install-shared-files install-shared-ownership
 
-install-service:
-ifeq ($(SERVICE_SYSTEM),systemd)
-	$(CAT) luaserver.service \
+install-systemd-service:
+	$(CAT) luaserver.systemd \
 		| $(SED) "s|LUASERVER_LIB_DIR|$(LUASERVER_LIB_DIR_STR)|g" \
 		| $(SED) "s|LUASERVER_CFG_DIR|$(LUASERVER_CFG_DIR_STR)|g" \
+		| $(SED) "s|LUASERVER_BIN_DIR|$(LUASERVER_BIN_DIR_STR)|g" \
+		| $(SED) "s|USER|$(USER)|g" \
 		> $(SYSTEMD_UNIT_DIR)/luaserver.service
 	systemctl daemon-reload && \
 	systemctl enable luaserver.service && \
 	systemctl restart luaserver.service
-else ifeq ($(SERVICE_SYSTEM),sysvinit)
-	$(error Sysvinit not imp)
-else ifeq ($(SERVICE_SYSTEM),upstart)
+
+install-sysvinit-service:
+	$(CAT) luaserver.sysvinit \
+		| $(SED) "s|LUASERVER_LIB_DIR|$(LUASERVER_LIB_DIR_STR)|g" \
+		| $(SED) "s|LUASERVER_CFG_DIR|$(LUASERVER_CFG_DIR_STR)|g" \
+		| $(SED) "s|LUASERVER_BIN_DIR|$(LUASERVER_BIN_DIR_STR)|g" \
+		| $(SED) "s|_USER|$(USER)|g" \
+		> $(SYSVINIT_DAEMON_DIR)/luaserver
+	chmod +x $(SYSVINIT_DAEMON_DIR)/luaserver
+	
+install-upstart-service:
 	$(error Upstart not imp)
-else
-	$(error Unknown service system $(SERVICE_SYSTEM))
-endif
 
 install-nginx-site:
 	$(CAT) luaserver.nginx \

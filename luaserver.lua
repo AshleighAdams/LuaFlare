@@ -166,13 +166,6 @@ function main()
 	end
 end
 
-if script.options["out-pid"] ~= nil then
-	local f = io.open(script.options["out-pid"], "w")
-	f:write(tostring(script.pid()))
-	f:close()
-	print("Wrote PID to " .. script.options["out-pid"])
-end
-
 -- update task name:
 do
 	local f = io.open("/proc/self/comm", "r")

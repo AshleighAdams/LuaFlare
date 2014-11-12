@@ -21,11 +21,14 @@ NGINX_SITE_HTTPS_PORT = %NGINX_HTTPS_PORT
 
 LUASERVER_LIB_DIR       = $(PREFIX)/lib/luaserver
 LUASERVER_LIB_DIR_STR   = $(subst $(DESTDIR),,$(LUASERVER_LIB_DIR))
+LUASERVER_BIN_DIR       = $(PREFIX)/bin
+LUASERVER_BIN_DIR_STR   = $(subst $(DESTDIR),,$(LUASERVER_BIN_DIR))
 LUASERVER_CFG_DIR       = $(DESTDIR)/etc/luaserver
 LUASERVER_CFG_DIR_STR   = $(subst $(DESTDIR),,$(LUASERVER_CFG_DIR))
 NGINX_DIR               = $(DESTDIR)%NGINX_DIR
 BASH_COMPLETION_DIR     = $(DESTDIR)%BASH_COMPLETION_DIR
 SYSTEMD_UNIT_DIR        = $(DESTDIR)%SYSTEMD_UNIT_DIR
+SYSVINIT_DAEMON_DIR     = $(DESTDIR)%SYSVINIT_DAEMON_DIR
 
 # auto
 VERSION=`$(GIT) describe --tags --always`
@@ -160,13 +163,13 @@ local function set_system_service()
 	elseif find_program("init", false) then
 		system_service = "sysvinit"
 	else
-		print("no system service manager found")
+		print("no system service manager found, will not install system daemon")
 		return
 	end
 	
 	print("system service: " .. system_service)
-	table.insert(install, "install-service")
 	set_var("SERVICE", system_service)
+	table.insert(install, "install-" .. system_service .. "-service")
 	
 	if system_service == "systemd" then
 		local unit_path = find_arg("systemd-unit-path")
@@ -183,6 +186,8 @@ local function set_system_service()
 		set_var("SYSTEMD_UNIT_DIR", unit_path)
 		
 		table.insert(lua_depends, "systemd.daemon")
+	elseif system_service == "sysvinit" then
+		set_var("SYSVINIT_DAEMON_DIR", "/etc/init.d")
 	end
 end
 
@@ -221,7 +226,7 @@ config = config:gsub("%%([A-Za-z_][A-Za-z0-9_]+)", function(name)
 	end
 	return ret
 end)
-config = config .. "install-extra: " .. table.concat(install, " ")
+config = config .. "\ninstall-extra: " .. table.concat(install, " ")
 
 local f = assert(io.open("config", "w"))
 f:write(config)

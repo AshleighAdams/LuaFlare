@@ -1,0 +1,70 @@
+#!/lib/init/init-d-script
+### BEGIN INIT INFO
+# Provides:          luaserver
+# Required-Start:    $local_fs $remote_fs $network $syslog
+# Required-Stop:     $local_fs $remote_fs $network $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: LuaServer
+# Description:       Lua web server
+### END INIT INFO
+
+# Author: Kate Adams <self@kateadams.eu>
+
+USER=_USER
+LUASERVER=LUASERVER_BIN_DIR/luaserver
+DIR=LUASERVER_LIB_DIR
+
+NAME="luaserver"
+DESC="Lua web server"
+DAEMON="none"
+PIDFILE="/var/run/luaserver.pid"
+
+do_start_cmd() {
+	if [ -f $PIDFILE ]; then
+		proc=`cat $PIDFILE`
+		if [ -d "/proc/$proc" ]; then
+			return 1 # already running
+		else
+			rm $PIDFILE
+		fi
+	fi
+	
+	touch "$PIDFILE"
+	chown "$USER" "$PIDFILE"
+	
+	cd $DIR
+	nohup sudo -u "$USER" "$LUASERVER" listen --out-pid="$PIDFILE"
+	cd -
+	
+	# wait for them to start
+	i=0;
+	while [ ! -f $PIDFILE ]; do
+		sleep 0.1;
+		i=$((i+1))
+		if [ $((i)) = 301 ]; then
+			log_progress_msg "timed out" || true
+			return 2 # failed to start
+		fi
+	done
+		
+	return 0 # okay
+}
+
+do_stop_cmd() {
+	if [ -f $PIDFILE ]; then
+		proc=`cat $PIDFILE`
+		if [ -d "/proc/$proc" ]; then
+			kill $proc
+		fi
+		rm "$PIDFILE"
+	fi
+}
+
+do_status() {
+	status_of_proc -p $PIDFILE "$DAEMON" "$NAME" && return 0 || return $?
+}
+
+do_usage() {
+	echo "Usage: service $NAME {start|stop|status|restart}" >&2
+}
