@@ -22,7 +22,8 @@ check-dependencies:
 install-bin:
 	$(CAT) ../luaserver.lua \
 		| $(SED) "s|#!/usr/bin/env lua|#!/usr/bin/env $(LUA)|" \
-		> $(LUASERVER_BIN_DIR)/luaserver
+		> $(LUASERVER_BIN_DIR)/luaserver && \
+	chmod +x $(LUASERVER_BIN_DIR)/luaserver
 
 install-shared-files:
 	$(MKDIR) $(LUASERVER_LIB_DIR)
