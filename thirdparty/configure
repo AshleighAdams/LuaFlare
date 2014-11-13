@@ -213,7 +213,7 @@ local function set_bash_dir()
 end
 
 install = {}
-lua_depends = {"bit", "lfs", "md5", "posix", "socket", "ssl", "xssfilter"}
+lua_depends = {"bit", "lfs", "md5", "posix", "socket", "ssl"}
 
 set_prefix()
 set_lua()
