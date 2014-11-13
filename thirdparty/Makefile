@@ -71,9 +71,10 @@ install-sysvinit-service:
 		| $(SED) "s|_USER|$(USER)|g" \
 		> $(SYSVINIT_DAEMON_DIR)/luaserver
 	chmod +x $(SYSVINIT_DAEMON_DIR)/luaserver
+	update-rc.d luaserver defaults
 	
-install-upstart-service:
-	$(error Upstart not imp)
+install-upstart-service: install-sysvinit-service
+	echo "upstart daemon not implimented, falling back to sysvinit"
 
 install-nginx-site:
 	$(CAT) luaserver.nginx \

@@ -34,7 +34,7 @@ do_start_cmd() {
 	chown "$USER" "$PIDFILE"
 	
 	cd $DIR
-	nohup sudo -u "$USER" "$LUASERVER" listen --out-pid="$PIDFILE"
+	nohup sudo -u "$USER" "$LUASERVER" listen --out-pid="$PIDFILE" &
 	cd -
 	
 	# wait for them to start
