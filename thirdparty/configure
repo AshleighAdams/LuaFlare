@@ -159,7 +159,7 @@ local function set_system_service()
 	elseif find_program("systemd", false) then
 		system_service = "systemd"
 	elseif find_program("initctl", false) then
-		system_service = "upstart"
+		system_service = "sysvinit" -- "upstart" -- upstart not complete, fall back to sysvinit
 	elseif find_program("init", false) then
 		system_service = "sysvinit"
 	else
@@ -188,6 +188,8 @@ local function set_system_service()
 		table.insert(lua_depends, "systemd.daemon")
 	elseif system_service == "sysvinit" then
 		set_var("SYSVINIT_DAEMON_DIR", "/etc/init.d")
+	elseif system_service == "upstart" then
+		set_var("UPSTART_DAEMON_DIR", "/etc/init")
 	end
 end
 
