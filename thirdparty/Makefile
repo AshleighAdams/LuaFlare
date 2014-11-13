@@ -70,9 +70,10 @@ install-sysvinit-service:
 		| $(SED) "s|LUASERVER_CFG_DIR|$(LUASERVER_CFG_DIR_STR)|g" \
 		| $(SED) "s|LUASERVER_BIN_DIR|$(LUASERVER_BIN_DIR_STR)|g" \
 		| $(SED) "s|_USER|$(USER)|g" \
-		> $(SYSVINIT_DAEMON_DIR)/luaserver
-	chmod +x $(SYSVINIT_DAEMON_DIR)/luaserver
-	update-rc.d luaserver defaults
+		> $(SYSVINIT_DAEMON_DIR)/luaserver && \
+	chmod +x $(SYSVINIT_DAEMON_DIR)/luaserver && \
+	update-rc.d luaserver defaults && \
+	service luaserver start
 	
 install-upstart-service:
 	$(CAT) luaserver.upstart \
@@ -80,9 +81,8 @@ install-upstart-service:
 		| $(SED) "s|LUASERVER_CFG_DIR|$(LUASERVER_CFG_DIR_STR)|g" \
 		| $(SED) "s|LUASERVER_BIN_DIR|$(LUASERVER_BIN_DIR_STR)|g" \
 		| $(SED) "s|USER|$(USER)|g" \
-		> $(UPSTART_DAEMON_DIR)/luaserver
-	chmod +x $(UPSTART_DAEMON_DIR)/luaserver
-	update-rc.d luaserver defaults
+		> $(UPSTART_DAEMON_DIR)/luaserver.conf && \
+	service luaserver start
 
 install-nginx-site:
 	$(CAT) luaserver.nginx \
