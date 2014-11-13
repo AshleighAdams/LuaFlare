@@ -19,11 +19,6 @@ If you wish to keep your current Nginx configs, you can merge `/etc/nginx/sites-
 sudo rm /etc/nginx/sites-enabled/default
 ```
 
-### Install xssfilter
-```bash
-wget https://raw.githubusercontent.com/yuri/lua-xssfilter/master/lua/xssfilter.lua
-sudo mv xssfilter.lua /usr/share/lua/5.2/
-```
 ### Download and install LuaServer
 
 ```bash
