@@ -56,8 +56,8 @@ install-shared-files:
 	# $(CP) -r ../luaserver.cfg $(LUASERVER_CFG_DIR)/luaserver.cfg
 
 install-shared-ownership:
-	$(_CHOWN) -R $(USER):$(USER) $(LUASERVER_LIB_DIR)/
-	$(_CHOWN) -R $(USER):$(USER) $(LUASERVER_CFG_DIR)/
+	$(_CHOWN) -R $(USER):$(USER) $(LUASERVER_LIB_DIR_STR)/
+	$(_CHOWN) -R $(USER):$(USER) $(LUASERVER_CFG_DIR_STR)/
 
 install-shared: install-shared-files install-shared-ownership
 
