@@ -6,12 +6,31 @@ LUA = %LUA
 LUA_DEPENDS = %LUA_DEPENDS
 
 # tools
+PRECMD = %precmd
+
 CP = %cp --remove-destination
+_CP = $(PRECMD) $(CP)
 MKDIR = %mkdir -p
+_MKDIR = $(PRECMD) $(MKDIR)
 CAT = %cat
+_CAT = $(PRECMD) $(CAT)
 SED = %sed
+_SED = $(PRECMD) $(SED)
 LN = %ln -sf
+_LN = $(PRECMD) $(LN)
 GIT = %git
+_GIT = $(PRECMD) $(GIT)
+CHMOD = %chmod
+_CHMOD = $(PRECMD) $(CHMOD)
+CHOWN = %chown
+_CHOWN = $(PRECMD) $(CHOWN)
+SYSTEMCTL = %systemctl
+_SYSTEMCTL = $(PRECMD) $(SYSTEMCTL)
+UPDATE_RC_D = %updatercd
+_UPDATE_RC_D = $(PRECMD) $(UPDATE_RC_D)
+SERVICE = %service
+_SERVICE = $(PRECMD) $(SERVICE)
+
 
 USER                    = %USER
 SERVICE_SYSTEM          = %SERVICE
@@ -109,10 +128,15 @@ local function set_lua()
 	set_var("LUA", v)
 end
 
+
 local function set_tools()
-	local tools = {"cp", "mkdir", "cat", "sed", "ln", "git"}
+	local pre = find_arg("pre-command", "")
+	set_var("precmd", pre)
+	
 	for k,tool in ipairs(tools) do
 		local path = find_program(tool)
+		tool = tool:gsub("[^A-Za-z0-9]", "")
+		
 		set_var(tool, path)
 	end
 end
@@ -203,8 +227,10 @@ local function set_system_service()
 		print("systemd unit path: " .. unit_path)
 		set_var("SYSTEMD_UNIT_DIR", unit_path)
 		
+		table.insert(tools, "systemctl")
 		table.insert(lua_depends, "systemd.daemon")
 	elseif system_service == "sysvinit" then
+		table.insert(tools, "update-rc.d")
 		set_var("SYSVINIT_DAEMON_DIR", "/etc/init.d")
 	elseif system_service == "upstart" then
 		set_var("UPSTART_DAEMON_DIR", "/etc/init")
@@ -258,16 +284,17 @@ end
 
 install = {}
 lua_depends = {"bit", "lfs", "md5", "posix", "socket", "ssl"}
+tools = {"cp", "mkdir", "cat", "sed", "ln", "git", "chmod", "chown", "service"}
 
 set_prefix()
 set_lua()
-set_tools()
 set_user()
 set_nginx()
 set_apache()
 set_system_service()
 set_bash_dir()
 set_luaserver_postinst_opts()
+set_tools()
 
 set_var("LUA_DEPENDS", table.concat(lua_depends, " "))
 
@@ -279,7 +306,7 @@ config = config:gsub("%%([A-Za-z_][A-Za-z0-9_]+)", function(name)
 	end
 	return ret
 end)
-config = config .. "\ninstall-extra: " .. table.concat(install, " ")
+config = config .. "\ninstall-extra: " .. table.concat(install, " ") .. "\n"
 
 local f = assert(io.open("config", "w"))
 f:write(config)

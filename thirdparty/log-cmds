@@ -1,0 +1,23 @@
+#!/usr/bin/env lua
+
+local function escape_arg(input)
+	input = input:gsub(" ", "\\ ")	
+	input = input:gsub("'", "\\'")
+	input = input:gsub("\"", "\\\"")
+	input = input:gsub("\n", "\\n")
+	input = input:gsub("\r", "\\r")
+	input = input:gsub("\b", "\\b")
+	input = input:gsub("\t", "\\t")
+	
+	return input
+end
+
+
+local cmd_args = {}
+for k,v in pairs({...}) do
+	table.insert(cmd_args, escape_arg(v))
+end
+
+local f = assert(io.open("log-cmds.txt", "a"))
+f:write(table.concat(cmd_args, " ") .. "\n")
+f:close()
