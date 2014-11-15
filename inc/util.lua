@@ -320,7 +320,7 @@ end
 ------- os.*
 
 function os.capture(cmd, opts)
-	opts = opts or {stdout = true, opts.stderr = true}
+	opts = opts or {stdout = true, stderr = true}
 	if opts.stderr and opts.stdout then -- join them
 		cmd = cmd .. "2>&1"
 	elseif opts.stderr then -- swap 2 (err) for 1(out), and 1 to null

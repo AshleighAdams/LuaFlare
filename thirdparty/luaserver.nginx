@@ -6,7 +6,7 @@ server {
 
 	location / {
 		include /etc/nginx/proxy_params;
-		proxy_pass http://localhost:8080;
+		proxy_pass http://localhost:LUASERVER_PORT;
 		
 		proxy_http_version 1.1;
 		proxy_set_header Upgrade $http_upgrade;
@@ -37,7 +37,7 @@ server {
 	location / {
 		include /etc/nginx/proxy_params;
 		# proxy_set_header X-Forwarded-Ssl on;
-		proxy_pass http://localhost:8080;
+		proxy_pass http://localhost:LUASERVER_PORT;
 		
 		proxy_http_version 1.1;
 		proxy_set_header Upgrade $http_upgrade;

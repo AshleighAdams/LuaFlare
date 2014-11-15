@@ -19,11 +19,14 @@ check-dependencies:
 		fi; \
 	done
 
-install-bin:
+install-bin: install-shared
 	$(CAT) ../luaserver.lua \
 		| $(SED) "s|#!/usr/bin/env lua|#!/usr/bin/env $(LUA)|" \
 		> $(LUASERVER_BIN_DIR)/luaserver && \
 	chmod +x $(LUASERVER_BIN_DIR)/luaserver
+
+install-luaserver-opts: install-bin install-shared
+	$(LUASERVER_BIN_DIR)/luaserver $(LUASERVER_POSTINT_OPTS)
 
 install-shared-files:
 	$(MKDIR) $(LUASERVER_LIB_DIR)
@@ -45,7 +48,7 @@ install-shared-files:
 	$(MKDIR) $(LUASERVER_CFG_DIR)/sessions
 	$(MKDIR) $(LUASERVER_CFG_DIR)/sites
 	
-	$(CP) -r ../luaserver.cfg $(LUASERVER_CFG_DIR)/luaserver.cfg
+	# $(CP) -r ../luaserver.cfg $(LUASERVER_CFG_DIR)/luaserver.cfg
 
 install-shared-ownership:
 	chown -R $(USER):$(USER) $(LUASERVER_LIB_DIR)/
@@ -90,6 +93,7 @@ install-nginx-site:
 		| $(SED) "s|NGINX_SITE_HTTPS_PORT|$(NGINX_SITE_HTTPS_PORT)|g" \
 		| $(SED) "s|LUASERVER_LIB_DIR|$(LUASERVER_LIB_DIR_STR)|g" \
 		| $(SED) "s|LUASERVER_CFG_DIR|$(LUASERVER_CFG_DIR_STR)|g" \
+		| $(SED) "s|LUASERVER_PORT|$(LUASERVER_PORT)|g" \
 		> "$(NGINX_DIR)/sites-available/luaserver";
 	
 	$(LN) $(NGINX_DIR)/sites-available/luaserver $(NGINX_DIR)/sites-enabled/luaserver
@@ -101,4 +105,4 @@ install-bash-completion:
 		| $(SED) "s|LUASERVER_CFG_DIR|$(LUASERVER_CFG_DIR_STR)|g" \
 	> "$(BASH_COMPLETION_DIR)/luaserver"
 
-install: check-dependencies install-bin install-shared install-extra
+install: check-dependencies install-bin install-extra

@@ -250,76 +250,30 @@ hook.Add("Request", "mine", function(req, res)
 end)
 ```
 
-# Behind Nginx
+# Reverse Proxy
 
-It is recommended that you run LuaServer behind Nginx to prevent many types of attacks, and other things
-provided by Nginx, such as compression.  The daemon runs as the user `www-data`, so it's recommended you also run Nginx with the user `www-data` too.
+LuaServer by default is expecting to be ran behind a reverse proxy.
+This allows sending files via X-Accel-Redirect or X-Sendfile, and protects LuaServer against many types of attacks.
 
-## HTTP
+## Nginx
 
-Example Nginx config:
+Upon `make install`, if nginx is present, then the Nginx site is copied into `/etc/nginx/sites`.
+See `thirdparty/luaserver.nginx` for the site to be installed.
 
-```nginx
-server {
-	listen 80;
-	listen [::]:80;
+## Apache
 
-	server_name localhost;
-
-	location / {
-		include /etc/nginx/proxy_params;
-		proxy_pass http://localhost:8080;
-	}
-	location /./ { # this is for X-Accel-Redirect
-		internal;
-		root /usr/share/luaserver/;
-	}
-}
-```
-
-## HTTPS
-
-For HTTPS, allthough this behaviour is inbuilt into LuaServer, if you're running through Nginx, then
-you should also create a server to handle HTTPS.  For exmaple:
-
-```nginx
-server {
-	listen 443      ssl spdy;
-	listen [::]:443 ssl spdy;
-
-	ssl_certificate cert.pem;
-	ssl_certificate_key cert.key;
-
-	ssl_session_timeout 5m;
-
-	ssl_protocols SSLv3 TLSv1;
-	ssl_ciphers ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv3:+EXP;
-	ssl_prefer_server_ciphers on;
-
-	server_name localhost;
-
-	location / {
-		include /etc/nginx/proxy_params;
-		# proxy_set_header X-Forwarded-Ssl on;
-		proxy_pass http://localhost:8080;
-	}
-	location /./ { # this is for X-Accel-Redirect
-		internal;
-		root /usr/share/luaserver/;
-	}
-}
-
-```
+Not implimented.
 
 # To Do
 <!--- U+2610 (☐, 'BALLOT BOX'), U+2611 (☑, 'BALLOT BOX WITH CHECK'), and U+2612 (☒, 'BALLOT BOX WITH X') --->
 
 - [x] Cookie Support
 - [x] Session libary
+	- [ ] Allow overiding where sessions are stored
 - [ ] Global table support for sessions
 - [ ] Rewrite template generate_html to be cleaner & easier to follow
 - [x] Add the additional command --help
 - [x] Add the additional command --version
 - [ ] Remove other threading methods, only keep coroutines
-
+- [ ] Apache site installer for acting as a reverse proxy.
 
