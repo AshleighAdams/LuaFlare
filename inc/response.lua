@@ -109,10 +109,8 @@ function meta::set_file(string path)-- expects(meta, "string")
 			warn("X-Accel-Redirect outside of virtual root filesystem: %s", path)
 		else
 			tpath = path:sub(cfg_path:len() + 1, -1)
+			self:set_header("X-Accel-Redirect", script.options["x-accel-redirect"] .. tpath)
 		end
-		
-		self:set_header("X-Accel-Redirect", script.options["x-accel-redirect"] .. tpath)
-		return
 	elseif script.options["x-sendfile"] ~= nil then
 		file:close()
 		local fullpath = lfs.currentdir() .. "/" .. path
