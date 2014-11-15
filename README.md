@@ -268,12 +268,35 @@ Not implimented.
 <!--- U+2610 (☐, 'BALLOT BOX'), U+2611 (☑, 'BALLOT BOX WITH CHECK'), and U+2612 (☒, 'BALLOT BOX WITH X') --->
 
 - [x] Cookie Support
-- [x] Session libary
-	- [ ] Allow overiding where sessions are stored
+- [x] Session library
+	- [ ] Allow overriding where sessions are stored
 - [ ] Global table support for sessions
 - [ ] Rewrite template generate_html to be cleaner & easier to follow
 - [x] Add the additional command --help
 - [x] Add the additional command --version
 - [ ] Remove other threading methods, only keep coroutines
 - [ ] Apache site installer for acting as a reverse proxy.
+
+
+# Packaging concept
+
+	luaserver
+		Recommends: luaserver-service, luaserver-reverseproxy
+	luaserver-reverseproxy:
+		Depends: (luaserver-reverseproxy-nginx || luaserver-apache)
+	luaserver-service:
+		Depends: (luaserver-service-systemd || luaserver-service-sysvinit || luaserver-service-upstart)
+	
+	luaserver-reverseproxy-nginx: installs nginx-related files for luaserver
+		Depends: luaserver, nginx
+	luaserver-reverseproxy-apache: installs apache-related files for luaserver
+		Depends: luaserver, apache
+	
+	luaserver-service-systemd: installs luaserver systemd service files
+		Depends: luaserver, systemd
+	luaserver-service-sysvinit: installs luaserver sysvinit service files
+		Depends: luaserver, sysvinit
+	luaserver-service-upstart:  installs luaserver upstart service files
+		Depends: luaserver, upstart
+
 
