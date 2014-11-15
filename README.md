@@ -14,9 +14,9 @@ LuaServer [![Build Status](http://kateadams.eu/build/LuaServer/master/state.png)
 			- [1.3.2.1. Example 3 - Segmants](#example-3---segmants)  
 			- [1.3.2.1. Example 4 - Unpack](#example-4---unpack)  
 	- [1.4. Overiding Default Handler](#overiding-default-handler)  
-- [2. Behind Nginx](#behind-nginx)  
-	- [2.1. HTTP](#http)  
-	- [2.2. HTTPS](#https)  
+- [2. Reverse Proxy](#reverse-proxy)  
+	- [2.1. Nginx](#nginx)  
+	- [2.2. Apache](#apache)  
 - [3. To Do](#to-do)  
 	
 # Documentation
