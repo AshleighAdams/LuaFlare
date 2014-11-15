@@ -31,7 +31,7 @@ install-bin: install-shared
 	$(CHMOD) +x $(LUASERVER_BIN_DIR)/luaserver
 
 install-luaserver-opts: install-bin install-shared
-	$(PRECMD) $(LUASERVER_BIN_DIR)/luaserver $(LUASERVER_POSTINT_OPTS)
+	$(PRECMD) $(LUASERVER_BIN_DIR_STR)/luaserver $(LUASERVER_POSTINT_OPTS)
 
 install-shared-files:
 	$(MKDIR) $(LUASERVER_LIB_DIR)
