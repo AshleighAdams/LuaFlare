@@ -61,6 +61,9 @@ install-shared-ownership:
 
 install-shared: install-shared-files install-shared-ownership
 
+install-none-service:
+	# do nothing
+
 install-systemd-service:
 	$(CAT) luaserver.systemd \
 		| $(SED) "s|LUASERVER_LIB_DIR|$(LUASERVER_LIB_DIR_STR)|g" \
