@@ -55,9 +55,9 @@ local function basic_lua_error(err, trace, vars, args)
 		for k,v in pairs(split) do
 			local str = v:gsub("%[string \"(.-)\"%]", "%1")
 			
-			if blame and v:Trim():StartsWith(blame) then
+			if blame and v:trim():starts_with(blame) then
 				atblame = true -- we can start adding traces
-			elseif str:Trim():StartsWith("inc/requesthooks.lua") then
+			elseif str:trim():starts_with("inc/requesthooks.lua") then
 				break -- after this is internal LuaServer stuff
 			end
 			
@@ -91,7 +91,7 @@ local function basic_lua_error(err, trace, vars, args)
 		line_num = tonumber(line_num)
 		
 		line = line_from(file, line_num) or string.format("could not locate source for %s", file)
-		line = line:Trim("\t", "")
+		line = line:trim("\t", "")
 	else
 		line = hook.call("LuaGetLine", err)
 		

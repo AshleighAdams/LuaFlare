@@ -109,6 +109,7 @@ function meta::set_file(string path)-- expects(meta, "string")
 			file:close()
 			tpath = path:sub(cfg_path:len() + 1, -1)
 			self:set_header("X-Accel-Redirect", script.options["x-accel-redirect"] .. tpath)
+			return
 		end
 	elseif script.options["x-sendfile"] ~= nil then
 		file:close()
@@ -117,7 +118,7 @@ function meta::set_file(string path)-- expects(meta, "string")
 		return
 	end
 	
-	local reply = file:read("*all")
+	local reply = file:read("*a")
 	file:close()
 	
 	do -- support for HTTP Range
