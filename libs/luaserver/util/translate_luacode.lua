@@ -2,13 +2,13 @@ local parser = require("luaserver.util.luaparser")
 local hook = require("luaserver.hook")
 
 local rgx = "function$ $maybename$ %($args%)"
-rgx = rgx:Replace("$maybename", "([A-z0-9_%.:]*)")
-rgx = rgx:Replace("$ ", "%s*")
-rgx = rgx:Replace("$args", "([A-z0-9_, %*&%.]-)")
+rgx = rgx:replace("$maybename", "([A-z0-9_%.:]*)")
+rgx = rgx:replace("$ ", "%s*")
+rgx = rgx:replace("$args", "([A-z0-9_, %*&%.]-)")
 
 local function translate_luacode_regex(code)
 	code = code:gsub(rgx, function(name, argslist)
-		local args = argslist:Split(",")
+		local args = argslist:split(",")
 		local expects_tbl = {}
 		local args_tbl = {}
 		local hastype = false
@@ -18,21 +18,21 @@ local function translate_luacode_regex(code)
 		if meta_tbl_check then
 			hastype = true
 			table.insert(expects_tbl, meta_tbl_check)
-			name = name:Replace("::", ":")
+			name = name:replace("::", ":")
 		elseif meta_tbl then
 			hastype = false
 			table.insert(expects_tbl, "nil")
 		end
 	
 		for _, arg in pairs(args) do
-			local arg_split = arg:Trim():Split(" ", {remove_empty = true})
+			local arg_split = arg:trim():split(" ", {remove_empty = true})
 			local arg_name, arg_type
 			
 			if #arg_split == 1 then
-				arg_name = arg_split[1]:Trim()
+				arg_name = arg_split[1]:trim()
 			else
-				arg_name = arg_split[2]:Trim()
-				arg_type = arg_split[1]:Trim()
+				arg_name = arg_split[2]:trim()
+				arg_type = arg_split[1]:trim()
 			end
 			
 			table.insert(args_tbl, arg_name)

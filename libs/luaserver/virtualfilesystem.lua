@@ -20,7 +20,7 @@ function vfs.locate(string path, boolean fallback = false)
 	assert(source:sub(1, root:len()) == root)
 	
 	local post = source:sub(root:len() + 1, -1)
-	if post:StartsWith("/sites/") then
+	if post:starts_with("/sites/") then
 		selfdir = root .. post:match("(/sites/.-)/")
 	else
 		selfdir = root

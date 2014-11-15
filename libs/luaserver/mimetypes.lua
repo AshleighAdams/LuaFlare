@@ -36,20 +36,20 @@ function mimetypes.load()
 	
 	if file then -- success, we found it
 		for line in file:lines() do repeat
-			line = line:Trim()
-			if line:StartsWith("#") then break end
+			line = line:trim()
+			if line:starts_with("#") then break end
 			
 			local mimetype, exts = line:match("^(.-)%s+(.*)$")
 			if mimetype == nil or exts == nil then break end	
 		
-			exts = exts:Split(" ")
+			exts = exts:split(" ")
 			for _, ext in ipairs(exts) do
 				mimetypes.types[ext] = mimetype
 			end
 		until true end
 	end
 	
-	print(string.format("loaded %i mime types", table.Count(mimetypes.types)))
+	print(string.format("loaded %i mime types", table.count(mimetypes.types)))
 end
 hook.add("Loaded", "load /etc/mime.types", mimetypes.load)
 

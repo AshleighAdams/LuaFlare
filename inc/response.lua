@@ -105,7 +105,7 @@ function meta::set_file(string path)-- expects(meta, "string")
 		file:close()
 		
 		local tpath
-		if not path:StartsWith(cfg_path) then
+		if not path:starts_with(cfg_path) then
 			warn("X-Accel-Redirect outside of virtual root filesystem: %s", path)
 		else
 			tpath = path:sub(cfg_path:len() + 1, -1)
@@ -129,7 +129,7 @@ function meta::set_file(string path)-- expects(meta, "string")
 		
 		local range_from, range_to = nil, nil
 		if headers.Range ~= nil then
-			if headers.Range:Trim() == "" then
+			if headers.Range:trim() == "" then
 				res:set_header("Accept-Ranges", "bytes") -- let them know that we can accept ranges
 			else
 				local from, to = string.match(headers.Range, "bytes=(%d+)-(%d*)")

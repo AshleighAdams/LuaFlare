@@ -22,7 +22,7 @@ end
 local Months = {Jan=1,Feb=2,Mar=3,Apr=4,May=5,Jun=6,Jul=7,Aug=8,Sep=9,Oct=10,Nov=11,Dec=12}
 
 local function add_resource(filename, host)
-	local path = filename:Replace(static_dir .. host, "") -- remove our dir
+	local path = filename:replace(static_dir .. host, "") -- remove our dir
 	-- :add no longer takes a pattern, so don't escape it
 	--pattern = escape.pattern(pattern)
 		

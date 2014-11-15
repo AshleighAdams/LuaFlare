@@ -19,7 +19,7 @@ local function autorun(dir) expects "string"
 			time_table[file] = modified
 
 			if lfs.attributes(file, "mode") == "file" then
-				if filename:StartsWith("ar_") and filename:EndsWith(".lua") then
+				if filename:starts_with("ar_") and filename:ends_with(".lua") then
 					print("autorun: " .. file)
 
 					for _, dep in ipairs(dependencies[file] or {}) do -- mark them as not required

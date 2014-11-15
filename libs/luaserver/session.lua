@@ -59,7 +59,7 @@ function meta:construct(req, res, session_name, id)
 end
 
 function meta:save()
-	util.EnsurePath("sessions/")
+	util.ensure_path("sessions/")
 	table.save(self:data(), session_path .. self._session_name .. "_" .. self:id())
 end
 

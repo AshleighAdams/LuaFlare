@@ -54,7 +54,7 @@ function expects(...)
 				error(string.format("argument #%i (%s): incompatible (%s)", i, name, reason), err_level)
 			end
 		elseif arg == "*" then
-			error("DEPRICATED!")
+			error("expects(): \"*\" DEPRICATED!")
 		elseif arg == "any" then -- anything but nil
 			if val == nil then
 				error(string.format("argument #%i (%s) expected a value (got nil)", i, name), err_level)
@@ -78,7 +78,7 @@ string = string or {}
 math = math or {}
 
 ------ Table functions
-function PrintTable(tbl, done, depth) expects "table"
+function print_table(tbl, done, depth) expects "table"
 	
 	done = done or {}
 	depth = depth or 0
@@ -96,8 +96,12 @@ function PrintTable(tbl, done, depth) expects "table"
 		end
 	end
 end
+PrintTable = function(...)
+	warn("PrintTable renamed to print_table")
+	return print_table(...)
+end
 
-function table.Count(tbl) expects "table"	
+function table.count(tbl) expects "table"	
 	local count = 0
 	for k,v in pairs(tbl) do
 		count = count + 1
@@ -106,7 +110,7 @@ function table.Count(tbl) expects "table"
 	return count
 end
 
-function table.RemoveValue(tbl, val) expects("table", "*")
+function table.remove_value(tbl, val) expects("table", "any")
 	for k, v in pairs(tbl) do
 		if v == val then
 			table.remove(tbl, k)
@@ -114,11 +118,11 @@ function table.RemoveValue(tbl, val) expects("table", "*")
 	end
 end
 
-function table.IsEmpty(tbl) expects "table"	
+function table.is_empty(tbl) expects "table"	
 	return next(tbl) == nil
 end
 
-function table.HasKey(tbl, key) expects ("table", "*")
+function table.has_key(tbl, key) expects ("table", "*")
 	return tbl[key] ~= nil
 end
 
@@ -194,32 +198,32 @@ function to_lua_table(tbl, depth, done)
 	return ret
 end
 
-function table.ToString(tbl) expects "table"
+function table.to_string(tbl) expects "table"
 	
 	return to_lua_table(tbl)
 end
 
 ------- String functions
 
-function string.StartsWith(haystack, needle) expects ("string", "string")
+function string.starts_with(haystack, needle) expects ("string", "string")
 	return haystack:sub(1, needle:len()) == needle
 end
 
-function string.EndsWith(haystack, needle) expects ("string", "string")
+function string.ends_with(haystack, needle) expects ("string", "string")
 	return needle == "" or haystack:sub(-needle:len()) == needle
 end
 
-function string.Replace(str, what, with) expects ("string", "string", "string")
+function string.replace(str, what, with) expects ("string", "string", "string")
 	what = escape.pattern(what)
 	with = with:gsub("%%", "%%%%") -- the 2nd arg of gsub only needs %'s to be escaped
 	return str:gsub(what, with)
 end
 
-function string.Path(self) expects "string"
+function string.path(self) expects "string"
 	return self:match("(.*/)") or ""
 end
 
-function string.ReplaceLast(str, what, with) expects ("string", "string", "string")
+function string.replace_last(str, what, with) expects ("string", "string", "string")
 	local from, to, _from, _to = nil, nil
 	local pos = 1
 	local len = what:len()
@@ -238,11 +242,11 @@ function string.ReplaceLast(str, what, with) expects ("string", "string", "strin
 	return firstbit .. with .. lastbit
 end
 
-function string.Trim(str) expects "string"
+function string.trim(str) expects "string"
 	return str:match("^%s*(.-)%s*$")
 end
 
-function string.Split(self, delimiter, options) expects("string", "string")
+function string.split(self, delimiter, options) expects("string", "string")
 	delimiter = escape.pattern(delimiter)
 	
 	local result = {}
@@ -273,7 +277,7 @@ function basic_round(what)
 	end
 end
 
-function math.Round(what, prec)
+function math.round(what, prec)
 	prec = prec or 1
 	expects("number", "number")
 	
@@ -281,7 +285,7 @@ function math.Round(what, prec)
 	return basic_round(what * prec) / prec
 end
 	
-function math.SecureRandom(min, max) expects("number", "number")
+function math.secure_random(min, max) expects("number", "number")
 	-- read from /dev/urandom
 	local size = max - min
 	local bits = math.ceil( math.log(size) / math.log(2) )
@@ -312,14 +316,21 @@ end
 
 ------- os.*
 
-function os.capture(cmd, raw) expects "string"
-	local f = assert(io.popen(cmd .. " 2>&1", 'r')) -- TODO: should always redirect?
+function os.capture(cmd, opts)
+	opts = opts or {stdout = true}
+	if opts.stderr and opts.stdout then -- join them
+		cmd = cmd .. "2>&1"
+	elseif opts.stderr then -- swap 2 (err) for 1(out), and 1 to null
+		cmd = cmd .. "2>&1 1>/dev/null"
+	elseif opts.stdout then
+		
+	else
+		error("os.capture: opts.stdout or opts.stderr must be set", 2)
+	end
+	
+	local f = assert(io.popen(cmd, "r"))
 	local s = assert(f:read('*a'))
 	local _, _, err_code = f:close()
-	if raw then return s, err_code end
-	s = string.gsub(s, '^%s+', '')
-	s = string.gsub(s, '%s+$', '')
-	s = string.gsub(s, '[\n\r]+', ' ')
 	return s, err_code
 end
 
@@ -395,7 +406,7 @@ function include(file, ...) expects "string"
 	package.included = package.included or {}
 
 	local err = nil -- if this != nil at the end, call error with this string
-	local path = file:Path()
+	local path = file:path()
 	file = file:sub(path:len() + 1)
 
 	current:push((current:value() or "") .. path)
@@ -470,6 +481,62 @@ function require(mod)
 	
 	return real_require(mod)
 end
+
+
+
+local function renamed_func(tbl, tblname, name, old)
+	local func = tbl[name] or error("could not find func " .. name, 2)
+	local strn = ("%s.%s"):format(tblname, name)
+	local stro = ("%s.%s"):format(tblname, old)
+	local msg = ("%s renamed to %s"):format(strn, stro)
+	tbl[old] = function(...)
+		warn(msg .. "\n" .. debug.traceback())
+		return func(...)
+	end
+end
+
+renamed_func(table, "table", "count", "Count")
+renamed_func(table, "table", "remove_value", "RemoveValue")
+renamed_func(table, "table", "is_empty", "IsEmpty")
+renamed_func(table, "table", "has_key", "HasKey")
+renamed_func(table, "table", "to_string", "ToString")
+
+renamed_func(string, "string", "starts_with", "StartsWith")
+renamed_func(string, "string", "ends_with", "EndsWith")
+renamed_func(string, "string", "replace", "Replace")
+renamed_func(string, "string", "path", "Path")
+renamed_func(string, "string", "replace_last", "ReplaceLast")
+renamed_func(string, "string", "trim", "Trim")
+renamed_func(string, "string", "split", "Split")
+
+renamed_func(math, "math", "round", "Round")
+renamed_func(math, "math", "secure_random", "SecureRandom")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

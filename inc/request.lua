@@ -8,7 +8,7 @@ meta.__index = meta
 
 local trusted_proxies = {}
 local function load_trusted_proxies()
-	for _, hostname in pairs ((script.options["trusted-reverse-proxies"] or "localhost"):Split(",")) do
+	for _, hostname in pairs ((script.options["trusted-reverse-proxies"] or "localhost"):split(",")) do
 		-- potentially look up the IP
 		trusted_proxies[hostname] = true
 		local resolved, info = socket.dns.toip(hostname)

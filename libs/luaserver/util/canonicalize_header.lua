@@ -1,3 +1,5 @@
+local hook = require("luaserver.hook")
+
 local canonical_headers = [[
 Accept
 Accept-Charset
@@ -88,17 +90,19 @@ X-Sendfile
 X-Accel-Redirect
 ]]
 
-do
-	local split = canonical_headers:Split("\n")
+local function load_canon_headers()
+	local split = canonical_headers:split("\n")
 	canonical_headers = {}
 
 	for k, v in pairs(split) do
-		local hdr = v:Trim()
+		local hdr = v:trim()
 		if hdr ~= "" then
 			canonical_headers[hdr:lower()] = hdr
 		end
 	end
 end
+
+hook.add("Loaded", "load canonical headers", load_canon_headers)
 
 local function canonicalize_header(header) expects "string"
 	local lwr = header:lower()
