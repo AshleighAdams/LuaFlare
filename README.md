@@ -18,15 +18,6 @@ LuaServer [![Build Status](http://kateadams.eu/build/LuaServer/master/state.png)
 	- [2.1. HTTP](#http)  
 	- [2.2. HTTPS](#https)  
 - [3. To Do](#to-do)  
-- [4. Functions Provided](#functions-provided)  
-	- [4.1. util](#util)  
-	- [4.2. table](#table)  
-	- [4.3. string](#string)  
-	- [4.4. math](#math)  
-	- [4.5. escape](#escape)  
-	- [4.6. os](#os)  
-	- [4.7. script](#script)  
-	- [4.8. stack](#stack)  
 	
 # Documentation
 
