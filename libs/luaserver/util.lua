@@ -15,7 +15,7 @@ do
 		return socket.gettime()
 	end
 
-	function util.ItterateDir(dir, recursive, callback, ...) expects("string", "boolean", "function")
+	function util.iterate_dir(dir, recursive, callback, ...) expects("string", "boolean", "function")
 		assert(dir and recursive ~= nil and callback)
 	
 		for file in lfs.dir(dir) do
@@ -26,12 +26,12 @@ do
 			end
 		end
 	end
-
-	function util.DirExists(dir) expects "string"
+	
+	function util.dir_exists(dir) expects "string"
 		return lfs.attributes(dir, "mode") == "directory"
 	end
-
-	function util.Dir(base_dir, recursive) expects "string"
+	
+	function util.dir(base_dir, recursive) expects "string"
 		local ret = {}
 	
 		local itt_dir = function(dir)
@@ -54,8 +54,8 @@ do
 		return ret
 	end
 
-	function util.EnsurePath(path) expects "string" -- false = already exists, true = didn't
-		if util.DirExists(path) then return false end
+	function util.ensure_path(path) expects "string" -- false = already exists, true = didn't
+		if util.dir_exists(path) then return false end
 	
 		local split = path:Split("/")
 		local cd = ""
@@ -63,14 +63,31 @@ do
 		for k,v in ipairs(split) do
 			cd = cd .. v .. "/"
 		
-			if not util.DirExists(path) then
-				assert(lfs.mkdir(cd))
+			if not util.dir_exists(path) then
+				return lfs.mkdir(cd)
 			end
 		end
 	
 		return true
 	end
-
+	
+	
+	util.ItterateDir = function(...)
+		warn("util.ItterateDir has been renamed to util.iterate_dir")
+		return util.iterate_dir(...)
+	end
+	util.DirExists = function(...)
+		warn("util.DirExists has been renamed to util.dir_exists")
+		return util.dir_exists(...)
+	end
+	util.Dir = function(...)
+		warn("util.Dir has been renamed to util.dir")
+		return util.dir(...)
+	end
+	util.EnsurePath = function(...)
+		warn("util.EnsurePath has been renamed to util.ensure_path")
+		return util.ensure_path(...)
+	end
 end
 
 return util
