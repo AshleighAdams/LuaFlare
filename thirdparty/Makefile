@@ -32,7 +32,7 @@ install-bin: install-shared
 
 install-luaserver-opts: install-bin install-shared
 	$(PRECMD) $(LUASERVER_BIN_DIR_STR)/luaserver $(LUASERVER_POSTINT_OPTS)
-ifneq($(SERVICE_SYSTEM),none)
+ifneq ($(SERVICE_SYSTEM),none)
 	$(_SERVICE) luaserver restart
 endif
 
