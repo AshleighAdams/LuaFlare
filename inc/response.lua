@@ -102,12 +102,11 @@ function meta::set_file(string path)-- expects(meta, "string")
 	self._file = path
 	
 	if script.options["x-accel-redirect"] ~= nil then
-		file:close()
-		
 		local tpath
 		if not path:starts_with(cfg_path) then
 			warn("X-Accel-Redirect outside of virtual root filesystem: %s", path)
 		else
+			file:close()
 			tpath = path:sub(cfg_path:len() + 1, -1)
 			self:set_header("X-Accel-Redirect", script.options["x-accel-redirect"] .. tpath)
 		end
