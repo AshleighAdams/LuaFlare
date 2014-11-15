@@ -24,7 +24,7 @@ check-dependencies:
 	done
 
 install-bin: install-shared
-	$(MKDIR) -p $(LUASERVER_BIN_DIR) && \
+	$(MKDIR) $(LUASERVER_BIN_DIR) && \
 	$(CAT) ../luaserver.lua \
 		| $(SED) "s|#!/usr/bin/env lua|#!/usr/bin/env $(LUA)|" \
 		> $(LUASERVER_BIN_DIR)/luaserver && \
@@ -65,6 +65,7 @@ install-none-service:
 	# do nothing
 
 install-systemd-service:
+	$(MKDIR) "$(SYSTEMD_UNIT_DIR)" && \
 	$(CAT) luaserver.systemd \
 		| $(SED) "s|LUASERVER_LIB_DIR|$(LUASERVER_LIB_DIR_STR)|g" \
 		| $(SED) "s|LUASERVER_CFG_DIR|$(LUASERVER_CFG_DIR_STR)|g" \
@@ -76,6 +77,7 @@ install-systemd-service:
 	$(_SYSTEMCTL) restart luaserver.service
 
 install-sysvinit-service:
+	$(MKDIR) "$(SYSVINIT_DAEMON_DIR)" && \
 	$(CAT) luaserver.sysvinit \
 		| $(SED) "s|LUASERVER_LIB_DIR|$(LUASERVER_LIB_DIR_STR)|g" \
 		| $(SED) "s|LUASERVER_CFG_DIR|$(LUASERVER_CFG_DIR_STR)|g" \
@@ -87,6 +89,7 @@ install-sysvinit-service:
 	$(_SERVICE) luaserver start
 	
 install-upstart-service:
+	$(MKDIR) "$(UPSTART_DAEMON_DIR)" && \
 	$(CAT) luaserver.upstart \
 		| $(SED) "s|LUASERVER_LIB_DIR|$(LUASERVER_LIB_DIR_STR)|g" \
 		| $(SED) "s|LUASERVER_CFG_DIR|$(LUASERVER_CFG_DIR_STR)|g" \
@@ -96,6 +99,8 @@ install-upstart-service:
 	$(_SERVICE) luaserver start
 
 install-nginx-site:
+	$(MKDIR) "$(NGINX_DIR)/sites-available/" && \
+	$(MKDIR) "$(NGINX_DIR)/sites-enabled/" && \
 	$(CAT) luaserver.nginx \
 		| $(SED) "s|NGINX_SITE_HTTP_PORT|$(NGINX_SITE_HTTP_PORT)|g" \
 		| $(SED) "s|NGINX_SITE_HTTPS_PORT|$(NGINX_SITE_HTTPS_PORT)|g" \
@@ -108,6 +113,7 @@ install-nginx-site:
 	$(_SERVICE) nginx restart # systemd / upstart should impliment this
 
 install-bash-completion:
+	$(MKDIR) "$(BASH_COMPLETION_DIR)" && \
 	$(CAT) luaserver.bash-completion \
 		| $(SED) "s|LUASERVER_LIB_DIR|$(LUASERVER_LIB_DIR_STR)|g" \
 		| $(SED) "s|LUASERVER_CFG_DIR|$(LUASERVER_CFG_DIR_STR)|g" \
