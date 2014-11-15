@@ -13,9 +13,10 @@ The function responsible for upgrading a HTTP request to a websocket connection.
 Registers a websocket.
 
 Valid callbacks:
-	- `onconnect(client)`
-	- `onmessage(client, message)`
-	- `ondisconnect(client)`
+
+- `onconnect(client)`
+- `onmessage(client, message)`
+- `ondisconnect(client)`
 
 ## `wsserver:send(string message[, client])`
 

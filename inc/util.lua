@@ -205,13 +205,16 @@ end
 
 ------- String functions
 
-function string.starts_with(haystack, needle) expects ("string", "string")
+function string.begins_with(haystack, needle) expects ("string", "string")
 	return haystack:sub(1, needle:len()) == needle
 end
 
 function string.ends_with(haystack, needle) expects ("string", "string")
 	return needle == "" or haystack:sub(-needle:len()) == needle
 end
+
+string.starts_with = string.begins_with
+string.stops_with = string.ends_with
 
 function string.replace(str, what, with) expects ("string", "string", "string")
 	what = escape.pattern(what)
@@ -256,7 +259,7 @@ function string.split(self, delimiter, options) expects("string", "string")
 		local add = true
 		local val = self:sub(from, delim_from - 1)
 		
-		if options and options.remove_empty and val:Trim() == "" then
+		if options and options.remove_empty and val:trim() == "" then
 			add = false
 		end
 		
@@ -277,12 +280,12 @@ function basic_round(what)
 	end
 end
 
-function math.round(what, prec)
-	prec = prec or 1
+function math.round(what, quantum_size)
+	quantum_size = quantum_size or 1
 	expects("number", "number")
 	
 	prec = 1 / prec
-	return basic_round(what * prec) / prec
+	return basic_round(what * quantum_size) / quantum_size
 end
 	
 function math.secure_random(min, max) expects("number", "number")
@@ -317,15 +320,15 @@ end
 ------- os.*
 
 function os.capture(cmd, opts)
-	opts = opts or {stdout = true}
+	opts = opts or {stdout = true, opts.stderr = true}
 	if opts.stderr and opts.stdout then -- join them
 		cmd = cmd .. "2>&1"
 	elseif opts.stderr then -- swap 2 (err) for 1(out), and 1 to null
 		cmd = cmd .. "2>&1 1>/dev/null"
 	elseif opts.stdout then
 		
-	else
-		error("os.capture: opts.stdout or opts.stderr must be set", 2)
+	else -- assume both
+		cmd = cmd .. "2>&1"
 	end
 	
 	local f = assert(io.popen(cmd, "r"))
