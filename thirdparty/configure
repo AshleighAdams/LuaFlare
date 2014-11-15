@@ -29,6 +29,7 @@ NGINX_DIR               = $(DESTDIR)%NGINX_DIR
 BASH_COMPLETION_DIR     = $(DESTDIR)%BASH_COMPLETION_DIR
 SYSTEMD_UNIT_DIR        = $(DESTDIR)%SYSTEMD_UNIT_DIR
 SYSVINIT_DAEMON_DIR     = $(DESTDIR)%SYSVINIT_DAEMON_DIR
+UPSTART_DAEMON_DIR      = $(DESTDIR)%UPSTART_DAEMON_DIR
 
 # auto
 VERSION=`$(GIT) describe --tags --always`
@@ -159,7 +160,7 @@ local function set_system_service()
 	elseif find_program("systemd", false) then
 		system_service = "systemd"
 	elseif find_program("initctl", false) then
-		system_service = "upstart"
+		system_service = "upstart" -- "upstart" -- upstart not complete, fall back to sysvinit
 	elseif find_program("init", false) then
 		system_service = "sysvinit"
 	else
@@ -170,6 +171,10 @@ local function set_system_service()
 	print("system service: " .. system_service)
 	set_var("SERVICE", system_service)
 	table.insert(install, "install-" .. system_service .. "-service")
+	
+	set_var("SYSTEMD_UNIT_DIR",    "")
+	set_var("SYSVINIT_DAEMON_DIR", "")
+	set_var("UPSTART_DAEMON_DIR",  "")
 	
 	if system_service == "systemd" then
 		local unit_path = find_arg("systemd-unit-path")
@@ -188,6 +193,8 @@ local function set_system_service()
 		table.insert(lua_depends, "systemd.daemon")
 	elseif system_service == "sysvinit" then
 		set_var("SYSVINIT_DAEMON_DIR", "/etc/init.d")
+	elseif system_service == "upstart" then
+		set_var("UPSTART_DAEMON_DIR", "/etc/init")
 	end
 end
 
@@ -206,7 +213,7 @@ local function set_bash_dir()
 end
 
 install = {}
-lua_depends = {"bit", "lfs", "md5", "posix", "socket", "ssl", "xssfilter"}
+lua_depends = {"bit", "lfs", "md5", "posix", "socket", "ssl"}
 
 set_prefix()
 set_lua()

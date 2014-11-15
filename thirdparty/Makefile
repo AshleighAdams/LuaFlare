@@ -22,7 +22,8 @@ check-dependencies:
 install-bin:
 	$(CAT) ../luaserver.lua \
 		| $(SED) "s|#!/usr/bin/env lua|#!/usr/bin/env $(LUA)|" \
-		> $(LUASERVER_BIN_DIR)/luaserver
+		> $(LUASERVER_BIN_DIR)/luaserver && \
+	chmod +x $(LUASERVER_BIN_DIR)/luaserver
 
 install-shared-files:
 	$(MKDIR) $(LUASERVER_LIB_DIR)
@@ -69,12 +70,19 @@ install-sysvinit-service:
 		| $(SED) "s|LUASERVER_CFG_DIR|$(LUASERVER_CFG_DIR_STR)|g" \
 		| $(SED) "s|LUASERVER_BIN_DIR|$(LUASERVER_BIN_DIR_STR)|g" \
 		| $(SED) "s|_USER|$(USER)|g" \
-		> $(SYSVINIT_DAEMON_DIR)/luaserver
-	chmod +x $(SYSVINIT_DAEMON_DIR)/luaserver
-	update-rc.d luaserver defaults
+		> $(SYSVINIT_DAEMON_DIR)/luaserver && \
+	chmod +x $(SYSVINIT_DAEMON_DIR)/luaserver && \
+	update-rc.d luaserver defaults && \
+	service luaserver start
 	
-install-upstart-service: install-sysvinit-service
-	echo "upstart daemon not implimented, falling back to sysvinit"
+install-upstart-service:
+	$(CAT) luaserver.upstart \
+		| $(SED) "s|LUASERVER_LIB_DIR|$(LUASERVER_LIB_DIR_STR)|g" \
+		| $(SED) "s|LUASERVER_CFG_DIR|$(LUASERVER_CFG_DIR_STR)|g" \
+		| $(SED) "s|LUASERVER_BIN_DIR|$(LUASERVER_BIN_DIR_STR)|g" \
+		| $(SED) "s|USER|$(USER)|g" \
+		> $(UPSTART_DAEMON_DIR)/luaserver.conf && \
+	service luaserver start
 
 install-nginx-site:
 	$(CAT) luaserver.nginx \
