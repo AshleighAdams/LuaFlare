@@ -282,21 +282,22 @@ Not implimented.
 
 	luaserver
 		Recommends: luaserver-service, luaserver-reverseproxy
-	luaserver-reverseproxy:
-		Depends: (luaserver-reverseproxy-nginx || luaserver-apache)
-	luaserver-service:
-		Depends: (luaserver-service-systemd || luaserver-service-sysvinit || luaserver-service-upstart)
 	
 	luaserver-reverseproxy-nginx: installs nginx-related files for luaserver
 		Depends: luaserver, nginx
+		Provides: luaserver-reverseproxy
 	luaserver-reverseproxy-apache: installs apache-related files for luaserver
 		Depends: luaserver, apache
+		Provides: luaserver-reverseproxy
 	
 	luaserver-service-systemd: installs luaserver systemd service files
 		Depends: luaserver, systemd
+		Provides: luaserver-service
 	luaserver-service-sysvinit: installs luaserver sysvinit service files
 		Depends: luaserver, sysvinit
+		Provides: luaserver-service
 	luaserver-service-upstart:  installs luaserver upstart service files
 		Depends: luaserver, upstart
+		Provides: luaserver-service
 
 
