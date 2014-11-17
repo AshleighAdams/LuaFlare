@@ -5,7 +5,7 @@ local tags = require("luaserver.tags")
 local escape = require("luaserver.util.escape")
 
 local function translate(req, res, filename)
-	filename = filename:Trim()
+	filename = filename:trim()
 	
 	if filename:match("%.%.") ~= nil then
 		return res:halt(403, "Path contains \"..\"!") -- forbidden
@@ -29,7 +29,7 @@ local escape = require("luaserver.util.escape")
 local util = require("luaserver.util")
 
 local function tokenize(req, res, filename)
-	filename = filename:Trim()
+	filename = filename:trim()
 	
 	if filename:match("%.%.") ~= nil then
 		return res:halt(403, "Path contains \"..\"!") -- forbidden

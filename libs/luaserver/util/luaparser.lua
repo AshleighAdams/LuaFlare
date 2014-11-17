@@ -23,6 +23,20 @@ end
 
 local stringreader = require("luaserver.util.luaparser.stringreader")
 
+local function fix_lookup_table(tbl)
+	for k,v in ipairs(tbl) do
+		for i = 1, #v - 1 do -- lookup tables: false: incomplete; true: complete
+			local vv = v:sub(1, i)
+			if tbl[vv] == nil then -- so we don't overide a "good" one
+				tbl[vv] = false
+			end
+		end
+		
+		tbl[v] = true
+		tbl[k] = nil
+	end
+end
+
 parser.keywords = {
 	["and"] = true,        ["break"] = true,
 	["do"] = true,         ["else"] = true,
@@ -38,15 +52,14 @@ parser.keywords = {
 	["false"] = true, ["true"] = true, ["nil"] = true
 }
 
-parser.tokenchars_joinable = {
-	["+"] = true, ["-"] = true, ["*"] = true, ["/"] = true, ["%"] = true,
-	["^"] = true, ["#"] = true, ["="] = true, ["~"] = true, ["<"] = true,
-	[">"] = true, ["."] = true, [":"] = true
+-- list of all valid tokens
+parser.valid_tokens = {
+	"+", "-", "*", "/", "//", "^", "%", "&", "~", "|", ">>",
+	"<<", "..", "<", "<=", ">", ">=", "==", "~=", "#",
+	",", ";", "(", ")", "[", "]", "{", "}", "...", ".", ":", "::"
 }
-parser.tokenchars_unjoinable = {
-	["("] = true, [")"] = true, ["["] = true, ["]"] = true, ["{"] = true,
-	["}"] = true, [";"] = true, [","] = true
-}
+
+fix_lookup_table(parser.valid_tokens)
 
 parser.escapers = {
 	["x(..)"] = function(str)
@@ -220,22 +233,16 @@ function parser.tokenize(code) expects("string")
 				value = value
 			})
 			
-		elseif parser.tokenchars_joinable[mode] then
+		elseif parser.valid_tokens[mode] ~= nil then -- false or true
 			
-			local op = {reader:read()}
-			while parser.tokenchars_joinable[reader:peek()] do
-				table.insert(op, reader:read())
+			local op = reader:read()
+			while parser.valid_tokens[op .. reader:peek()] ~= nil do -- try to be as greedy as possible
+				op = op .. reader:read()
 			end
-			add_token({
-				type = "token",
-				value = table.concat(op)
-			})
-			
-		elseif parser.tokenchars_unjoinable[mode] then
 			
 			add_token({
 				type = "token",
-				value = reader:read()
+				value = op
 			})
 			
 		elseif mode:match("[A-Za-z_]") then
@@ -456,10 +463,11 @@ function parser.read_scopes(tokens) expects("table")
 			-- if we're appending to a table, don't assign the value to the definition
 			local prev = parser.previous_token(tokens, k)
 			
-			if prev.type ~= "token" or not ( prev.value == "."
+			if prev and prev.type ~= "token" or (prev and not (
+			                                 prev.value == "."
 			                              or prev.value == ":"
 			                              or prev.value == ","
-			                              or prev.value == "{" ) then -- the 2nd part will only be evaulated if type == "token"
+			                              or prev.value == "{" )) then -- the 2nd part will only be evaulated if type == "token"
 				local curscope = t.scope
 				while curscope do
 					for k,v in pairs(curscope.locals) do

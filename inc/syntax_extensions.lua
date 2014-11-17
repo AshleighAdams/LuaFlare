@@ -1,9 +1,6 @@
 local hook = require("luaserver.hook")
 local parser = require("luaserver.util.luaparser")
 
--- for passing raw values
-parser.tokenchars_unjoinable["&"] = true
-
 local function add_expects(tokens)
 	local toinsert = {}
 	
