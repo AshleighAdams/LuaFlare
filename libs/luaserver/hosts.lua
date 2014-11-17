@@ -163,7 +163,7 @@ function hosts.process_request(req, res)
 	
 	page.callback(req, res, table.unpack(args))
 end
-hook.Add("Request", "default", hosts.process_request)
+hook.add("Request", "default", hosts.process_request)
 
 hosts.any = hosts.get("*")
 hosts.developer = hosts.any
