@@ -8,6 +8,12 @@ local parser = require("luaserver.util.luaparser")
 
 print("warning: running under 5.2 compatibility layer, please think about moving to a more recent Lua version.")
 
+lua53_bitand = assert(bit32.band)
+lua53_bitor = assert(bit32.bor)
+lua53_bitxor = assert(bit32.bxor)
+lua53_bitlshift = assert(bit32.lshift)
+lua53_bitrshift = assert(bit32.rshift)
+
 function lua53_idiv(a, b)
 	-- for now, fall back to this:
 	math.floor(a / b)
@@ -22,11 +28,11 @@ local function add_53_operators(tokens)
 	-- a // b
 	
 	local new_ops_func_map = {
-		["&"]  = "bit32.band",
-		["|"]  = "bit32.bor",
-		["~"]  = "bit32.bxor",
-		["<<"] = "bit32.lshift",
-		[">>"] = "bit32.rshift",
+		["&"]  = "lua53_bitand",
+		["|"]  = "lua53_bitor",
+		["~"]  = "lua53_bitxor",
+		["<<"] = "lua53_bitlshift",
+		[">>"] = "lua53_bitrshift",
 		["//"] = "lua53_idiv"
 	}
 	
