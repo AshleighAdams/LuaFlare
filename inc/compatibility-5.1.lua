@@ -7,15 +7,18 @@ print("warning: running under 5.1 compatibility layer, please think about moving
 
 bit32 = require("bit")
 
-function table.unpack(tbl)
+function table.unpack(tbl, i, j)
 	local n = tbl.n or #tbl
+	i = i or 1
+	j = math.min(j or n, n)
+	
 	local function unpack_it(k)
-		if k >= n then
+		if k >= j then
 			return tbl[k]
 		end
 		return tbl[k], unpack_it(k + 1)
 	end
-	return unpack_it(1)
+	return unpack_it(i)
 end
 
 function table.pack(...)
