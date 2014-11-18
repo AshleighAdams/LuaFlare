@@ -126,7 +126,7 @@ function table.has_key(tbl, key) expects ("table", "*")
 	return tbl[key] ~= nil
 end
 
-function table.HasValue(tbl, value) expects ("table", "*")	
+function table.has_value(tbl, value) expects ("table", "*")	
 	for k,v in pairs(tbl) do
 		if v == value then
 			return true, k
@@ -309,7 +309,7 @@ function math.secure_random(min, max) expects("number", "number")
 	end
 
 	if result > max then -- try again, i don't know how else to do this without reducing security
-		return math.SecureRandom(min, max)
+		return math.secure_random(min, max)
 	end
 
 	return result
@@ -491,7 +491,7 @@ local function renamed_func(tbl, tblname, name, old)
 	local func = tbl[name] or error("could not find func " .. name, 2)
 	local strn = ("%s.%s"):format(tblname, name)
 	local stro = ("%s.%s"):format(tblname, old)
-	local msg = ("%s renamed to %s"):format(strn, stro)
+	local msg = ("%s renamed to %s"):format(stro, strn)
 	tbl[old] = function(...)
 		warn(msg .. "\n" .. debug.traceback())
 		return func(...)
@@ -502,6 +502,7 @@ renamed_func(table, "table", "count", "Count")
 renamed_func(table, "table", "remove_value", "RemoveValue")
 renamed_func(table, "table", "is_empty", "IsEmpty")
 renamed_func(table, "table", "has_key", "HasKey")
+renamed_func(table, "table", "has_value", "HasValue")
 renamed_func(table, "table", "to_string", "ToString")
 
 renamed_func(string, "string", "starts_with", "StartsWith")
