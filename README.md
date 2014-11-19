@@ -18,6 +18,7 @@ LuaServer [![Build Status](http://kateadams.eu/build/LuaServer/master/state.png)
 	- [2.1. Nginx](#nginx)  
 	- [2.2. Apache](#apache)  
 - [3. To Do](#to-do)  
+- [4. None-generic Name Propsal](#none-generic-name-propsal)
 	
 # Documentation
 
@@ -51,15 +52,17 @@ they may be automatically reloaded too.
 ## Handle a Page
 
 ```lua
-reqs.AddPattern(host, url_pattern, callback --[[request, response, ...]])
-reqs.AddPattern("*", "/hello_world", hello_world)
-reqs.AddPattern("host.com", "/hello_host", hello_host)
-reqs.AddPattern("*", "user/%d+/message", send_message)
+local hosts = require("luaserver.hosts")
+local domain = hosts.get("domain.tld")
 
---AddPattern also appends any captures to the function's arguments:
-reqs.AddPattern("*", "user/%d+/message", function(req, res, id)
-	print("sending message to ", id)
-end)
+-- callback is of type function(request, response, captures...)
+domain:add(static_path, callback)
+domain:addpattern(pattern_path, callback)
+
+domain:add("/hello_world", hello_world)
+domain:addpattern("/hello_(*)", hello_any)
+
+domain:addpattern("/user/(%d+)/message", send_user_message)
 ```
 
 ## Templating System
@@ -244,8 +247,8 @@ print(template.to_html())
 The following code will remove the hook used by reqs, so you can impliment your own if you desire
 
 ```lua
-hook.Remove("Request", "default")
-hook.Add("Request", "mine", function(req, res)
+hook.remove("Request", "default")
+hook.add("Request", "mine", function(req, res)
 	-- ...
 end)
 ```
@@ -277,35 +280,33 @@ Not implimented.
 - [ ] Remove other threading methods, only keep coroutines
 - [ ] Apache site installer for acting as a reverse proxy.
 
-# None-generic Name
+# None-generic Name Proposal
 
 	word a: lua, moon
 	word b: beam, ray, shaft, glow, glimmer, glint, flare, emit, scatter
 
-	*potential* **like**
+*potential* **like**
 
-	**luabeam**
-	*luaray*
-	luashaft
-	luaglow
-	luaglimmer
-	luaglint
-	**luaflare**
-	luaemit
-	luascatter
+- **luabeam**
+- *luaray*
+- luashaft
+- luaglow
+- luaglimmer
+- luaglint
+- **luaflare**
+- luaemit
+- luascatter
+- moonbeam
+- moonray
+- moonshaft
+- *moonglow*
+- moonglimmer
+- moonglint
+- **moonflare**
+- moonemit
+- moonscatter
 
-	moonbeam
-	moonray
-	moonshaft
-	*moonglow*
-	moonglimmer
-	moonglint
-	**moonflare**
-	moonemit
-	moonscatter
-
-
-	Maybe: Lula
+Maybe: Lula
 
 # Packaging concept
 
