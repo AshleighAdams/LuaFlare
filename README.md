@@ -18,7 +18,7 @@ LuaServer [![Build Status](http://kateadams.eu/build/LuaServer/master/state.png)
 	- [2.1. Nginx](#nginx)  
 	- [2.2. Apache](#apache)  
 - [3. To Do](#to-do)  
-- [4. None-generic Name Propsal](#none-generic-name-propsal)
+- [4. None-generic Name Propsal](#none-generic-name-proposal)
 	
 # Documentation
 
