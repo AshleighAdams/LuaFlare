@@ -285,7 +285,7 @@ Not implimented.
 	word a: lua, moon
 	word b: beam, ray, shaft, glow, glimmer, glint, flare, emit, scatter
 
-*potential* **like**
+*potential* **like** **_fav_**
 
 - **luabeam**
 - *luaray*
@@ -293,7 +293,7 @@ Not implimented.
 - luaglow
 - luaglimmer
 - luaglint
-- **luaflare**
+- **_luaflare_**
 - luaemit
 - luascatter
 - moonbeam
