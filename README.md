@@ -277,6 +277,35 @@ Not implimented.
 - [ ] Remove other threading methods, only keep coroutines
 - [ ] Apache site installer for acting as a reverse proxy.
 
+# None-generic Name
+
+	word a: lua, moon
+	word b: beam, ray, shaft, glow, glimmer, glint, flare, emit, scatter
+
+	*potential* **like**
+
+	**luabeam**
+	*luaray*
+	luashaft
+	luaglow
+	luaglimmer
+	luaglint
+	**luaflare**
+	luaemit
+	luascatter
+
+	moonbeam
+	moonray
+	moonshaft
+	*moonglow*
+	moonglimmer
+	moonglint
+	**moonflare**
+	moonemit
+	moonscatter
+
+
+	Maybe: Lula
 
 # Packaging concept
 
