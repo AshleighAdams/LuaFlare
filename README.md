@@ -18,7 +18,7 @@ LuaServer [![Build Status](http://kateadams.eu/build/LuaServer/master/state.png)
 	- [2.1. Nginx](#nginx)  
 	- [2.2. Apache](#apache)  
 - [3. To Do](#to-do)  
-- [4. None-generic Name Propsal](#none-generic-name-proposal)
+- [4. Non-generic Name Propsal](#non-generic-name-proposal)
 	
 # Documentation
 
@@ -280,7 +280,7 @@ Not implimented.
 - [ ] Remove other threading methods, only keep coroutines
 - [ ] Apache site installer for acting as a reverse proxy.
 
-# None-generic Name Proposal
+# Non-generic Name Proposal
 
 	word a: lua, moon
 	word b: beam, ray, shaft, glow, glimmer, glint, flare, emit, scatter
