@@ -75,7 +75,10 @@ local function tokenize(req, res, filename)
 	end
 	
 	local params = req:params()
-	if params.line then
+	if params.parse then
+		local parsed = assert(parser.parse(tokens))
+		res:append(table.to_string(parsed))
+	elseif params.line then
 		local tk
 		local curline, line = 1, tonumber(params.line) or 1
 		for k,t in pairs(tokens) do

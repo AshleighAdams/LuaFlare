@@ -167,13 +167,13 @@ local function to_lua_table_key(key)
 end
 
 function to_lua_table(tbl, depth, done)
-	if table.IsEmpty(tbl) then return "{}" end
+	if table.is_empty(tbl) then return "{}" end
 	
 	depth = depth or 1
 	done = done or {}
 	done[tbl] = true
 	
-	if depth > 10 then return "..." end
+	if depth > 1024 then return "..." end
 	
 	local ret = "{\n"
 	local tabs = string.rep("\t", depth)
