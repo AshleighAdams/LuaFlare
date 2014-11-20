@@ -1,5 +1,5 @@
-local util = require("luaserver.util")
-local script = require("luaserver.util.script")
+local util = require("luaflare.util")
+local script = require("luaflare.util.script")
 
 local scheduler = {}
 scheduler.tasks = {}

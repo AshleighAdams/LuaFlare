@@ -25,15 +25,15 @@ check-dependencies:
 
 install-bin: install-shared
 	$(MKDIR) $(LUASERVER_BIN_DIR) && \
-	$(CAT) ../luaserver.lua \
+	$(CAT) ../luaflare.lua \
 		| $(SED) "s|#!/usr/bin/env lua|#!/usr/bin/env $(LUA)|" \
-		> $(LUASERVER_BIN_DIR)/luaserver && \
-	$(CHMOD) +x $(LUASERVER_BIN_DIR)/luaserver
+		> $(LUASERVER_BIN_DIR)/luaflare && \
+	$(CHMOD) +x $(LUASERVER_BIN_DIR)/luaflare
 
-install-luaserver-opts: install-bin install-shared
-	$(PRECMD) $(LUASERVER_BIN_DIR_STR)/luaserver $(LUASERVER_POSTINT_OPTS)
+install-luaflare-opts: install-bin install-shared
+	$(PRECMD) $(LUASERVER_BIN_DIR_STR)/luaflare $(LUASERVER_POSTINT_OPTS)
 ifneq ($(SERVICE_SYSTEM),none)
-	$(_SERVICE) luaserver restart
+	$(_SERVICE) luaflare restart
 endif
 
 install-shared-files:
@@ -46,17 +46,17 @@ install-shared-files:
 	$(CP) -r ../static $(LUASERVER_CFG_DIR)/
 	$(CP) -r ../keys   $(LUASERVER_CFG_DIR)/
 	
-	# allthough libs/luaserver.lua has already been copied, copy it again, but replace the version number
-	$(CAT) ../libs/luaserver.lua \
-		| $(SED) "s|LuaServer git|LuaServer $(VERSION)|g" \
+	# allthough libs/luaflare.lua has already been copied, copy it again, but replace the version number
+	$(CAT) ../libs/luaflare.lua \
+		| $(SED) "s|LuaFlare git|LuaFlare $(VERSION)|g" \
 		| $(SED) "s|\".\", -- config-marker|\"$(LUASERVER_CFG_DIR_STR)\",|g" \
 		| $(SED) "s|\".\", -- lib-marker|\"$(LUASERVER_LIB_DIR_STR)\",|g" \
-		> $(LUASERVER_LIB_DIR)/libs/luaserver.lua
+		> $(LUASERVER_LIB_DIR)/libs/luaflare.lua
 	
 	$(MKDIR) $(LUASERVER_CFG_DIR)/sessions
 	$(MKDIR) $(LUASERVER_CFG_DIR)/sites
 	
-	# $(CP) -r ../luaserver.cfg $(LUASERVER_CFG_DIR)/luaserver.cfg
+	# $(CP) -r ../luaflare.cfg $(LUASERVER_CFG_DIR)/luaflare.cfg
 
 install-shared-ownership:
 	$(_CHOWN) -R $(USER):$(USER) $(LUASERVER_LIB_DIR_STR)/
@@ -69,57 +69,57 @@ install-none-service:
 
 install-systemd-service:
 	$(MKDIR) "$(SYSTEMD_UNIT_DIR)" && \
-	$(CAT) luaserver.systemd \
+	$(CAT) luaflare.systemd \
 		| $(SED) "s|LUASERVER_LIB_DIR|$(LUASERVER_LIB_DIR_STR)|g" \
 		| $(SED) "s|LUASERVER_CFG_DIR|$(LUASERVER_CFG_DIR_STR)|g" \
 		| $(SED) "s|LUASERVER_BIN_DIR|$(LUASERVER_BIN_DIR_STR)|g" \
 		| $(SED) "s|USER|$(USER)|g" \
-		> $(SYSTEMD_UNIT_DIR)/luaserver.service
+		> $(SYSTEMD_UNIT_DIR)/luaflare.service
 	$(_SYSTEMCTL) daemon-reload && \
-	$(_SYSTEMCTL) enable luaserver.service && \
-	$(_SYSTEMCTL) restart luaserver.service
+	$(_SYSTEMCTL) enable luaflare.service && \
+	$(_SYSTEMCTL) restart luaflare.service
 
 install-sysvinit-service:
 	$(MKDIR) "$(SYSVINIT_DAEMON_DIR)" && \
-	$(CAT) luaserver.sysvinit \
+	$(CAT) luaflare.sysvinit \
 		| $(SED) "s|LUASERVER_LIB_DIR|$(LUASERVER_LIB_DIR_STR)|g" \
 		| $(SED) "s|LUASERVER_CFG_DIR|$(LUASERVER_CFG_DIR_STR)|g" \
 		| $(SED) "s|LUASERVER_BIN_DIR|$(LUASERVER_BIN_DIR_STR)|g" \
 		| $(SED) "s|_USER|$(USER)|g" \
-		> $(SYSVINIT_DAEMON_DIR)/luaserver && \
-	$(CHMOD) +x $(SYSVINIT_DAEMON_DIR)/luaserver && \
-	$(_UPDATE_RC_D) luaserver defaults && \
-	$(_SERVICE) luaserver start
+		> $(SYSVINIT_DAEMON_DIR)/luaflare && \
+	$(CHMOD) +x $(SYSVINIT_DAEMON_DIR)/luaflare && \
+	$(_UPDATE_RC_D) luaflare defaults && \
+	$(_SERVICE) luaflare start
 	
 install-upstart-service:
 	$(MKDIR) "$(UPSTART_DAEMON_DIR)" && \
-	$(CAT) luaserver.upstart \
+	$(CAT) luaflare.upstart \
 		| $(SED) "s|LUASERVER_LIB_DIR|$(LUASERVER_LIB_DIR_STR)|g" \
 		| $(SED) "s|LUASERVER_CFG_DIR|$(LUASERVER_CFG_DIR_STR)|g" \
 		| $(SED) "s|LUASERVER_BIN_DIR|$(LUASERVER_BIN_DIR_STR)|g" \
 		| $(SED) "s|USER|$(USER)|g" \
-		> $(UPSTART_DAEMON_DIR)/luaserver.conf && \
-	$(_SERVICE) luaserver start
+		> $(UPSTART_DAEMON_DIR)/luaflare.conf && \
+	$(_SERVICE) luaflare start
 
 install-nginx-site:
 	$(MKDIR) "$(NGINX_DIR)/sites-available/" && \
 	$(MKDIR) "$(NGINX_DIR)/sites-enabled/" && \
-	$(CAT) luaserver.nginx \
+	$(CAT) luaflare.nginx \
 		| $(SED) "s|NGINX_SITE_HTTP_PORT|$(NGINX_SITE_HTTP_PORT)|g" \
 		| $(SED) "s|NGINX_SITE_HTTPS_PORT|$(NGINX_SITE_HTTPS_PORT)|g" \
 		| $(SED) "s|LUASERVER_LIB_DIR|$(LUASERVER_LIB_DIR_STR)|g" \
 		| $(SED) "s|LUASERVER_CFG_DIR|$(LUASERVER_CFG_DIR_STR)|g" \
 		| $(SED) "s|LUASERVER_PORT|$(LUASERVER_PORT)|g" \
-		> "$(NGINX_DIR)/sites-available/luaserver";
+		> "$(NGINX_DIR)/sites-available/luaflare";
 	
-	$(LN) $(NGINX_DIR)/sites-available/luaserver $(NGINX_DIR)/sites-enabled/luaserver
+	$(LN) $(NGINX_DIR)/sites-available/luaflare $(NGINX_DIR)/sites-enabled/luaflare
 	$(_SERVICE) nginx restart # systemd / upstart should impliment this
 
 install-bash-completion:
 	$(MKDIR) "$(BASH_COMPLETION_DIR)" && \
-	$(CAT) luaserver.bash-completion \
+	$(CAT) luaflare.bash-completion \
 		| $(SED) "s|LUASERVER_LIB_DIR|$(LUASERVER_LIB_DIR_STR)|g" \
 		| $(SED) "s|LUASERVER_CFG_DIR|$(LUASERVER_CFG_DIR_STR)|g" \
-	> "$(BASH_COMPLETION_DIR)/luaserver"
+	> "$(BASH_COMPLETION_DIR)/luaflare"
 
 install: check-dependencies install-bin install-extra

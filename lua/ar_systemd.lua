@@ -1,7 +1,7 @@
 -- Tell systemd that we've loaded
-local script = require("luaserver.util.script")
-local hook = require("luaserver.hook")
-local scheduler = require("luaserver.scheduler")
+local script = require("luaflare.util.script")
+local hook = require("luaflare.hook")
+local scheduler = require("luaflare.scheduler")
 --[[
 # luarocks install systemd
 # ln -s /usr/local/share/lua/5.1/systemd /usr/local/share/lua/5.2/systemd

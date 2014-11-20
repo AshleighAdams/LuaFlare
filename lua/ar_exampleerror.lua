@@ -1,4 +1,4 @@
-local hosts = require("luaserver.hosts")
+local hosts = require("luaflare.hosts")
 
 local function exampleerror(req, res, str)
 	local testbl = {argument = str, time = util.time()}

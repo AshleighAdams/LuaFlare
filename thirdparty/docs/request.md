@@ -1,4 +1,4 @@
-# LuaServer request object
+# LuaFlare request object
 
 `local request = _G.Request(client)`
 
@@ -57,7 +57,7 @@ Returns the IP address, following X-Real-IP if a reverse proxy is being used.
 Returns the host the request is using.
 
 HTTP/1.2 does not require the Host header to be set, if the first HTTP line specified it.
-LuaServer sets the host for compatibility anyway, but you should still use this.
+LuaFlare sets the host for compatibility anyway, but you should still use this.
 
 ### `request:parse_cookies()`
 
@@ -79,4 +79,4 @@ Returns true if this request has been upgraded to another type of connection.
 
 Tell the request that it has been upgraded.
 
-Once this has been called, LuaServer *forgets* about this connection (does not close it).  As well as avoiding to keep the connection alive (`Connection: keep-alive`).
+Once this has been called, LuaFlare *forgets* about this connection (does not close it).  As well as avoiding to keep the connection alive (`Connection: keep-alive`).

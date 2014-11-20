@@ -3,8 +3,8 @@ if not _VERSION:match("5%.2") then
 	return
 end
 
-local hook = require("luaserver.hook")
-local parser = require("luaserver.util.luaparser")
+local hook = require("luaflare.hook")
+local parser = require("luaflare.util.luaparser")
 
 print("warning: running under 5.2 compatibility layer, please think about moving to a more recent Lua version.")
 

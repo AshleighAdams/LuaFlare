@@ -1,4 +1,4 @@
-local escape = require("luaserver.util.escape")
+local escape = require("luaflare.util.escape")
 
 local tags = {}
 

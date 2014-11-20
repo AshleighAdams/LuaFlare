@@ -1,24 +1,24 @@
 #!/lib/init/init-d-script
 ### BEGIN INIT INFO
-# Provides:          luaserver
+# Provides:          luaflare
 # Required-Start:    $local_fs $remote_fs $network $syslog
 # Required-Stop:     $local_fs $remote_fs $network $syslog
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: LuaServer
+# Short-Description: LuaFlare
 # Description:       Lua web server
 ### END INIT INFO
 
 # Author: Kate Adams <self@kateadams.eu>
 
 USER=_USER
-LUASERVER=LUASERVER_BIN_DIR/luaserver
+LUASERVER=LUASERVER_BIN_DIR/luaflare
 DIR=LUASERVER_LIB_DIR
 
-NAME="luaserver"
+NAME="luaflare"
 DESC="Lua web server"
 DAEMON="none"
-PIDFILE="/var/run/luaserver.pid"
+PIDFILE="/var/run/luaflare.pid"
 
 do_start_cmd() {
 	if [ -f $PIDFILE ]; then

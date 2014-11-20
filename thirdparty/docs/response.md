@@ -1,4 +1,4 @@
-# LuaServer response object
+# LuaFlare response object
 
 `local response = _G.Request(request)`
 

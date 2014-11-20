@@ -1,6 +1,6 @@
-# LuaServer util libary
+# LuaFlare util libary
 
-`local util = require("luaserver.util")`
+`local util = require("luaflare.util")`
 
 ## `number util.time()`
 

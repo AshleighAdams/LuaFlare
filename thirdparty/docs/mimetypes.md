@@ -1,6 +1,6 @@
-# LuaServer mimetypes libary
+# LuaFlare mimetypes libary
 
-`local mimetypes = require("luaserver.mimetypes")`
+`local mimetypes = require("luaflare.mimetypes")`
 
 Translate file extensions to mime types.  Has basic types inbuilt, and loads the rest from `/etc/mime.types`
 

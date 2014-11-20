@@ -1,7 +1,7 @@
 
-local httpstatus = require("luaserver.httpstatus")
-local hook = require("luaserver.hook")
-local tags = require("luaserver.tags")
+local httpstatus = require("luaflare.httpstatus")
+local hook = require("luaflare.hook")
+local tags = require("luaflare.tags")
 
 local template = include("template-error.lua")
 
@@ -58,7 +58,7 @@ local function basic_lua_error(err, trace, vars, args)
 			if blame and v:trim():starts_with(blame) then
 				atblame = true -- we can start adding traces
 			elseif str:trim():starts_with("inc/requesthooks.lua") then
-				break -- after this is internal LuaServer stuff
+				break -- after this is internal LuaFlare stuff
 			end
 			
 			if atblame then

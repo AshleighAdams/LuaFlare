@@ -1,5 +1,5 @@
-local script = require("luaserver.util.script")
-local hook = require("luaserver.hook")
+local script = require("luaflare.util.script")
+local hook = require("luaflare.hook")
 
 local function out_pid()
 	if script.options["out-pid"] ~= nil then

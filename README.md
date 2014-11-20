@@ -1,4 +1,4 @@
-LuaServer [![Build Status](http://kateadams.eu/build/LuaServer/master/state.png)](http://kateadams.eu/build/LuaServer/master/)
+LuaFlare [![Build Status](http://kateadams.eu/build/LuaFlare/master/state.png)](http://kateadams.eu/build/LuaFlare/master/)
 =========
 
 # Table of Contents
@@ -53,7 +53,7 @@ they may be automatically reloaded too.
 ## Handle a Page
 
 ```lua
-local hosts = require("luaserver.hosts")
+local hosts = require("luaflare.hosts")
 local domain = hosts.get("domain.tld")
 
 -- callback is of type function(request, response, captures...)
@@ -68,7 +68,7 @@ domain:addpattern("/user/(%d+)/message", send_user_message)
 
 ## Templating System
 
-LuaServer comes with it's own templating system, you can still use `reqest:append(string)` should you choose to (eg,
+LuaFlare comes with it's own templating system, you can still use `reqest:append(string)` should you choose to (eg,
 implimenting your own templating system).
 <!--- jist is not spelt incorrectly, gist = g for ghost, IMO, so yeah... --->
 The default templating system offers the `tags` namespace.  The general jist is `tag [, attributes][, children]` where
@@ -256,13 +256,13 @@ end)
 
 # Reverse Proxy
 
-LuaServer by default is expecting to be ran behind a reverse proxy.
-This allows sending files via X-Accel-Redirect or X-Sendfile, and protects LuaServer against many types of attacks.
+LuaFlare by default is expecting to be ran behind a reverse proxy.
+This allows sending files via X-Accel-Redirect or X-Sendfile, and protects LuaFlare against many types of attacks.
 
 ## Nginx
 
 Upon `make install`, if nginx is present, then the Nginx site is copied into `/etc/nginx/sites`.
-See `thirdparty/luaserver.nginx` for the site to be installed.
+See `thirdparty/luaflare.nginx` for the site to be installed.
 
 ## Apache
 
@@ -311,24 +311,24 @@ Maybe: Lula
 
 # Packaging concept
 
-	luaserver
-		Recommends: luaserver-service, luaserver-reverseproxy
+	luaflare
+		Recommends: luaflare-service, luaflare-reverseproxy
 	
-	luaserver-reverseproxy-nginx: installs nginx-related files for luaserver
-		Depends: luaserver, nginx
-		Provides: luaserver-reverseproxy
-	luaserver-reverseproxy-apache: installs apache-related files for luaserver
-		Depends: luaserver, apache
-		Provides: luaserver-reverseproxy
+	luaflare-reverseproxy-nginx: installs nginx-related files for luaflare
+		Depends: luaflare, nginx
+		Provides: luaflare-reverseproxy
+	luaflare-reverseproxy-apache: installs apache-related files for luaflare
+		Depends: luaflare, apache
+		Provides: luaflare-reverseproxy
 	
-	luaserver-service-systemd: installs luaserver systemd service files
-		Depends: luaserver, systemd
-		Provides: luaserver-service
-	luaserver-service-sysvinit: installs luaserver sysvinit service files
-		Depends: luaserver, sysvinit
-		Provides: luaserver-service
-	luaserver-service-upstart:  installs luaserver upstart service files
-		Depends: luaserver, upstart
-		Provides: luaserver-service
+	luaflare-service-systemd: installs luaflare systemd service files
+		Depends: luaflare, systemd
+		Provides: luaflare-service
+	luaflare-service-sysvinit: installs luaflare sysvinit service files
+		Depends: luaflare, sysvinit
+		Provides: luaflare-service
+	luaflare-service-upstart:  installs luaflare upstart service files
+		Depends: luaflare, upstart
+		Provides: luaflare-service
 
 

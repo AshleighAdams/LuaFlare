@@ -1,6 +1,6 @@
-# LuaServer tags libary
+# LuaFlare tags libary
 
-`local tags = require("luaserver.tags")`
+`local tags = require("luaflare.tags")`
 
 Provides HTML generation with automatic escaping.
 

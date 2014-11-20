@@ -1,4 +1,4 @@
-local hook = require("luaserver.hook")
+local hook = require("luaflare.hook")
 
 local canonical_headers = [[
 Accept

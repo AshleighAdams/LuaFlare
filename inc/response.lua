@@ -1,7 +1,7 @@
-local luaserver = require("luaserver")
-local mimetypes = require("luaserver.mimetypes")
-local httpstatus = require("luaserver.httpstatus")
-local script = require("luaserver.util.script")
+local luaflare = require("luaflare")
+local mimetypes = require("luaflare.mimetypes")
+local httpstatus = require("luaflare.httpstatus")
+local script = require("luaflare.util.script")
 local md5 = require("md5")
 local lfs = require("lfs")
 
@@ -20,7 +20,7 @@ function Response(request)
 	}
 	setmetatable(ret, meta)
 	
-	ret:set_header("Server", "luaserver")
+	ret:set_header("Server", "luaflare")
 	ret:set_header("Connection", request:headers().Connection or "close")
 	ret:set_header("Content-Type", "text/html")
 	
@@ -89,7 +89,7 @@ function meta::halt(number code, reason) -- default code is?
 	hook.call("Error", {type = code, message = reason}, self:request(), self)
 end
 
-local cfg_path = luaserver.config_path
+local cfg_path = luaflare.config_path
 function meta::set_file(string path)-- expects(meta, "string")
 	local file = io.open(path, "rb")
 	

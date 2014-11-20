@@ -1,8 +1,8 @@
-local session = require("luaserver.session")
-local hosts = require("luaserver.hosts")
-local hook = require("luaserver.hook")
-local tags = require("luaserver.tags")
-local escape = require("luaserver.util.escape")
+local session = require("luaflare.session")
+local hosts = require("luaflare.hosts")
+local hook = require("luaflare.hook")
+local tags = require("luaflare.tags")
+local escape = require("luaflare.util.escape")
 
 local function translate(req, res, filename)
 	filename = filename:trim()
@@ -24,9 +24,9 @@ end
 hosts.developer:addpattern("/translate/(.+)", translate)
 
 
-local parser = require("luaserver.util.luaparser")
-local escape = require("luaserver.util.escape")
-local util = require("luaserver.util")
+local parser = require("luaflare.util.luaparser")
+local escape = require("luaflare.util.escape")
+local util = require("luaflare.util")
 
 local function tokenize(req, res, filename)
 	filename = filename:trim()

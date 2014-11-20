@@ -2,7 +2,7 @@
 description     "Lua web server"
 author          "Kate Adams <self@kateadams.eu>"
 
-# /etc/init/luaserver.conf
+# /etc/init/luaflare.conf
 
 # no start option as you might not want it to auto-start
 # This might not be supported - you might need a: start on runlevel [3]
@@ -17,7 +17,7 @@ respawn
 
 script
     cd LUASERVER_LIB_DIR
-    sudo -u USER "LUASERVER_BIN_DIR/luaserver" listen >> /var/log/luaserver.log 2>&1
+    sudo -u USER "LUASERVER_BIN_DIR/luaflare" listen >> /var/log/luaflare.log 2>&1
 end script
 
-# exec start-stop-daemon --start --make-pidfile --pidfile /var/run/luaserver.pid --chuid USER --exec "LUASERVER_BIN_DIR/luaserver" listen >> /var/log/luaserver.log 2>&1
+# exec start-stop-daemon --start --make-pidfile --pidfile /var/run/luaflare.pid --chuid USER --exec "LUASERVER_BIN_DIR/luaflare" listen >> /var/log/luaflare.log 2>&1

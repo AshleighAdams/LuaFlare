@@ -1,6 +1,6 @@
 
-local hosts = require("luaserver.hosts")
-local scheduler = require("luaserver.scheduler")
+local hosts = require("luaflare.hosts")
+local scheduler = require("luaflare.scheduler")
 local sha1 = require("sha1")
 local bit = require("bit")
 local base64 = require("base64")

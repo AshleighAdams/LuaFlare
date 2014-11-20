@@ -1,7 +1,7 @@
 local configor = require("configor")
-local stack = require("luaserver.util.stack")
-local escape = require("luaserver.util.escape")
-local hook = require("luaserver.hook")
+local stack = require("luaflare.util.stack")
+local escape = require("luaflare.util.escape")
+local hook = require("luaflare.hook")
 local util
 
 -- All extensions to inbuilt libs use ThisCase
@@ -464,7 +464,7 @@ function include(file, ...) expects "string"
 	return unpack(ret), deps
 end
 
-util = require("luaserver.util")
+util = require("luaflare.util")
 
 local real_require = require
 function require(mod)

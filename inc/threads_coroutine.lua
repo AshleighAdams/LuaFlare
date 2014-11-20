@@ -1,6 +1,6 @@
-local threadpool = require("luaserver.threadpool")
-local scheduler = require("luaserver.scheduler")
-local hook = require("luaserver.hook")
+local threadpool = require("luaflare.threadpool")
+local scheduler = require("luaflare.scheduler")
+local hook = require("luaflare.hook")
 
 -- detours shit to coroutinify it
 routines = routines or {}

@@ -1,6 +1,6 @@
-local hook = require("luaserver.hook")
+local hook = require("luaflare.hook")
 
-local hosts = {} -- make require("luaserver.hosts") like
+local hosts = {} -- make require("luaflare.hosts") like
 hosts.hosts = {}
 hosts.upgrades = {}
 hosts.host_meta = {}

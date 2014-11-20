@@ -1,4 +1,4 @@
-# bash completion for luaserver
+# bash completion for luaflare
 
 _comreply_opt()
 {
@@ -21,7 +21,7 @@ _comreply_opt()
 	esac
 }
 
-_luaserver()
+_luaflare()
 {
 	local cur prev opts shortopts actions
 	COMPREPLY=()
@@ -31,7 +31,7 @@ _luaserver()
 	
 	# not sure if i should enable this, default software doesn't autocomplete options (such as apt-get)
 	#opts="--help --version --port= --threads= --threads-model= --host= --local --unit-test --no-reload --max-etag-size= --reverse-proxy --trusted-reverse-proxies= --x-accel-redirect= --x-sendfile --chunk-size= --scheduler-tick-rate= --max-post-length= --systemd"
-	opts=`luaserver --help | egrep -o "\\-\\-[A-Za-z\\-]+=?" | tr "\n" " "`
+	opts=`luaflare --help | egrep -o "\\-\\-[A-Za-z\\-]+=?" | tr "\n" " "`
 	shortopts="-l -t -h -v"
 	actions="listen mount unmount"
 	
@@ -73,4 +73,4 @@ _luaserver()
 	return 0
 }
 
-complete -F _luaserver luaserver
+complete -F _luaflare luaflare

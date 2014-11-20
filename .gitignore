@@ -9,7 +9,7 @@ build.zip
 # for buildserver
 sites/buildserver/build_files/
 sites/buildserver/static/*/build/*
-sites/buildserver/static/*/build/LuaServer2.zip
+sites/buildserver/static/*/build/LuaFlare2.zip
 sites/tty
 sites/kateadams.eu/
 

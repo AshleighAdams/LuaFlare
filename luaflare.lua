@@ -3,9 +3,9 @@
 local function usage()
 	print([[
 usage:
-    luaserver listen [OPTIONS]...
-    luaserver mount PATH NAME
-    luaserver unmount NAME
+    luaflare listen [OPTIONS]...
+    luaflare mount PATH NAME
+    luaflare unmount NAME
 
 --port=number                     Port to bind to (default 8080).
 --threads=number                  Number of threads to create (default 2).
@@ -43,28 +43,28 @@ end
 -- so we can exit ASAP, for bash completion speedy-ness
 if arg[1] == "--help" then return usage() end
 
-local luaserver
+local luaflare
 do -- for require() to check modules path
 	local tp, tcp = package.path, package.cpath
 	
 	local path = arg[0]:match("(.+)/") or "."
 	if path:sub(-4, -1) == "/bin" then
-		path = path:sub(1, -5) .. "/lib/luaserver"
+		path = path:sub(1, -5) .. "/lib/luaflare"
 	end
 	
 	package.path = path .. "/libs/?.lua;" .. tp
 	package.cpath = path .. "/libs/?.so;" .. tcp
 	
-	luaserver = require("luaserver")
-	package.path = luaserver.lib_path .. "/libs/?.lua;" .. tp
-	package.cpath = luaserver.lib_path .. "/libs/?.so;" .. tcp
+	luaflare = require("luaflare")
+	package.path = luaflare.lib_path .. "/libs/?.lua;" .. tp
+	package.cpath = luaflare.lib_path .. "/libs/?.so;" .. tcp
 end
 
 expects = function() end
-dofile(luaserver.lib_path .. "/inc/compatibility-5.1.lua")
-dofile(luaserver.lib_path .. "/inc/compatibility-5.2.lua")
-dofile(luaserver.lib_path .. "/inc/util.lua")
-dofile(luaserver.lib_path .. "/inc/syntax_extensions.lua")
+dofile(luaflare.lib_path .. "/inc/compatibility-5.1.lua")
+dofile(luaflare.lib_path .. "/inc/compatibility-5.2.lua")
+dofile(luaflare.lib_path .. "/inc/util.lua")
+dofile(luaflare.lib_path .. "/inc/syntax_extensions.lua")
 
 local socket = require("socket")
 local ssl = require("ssl")
@@ -72,10 +72,10 @@ local posix = require("posix")
 local configor = require("configor")
 local lfs = require("lfs")
 
-local hook = require("luaserver.hook")
-local util = require("luaserver.util")
-local script = require("luaserver.util.script")
-local escape = require("luaserver.util.escape")
+local hook = require("luaflare.hook")
+local util = require("luaflare.util")
+local script = require("luaflare.util.script")
+local escape = require("luaflare.util.escape")
 
 local shorthands = {
 	v = "version",
@@ -85,9 +85,9 @@ local shorthands = {
 }
 script.parse_arguments(arg, shorthands)
 
-dofile(luaserver.lib_path .. "/inc/request.lua")
-dofile(luaserver.lib_path .. "/inc/response.lua")
-dofile(luaserver.lib_path .. "/inc/savetotable.lua")
+dofile(luaflare.lib_path .. "/inc/request.lua")
+dofile(luaflare.lib_path .. "/inc/response.lua")
+dofile(luaflare.lib_path .. "/inc/savetotable.lua")
 
 	
 local port = tonumber(script.options.port) or 8080
@@ -133,10 +133,10 @@ local params = {
 
 function main()
 	if script.options["unit-test"] then
-		include(luaserver.lib_path .. "/inc/unittests.lua")
+		include(luaflare.lib_path .. "/inc/unittests.lua")
 		return unit_test()
 	elseif script.options.version then
-		return print(string.format("%s (%s)", luaserver._VERSION, _VERSION))
+		return print(string.format("%s (%s)", luaflare._VERSION, _VERSION))
 	elseif script.options.help then
 		return usage()
 	end
@@ -145,7 +145,7 @@ function main()
 		local thread_mdl = script.options["threads-model"] or "coroutine"
 		dofile(string.format("inc/threads_%s.lua", thread_mdl))
 	
-		dofile(luaserver.lib_path .. "/inc/autorun.lua")
+		dofile(luaflare.lib_path .. "/inc/autorun.lua")
 		assert(main_loop, "`main_loop()` is not defined!")
 	
 		main_loop()
@@ -155,14 +155,14 @@ function main()
 		if not dir then print("error: expected PATH") return usage() end
 		if not name then print("error: expected NAME") return usage() end
 		
-		name = luaserver.config_path .. "/sites/" .. name
+		name = luaflare.config_path .. "/sites/" .. name
 		os.execute(string.format("ln -s \"`pwd`/%s\" \"%s\"", escape.argument(dir), escape.argument(name)))
 		return
 	elseif script.arguments[1] == "unmount" then
 		local name = script.arguments[2]
 		if not name then print("error: expected NAME") return usage() end
 		
-		name = luaserver.config_path .. "/sites/" .. name
+		name = luaflare.config_path .. "/sites/" .. name
 		os.execute(string.format("rm -r \"%s\"", escape.argument(name)))
 		return
 	elseif script.arguments[1] then
@@ -176,7 +176,7 @@ do
 	if f then
 		f:close()
 		f = io.open("/proc/self/comm", "w")
-		f:write("luaserver")
+		f:write("luaflare")
 		f:close()
 	end
 end

@@ -1,6 +1,6 @@
-# LuaServer session libary
+# LuaFlare session libary
 
-`local session = require("luaserver.session")`
+`local session = require("luaflare.session")`
 
 Provides session information for a request.
 

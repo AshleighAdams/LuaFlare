@@ -1,11 +1,11 @@
-local luaserver = require("luaserver")
+local luaflare = require("luaflare")
 
 local session = {}
 local posix = require("posix")
 local meta = {}
 meta._meta = {__index = meta}
 
-local session_path = luaserver.config_path .. "/sessions/"
+local session_path = luaflare.config_path .. "/sessions/"
 
 session.valid_chars = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789"
 local function random_string(length)

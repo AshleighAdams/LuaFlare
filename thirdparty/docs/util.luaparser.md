@@ -1,6 +1,6 @@
-# LuaServer luaparser libary
+# LuaFlare luaparser libary
 
-`local parser = require("luaserver.util.luaparser")`
+`local parser = require("luaflare.util.luaparser")`
 
 Tokenize Lua code.  Used for syntax extensions.
 

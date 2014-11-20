@@ -1,8 +1,8 @@
-local hook = require("luaserver.hook")
-local hosts = require("luaserver.hosts")
-local scheduler = require("luaserver.scheduler")
-local script = require("luaserver.util.script")
-local vfs = require("luaserver.virtualfilesystem")
+local hook = require("luaflare.hook")
+local hosts = require("luaflare.hosts")
+local scheduler = require("luaflare.scheduler")
+local script = require("luaflare.util.script")
+local vfs = require("luaflare.virtualfilesystem")
 
 local template = include("template-stats.lua")
 

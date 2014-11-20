@@ -1,6 +1,6 @@
-# LuaServer escape libary
+# LuaFlare escape libary
 
-`local escape = require("luaserver.util.escape")`
+`local escape = require("luaflare.util.escape")`
 
 Provides methods to escape strings to their safe(er) forms.
 

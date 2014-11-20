@@ -1,5 +1,5 @@
-local hook = require("luaserver.hook")
-local parser = require("luaserver.util.luaparser")
+local hook = require("luaflare.hook")
+local parser = require("luaflare.util.luaparser")
 
 local function add_expects(tokens)
 	local toinsert = {}

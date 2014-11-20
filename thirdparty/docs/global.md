@@ -1,4 +1,4 @@
-# LuaServer global functions
+# LuaFlare global functions
 
 ## `expects_types`
 

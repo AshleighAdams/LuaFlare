@@ -1,10 +1,10 @@
 local lfs = require("lfs")
-local mimetypes = require("luaserver.mimetypes")
-local escape = require("luaserver.util.escape")
-local hosts = require("luaserver.hosts")
-local vfs = require("luaserver.virtualfilesystem")
+local mimetypes = require("luaflare.mimetypes")
+local escape = require("luaflare.util.escape")
+local hosts = require("luaflare.hosts")
+local vfs = require("luaflare.virtualfilesystem")
 
-local static_dir = luaserver.config_path .. "/static/"
+local static_dir = luaflare.config_path .. "/static/"
 local count = 0
 
 local function itterate_dir(dir, callback, ...)
@@ -70,7 +70,7 @@ count = 0
 
 --load sites static's dir
 
-local sitespath = luaserver.config_path .. "/sites/"
+local sitespath = luaflare.config_path .. "/sites/"
 for filename in lfs.dir(sitespath) do
 	local file = sitespath .. filename .. "/static/"
 	static_dir = file

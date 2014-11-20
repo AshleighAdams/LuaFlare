@@ -1,6 +1,6 @@
 local configor = require("configor")
-local util = require("luaserver.util")
-local luaserver = require("luaserver")
+local util = require("luaflare.util")
+local luaflare = require("luaflare")
 
 local script = {}
 
@@ -93,12 +93,12 @@ function script.parse_arguments(args, shorthands, nosave) expects "table"
 		end
 	end
 	
-	script.options.config = luaserver.config_path
+	script.options.config = luaflare.config_path
 	
 	-- if --config is set, then load and update it
 	if type(script.options.config) == "string" and not nosave then
 		local save_config = false
-		local path = script.options.config .. "/luaserver.cfg"
+		local path = script.options.config .. "/luaflare.cfg"
 		
 		print(string.format("loading options from %s", path))
 		local cfg, err = configor.loadfile(path)

@@ -21,7 +21,7 @@ function parser.assert(...)
 	return table.unpack(vals)
 end
 
-local stringreader = require("luaserver.util.luaparser.stringreader")
+local stringreader = require("luaflare.util.luaparser.stringreader")
 
 local function fix_lookup_table(tbl)
 	for k,v in ipairs(tbl) do

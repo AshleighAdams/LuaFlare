@@ -1,11 +1,11 @@
-local luaserver = require("luaserver")
+local luaflare = require("luaflare")
 local vfs = {}
 vfs.mount_points = { "./" }
 
 --[[
-LuaServer file structure:
+LuaFlare file structure:
 
-/etc/luaserver/luaserver.cfg
+/etc/luaflare/luaflare.cfg
 
 ]]
 
@@ -15,7 +15,7 @@ function vfs.locate(string path, boolean fallback = false)
 	local info = debug.getinfo(2) -- caller info
 	
 	local source = info.source
-	local root = luaserver.config_path
+	local root = luaflare.config_path
 	
 	assert(source:sub(1, root:len()) == root)
 	

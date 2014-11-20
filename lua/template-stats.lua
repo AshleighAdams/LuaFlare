@@ -1,7 +1,7 @@
-local tags = require("luaserver.tags")
-local scheduler = require("luaserver.scheduler")
-local script = require("luaserver.util.script")
-local hook = require("luaserver.hook")
+local tags = require("luaflare.tags")
+local scheduler = require("luaflare.scheduler")
+local script = require("luaflare.util.script")
+local hook = require("luaflare.hook")
 
 local template = {}
 template.barwidth = 1;
@@ -13,7 +13,7 @@ function template.make(req, res, contents, info)
 	{
 		tags.head
 		{
-			tags.title { "LuaServer Statistics" },
+			tags.title { "LuaFlare Statistics" },
 			tags.script { src = "//www.google.com/jsapi" },
 			tags.script { src = "//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js" },
 			tags.script { src = "/stats/jquery.csv-0.71.min.js" },

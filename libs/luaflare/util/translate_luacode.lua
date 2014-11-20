@@ -1,5 +1,5 @@
-local parser = require("luaserver.util.luaparser")
-local hook = require("luaserver.hook")
+local parser = require("luaflare.util.luaparser")
+local hook = require("luaflare.hook")
 
 local rgx = "function$ $maybename$ %($args%)"
 rgx = rgx:replace("$maybename", "([A-z0-9_%.:]*)")

@@ -1,6 +1,6 @@
-# LuaServer threadpool libary
+# LuaFlare threadpool libary
 
-`local threadpool = require("luaserver.threadpool")`
+`local threadpool = require("luaflare.threadpool")`
 
 ## `pool threadpool.create(number threads, function func)`
 

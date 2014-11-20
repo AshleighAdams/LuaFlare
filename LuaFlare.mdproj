@@ -12,7 +12,7 @@
     <OutputPath>.</OutputPath>
     <InterpreterArgs>
     </InterpreterArgs>
-    <MainFile>luaserver.lua</MainFile>
+    <MainFile>luaflare.lua</MainFile>
     <Commandlineparameters>--release</Commandlineparameters>
     <Externalconsole>true</Externalconsole>
   </PropertyGroup>
@@ -20,7 +20,7 @@
     <OutputPath>.</OutputPath>
     <Externalconsole>true</Externalconsole>
     <Commandlineparameters>--debug</Commandlineparameters>
-    <MainFile>luaserver.lua</MainFile>
+    <MainFile>luaflare.lua</MainFile>
     <InterpreterArgs>
     </InterpreterArgs>
   </PropertyGroup>
@@ -50,11 +50,11 @@
     <None Include="static\*\favicon.ico" />
     <None Include="static\*\lua_logo.png" />
     <None Include=".project_globals" />
-    <None Include="luaserver_daemon" />
+    <None Include="luaflare_daemon" />
     <None Include="instance.sh" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="luaserver.lua" />
+    <Compile Include="luaflare.lua" />
     <Compile Include="inc\autorun.lua" />
     <Compile Include="inc\hooks.lua" />
     <Compile Include="inc\htmlwriter.lua" />

@@ -1,6 +1,6 @@
-# LuaServer hook libary
+# LuaFlare hook libary
 
-`local hook = require("luaserver.hook")`
+`local hook = require("luaflare.hook")`
 
 ## *`hook.invalidate(any name)`*
 

@@ -1,6 +1,6 @@
-# LuaServer stringreader object
+# LuaFlare stringreader object
 
-`local stringreader = require("luaserver.util.luaparser.stringreader")`
+`local stringreader = require("luaflare.util.luaparser.stringreader")`
 
 A helper libary used by `luaparser`.
 

@@ -1,4 +1,4 @@
-local tags = require("luaserver.tags")
+local tags = require("luaflare.tags")
 
 return {
 	make = function(self, title, heading, info, content, fgcol, bgcol)
@@ -11,7 +11,7 @@ return {
 				{[[
 					@font-face {
 						font-family: ProximaNovaCond;
-						src: url("/luaserver/Proxima Nova-Regular.otf") format("opentype");
+						src: url("/luaflare/Proxima Nova-Regular.otf") format("opentype");
 					}
 					body {
 						margin: 0;
@@ -26,7 +26,7 @@ return {
 					div.mountains {
 						width: 100%;
 						height: 375px;
-						background-image: url("/luaserver/mountain-silhouette.png");
+						background-image: url("/luaflare/mountain-silhouette.png");
 						background-repeat: repeat-x;
 						background-position: center bottom 0px;
 					}
@@ -38,7 +38,7 @@ return {
 					}
 					div.space
 					{
-						background-image: url("/luaserver/space.png");
+						background-image: url("/luaflare/space.png");
 						z-index: -2;
 					}
 					div.background
@@ -57,7 +57,7 @@ return {
 						top: 40px;
 						left: 50%;
 						position: relative;
-						background-image: url("/luaserver/moon.png");
+						background-image: url("/luaflare/moon.png");
 						background-size: 100% 100%;
 						z-index:-1;
 					}

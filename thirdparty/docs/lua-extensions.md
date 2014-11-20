@@ -1,6 +1,6 @@
-# LuaServer Lua extensions
+# LuaFlare Lua extensions
 
-LuaServer provides some type-checking syntax.  Before loading any code, either by `require()`, `dofile()`, or `include()`, LuaServer will process the file, and translate the type information to an immediate call to `expects()`.
+LuaFlare provides some type-checking syntax.  Before loading any code, either by `require()`, `dofile()`, or `include()`, LuaFlare will process the file, and translate the type information to an immediate call to `expects()`.
 
 ## Syntax
 

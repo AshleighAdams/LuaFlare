@@ -1,8 +1,8 @@
-# LuaServer httpstatus libary
+# LuaFlare httpstatus libary
 
 Serves to translate between HTTP status codes and HTTP status messages.
 
-`local httpstatus = require("luaserver.httpstatus")`
+`local httpstatus = require("luaflare.httpstatus")`
 
 ## `httpstatus.know_statuses`
 

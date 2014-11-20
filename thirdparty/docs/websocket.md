@@ -1,6 +1,6 @@
-# LuaServer websocket libary
+# LuaFlare websocket libary
 
-`local websocket = require("luaserver.websocket")`
+`local websocket = require("luaflare.websocket")`
 
 ## `websocket.registered`
 

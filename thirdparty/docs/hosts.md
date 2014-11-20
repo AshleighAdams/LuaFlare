@@ -1,6 +1,6 @@
-# LuaServer hosts libary
+# LuaFlare hosts libary
 
-`local hosts = require("luaserver.hosts")`
+`local hosts = require("luaflare.hosts")`
 
 ## `hosts.any`
 

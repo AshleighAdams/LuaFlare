@@ -1,7 +1,7 @@
-# Install LuaServer on Debian based distros
-This simple guide will show you how to install LuaServer on a fresh install of Debian, compatible with Ubuntu/Mint.
+# Install LuaFlare on Debian based distros
+This simple guide will show you how to install LuaFlare on a fresh install of Debian, compatible with Ubuntu/Mint.
 
-### Install git, nginx, lua, and LuaServer's lua dependencies
+### Install git, nginx, lua, and LuaFlare's lua dependencies
 
     sudo apt-get install git
     sudo apt-get install nginx-full
@@ -9,16 +9,16 @@ This simple guide will show you how to install LuaServer on a fresh install of D
 
 ### Remove nginx's default site
 
-LuaServer uses Nginx as a reverse proxy on port 80 to 8080.  The default site listens on port 80, and therefore must be removed.
+LuaFlare uses Nginx as a reverse proxy on port 80 to 8080.  The default site listens on port 80, and therefore must be removed.
 
-If you wish to keep your current Nginx configs, you can merge `/etc/nginx/sites-available/luaserver` with your own site config after install.
+If you wish to keep your current Nginx configs, you can merge `/etc/nginx/sites-available/luaflare` with your own site config after install.
 
     sudo rm /etc/nginx/sites-enabled/default
 
-### Download and install LuaServer
+### Download and install LuaFlare
 
-    git clone https://github.com/KateAdams/LuaServer
-    cd LuaServer/thirdparty/
+    git clone https://github.com/KateAdams/LuaFlare
+    cd LuaFlare/thirdparty/
     #some arguments you may want for configuring: --prefix=/usr/local, --no-nginx (default if nginx is not installed), --lua=lua|luajit|lua5.1|lua5.2
     ./configure 
     sudo make install
@@ -27,5 +27,5 @@ If you wish to keep your current Nginx configs, you can merge `/etc/nginx/sites-
 
 You may want to provide your own keys, or generate your own (with no CA).
 
-    cd /etc/luaserver/keys/
+    cd /etc/luaflare/keys/
     ./generatekey.sh

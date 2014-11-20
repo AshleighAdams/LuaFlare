@@ -1,5 +1,5 @@
-local script = require("luaserver.util.script")
-local escape = require("luaserver.util.escape")
+local script = require("luaflare.util.script")
+local escape = require("luaflare.util.escape")
 
 local FAILED = false
 local SUB_FAIL = false

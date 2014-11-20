@@ -1,8 +1,8 @@
 local url = require("socket.url")
 local socket = require("socket")
-local httpstatus = require("luaserver.httpstatus")
-local script = require("luaserver.util.script")
-local hook = require("luaserver.hook")
+local httpstatus = require("luaflare.httpstatus")
+local script = require("luaflare.util.script")
+local hook = require("luaflare.hook")
 local meta = {}
 meta.__index = meta
 
@@ -35,7 +35,7 @@ end
 local function quick_response_client(client, err)
 	local errstr = httpstatus.know_statuses[err] or "Unknown"
 	client:send(string.format("HTTP/1.1 %d %s\r\n", err, errstr))
-	client:send("Server: luaserver\r\n")
+	client:send("Server: luaflare\r\n")
 	client:send("Content-Length: 0\r\n")
 	client:send("\r\n")
 end

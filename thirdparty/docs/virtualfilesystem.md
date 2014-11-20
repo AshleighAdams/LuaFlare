@@ -1,6 +1,6 @@
-# LuaServer virtualfilesystem libary
+# LuaFlare virtualfilesystem libary
 
-`local vfs = require("luaserver.virtualfilesystem")`
+`local vfs = require("luaflare.virtualfilesystem")`
 
 ## `string vfs.locate(string path, boolean fallback = false)`
 
