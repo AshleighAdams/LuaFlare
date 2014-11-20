@@ -214,7 +214,7 @@ local function set_system_service()
 	set_var("UPSTART_DAEMON_DIR",  "")
 	
 	if system_service == "systemd" then
-		local unit_path = find_arg("systemd-unit-path")
+		local unit_path = find_arg("systemd-unit-path") -- local probably: /etc/systemd/system; package probably: /lib/systemd/system
 		
 		if not unit_path then
 			local systemctl = io.popen(find_program("systemctl") .. " show")

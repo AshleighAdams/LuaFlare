@@ -9,6 +9,8 @@ WorkingDirectory=LUASERVER_LIB_DIR
 ExecStart=LUASERVER_BIN_DIR/luaserver listen --systemd
 KillMode=process
 Restart=on-abort
+WatchdogSec=60
+NotifyAccess=all
 
 [Install]
 WantedBy=multi-user.target
