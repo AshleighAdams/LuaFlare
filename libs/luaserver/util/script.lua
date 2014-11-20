@@ -68,7 +68,7 @@ script.cfg_blacklist = {
 	["systemd"] = true
 }
 
-function script.parse_arguments(args, shorthands) expects "table"
+function script.parse_arguments(args, shorthands, nosave) expects "table"
 	script.filename = args[0]
 	shorthands = shorthands or {}
 	
@@ -96,7 +96,7 @@ function script.parse_arguments(args, shorthands) expects "table"
 	script.options.config = luaserver.config_path
 	
 	-- if --config is set, then load and update it
-	if type(script.options.config) == "string" then
+	if type(script.options.config) == "string" and not nosave then
 		local save_config = false
 		local path = script.options.config .. "/luaserver.cfg"
 		
