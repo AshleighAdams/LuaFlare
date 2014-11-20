@@ -381,8 +381,12 @@ function warn(str, ...) expects("string") -- print a warning to stderr
 	end
 	
 	local outstr = string.format("%s%s%s", col_red, str, col_reset)
-	hook.call("Warning", str)
-	print(outstr)
+	local ret = {}
+	
+	hook.call("Warning", str, ret)
+	if not ret.silence then
+		io.stderr:write(outstr.."\n")
+	end
 end
 
 

@@ -6,7 +6,7 @@ local tags = require("luaflare.tags")
 local template = include("template-error.lua")
 
 local function on_error(why, request, response)
-	print("error:", why.type, request:url())
+	warn("error:", why.type, request:url(), why.message)
 end
 hook.add("Error", "log errors", on_error)
 
@@ -48,7 +48,7 @@ local function basic_lua_error(err, trace, vars, args)
 		local blame = err:match("(.-:%d-:)")
 		local atblame = blame == nil
 		
-		local split = trace:Split("\n")
+		local split = trace:split("\n")
 		-- table.remove(split, 1) -- remove the silly stack trace: text
 		trace = {}
 		

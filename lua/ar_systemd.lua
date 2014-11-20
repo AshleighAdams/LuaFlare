@@ -12,26 +12,48 @@ local function systemd_notify()
 	if not script.options.systemd then return end
 	
 	local daemon = require("systemd.daemon")
+	local journal = require("systemd.journal")
 	
-	local interval = daemon.watchdog_enabled()
-	if interval then
-		local function heartbeat()
-			local delay = interval / 2
-			while true do
-				daemon.kick_dog()
-				coroutine.yield(delay)
+	-- install a heartbeat if required
+	do
+		local interval = daemon.watchdog_enabled()
+		if interval then
+			local function heartbeat()
+				local delay = interval / 2
+				while true do
+					daemon.kick_dog()
+					coroutine.yield(delay)
+				end
 			end
-		end
 		
-		scheduler.newtask("systemd heartbeat", heartbeat)
-		print("systemd heartbeat beating")
+			scheduler.newtask("systemd heartbeat", heartbeat)
+			print("systemd heartbeat beating")
+		end
 	end
 	
-	io.stdout:write("notifying systemd...")
-	if daemon.notify(false, "READY=1\nSTATE=Listening") then
-		io.stdout:write(" okay\n")
-	else
-		io.stdout:write(" fail\n")
+	-- setup the journal stuff
+	do
+		local function on_warning(msg, opts)
+			opts.silence = true -- don't output this message to stderr!
+			journal.print(journal.LOG.WARNING, msg)
+		end
+		hook.add("Warning", "warning to journal", on_warning)
+		
+		print = function(...)
+			local tbl = table.pack(...)
+			local str = table.concat(tbl, "\t")
+			journal.print(journal.LOG.INFO, str)
+		end
+	end
+	
+	-- notify systemd of our completion
+	do
+		io.stdout:write("notifying systemd...")
+		if daemon.notify(false, "READY=1\nSTATE=Listening") then
+			io.stdout:write(" okay\n")
+		else
+			io.stdout:write(" fail\n")
+		end
 	end
 end
 
