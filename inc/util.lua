@@ -122,11 +122,11 @@ function table.is_empty(tbl) expects "table"
 	return next(tbl) == nil
 end
 
-function table.has_key(tbl, key) expects ("table", "*")
+function table.has_key(tbl, key) expects ("table", "any")
 	return tbl[key] ~= nil
 end
 
-function table.has_value(tbl, value) expects ("table", "*")	
+function table.has_value(tbl, value) expects ("table", "any")	
 	for k,v in pairs(tbl) do
 		if v == value then
 			return true, k
