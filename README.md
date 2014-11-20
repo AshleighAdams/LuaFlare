@@ -47,7 +47,8 @@ they may be automatically reloaded too.
 | --chunk-size                         | 131072        | 0-\*                    | Number of bytes to send per chunk.                        |
 | --scheduler-tick-rate=\<number\>     | 60            | 0-\*                    | The fallback tickrate (Hz) for a schedual that yields nil.|
 | --max-post-length=\<number\>         | ""            | 0-\*, ""                | The maximum length of the post data.                      |
-
+| --systemd                            | false         | true, false             | Notify systemd upon startup, and try to heartbeat.        |
+| --out-pid=\<path\>                   | ""            | \*                      | Write our PID to this file post load.                     |
 
 ## Handle a Page
 

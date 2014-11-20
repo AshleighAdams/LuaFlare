@@ -35,6 +35,8 @@ usage:
 --scheduler-tick-rate=number      The fallback tickrate (Hz) for a schedule that
                                   yields nil. (default 60).
 --max-post-length=number          The maximum length of the post data.
+--systemd                         Notify systemd upon startup, and try to heartbeat
+--out-pid                         Write our PID to this file post load.
 ]])
 end
 
