@@ -19,12 +19,13 @@ server {
 	}
 }
 
+# To enable this, you must generate/provide your SSL cert; uncomment the commented lines below once you've set your cert up.
 server {
-	listen NGINX_SITE_HTTPS_PORT ssl spdy;
-	listen [::]:NGINX_SITE_HTTPS_PORT ssl spdy ipv6only=on;
+	#listen NGINX_SITE_HTTPS_PORT ssl spdy;
+	#listen [::]:NGINX_SITE_HTTPS_PORT ssl spdy ipv6only=on;
 
-	ssl_certificate LUAFLARE_CFG_DIR/keys/certificate.pem;
-	ssl_certificate_key LUAFLARE_CFG_DIR/keys/key.pem;
+	#ssl_certificate LUAFLARE_CFG_DIR/keys/certificate.pem;
+	#ssl_certificate_key LUAFLARE_CFG_DIR/keys/key.pem;
 
 	ssl_session_timeout 5m;
 
@@ -38,7 +39,7 @@ server {
 		include /etc/nginx/proxy_params;
 		# proxy_set_header X-Forwarded-Ssl on;
 		proxy_pass http://localhost:LUAFLARE_PORT;
-		
+	
 		proxy_http_version 1.1;
 		proxy_set_header Upgrade $http_upgrade;
 		proxy_set_header Connection $http_connection;
