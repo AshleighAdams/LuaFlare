@@ -8,7 +8,7 @@ User=USER
 WorkingDirectory=LUASERVER_LIB_DIR
 ExecStart=LUASERVER_BIN_DIR/luaserver listen --systemd
 KillMode=process
-Restart=on-abort
+Restart=always
 WatchdogSec=60
 NotifyAccess=all
 

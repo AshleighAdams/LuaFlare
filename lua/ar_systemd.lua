@@ -24,7 +24,7 @@ local function systemd_notify()
 		end
 		
 		scheduler.newtask("systemd heartbeat", heartbeat)
-		print("systemd heardbeat installed")
+		print("systemd heartbeat beating")
 	end
 	
 	io.stdout:write("notifying systemd...")
