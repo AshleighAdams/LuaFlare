@@ -222,13 +222,17 @@ local function generate_tag(name, options)
 	end
 end
 
+local function escape_html_cdata(str)
+	return str:gsub("%<%/", "%lt;/")
+end
+
 generate_tag("SECTION", {section_marker = true})
 generate_tag("NOESCAPE", {noescape = true})
 generate_tag("html", {pre_text = "<!DOCTYPE html>\n"})
 generate_tag("head")
 generate_tag("body")
-generate_tag("script")--, {escape_function = escape.striptags})
-generate_tag("style")--, {escape_function = escape.striptags})
+generate_tag("script", {escape_function = escape_html_cdata})
+generate_tag("style", {escape_function = escape_html_cdata})
 generate_tag("link", {empty_element = true})
 generate_tag("meta", {empty_element = true})
 generate_tag("title", {inline = true})
