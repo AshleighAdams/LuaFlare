@@ -30,7 +30,7 @@ install-bin: install-shared
 		> $(LUAFLARE_BIN_DIR)/luaflare && \
 	$(CHMOD) +x $(LUAFLARE_BIN_DIR)/luaflare
 
-install-luaflare-opts: install-bin install-shared
+install-luaflare-opts:
 	$(PRECMD) $(LUAFLARE_BIN_DIR_STR)/luaflare $(LUAFLARE_POSTINT_OPTS)
 ifneq ($(SERVICE_SYSTEM),none)
 	$(_SERVICE) luaflare restart
