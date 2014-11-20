@@ -15,11 +15,12 @@ local function systemd_notify()
 	
 	local interval = daemon.watchdog_enabled()
 	if interval then
-		interval = interval / 2 -- half the interval, this is recommended
-		
 		local function heartbeat()
-			daemon.kick_dog()
-			return interval
+			local delay = interval / 2
+			while true do
+				daemon.kick_dog()
+				coroutine.yield(delay)
+			end
 		end
 		
 		scheduler.newtask("systemd heartbeat", heartbeat)
