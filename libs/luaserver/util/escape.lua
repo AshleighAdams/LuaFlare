@@ -23,6 +23,7 @@ http_safe['"'] = nil
 http_safe["'"] = nil
 http_safe["<"] = nil
 http_safe[">"] = nil
+http_safe["&"] = nil
 http_safe["\t"] = true
 http_safe["\n"] = true
 http_safe["\r"] = true
@@ -34,7 +35,13 @@ http_replacements["<"] = "&lt;"
 http_replacements[">"] = "&gt;"
 
 local function http_safechar(char)
-	return http_safe[char] and char or http_replacements[char] or string.format("&#%d;", string.byte(char))
+	if http_safe[char] then
+		return char
+	elseif http_replacements[char] then
+		return http_replacements[char]
+	else
+		return string.format("&#%d;", string.byte(char))
+	end
 end
 
 function escape.html(input, strict) expects "string"
