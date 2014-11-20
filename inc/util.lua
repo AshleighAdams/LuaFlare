@@ -284,7 +284,7 @@ function math.round(what, quantum_size)
 	quantum_size = quantum_size or 1
 	expects("number", "number")
 	
-	prec = 1 / prec
+	quantum_size = 1 / quantum_size
 	return basic_round(what * quantum_size) / quantum_size
 end
 	
