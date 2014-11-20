@@ -5,8 +5,8 @@ After=network.target
 [Service]
 Type=notify
 User=USER
-WorkingDirectory=LUASERVER_LIB_DIR
-ExecStart=LUASERVER_BIN_DIR/luaflare listen --systemd
+WorkingDirectory=LUAFLARE_LIB_DIR
+ExecStart=LUAFLARE_BIN_DIR/luaflare listen --systemd
 KillMode=process
 Restart=always
 WatchdogSec=60

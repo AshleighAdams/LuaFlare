@@ -24,43 +24,43 @@ check-dependencies:
 	done
 
 install-bin: install-shared
-	$(MKDIR) $(LUASERVER_BIN_DIR) && \
+	$(MKDIR) $(LUAFLARE_BIN_DIR) && \
 	$(CAT) ../luaflare.lua \
 		| $(SED) "s|#!/usr/bin/env lua|#!/usr/bin/env $(LUA)|" \
-		> $(LUASERVER_BIN_DIR)/luaflare && \
-	$(CHMOD) +x $(LUASERVER_BIN_DIR)/luaflare
+		> $(LUAFLARE_BIN_DIR)/luaflare && \
+	$(CHMOD) +x $(LUAFLARE_BIN_DIR)/luaflare
 
 install-luaflare-opts: install-bin install-shared
-	$(PRECMD) $(LUASERVER_BIN_DIR_STR)/luaflare $(LUASERVER_POSTINT_OPTS)
+	$(PRECMD) $(LUAFLARE_BIN_DIR_STR)/luaflare $(LUAFLARE_POSTINT_OPTS)
 ifneq ($(SERVICE_SYSTEM),none)
 	$(_SERVICE) luaflare restart
 endif
 
 install-shared-files:
-	$(MKDIR) $(LUASERVER_LIB_DIR)
-	$(MKDIR) $(LUASERVER_CFG_DIR)
+	$(MKDIR) $(LUAFLARE_LIB_DIR)
+	$(MKDIR) $(LUAFLARE_CFG_DIR)
 	# make sure they don't exist, then recursive copy them!
-	$(CP) -r ../inc    $(LUASERVER_LIB_DIR)/
-	$(CP) -r ../libs   $(LUASERVER_LIB_DIR)/
-	$(CP) -r ../lua    $(LUASERVER_CFG_DIR)/
-	$(CP) -r ../static $(LUASERVER_CFG_DIR)/
-	$(CP) -r ../keys   $(LUASERVER_CFG_DIR)/
+	$(CP) -r ../inc    $(LUAFLARE_LIB_DIR)/
+	$(CP) -r ../libs   $(LUAFLARE_LIB_DIR)/
+	$(CP) -r ../lua    $(LUAFLARE_CFG_DIR)/
+	$(CP) -r ../static $(LUAFLARE_CFG_DIR)/
+	$(CP) -r ../keys   $(LUAFLARE_CFG_DIR)/
 	
 	# allthough libs/luaflare.lua has already been copied, copy it again, but replace the version number
 	$(CAT) ../libs/luaflare.lua \
 		| $(SED) "s|LuaFlare git|LuaFlare $(VERSION)|g" \
-		| $(SED) "s|\".\", -- config-marker|\"$(LUASERVER_CFG_DIR_STR)\",|g" \
-		| $(SED) "s|\".\", -- lib-marker|\"$(LUASERVER_LIB_DIR_STR)\",|g" \
-		> $(LUASERVER_LIB_DIR)/libs/luaflare.lua
+		| $(SED) "s|\".\", -- config-marker|\"$(LUAFLARE_CFG_DIR_STR)\",|g" \
+		| $(SED) "s|\".\", -- lib-marker|\"$(LUAFLARE_LIB_DIR_STR)\",|g" \
+		> $(LUAFLARE_LIB_DIR)/libs/luaflare.lua
 	
-	$(MKDIR) $(LUASERVER_CFG_DIR)/sessions
-	$(MKDIR) $(LUASERVER_CFG_DIR)/sites
+	$(MKDIR) $(LUAFLARE_CFG_DIR)/sessions
+	$(MKDIR) $(LUAFLARE_CFG_DIR)/sites
 	
-	# $(CP) -r ../luaflare.cfg $(LUASERVER_CFG_DIR)/luaflare.cfg
+	# $(CP) -r ../luaflare.cfg $(LUAFLARE_CFG_DIR)/luaflare.cfg
 
 install-shared-ownership:
-	$(_CHOWN) -R $(USER):$(USER) $(LUASERVER_LIB_DIR_STR)/
-	$(_CHOWN) -R $(USER):$(USER) $(LUASERVER_CFG_DIR_STR)/
+	$(_CHOWN) -R $(USER):$(USER) $(LUAFLARE_LIB_DIR_STR)/
+	$(_CHOWN) -R $(USER):$(USER) $(LUAFLARE_CFG_DIR_STR)/
 
 install-shared: install-shared-files install-shared-ownership
 
@@ -70,9 +70,9 @@ install-none-service:
 install-systemd-service:
 	$(MKDIR) "$(SYSTEMD_UNIT_DIR)" && \
 	$(CAT) luaflare.systemd \
-		| $(SED) "s|LUASERVER_LIB_DIR|$(LUASERVER_LIB_DIR_STR)|g" \
-		| $(SED) "s|LUASERVER_CFG_DIR|$(LUASERVER_CFG_DIR_STR)|g" \
-		| $(SED) "s|LUASERVER_BIN_DIR|$(LUASERVER_BIN_DIR_STR)|g" \
+		| $(SED) "s|LUAFLARE_LIB_DIR|$(LUAFLARE_LIB_DIR_STR)|g" \
+		| $(SED) "s|LUAFLARE_CFG_DIR|$(LUAFLARE_CFG_DIR_STR)|g" \
+		| $(SED) "s|LUAFLARE_BIN_DIR|$(LUAFLARE_BIN_DIR_STR)|g" \
 		| $(SED) "s|USER|$(USER)|g" \
 		> $(SYSTEMD_UNIT_DIR)/luaflare.service
 	$(_SYSTEMCTL) daemon-reload && \
@@ -82,9 +82,9 @@ install-systemd-service:
 install-sysvinit-service:
 	$(MKDIR) "$(SYSVINIT_DAEMON_DIR)" && \
 	$(CAT) luaflare.sysvinit \
-		| $(SED) "s|LUASERVER_LIB_DIR|$(LUASERVER_LIB_DIR_STR)|g" \
-		| $(SED) "s|LUASERVER_CFG_DIR|$(LUASERVER_CFG_DIR_STR)|g" \
-		| $(SED) "s|LUASERVER_BIN_DIR|$(LUASERVER_BIN_DIR_STR)|g" \
+		| $(SED) "s|LUAFLARE_LIB_DIR|$(LUAFLARE_LIB_DIR_STR)|g" \
+		| $(SED) "s|LUAFLARE_CFG_DIR|$(LUAFLARE_CFG_DIR_STR)|g" \
+		| $(SED) "s|LUAFLARE_BIN_DIR|$(LUAFLARE_BIN_DIR_STR)|g" \
 		| $(SED) "s|_USER|$(USER)|g" \
 		> $(SYSVINIT_DAEMON_DIR)/luaflare && \
 	$(CHMOD) +x $(SYSVINIT_DAEMON_DIR)/luaflare && \
@@ -94,9 +94,9 @@ install-sysvinit-service:
 install-upstart-service:
 	$(MKDIR) "$(UPSTART_DAEMON_DIR)" && \
 	$(CAT) luaflare.upstart \
-		| $(SED) "s|LUASERVER_LIB_DIR|$(LUASERVER_LIB_DIR_STR)|g" \
-		| $(SED) "s|LUASERVER_CFG_DIR|$(LUASERVER_CFG_DIR_STR)|g" \
-		| $(SED) "s|LUASERVER_BIN_DIR|$(LUASERVER_BIN_DIR_STR)|g" \
+		| $(SED) "s|LUAFLARE_LIB_DIR|$(LUAFLARE_LIB_DIR_STR)|g" \
+		| $(SED) "s|LUAFLARE_CFG_DIR|$(LUAFLARE_CFG_DIR_STR)|g" \
+		| $(SED) "s|LUAFLARE_BIN_DIR|$(LUAFLARE_BIN_DIR_STR)|g" \
 		| $(SED) "s|USER|$(USER)|g" \
 		> $(UPSTART_DAEMON_DIR)/luaflare.conf && \
 	$(_SERVICE) luaflare start
@@ -107,9 +107,9 @@ install-nginx-site:
 	$(CAT) luaflare.nginx \
 		| $(SED) "s|NGINX_SITE_HTTP_PORT|$(NGINX_SITE_HTTP_PORT)|g" \
 		| $(SED) "s|NGINX_SITE_HTTPS_PORT|$(NGINX_SITE_HTTPS_PORT)|g" \
-		| $(SED) "s|LUASERVER_LIB_DIR|$(LUASERVER_LIB_DIR_STR)|g" \
-		| $(SED) "s|LUASERVER_CFG_DIR|$(LUASERVER_CFG_DIR_STR)|g" \
-		| $(SED) "s|LUASERVER_PORT|$(LUASERVER_PORT)|g" \
+		| $(SED) "s|LUAFLARE_LIB_DIR|$(LUAFLARE_LIB_DIR_STR)|g" \
+		| $(SED) "s|LUAFLARE_CFG_DIR|$(LUAFLARE_CFG_DIR_STR)|g" \
+		| $(SED) "s|LUAFLARE_PORT|$(LUAFLARE_PORT)|g" \
 		> "$(NGINX_DIR)/sites-available/luaflare";
 	
 	$(LN) $(NGINX_DIR)/sites-available/luaflare $(NGINX_DIR)/sites-enabled/luaflare
@@ -118,8 +118,8 @@ install-nginx-site:
 install-bash-completion:
 	$(MKDIR) "$(BASH_COMPLETION_DIR)" && \
 	$(CAT) luaflare.bash-completion \
-		| $(SED) "s|LUASERVER_LIB_DIR|$(LUASERVER_LIB_DIR_STR)|g" \
-		| $(SED) "s|LUASERVER_CFG_DIR|$(LUASERVER_CFG_DIR_STR)|g" \
+		| $(SED) "s|LUAFLARE_LIB_DIR|$(LUAFLARE_LIB_DIR_STR)|g" \
+		| $(SED) "s|LUAFLARE_CFG_DIR|$(LUAFLARE_CFG_DIR_STR)|g" \
 	> "$(BASH_COMPLETION_DIR)/luaflare"
 
 install: check-dependencies install-bin install-extra

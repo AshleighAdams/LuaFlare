@@ -65,7 +65,7 @@ _luaflare()
 		COMPREPLY=()
 		return 0
 	elif [[ "$COMP_CWORD" == "2" && "$prev" == "unmount" ]]; then
-		local mounted=$(ls LUASERVER_CFG_DIR/sites/)
+		local mounted=$(ls LUAFLARE_CFG_DIR/sites/)
 		COMPREPLY=( $(compgen -W "${mounted}" -- ${cur}) )
 		return 0
 	fi

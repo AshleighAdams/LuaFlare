@@ -37,14 +37,14 @@ SERVICE_SYSTEM          = %SERVICE
 NGINX_SITE_HTTP_PORT    = %NGINX_HTTP_PORT
 NGINX_SITE_HTTPS_PORT   = %NGINX_HTTPS_PORT
 
-LUASERVER_PORT          = %LUASERVER_PORT
-LUASERVER_POSTINT_OPTS  = %LUASERVER_POSTINT_OPTS
-LUASERVER_LIB_DIR       = $(PREFIX)/lib/luaflare
-LUASERVER_LIB_DIR_STR   = $(subst $(DESTDIR),,$(LUASERVER_LIB_DIR))
-LUASERVER_BIN_DIR       = $(PREFIX)/bin
-LUASERVER_BIN_DIR_STR   = $(subst $(DESTDIR),,$(LUASERVER_BIN_DIR))
-LUASERVER_CFG_DIR       = $(DESTDIR)/etc/luaflare
-LUASERVER_CFG_DIR_STR   = $(subst $(DESTDIR),,$(LUASERVER_CFG_DIR))
+LUAFLARE_PORT          = %LUAFLARE_PORT
+LUAFLARE_POSTINT_OPTS  = %LUAFLARE_POSTINT_OPTS
+LUAFLARE_LIB_DIR       = $(PREFIX)/lib/luaflare
+LUAFLARE_LIB_DIR_STR   = $(subst $(DESTDIR),,$(LUAFLARE_LIB_DIR))
+LUAFLARE_BIN_DIR       = $(PREFIX)/bin
+LUAFLARE_BIN_DIR_STR   = $(subst $(DESTDIR),,$(LUAFLARE_BIN_DIR))
+LUAFLARE_CFG_DIR       = $(DESTDIR)/etc/luaflare
+LUAFLARE_CFG_DIR_STR   = $(subst $(DESTDIR),,$(LUAFLARE_CFG_DIR))
 NGINX_DIR               = $(DESTDIR)%NGINX_DIR
 BASH_COMPLETION_DIR     = $(DESTDIR)%BASH_COMPLETION_DIR
 SYSTEMD_UNIT_DIR        = $(DESTDIR)%SYSTEMD_UNIT_DIR
@@ -261,7 +261,7 @@ local function set_luaflare_postinst_opts()
 		ls_port = 8080 -- still, for now, use 8080 as we don't need to be privlidged
 	end
 	table.insert(opts, string.format("--port=%d", ls_port))
-	set_var("LUASERVER_PORT", ls_port)
+	set_var("LUAFLARE_PORT", ls_port)
 	
 	if reverse_proxy then
 		table.insert(opts, "--reverse-proxy")
@@ -277,7 +277,7 @@ local function set_luaflare_postinst_opts()
 	local stropts = table.concat(opts, " ")
 	print("luaflare post-install options: " .. stropts)
 	
-	set_var("LUASERVER_POSTINT_OPTS", stropts)
+	set_var("LUAFLARE_POSTINT_OPTS", stropts)
 	table.insert(install, "install-luaflare-opts")
 end
 

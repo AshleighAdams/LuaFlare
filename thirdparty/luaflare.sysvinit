@@ -12,8 +12,8 @@
 # Author: Kate Adams <self@kateadams.eu>
 
 USER=_USER
-LUASERVER=LUASERVER_BIN_DIR/luaflare
-DIR=LUASERVER_LIB_DIR
+LUAFLARE=LUAFLARE_BIN_DIR/luaflare
+DIR=LUAFLARE_LIB_DIR
 
 NAME="luaflare"
 DESC="Lua web server"
@@ -34,7 +34,7 @@ do_start_cmd() {
 	chown "$USER" "$PIDFILE"
 	
 	cd $DIR
-	nohup sudo -u "$USER" "$LUASERVER" listen --out-pid="$PIDFILE" &
+	nohup sudo -u "$USER" "$LUAFLARE" listen --out-pid="$PIDFILE" &
 	cd -
 	
 	# wait for them to start
