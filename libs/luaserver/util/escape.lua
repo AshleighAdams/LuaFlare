@@ -72,8 +72,8 @@ function escape.striptags(input, tbl) expects "string"
 end
 
 function escape.sql(input) expects "string"	
-	input = input:gsub("'", "\\'")
-	input = input:gsub("\"", "\\\"")
+	input = input:gsub("'", "''")
+	input = input:gsub("\"", "\"\"")
 	
 	return input
 end
