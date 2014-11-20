@@ -133,7 +133,7 @@ local params = {
 
 function main()
 	if script.options["unit-test"] then
-		include("inc/unittests.lua")
+		include(luaserver.lib_path .. "/inc/unittests.lua")
 		return unit_test()
 	elseif script.options.version then
 		return print(string.format("%s (%s)", luaserver._VERSION, _VERSION))
