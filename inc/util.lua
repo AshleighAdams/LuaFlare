@@ -374,13 +374,14 @@ end
 ]]
 
 local col_red = "\x1b[31;1m"
+local col_bold = "\x1b[39;1m"
 local col_reset = "\x1b[0m"
 function warn(str, ...) expects("string") -- print a warning to stderr
-	if #{...} ~= 0 then
-		str = string.format(str, ...)
+	if table.pack(...).n ~= 0 then
+		str = str:format(...)
 	end
 	
-	local outstr = string.format("%s%s%s", col_red, str, col_reset)
+	local outstr = string.format("%s%s%s", col_bold, str, col_reset)
 	local ret = {}
 	
 	hook.call("Warning", str, ret)
@@ -388,6 +389,22 @@ function warn(str, ...) expects("string") -- print a warning to stderr
 		io.stderr:write(outstr.."\n")
 	end
 end
+
+function fatal(str, ...) expects("string") -- print a warning to stderr
+	if table.pack(...).n ~= 0 then
+		str = str:format(...)
+	end
+	
+	local outstr = string.format("%s%s%s", col_red, str, col_reset)
+	local ret = {fatal = true}
+	
+	hook.call("Warning", str, ret)
+	if not ret.silence then
+		io.stderr:write(outstr.."\n")
+	end
+end
+
+
 
 
 -- include helpers
@@ -400,7 +417,7 @@ dofile = function(file, ...)
 	local f, err = loadstring(code, file)
 	
 	if not f then
-		warn("failed to loadstring: %s", err)
+		fatal("failed to loadstring: %s", err)
 		return error(err, -1)
 	end
 	
