@@ -116,7 +116,7 @@ function script.parse_arguments(args, shorthands, nosave) expects "table"
 				-- ignore this...
 			elseif new == nil then -- not updating anything, retreive the stored option...
 				script.options[name] = value
-			elseif new ~= nil and new ~= value then
+			elseif new ~= nil and tostring(new) ~= value then
 				-- a new value was specified, update the config's value
 				new = tostring(new)
 				print(string.format("updating %s's %s with \"%s\" (was \"%s\")", path, name, new, value))
