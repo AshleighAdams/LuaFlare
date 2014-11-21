@@ -413,10 +413,11 @@ end
 
 function configor.savefile(cfg, path) expects(node)
 	local file, err = io.open(path, "w")
-	if not file then return err end
+	if not file then return nil, err end
 	
 	file:write(configor.savestring(cfg))
 	file:close()
+	return true
 end
 
 return configor
