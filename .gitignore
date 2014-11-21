@@ -16,12 +16,5 @@ sites/kateadams.eu/
 # Sessions
 sessions/*
 
-# Documentation build files
-docs/*.aux
-docs/*.log
-docs/*.pdf
-docs/*.toc
-docs/*.fdb_latexmk
-
-# Custom command line
-cmdline
+# Keys
+keys/*.pem
