@@ -138,7 +138,7 @@ function script.parse_arguments(args, shorthands, nosave) expects "table"
 		
 		if save_config then
 			print(string.format("writing configuration changes to %s", path))
-			configor.savefile(cfg, path)
+			assert(configor.savefile(cfg, path))
 		end
 	end
 end
