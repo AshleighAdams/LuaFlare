@@ -112,8 +112,9 @@ install-nginx-site:
 		| $(SED) "s|LUAFLARE_PORT|$(LUAFLARE_PORT)|g" \
 		> "$(NGINX_DIR)/sites-available/luaflare";
 	
-	$(_LN) $(NGINX_DIR_STR)/sites-available/luaflare $(NGINX_DIR_STR)/sites-enabled/luaflare
-	$(_SERVICE) nginx restart # systemd / upstart should impliment this
+	# Don't enable these by default, they error unless the default site has been removed!
+	#$(_LN) $(NGINX_DIR_STR)/sites-available/luaflare $(NGINX_DIR_STR)/sites-enabled/luaflare
+	#$(_SERVICE) nginx restart # systemd / upstart should impliment this
 
 install-bash-completion:
 	$(MKDIR) "$(BASH_COMPLETION_DIR)" && \
