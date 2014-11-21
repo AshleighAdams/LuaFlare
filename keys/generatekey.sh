@@ -1,3 +1,5 @@
+#!/bin/sh
+
 days=365
 
 openssl genrsa -out key.pem 1024
