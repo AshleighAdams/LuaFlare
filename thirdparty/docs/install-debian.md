@@ -7,7 +7,7 @@ May not be bleeding edge, but is updated via apt-get.
 
 ### sources.list
 
-Open `/etc/apt/sources.list.d/kateadams` as a root, and set it's contents to:
+Open `/etc/apt/sources.list.d/kateadams.list` as a root, and set it's contents to:
 
     deb http://kateadams.eu/ debian/
     deb-src http://kateadams.eu/ debian/
