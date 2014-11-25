@@ -65,7 +65,7 @@ return {
 					{
 						width: 800px;
 						margin: auto auto;
-						padding-top: ]] .. (content == nil and "20%" or "5%") .. [[;
+						padding-top: ]] .. (content == nil and "20vh" or "5vh") .. [[;
 					}
 				]]},
 				tags.script

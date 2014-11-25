@@ -2,11 +2,12 @@
 local httpstatus = require("luaflare.httpstatus")
 local hook = require("luaflare.hook")
 local tags = require("luaflare.tags")
+local lfs = require("lfs")
 
 local template = include("template-error.lua")
 
 local function on_error(why, request, response)
-	warn("error:", why.type, request:url(), why.message)
+	warn("error: %s: %s %s", why.type, request:url(), why.message or "")
 end
 hook.add("Error", "log errors", on_error)
 
@@ -17,9 +18,78 @@ local function basic_error(why, req, res)
 	local errstr = string.format("%i %s", errcode, httpstatus.know_statuses[errcode] or "Unknown")
 	local msg = why.message or req:url()
 	
-	template:make(errstr, errstr, msg).to_response(res)
+	template:make(errstr, errstr, msg, nil).to_response(res)
 end
 hook.add("Error", "basic error", basic_error)
+
+local function default_dir_listing(req, res, dir, options)
+	local elms = {}
+	local files = {}
+	
+	dir = dir:path()
+	
+	for file in lfs.dir(dir) do
+		if file ~= "." then
+			local att = lfs.attributes(dir..file)
+			att.isdir = att.mode == "directory"
+			table.insert(files, {name=file, att = att})
+		end
+	end
+	
+	table.sort(files, function(a,b)
+		if a.att.isdir and not b.att.isdir then
+			return true
+		elseif not a.att.isdir and b.att.isdir then
+			return false
+		end
+		
+		return a.name < b.name
+	end)
+	
+	for k,v in pairs(files) do
+		local classes = {v.att.mode}
+		local size
+		
+		if not v.att.isdir then
+			size = string.format("%s bytes", v.att.size)
+			if v.att.permissions:match("x") then table.insert(classes, "executable") end
+		end
+		
+		elms[k] = tags.tr
+		{
+			tags.td { class = "ls" }
+			{
+				tags.a { href = v.name..(v.att.isdir and "/" or "") } { tags.span { class = table.concat(classes, " ") } { v.name } }
+			},
+			tags.td { class = "ls ls-size" }
+			{
+				tags.span { size },
+			}
+		}
+	end
+	
+	
+	local content = tags.div { style = "width: 800px; background: rgba(255,255,255,0.0); color: white;" }
+	{
+		tags.style
+		{[[
+			a { text-decoration: none; }
+			td.ls { padding-right: 50px; }
+			td.ls-size { color: rgba(255,255,255,0.5); }
+			.directory { color: #bbf; }
+			.file { color: #fff; }
+			.executable { color: #bfb; }
+			.pipe { color: #fca; }
+		]]},
+		tags.table
+		{
+			table.unpack(elms)
+		}
+	}
+	
+	template:make(dir, dir, "", content).to_response(res)
+end
+hook.add("ListDirectory", "default directory listing", default_dir_listing)
 
 function line_from(file, line_targ)
 	local ret = nil

@@ -52,11 +52,16 @@ Report an error, and call the appropriate hooks for an error.
 
     response:halt(403, "Not logged in")
 
-## `response:set_file(string path)`
+## `response:set_file(string path[, table options])`
 
 Sets the file to send.
 
 If `X-Accel-Redirect` or `X-Sendfile` is on, it will use these to serve the file.
+
+Valid options:
+
+- `can_list_directory`:
+	If the target is a directory, should we list the directory?
 
 ## `response:set_header(string name, any value)`
 

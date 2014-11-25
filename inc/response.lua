@@ -90,7 +90,12 @@ function meta::halt(number code, reason) -- default code is?
 end
 
 local cfg_path = luaflare.config_path
-function meta::set_file(string path)-- expects(meta, "string")
+function meta::set_file(string path, options)-- expects(meta, "string")
+	if options and options.can_list_directory and lfs.attributes(path, "mode") == "directory" then
+		local r = hook.call("ListDirectory", self:request(), self, path, options)
+		return r == nil or r
+	end
+	
 	local file = io.open(path, "rb")
 	
 	if not file then
@@ -98,7 +103,7 @@ function meta::set_file(string path)-- expects(meta, "string")
 		return false
 	end
 	
-	self:set_header("Content-Type", mimetypes.guess(path) or "text/html")
+	self:set_header("Content-Type", mimetypes.guess(path) or "text/plain")
 	self._file = path
 	
 	if script.options["x-accel-redirect"] ~= nil then

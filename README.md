@@ -280,6 +280,10 @@ Not implimented.
 - [x] Add the additional command --version
 - [ ] Remove other threading methods, only keep coroutines
 - [ ] Apache site installer for acting as a reverse proxy.
+- [ ] Possibly remove SSL support:
+	- Should it be provided by the reverse proxy?
+	Could the reverse proxy ever be on a different machine, thus unsafe to
+	transmit data?
 
 # Non-generic Name Proposal
 
