@@ -4,6 +4,14 @@
 
 The object that represents a response.
 
+## Hooks
+
+### `"ListDirectory" request, response, string path[, table options]`
+
+Called by `response:set_file()` if `can_list_directory` is truthy, and the target is a directory.
+
+The function is expected to write to the response.
+
 ## `request response:request()`
 
 Returns the request we're responding to.
