@@ -52,7 +52,7 @@ If you wish to keep your current Nginx configs, you can merge `/etc/nginx/sites-
 
     sudo rm /etc/nginx/sites-enabled/default
 
-### Enabling LuaFlare's site
+#### Enabling LuaFlare's site
 
     sudo ln -s /etc/nginx/sites-available/luaflare /etc/nginx/sites-enabled/luaflare
 
