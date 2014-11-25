@@ -1,4 +1,4 @@
-LuaFlare [![Build Status](http://kateadams.eu/build/LuaFlare/master/state.png)](http://kateadams.eu/build/LuaFlare/master/)
+LuaFlare
 =========
 
 # Table of Contents
