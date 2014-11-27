@@ -156,14 +156,38 @@ function main()
 		if not name then print("error: expected NAME") return usage() end
 		
 		name = luaflare.config_path .. "/sites/" .. name
-		os.execute(string.format("ln -s \"`pwd`/%s\" \"%s\"", escape.argument(dir), escape.argument(name)))
+		
+		local user = posix.getlogin()
+		if posix.getgroup(user) == nil then
+			print("error: failed to set group of mounted directory: user " .. user .. " does not have a group by the same name")
+			return os.exit(1)
+		end
+		
+		print(string.format("mounting %s at %s", dir, name))
+		print("creating link")
+		if os.execute(string.format("ln -s \"`pwd`/%s\" \"%s\"", escape.argument(dir), escape.argument(name))) ~= 0 then
+			return os.exit(1)
+		end
+		print("setting group; ensure your user is in the group " .. user .. " via:")
+		print("sudo usermod -a -G \"" .. user .. "\" \"`whoami`\"")
+		if os.execute(string.format("sudo chgrp -R \"%s\" \"%s\"", escape.argument(user), escape.argument(name))) ~= 0 then
+			return os.exit(1)
+		end
+		
+		print("okay")
 		return
 	elseif script.arguments[1] == "unmount" then
 		local name = script.arguments[2]
 		if not name then print("error: expected NAME") return usage() end
 		
 		name = luaflare.config_path .. "/sites/" .. name
-		os.execute(string.format("rm -r \"%s\"", escape.argument(name)))
+		
+		print(string.format("unmounting %s", name))
+		if os.execute(string.format("rm -r \"%s\"", escape.argument(name))) ~= 0 then
+			return os.exit(1)
+		end
+		
+		print("okay")
 		return
 	elseif script.arguments[1] then
 		print("unknown action " .. script.arguments[1])
