@@ -43,7 +43,7 @@ local function systemd_notify()
 		print = function(...)
 			local tbl = table.pack(...)
 			local str = table.concat(tbl, "\t")
-			journal.print(journal.LOG.INFO, str)
+			journal.print(journal.LOG.INFO, "%s", str)
 		end
 	end
 	
