@@ -1,4 +1,4 @@
-# LuaFlare escape libary
+# LuaFlare escape library
 
 `local escape = require("luaflare.util.escape")`
 
@@ -37,3 +37,12 @@ Returns a safe string to use in SQL queries.
 
 Escapes a Unix shell argument.
 
+# LuaFlare unescape library
+
+`local unescape = require("luaflare.util.unescape")`
+
+Turns strings into their more litteral sense.
+
+## `string unescape.sql(string input)`
+
+Unescape an SQL escaped string.
