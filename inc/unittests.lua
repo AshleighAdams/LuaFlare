@@ -1,3 +1,4 @@
+local luaflare = require("luaflare")
 local script = require("luaflare.util.script")
 local escape = require("luaflare.util.escape")
 
@@ -5,7 +6,7 @@ local FAILED = false
 local SUB_FAIL = false
 
 local lines = {}
-for line in io.lines("inc/unittests.lua") do
+for line in io.lines(luaflare.lib_path .. "/inc/unittests.lua") do
 	table.insert(lines, line)
 end
 
@@ -119,7 +120,7 @@ function unit_test()
 	test("utility functions", test_util)
 	
 	if FAILED then
-		print("unit test failed!")
+		print("one or more unit test failed!")
 		os.exit(1)	
 	else
 		print("all unit tests passed!")
