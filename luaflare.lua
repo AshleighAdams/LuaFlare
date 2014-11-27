@@ -99,7 +99,7 @@ function handle_client(client)
 	local time = util.time()
 	while (util.time() - time) < 2 do -- give them 2 seconds
 		local request, err = Request(client)
-		if not request and err then print(err) return end
+		if not request and err then warn(err) return end
 		if not request then return end -- probably a keep-alive connection timing out
 		
 		print(request:peer()  .. " " .. request:method()  .. " " .. request:url())

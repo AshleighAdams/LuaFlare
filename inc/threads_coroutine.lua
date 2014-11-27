@@ -158,7 +158,7 @@ function main_loop()
 			assert(client, err)
 			
 			local suc, err = client:dohandshake()
-			if not suc then print("ssl failed: ", err) end
+			if not suc then warn("ssl failed: ", err) end
 		end
 		
 		client = routines.wrap(client)
