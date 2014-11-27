@@ -60,7 +60,7 @@ Turns `code` into a list of tokens.  Tokens are in the format of:
 
 A list of keywords (`["keyword"] = true`) that create scopes.
 
-## `parser.scope_create`
+## `parser.scope_destroy`
 
 A list of keywords (`["keyword"] = true`) that destroy scopes.
 

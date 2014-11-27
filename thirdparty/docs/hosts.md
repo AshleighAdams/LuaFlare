@@ -65,3 +65,4 @@ Adds a direct link to a function, no pattern matching is done.
 	- `args`: The array of arguments to pass to `page.callback`.  Is nil on error.
 	- `errcode`: The HTTP error code to send.
 	- `errstr`: The reason for the error.
+
