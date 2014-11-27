@@ -1,4 +1,4 @@
-# LuaFlare virtualfilesystem libary
+# LuaFlare virtualfilesystem library
 
 `local vfs = require("luaflare.virtualfilesystem")`
 

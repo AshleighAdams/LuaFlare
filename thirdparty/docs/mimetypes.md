@@ -1,4 +1,4 @@
-# LuaFlare mimetypes libary
+# LuaFlare mimetypes library
 
 `local mimetypes = require("luaflare.mimetypes")`
 

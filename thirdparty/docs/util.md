@@ -1,4 +1,4 @@
-# LuaFlare util libary
+# LuaFlare util library
 
 `local util = require("luaflare.util")`
 

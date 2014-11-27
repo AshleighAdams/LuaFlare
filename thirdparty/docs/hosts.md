@@ -1,4 +1,4 @@
-# LuaFlare hosts libary
+# LuaFlare hosts library
 
 `local hosts = require("luaflare.hosts")`
 

@@ -2,7 +2,7 @@
 
 `local stringreader = require("luaflare.util.luaparser.stringreader")`
 
-A helper libary used by `luaparser`.
+A helper library used by `luaparser`.
 
 ## `reader stringreader.new(string data)`
 

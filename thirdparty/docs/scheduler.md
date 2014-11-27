@@ -1,4 +1,4 @@
-# LuaFlare scheduler libary
+# LuaFlare scheduler library
 
 `local scheduler = require("luaflare.scheduler")`
 

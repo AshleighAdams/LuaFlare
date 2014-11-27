@@ -1,4 +1,4 @@
-# LuaFlare hook libary
+# LuaFlare hook library
 
 `local hook = require("luaflare.hook")`
 

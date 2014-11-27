@@ -1,4 +1,4 @@
-# LuaFlare httpstatus libary
+# LuaFlare httpstatus library
 
 Serves to translate between HTTP status codes and HTTP status messages.
 

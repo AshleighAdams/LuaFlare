@@ -1,4 +1,4 @@
-# LuaFlare websocket libary
+# LuaFlare websocket library
 
 `local websocket = require("luaflare.websocket")`
 

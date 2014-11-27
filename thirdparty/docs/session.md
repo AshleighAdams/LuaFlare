@@ -1,4 +1,4 @@
-# LuaFlare session libary
+# LuaFlare session library
 
 `local session = require("luaflare.session")`
 

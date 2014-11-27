@@ -1,4 +1,4 @@
-# LuaFlare luaparser libary
+# LuaFlare luaparser library
 
 `local parser = require("luaflare.util.luaparser")`
 

@@ -1,4 +1,4 @@
-# LuaFlare tags libary
+# LuaFlare tags library
 
 `local tags = require("luaflare.tags")`
 

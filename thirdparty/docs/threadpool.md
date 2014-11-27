@@ -1,4 +1,4 @@
-# LuaFlare threadpool libary
+# LuaFlare threadpool library
 
 `local threadpool = require("luaflare.threadpool")`
 
