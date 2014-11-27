@@ -275,38 +275,14 @@ function parse_params(str)
 	
 	if not str then return ret end
 	
-	local current_name = ""
-	local current_value = ""
-	local in_name = true
-	
-	local function add_kv()
-		ret[url.unescape(current_name)] = url.unescape(current_value)
-		current_name = ""
-		current_value = ""
-	end
-	
-	for i = 1, str:len() do
-		local char = str:sub(i, i)
-		if char == "+" then char = " " end
-		
-		if in_name then
-			if char == '=' then
-				in_name = false
-			elseif char == '&' then
-				add_kv()
-			else
-				current_name = current_name .. char
-			end
-		else
-			if char == '&' then
-				add_kv()
-				in_name = true
-			else
-				current_value = current_value .. char
-			end
+	local split = str:split("&")
+	for k,v in ipairs(split) do
+		local key, value = v:match("(.-)=(.*)")
+		if not key then
+			key, value = v, ""
 		end
+		ret[url.unescape(key)] = url.unescape(value)
 	end
 	
-	add_kv()
 	return ret
 end
