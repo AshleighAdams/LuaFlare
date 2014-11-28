@@ -87,7 +87,8 @@ local function default_dir_listing(req, res, dir, options)
 		}
 	}
 	
-	template:make(dir, dir, "", content).to_response(res)
+	local view_url = options.view_url or req:url()
+	template:make(view_url, view_url, "", content).to_response(res)
 end
 hook.add("ListDirectory", "default directory listing", default_dir_listing)
 
