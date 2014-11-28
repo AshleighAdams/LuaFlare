@@ -22,6 +22,7 @@ local function add_page(name)
 end
 
 add_page("docs/install-debian.md")
+add_page("docs/internal-workings.md")
 add_page("docs/global.md")
 
 local files = {}
