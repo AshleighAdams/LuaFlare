@@ -124,19 +124,24 @@ function hosts.host_meta::match(string url)
 end
 
 function hosts.upgrade_request(request, response) -- check for upgrade
-	if request:headers().Connection and request:headers().Upgrade and request:headers().Connection:lower():match("upgrade") ~= nil then
-		local ug = (request:headers().Upgrade or ""):lower()
-		local f = hosts.upgrades[ug]
-		
-		if not f then
-			response:halt(500, "Invalid upgrade: " .. ug)
-			return true
-		end
-		
-		f(request, response)
-		return true
+	local headers = request:headers()
+	if not headers.Connection
+	or not headers.Upgrade
+	or not headers.Connection:lower():match("upgrade")
+	then
+		return false
 	end
-	return false
+
+	local ug = (request:headers().Upgrade or ""):lower()
+	local f = hosts.upgrades[ug]
+	
+	if not f then
+		response:halt(500, "Invalid upgrade: " .. ug)
+	else
+		f(request, response)
+	end
+	
+	return true
 end
 
 function hosts.process_request(req, res)
