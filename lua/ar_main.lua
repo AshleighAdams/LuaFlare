@@ -240,3 +240,61 @@ local function conflict2(req, res, ...)
 end
 hosts.developer:addpattern("/conflict/(*)", conflict1)
 hosts.developer:addpattern("/conflict/(%d+)", conflict2)
+
+
+do
+	local websocket = require("luaflare.websocket")
+	
+	local ws = websocket.register("/websocket-test", "echo")
+	function ws:on_connect(client)
+		print("echo: connect: " .. client.peer)
+		self:send(client.peer .. " connected")
+	end
+	function ws:on_message(client, message)
+		print("echo: message: " .. client.peer .. ": " .. message)
+		self:send(client.peer .. ": " .. message)
+	end
+	function ws:on_disconnect(client)
+		print("echo: disconnect: " .. client.peer)
+		self:send(client.peer .. " disconnected")
+	end
+	
+	local function websocket_test(req, res)
+		res:append[[
+		<script>
+		var websocket
+		function connect()
+		{
+			websocket = new WebSocket("ws://" + location.host + "/websocket-test", "echo");
+			websocket.onopen = function(e) {};
+			websocket.onclose = function(e) {setTimeout(1000, "connect()");};
+			websocket.onmessage = function(e)
+			{
+				var msgs = document.getElementById("msgs");
+				var p = document.createElement("p");
+				var t = document.createTextNode(e.data);
+				p.appendChild(t);
+				msgs.appendChild(p);//, msgs.firstChild);
+			};
+			websocket.onerror = function(e) {};
+		}
+		connect();
+		
+		function send(e)
+		{
+			var el = document.getElementById("msg");
+			websocket.send(el.value);
+			el.value = "";
+		}
+		</script>
+		<form action="#" onsubmit="send()">
+			<input type=text id=msg />
+			<input type=submit />
+		</form>
+		<div id=msgs>
+			<p><b>Messages:</b></p>
+		</div>
+		]]
+	end
+	hosts.any:add("/websocket-test", websocket_test)
+end

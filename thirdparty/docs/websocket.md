@@ -8,15 +8,15 @@
 
 The function responsible for upgrading a HTTP request to a websocket connection.
 
-## `wsserver websocket.register(string path, string protocol, table callbacks)`
+## `wsserver websocket.register(string path, string protocol)`
 
 Registers a websocket.
 
 Valid callbacks:
 
-- `onconnect(client)`
-- `onmessage(client, message)`
-- `ondisconnect(client)`
+- `wsserver:on_connect(client)`
+- `wsserver:on_message(client, message)`
+- `wsserver:on_disconnect(client)`
 
 ## `wsserver:send(string message[, client])`
 

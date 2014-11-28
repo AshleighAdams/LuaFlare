@@ -178,16 +178,19 @@ hosts.upgrades["websocket"] = Upgrade_websocket
 local meta = {}
 meta._metatbl = {__index = meta}
 
-function websocket.register(path, protocol, callbacks) expects("string", "string", "table")
+function websocket.register(path, protocol, _callbacks) expects("string", "string")
 	websocket.registered[path] = websocket.registered[path] or {}
 	websocket.registered[path][protocol] = {} -- TODO:
+	
+	if _callbacks ~= nil then
+		error("websockets API changed, callbacks are added to the returned object directly now")
+	end
 	
 	print(string.format("websocket: registering %s at %s", protocol, path))
 	
 	local obj = websocket.registered[path][protocol]
 	obj._path = path
 	obj._protocol = protocol
-	obj._callbacks = callbacks
 	obj._clients = {}
 	obj._client_threads = {}
 	
@@ -197,23 +200,23 @@ function websocket.register(path, protocol, callbacks) expects("string", "string
 		-- create a thread for them
 		local thread = function()
 			-- call the onconnect callback
-			if obj._callbacks.onconnect then
-				obj._callbacks.onconnect(client)
+			if obj.on_connect then
+				obj:on_connect(client)
 			end
 			
 			while true do
 				local suc, msg = pcall(read_message, client)
 				if not suc then break end -- client disconnected
 				
-				if obj._callbacks.onmessage then
-					obj._callbacks.onmessage(client, msg)
+				if obj.on_message then
+					obj:on_message(client, msg)
 				end
 			end
 			
-			if obj._callbacks.ondisconnect then
-				obj._callbacks.ondisconnect(client)
+			if obj.on_disconnect then
+				obj:on_disconnect(client)
 			end
-			table.RemoveValue(obj._clients, client) -- nil-ify them
+			table.remove_value(obj._clients, client) -- nil-ify them
 			--obj._client_threads[client] = nil
 		end
 		
