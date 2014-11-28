@@ -112,12 +112,12 @@ local function Upgrade_websocket(request, response)
 	request:set_upgraded()
 	
 	local key      = request:headers()["Sec-WebSocket-Key"]
-	local protocol = request:headers()["Sec-WebSocket-Protocol"]
+	local protocol = request:headers()["Sec-WebSocket-Protocol"] or ""
 	local version  = request:headers()["Sec-WebSocket-Version"]
 	
 	if not key or not protocol or not version then
 		print("Upgrade [websocket] failed:", key, protocol, version)
-		response:halt(400, "The header Sec-Websocket-Key, Sec-WebSocket-Protocol, or Sec-WebSocket-Version was not set!") -- bad request
+		response:halt(400, "The header Sec-Websocket-Key, or Sec-WebSocket-Version was not set!") -- bad request
 		response:send()
 		return
 	end
@@ -178,7 +178,7 @@ hosts.upgrades["websocket"] = Upgrade_websocket
 local meta = {}
 meta._metatbl = {__index = meta}
 
-function websocket.register(path, protocol, _callbacks) expects("string", "string")
+function websocket.register(string path, string protocol = "", _callbacks)
 	websocket.registered[path] = websocket.registered[path] or {}
 	websocket.registered[path][protocol] = {} -- TODO:
 	
