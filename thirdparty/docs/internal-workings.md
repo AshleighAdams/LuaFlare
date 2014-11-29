@@ -25,7 +25,17 @@ where it will attempt to construct a `Request` object, and keep trying until it 
 Once the request and response objects have been constructed, the hook `Request` is safely called.
 By default, the `Request` hook is processed by `hosts.process_request`.
 
-## Upgrading the connection
+The first thing `hosts.process_request()` will attempt is to upgrade the connection (check [Upgrading](#upgrading) for further detail).
+If the request does not want to be upgraded then we attempt to locate a host for the request via pattern matching against all hosts, falling back to `hosts.any` if none is found;
+if we find more than one host that can take said request, then a `409 Conflict` response is sent.
+
+Now that we have a valid host object, we attempt to find the page assigned to it.
+If a page was not found (`404 Not Found`) and `options.no_fallback` is falsy, then an attempt to match against `host.any` is made.
+
+If a page has still not been found, then `halt()` is called with the error code and error reason (i.e., a conflict between pages, or a 404);
+otherwise the page callback will be invoked with the arguments `request, response, ...`, where `...` is either, the captures from the page pattern, or the whole URL (no captures).
+
+## Upgrading
 
 
 
