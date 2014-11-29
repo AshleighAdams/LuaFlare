@@ -30,7 +30,7 @@ Name     | Options                        | Special Function
 ---------|--------------------------------|---------------------------
 SECTION  |                                | Mark a section; no output 
 NOESCAPE |                                | Don't escape the next element.
-html     | pre text = "<!DOCTYPE html>\n" |
+html     | pre text = "&lt;!DOCTYPE html&gt;\n" |
 head     |                                |
 body     |                                |
 script   | escaper = striptags            |

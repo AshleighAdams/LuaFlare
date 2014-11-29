@@ -2,7 +2,19 @@
 
 `local websocket = require("luaflare.websocket")`
 
+## Example
+
+The following is an example echo server that sends all received messages to all connected clients.
+
+	local echo = websocket.register("/echo", "echo")
+	function echo:on_message(client, message)
+		self:send(string.format("%s: %s", client.peer, message))
+	end
+
+
 ## `websocket.registered`
+
+The websockets that have been registered mapped by path and protocol (`[path][protocol]`).
 
 ## `hosts.upgrades.websocket(request, response)`
 

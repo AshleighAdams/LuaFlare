@@ -50,5 +50,52 @@ end
 html = html:gsub("^(#+)(%s*)(.-)\n", func)
 html = html:gsub("\n(#+)(%s*)(.-)\n", func)
 
+html = html:gsub("\\", "\\\\") -- escape these for the latex doc
 --print(table.concat(contents, "\n"))
-print(html)
+os.execute("rm -rf tmp/")
+os.execute("mkdir tmp")
+
+local f = io.open("tmp/docs.md", "w")
+f:write(html)
+f:close()
+
+os.execute("pandoc -s -t latex tmp/docs.md -o tmp/docs.tex")
+--os.execute([[sed -i "s|\n''|\\n''|g" tmp/docs.tex]]) -- fix \n being wrote as 
+
+local texf = io.open("tmp/docs.tex", "r")
+local tex = texf:read("*a")
+
+texf:close()
+texf = io.open("tmp/docs.tex", "w")
+
+tex = tex:gsub([[\begin{document}]], [[
+
+\usepackage{geometry}
+\geometry{legalpaper, margin=1in}
+
+\usepackage{listings}
+\lstset{breaklines=true}
+
+\title{LuaFlare Documentation}
+\author{Kate Adams <self@kateadams.eu>}
+
+\begin{document}
+\maketitle
+\newpage
+\tableofcontents
+
+]])
+
+tex = tex:gsub("\\begin{verbatim}", "\\begin{lstlisting}")
+tex = tex:gsub("\\end{verbatim}", "\\end{lstlisting}")
+
+tex = tex:gsub("\\section", "\\newpage\n\\section")
+
+tex = tex:gsub("linkcolor=magenta,", "linkcolor=black,")
+
+texf:write(tex)
+
+
+
+
+
