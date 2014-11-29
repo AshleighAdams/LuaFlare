@@ -109,7 +109,6 @@ end
 
 local function Upgrade_websocket(request, response)
 	local client = request:client()
-	request:set_upgraded()
 	
 	local key      = request:headers()["Sec-WebSocket-Key"]
 	local protocol = request:headers()["Sec-WebSocket-Protocol"] or ""
@@ -150,6 +149,7 @@ local function Upgrade_websocket(request, response)
 	
 	print(string.format("websocket: %s: generated the hash %s from key %s", protocol, hash, key))
 	
+	request:set_upgraded() -- report that the connection has been upgraded
 	response:clear_headers()
 	response:set_status(101)
 	response:set_header("Upgrade", "websocket")
