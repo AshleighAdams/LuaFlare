@@ -71,11 +71,17 @@ texf = io.open("tmp/docs.tex", "w")
 tex = tex:gsub([[\begin{document}]], [[
 
 \usepackage{geometry}
-\geometry{legalpaper, margin=1in}
+\geometry{a4paper, margin=1in}
 
 \usepackage{listings}
-\lstset{breaklines=true}
-
+\lstset{
+	breaklines=true,
+	columns=fullflexible,
+	basicstyle=\ttfamily,
+	literate={--}{{-\,-}}1,
+	literate={-}{{-}}1,
+}
+ 
 \title{LuaFlare Documentation}
 \author{Kate Adams <self@kateadams.eu>}
 
