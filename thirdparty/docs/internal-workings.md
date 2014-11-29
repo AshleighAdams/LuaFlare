@@ -11,8 +11,8 @@ The `Loaded` hook is responsible for parsing things such as (in order):
 
 Once loaded, `main_loop` will enter an infinite loop.
 The infinite loop works by first attempting to accept a TCP client.
-If there is clients still connected/in the queue (thread pool), then the accept function will not attempt to wait.
-However if there are no active connections, then accept will attempt to wait until the next scheduled task is ready to run.
+If there is clients still connected/in the queue (thread pool), then the accept function will not attempt to wait;
+however if there are no active connections, then accept will attempt to wait until the next scheduled task is ready to run.
 Before enqueueing the client, if `--no-reload` is not set, then any autorun scripts (`/lua/ar_*.lua`) that have changed (or are new) will be re-executed.
 
 Now the client will be enqueued, the thread-pool ran which processes the connections, and then finally the scheduler will resume.
@@ -26,7 +26,7 @@ Once the request and response objects have been constructed, the hook `Request` 
 By default, the `Request` hook is processed by `hosts.process_request`.
 
 The first thing `hosts.process_request()` will attempt is to upgrade the connection (check [Upgrading](#upgrading) for further detail).
-If the request does not want to be upgraded then we attempt to locate a host for the request via pattern matching against all hosts, falling back to `hosts.any` if none is found;
+If the request does not want to be upgraded, then we attempt to locate a host for the request via pattern matching against all hosts, falling back to `hosts.any` if none is found;
 if we find more than one host that can take said request, then a `409 Conflict` response is sent.
 
 Now that we have a valid host object, we attempt to find the page assigned to it.
@@ -39,7 +39,7 @@ otherwise the page callback will be invoked with the arguments `request, respons
 
 
 
-## Psudocode
+## Pseudocode
 
 	main_loop():
 		safehook ReloadScripts
