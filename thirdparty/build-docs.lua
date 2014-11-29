@@ -90,12 +90,18 @@ tex = tex:gsub([[\begin{document}]], [[
 	literate={--}{{-\,-}}1,
 	literate={-}{{-}}1,
 }
- 
+
 \title{LuaFlare Documentation}
 \author{Kate Adams <self@kateadams.eu>}
+\usepackage{graphicx}
 
 \begin{document}
+
 \maketitle
+\begin{center}
+	\includegraphics[width=\textwidth]{../logo.png}
+\end{center}
+
 \newpage
 \tableofcontents
 
