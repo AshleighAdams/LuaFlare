@@ -50,5 +50,5 @@ end
 html = html:gsub("^(#+)(%s*)(.-)\n", func)
 html = html:gsub("\n(#+)(%s*)(.-)\n", func)
 
-print(table.concat(contents, "\n"))
+--print(table.concat(contents, "\n"))
 print(html)
