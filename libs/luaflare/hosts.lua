@@ -136,7 +136,7 @@ function hosts.upgrade_request(request, response) -- check for upgrade
 	local f = hosts.upgrades[ug]
 	
 	if not f then
-		response:halt(500, "Invalid upgrade: " .. ug)
+		response:halt(404, "Upgrade not found: " .. ug)
 	else
 		f(request, response)
 	end
