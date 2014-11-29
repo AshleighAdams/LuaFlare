@@ -1,6 +1,35 @@
 # Internal Workings
 
+## Entry point
 
+The entry point of `main_loop` is responsible for loading all the autorun scripts via safely the hook `ReloadScripts`,
+once all the autorun files are loaded, the hook `Loaded` is unsafely called.
+The `Loaded` hook is responsible for parsing things such as (in order):
+
+ - Parse reverse proxies, mime types, etc...
+ - Notify the daemon manager by outputting the PID (`--out-pid=file`), or reporting to systemd (`--systemd`).
+
+Once loaded, `main_loop` will enter an infinite loop.
+The infinite loop works by first attempting to accept a TCP client.
+If there is clients still connected/in the queue (thread pool), then the accept function will not attempt to wait.
+However if there are no active connections, then accept will attempt to wait until the next scheduled task is ready to run.
+Before enqueueing the client, if `--no-reload` is not set, then any autorun scripts (`/lua/ar_*.lua`) that have changed (or are new) will be re-executed.
+
+Now the client will be enqueued, the thread-pool ran which processes the connections, and then finally the scheduler will resume.
+
+## Processing the connection
+
+The thread pool responsible for processing the connections will call `handle_client(client)`,
+where it will attempt to construct a `Request` object, and keep trying until it either the connection is closed, the Request constructor fails (and returns `nil, errstr`), the connection has been upgraded, or the keep-alive timeout is reached.
+
+Once the request and response objects have been constructed, the hook `Request` is safely called.
+By default, the `Request` hook is processed by `hosts.process_request`.
+
+## Upgrading the connection
+
+
+
+## Psudocode
 
 	main_loop():
 		safehook ReloadScripts
