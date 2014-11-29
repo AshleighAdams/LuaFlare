@@ -183,7 +183,7 @@ function meta::parse_cookies()
 	self._cookies = {}
 
 	--for str in cookie_str:gmatch("%s*.-%s*=%s*.-%s*;?") do
-	for _, str in pairs(cookie_str:Split(";")) do
+	for _, str in pairs(cookie_str:split(";")) do
 		local pos = string.find(str, "=", 1, true)
 		if pos ~= nil then
 			local key = str:sub(1, pos - 1):Trim()
