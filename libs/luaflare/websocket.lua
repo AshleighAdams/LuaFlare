@@ -183,7 +183,22 @@ function websocket.register(string path, string protocol = "", _callbacks)
 	websocket.registered[path][protocol] = {} -- TODO:
 	
 	if _callbacks ~= nil then
-		error("websockets API changed, callbacks are added to the returned object directly now")
+		warn("websockets API changed, callbacks are added to the returned object directly now")
+		
+		local callbacks = _callbacks
+		local ret = websocket.register(path, protocol)
+		
+		for k,v in pairs(callbacks) do
+			local name = k:match("on(.+)")
+			local func = v
+			if name then
+				ret["on_" .. name] = function(self, ...)
+					func(...)
+				end
+			end
+		end
+		
+		return ret
 	end
 	
 	print(string.format("websocket: registering %s at %s", protocol, path))
