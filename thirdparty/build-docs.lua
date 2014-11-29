@@ -70,6 +70,15 @@ texf = io.open("tmp/docs.tex", "w")
 
 tex = tex:gsub([[\begin{document}]], [[
 
+\usepackage{titlesec}
+\setcounter{secnumdepth}{4}
+
+\titleformat{\paragraph}
+{\normalfont\normalsize\bfseries}{\theparagraph}{1em}{}
+\titlespacing*{\paragraph}
+{0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
+
+
 \usepackage{geometry}
 \geometry{a4paper, margin=1in}
 
