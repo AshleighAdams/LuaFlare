@@ -41,7 +41,7 @@ they may be automatically reloaded too.
 | --no-reload                          | false         | true, false             | Do not automatically reload scripts.                      |
 | --max-etag-size=\<size\>             | 64MiB         | 0-\*                    | Maximium size to generate ETags for.                      |
 | --reverse-proxy                      | false         | true, false             | Require X-Real-IP and X-Forward-For.                      |
-| --trusted-reverse-proxies=\<string\> | localhost     | host1,host2,...,hostn   | Comma delimitered list of trusted hosts.                  |
+| --trusted-reverse-proxies=\<string\> | localhost     | host1,host2,...,hostn   | Comma delimitered list of trusted hosts. Mask notation supported |
 | --x-accel-redirect=\<path\>          | "" \[/./\]    | \*                      | Serve static content with X-Accel-Redirect (Nginx).       |
 | --x-sendfile                         | false         | true, false             | Serve static content with X-Sendfile (mod_xsendfile).     |
 | --chunk-size                         | 131072        | 0-\*                    | Number of bytes to send per chunk.                        |

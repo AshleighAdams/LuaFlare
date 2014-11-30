@@ -21,7 +21,7 @@ usage:
                                   64MiB).
 --reverse-proxy                   Require X-Real-IP and X-Forward-For.
 --trusted-reverse-proxies=string  Comma delimitered list of trusted reverse
-                                  proxies.
+                                  proxies. Mask notation is supported.
 --x-accel-redirect=path           Use Nginx's X-Accel-Redirect to send static
                                   content; path is the internal location (the 
                                   example site uses /./)
