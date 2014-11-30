@@ -6,6 +6,7 @@ usage:
     luaflare listen [OPTIONS]...
     luaflare mount PATH NAME
     luaflare unmount NAME
+    luaflare [OPTIONS]...
 
 --port=number                     Port to bind to (default 8080).
 --threads=number                  Number of threads to create (default 2).
