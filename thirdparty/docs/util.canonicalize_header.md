@@ -1,6 +1,6 @@
 # LuaFlare canonicalize_header function
 
-`local canonicalize_header = = require("luaflare.util.canonicalize_header")`
+`local canonicalize_header = require("luaflare.util.canonicalize_header")`
 
 ## `header canonicalize_header(string header)`
 

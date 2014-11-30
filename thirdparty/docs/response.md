@@ -12,6 +12,10 @@ Called by `response:set_file()` if `can_list_directory` is truthy, and the targe
 
 The function is expected to write to the response.
 
+### `"Error" {type = code, message = reason}, request, response`
+
+
+
 ## `request response:request()`
 
 Returns the request we're responding to.

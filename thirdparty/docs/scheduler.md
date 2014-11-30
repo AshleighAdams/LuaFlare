@@ -14,7 +14,7 @@ Resumes all scheduled tasks.  Any tasks that take longer than half a second to e
 
 ## `number scheduler.idletime()`
 
-Returns the number of seconds until the next scheduled task is to be resume; `-1` if complete.
+Returns the number of seconds until the next scheduled task is to be resumed; `-1` if complete.
 
 ## `boolean scheduler.done()`
 

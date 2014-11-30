@@ -2,7 +2,7 @@
 
 ## `expects_types`
 
-A table of type checkers for `expects()`, where key == typename, value = function.
+A table of type checkers for `expects()`, where key = typename, value = function.
 
 ## `valid, reason metatable_compatible(table base, value)`
 

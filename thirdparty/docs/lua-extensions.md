@@ -24,13 +24,13 @@ Set `arg` to `default` if `arg == nil` (placed before `expects()`).
 
 `expects()` will examine the stack, and compare it with the arguments that have been passed to it.
 
-If the type passed type is a string, it will check it against the function `expects_types[typestr](value)` if it exists, else `type(value) == typestr`.  The type string `"any"` will just check against a none-nil value.
+If the type passed type is a string, it will check it against the function `expects_types[typestr](value)` if it exists, else `type(value) == typestr`.  The type string `"any"` will just check against a non-nil value.
 
 If the passed type is nil, it will ignore this argument.
 
 If the passed type is a table, it will ensure the value table contains the same functions (via `metatable_compatible()`).
 
-`expects()` also checks against too many arguments being passed to it.  So this will throw an error: `function(a) expects("string", "number")"`
+`expects()` also checks against too many arguments being passed to it.  So this will throw an error: `function(a) expects("string", "number")`
 
 ## Examples, along with translations
 

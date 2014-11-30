@@ -8,7 +8,7 @@ Rebuilds the `callorder` table.  Called automatically by `hook.add()` and `hook.
 
 - `name`: The hook name.
 
-## `hook.add(any name, any id, function callback[, number priority])`
+## `hook.add(any name, any id, function callback, number priority = 0)`
 
 Adds a hook.  Returning a none-nil value will prevent callbacks yet-to-be-called from being invoked.
 

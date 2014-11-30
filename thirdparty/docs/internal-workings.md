@@ -40,7 +40,7 @@ otherwise the page callback will be invoked with the arguments `request, respons
 To test whether or not a request wants it's connection to be upgraded,
 the header `Connection` is checked to see if `upgrade` is present,
 and then the `Upgrade` header is checked to exist.
-If both of these are true, then an attempt to upgrade the connection is made by checking the that `hosts.upgrades[...]` exists, where `...` is the value of the `Upgrade` header.
+If both of these are true, then an attempt to upgrade the connection is made by checking the that `hosts.upgrades[x]` exists, where `x` is the value of the `Upgrade` header.
 In the case of the upgrade function not being found, then LuaFlare will respond to the request with a `404 Not Found` with the message "Upgrade not found" and return.
 
 Now that we have our function that is responsible for upgrading the request (upgrader), it will be invoked.
