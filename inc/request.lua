@@ -6,19 +6,83 @@ local hook = require("luaflare.hook")
 local meta = {}
 meta.__index = meta
 
+local function bits(num, bits)
+    local t={}
+    while num>0 do
+        rest=num%2
+        table.insert(t,1,rest)
+        num=(num-rest)/2
+    end
+    
+    local ret = table.concat(t)
+    return string.rep("0", bits - ret:len()) .. ret
+end
+
 local trusted_proxies = {}
+local trusted_proxies_mask = {}
+local trusted_proxies_mask_cache = {}
+
+local function ip_to_base2(ip)
+	local parts = {}
+	local is_v6 = ip:match(":") ~= nil
+	if is_v6 then
+		print(ip)
+		ip:gsub("[^:]+", function(part)
+			table.insert(parts, bits(tonumber(part, 16) or 0, 16))
+		end)
+		while #parts < 8 do
+			table.insert(parts, string.rep("0", 16))
+		end
+	else
+		ip:gsub("%d+", function(part)
+			table.insert(parts, bits(tonumber(part, 10), 8))
+		end)
+	end
+	
+	return table.concat(parts)
+end
+
+local function is_trusted_proxy(ip)
+	if trusted_proxies[ip] or trusted_proxies_mask_cache[ip] then
+		return true
+	end
+	
+	local binip = ip_to_base2(ip)
+	
+	for k,v in ipairs(trusted_proxies_mask) do
+		if binip:starts_with(v.pattern) then
+			trusted_proxies_mask_cache[ip] = true
+			print(string.format("trusted reverse proxy cache: %s", ip))
+			return true
+		end
+	end
+	
+	return false
+end
+
 local function load_trusted_proxies()
 	for _, hostname in pairs ((script.options["trusted-reverse-proxies"] or "localhost"):split(",")) do
 		-- potentially look up the IP
-		trusted_proxies[hostname] = true
-		local resolved, info = socket.dns.toip(hostname)
-	
-		if not resolved then
-			print(string.format("trusted reverse proxy: could not resolve %s: %s", hostname, info))
+		if hostname:match("/%d+$") then
+			local ip, mask = hostname:match("^(.+)/(%d+)$")
+			mask = assert(tonumber(mask))
+			assert(ip)
+			
+			local pattern = ip_to_base2(ip):sub(1, mask)
+			print(string.format("trusted reverse proxy mask: %s/%d (%s)", ip, mask, pattern))
+			
+			table.insert(trusted_proxies_mask, {mask = mask, ip = ip, pattern = pattern})
 		else
-			for k,ip in pairs(info.ip) do
-				trusted_proxies[ip] = true
-				print(string.format("trusted reverse proxy: %s (%s)", ip, hostname))
+			trusted_proxies[hostname] = true
+			local resolved, info = socket.dns.toip(hostname)
+		
+			if not resolved then
+				print(string.format("trusted reverse proxy: could not resolve %s: %s", hostname, info))
+			else
+				for k,ip in pairs(info.ip) do
+					trusted_proxies[ip] = true
+					print(string.format("trusted reverse proxy: %s (%s)", ip, hostname))
+				end
 			end
 		end
 	end
@@ -87,7 +151,7 @@ function Request(client) -- expects("userdata")
 	
 	-- update peer
 	if script.options["reverse-proxy"] then
-		if not trusted_proxies[request._peer] then
+		if not is_trusted_proxy(request._peer) then
 			return nil, quick_response(request, 403, "reverse-proxy: " .. request._peer .. " is not trusted!")
 		end
 		
