@@ -138,7 +138,16 @@ if arg[1] == "tex" then
 	texf:write(tex)
 elseif arg[1] == "epub" then
 	print("generating epub...")
-	os.execute[[ebook-convert tmp/docs.md tmp/docs.epub --cover logo.png --chapter-mark=none --disable-markup-chapter-headings --use-auto-toc --chapter="//*[((name()='h1' or name()='h2'or name()='h3')]" --page-breaks-before="//*[name()='h1']"]]
+	os.execute[[ebook-convert tmp/docs.md tmp/docs.epub \
+		--title="LuaFlare Documentation" \
+		--authors="Kate Adams" \
+		--cover cover.png --preserve-cover-aspect-ratio \
+		--chapter-mark=none \
+		--use-auto-toc \
+		--chapter="//*[((name()='h1' or name()='h2'or name()='h3')]" \
+		--page-breaks-before="//*[name()='h1']" \
+		-v \
+	]]
 else
 	print("unknown format")
 	os.exit(1)
