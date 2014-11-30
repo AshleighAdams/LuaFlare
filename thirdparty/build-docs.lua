@@ -60,64 +60,87 @@ local f = io.open("tmp/docs.md", "w")
 f:write(html)
 f:close()
 
-os.execute("pandoc -s -t latex tmp/docs.md -o tmp/docs.tex")
---os.execute([[sed -i "s|\n''|\\n''|g" tmp/docs.tex]]) -- fix \n being wrote as 
+local p = io.popen("git describe --tags --always")
+local version = p:read("*a"):match("([%d%.-]+)"):gsub("%-", ".")
+p:close()
 
-local texf = io.open("tmp/docs.tex", "r")
-local tex = texf:read("*a")
+if version:sub(-1) == "." then
+	version = version:sub(1, -2)
+end
 
-texf:close()
-texf = io.open("tmp/docs.tex", "w")
+if arg[1] == "tex" then
+	print("generating tex...")
+	
+	os.execute("pandoc -s -t latex tmp/docs.md -o tmp/docs.tex")
 
-tex = tex:gsub([[\begin{document}]], [[
+	local texf = io.open("tmp/docs.tex", "r")
+	local tex = texf:read("*a")
 
-\usepackage{titlesec}
-\setcounter{secnumdepth}{4}
+	texf:close()
+	texf = io.open("tmp/docs.tex", "w")
 
-\titleformat{\paragraph}
-{\normalfont\normalsize\bfseries}{\theparagraph}{1em}{}
-\titlespacing*{\paragraph}
-{0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
+	tex = tex:gsub([[\begin{document}]], [[
 
+	\usepackage{titlesec}
+	\setcounter{secnumdepth}{4}
 
-\usepackage{geometry}
-\geometry{a4paper, margin=1in}
-
-\usepackage{listings}
-\lstset{
-	breaklines=true,
-	columns=fullflexible,
-	basicstyle=\ttfamily,
-	literate={--}{{-\,-}}1,
-	literate={-}{{-}}1,
-}
-
-\title{LuaFlare Documentation}
-\author{Kate Adams <self@kateadams.eu>}
-\usepackage{graphicx}
-
-\begin{document}
-
-\maketitle
-\begin{center}
-	\includegraphics[width=\textwidth]{../logo.png}
-\end{center}
-
-\newpage
-\tableofcontents
-
-]])
-
-tex = tex:gsub("\\begin{verbatim}", "\\begin{lstlisting}")
-tex = tex:gsub("\\end{verbatim}", "\\end{lstlisting}")
-
-tex = tex:gsub("\\section", "\\newpage\n\\section")
-
-tex = tex:gsub("linkcolor=magenta,", "linkcolor=black,")
-
-texf:write(tex)
+	\titleformat{\paragraph}
+	{\normalfont\normalsize\bfseries}{\theparagraph}{1em}{}
+	\titlespacing*{\paragraph}
+	{0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
 
 
+	\usepackage{geometry}
+	\geometry{a4paper, margin=1in}
+
+	\usepackage{listings}
+	\lstset{
+		breaklines=true,
+		columns=fullflexible,
+		basicstyle=\ttfamily,
+		literate={--}{{-\,-}}1,
+		literate={-}{{-}}1,
+	}
+
+	\usepackage{titling}
+	\newcommand{\subtitle}[1]{%%
+	  \posttitle{%%
+		\par\end{center}
+		\begin{center}\large#1\end{center}
+		\vskip0.5em}%%
+	}
 
 
+	\title{LuaFlare Documentation}
+	\subtitle{]]..version..[[}
+	\author{Kate Adams <self@kateadams.eu>}
+	\usepackage{graphicx}
+
+	\begin{document}
+
+	\maketitle
+	\begin{center}
+		\includegraphics[width=\textwidth]{../logo.png}
+	\end{center}
+
+	\newpage
+	\tableofcontents
+
+	]])
+
+	tex = tex:gsub("\\begin{verbatim}", "\\begin{lstlisting}")
+	tex = tex:gsub("\\end{verbatim}", "\\end{lstlisting}")
+
+	tex = tex:gsub("\\section", "\\newpage\n\\section")
+
+	tex = tex:gsub("linkcolor=magenta,", "linkcolor=black,")
+
+	texf:write(tex)
+elseif arg[1] == "epub" then
+	print("generating epub...")
+	os.execute[[ebook-convert tmp/docs.md tmp/docs.epub --cover logo.png --chapter-mark=none --disable-markup-chapter-headings --use-auto-toc --chapter="//*[((name()='h1' or name()='h2'or name()='h3')]" --page-breaks-before="//*[name()='h1']"]]
+else
+	print("unknown format")
+	os.exit(1)
+end
 
