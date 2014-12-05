@@ -251,7 +251,7 @@ function meta::parse_cookies()
 		local pos = string.find(str, "=", 1, true)
 		if pos ~= nil then
 			local key = str:sub(1, pos - 1):Trim()
-			local val = str:sub(pos + 1):match("(.+);?"):Trim()
+			local val = str:sub(pos + 1):match("(.+);?"):trim()
 			self._cookies[key] = val
 		end
 	end
