@@ -44,7 +44,7 @@ they may be automatically reloaded too.
 | --trusted-reverse-proxies=\<string\> | localhost     | host1,host2,...,hostn   | Comma delimitered list of trusted hosts. Mask notation supported |
 | --x-accel-redirect=\<path\>          | "" \[/./\]    | \*                      | Serve static content with X-Accel-Redirect (Nginx).       |
 | --x-sendfile                         | false         | true, false             | Serve static content with X-Sendfile (mod_xsendfile).     |
-| --chunk-size                         | 131072        | 0-\*                    | Number of bytes to send per chunk.                        |
+| --chunk-size=\<number\>              | 131072        | 0-\*                    | Number of bytes to send per chunk.                        |
 | --scheduler-tick-rate=\<number\>     | 60            | 0-\*                    | The fallback tickrate (Hz) for a schedual that yields nil.|
 | --max-post-length=\<number\>         | ""            | 0-\*, ""                | The maximum length of the post data.                      |
 | --systemd                            | false         | true, false             | Notify systemd upon startup, and try to heartbeat.        |
