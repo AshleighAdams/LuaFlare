@@ -114,7 +114,6 @@ if arg[1] == "tex" then
 
 	\title{LuaFlare Documentation}
 	\subtitle{]]..version..[[}
-	\author{Kate Adams <self@kateadams.eu>}
 	\usepackage{graphicx}
 
 	\begin{document}
