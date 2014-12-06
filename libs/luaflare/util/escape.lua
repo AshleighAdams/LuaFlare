@@ -114,6 +114,8 @@ function escape.argument(input) expects "string"
 	input = input:gsub("\r", "\\r")
 	input = input:gsub("\b", "\\b")
 	input = input:gsub("\t", "\\t")
+	input = input:gsub("`", "\\`")
+	input = input:gsub("$", "\\$")
 	
 	return input
 end
