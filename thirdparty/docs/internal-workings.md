@@ -45,7 +45,7 @@ In the case of the upgrade function not being found, then LuaFlare will respond 
 
 Now that we have our function that is responsible for upgrading the request (upgrader), it will be invoked.
 The upgrader is responsible for calling `request:set_upgraded()`;
-This ensures that both, the connection is not closed, and no more requests are attempted to be read from this connection.
+this ensures that both, the connection is not closed, and no more requests are attempted to be read from this connection.
 
 ## Pseudocode
 
