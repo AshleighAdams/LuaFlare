@@ -146,6 +146,7 @@ elseif arg[1] == "epub" then
 		--use-auto-toc \
 		--chapter="//*[((name()='h1' or name()='h2'or name()='h3')]" \
 		--page-breaks-before="//*[name()='h1']" \
+		--change-justification=justify \
 		-v \
 	]]
 else
