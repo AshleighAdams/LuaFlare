@@ -147,6 +147,10 @@ elseif arg[1] == "epub" then
 		--chapter="//*[((name()='h1' or name()='h2'or name()='h3')]" \
 		--page-breaks-before="//*[name()='h1']" \
 		--change-justification=justify \
+		--epub-inline-toc \
+		--level1-toc="//*[name()='h1']" \
+		--level2-toc="//*[name()='h2']" \
+		--level3-toc="//*[name()='h3']" \
 		-v \
 	]]
 else
