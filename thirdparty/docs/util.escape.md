@@ -33,6 +33,10 @@ Strips all tags from a string.
 
 Returns a safe string to use in SQL queries.
 
+## `string escape.mysql(string input)`
+
+Returns a safe string to use in MySQL queries.
+
 ## `string escape.argument(string input)`
 
 Escapes a Unix shell argument.
