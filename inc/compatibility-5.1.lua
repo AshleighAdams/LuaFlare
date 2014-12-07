@@ -1,5 +1,5 @@
-
-if not _VERSION:match("5%.1") then
+local v = tonumber(_VERSION:match("%d.%d"))
+if v > 5.1 then
 	return
 end
 
