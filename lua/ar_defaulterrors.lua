@@ -7,7 +7,7 @@ local lfs = require("lfs")
 local template = include("template-error.lua")
 
 local function on_error(why, request, response)
-	print("request failed: %s: %s %s", why.type, request:url(), why.message or "")
+	print(string.format("fail: %s: %s %s", why.type, request:url(), why.message or ""))
 end
 hook.add("Error", "log errors", on_error)
 
