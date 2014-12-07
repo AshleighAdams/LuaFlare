@@ -37,7 +37,10 @@ Returns a safe string to use in SQL queries.
 
 Returns a safe string to use in MySQL queries.
 
-## `string escape.argument(string input)`
+## `string escape.argument(string input, boolean quotify = true)`
+
+If `quotify`, then the string will be encapsulated in double quotes with a couple special chars escaped;
+otherwise, special chars are prefixed with a backslash.
 
 Escapes a Unix shell argument.
 

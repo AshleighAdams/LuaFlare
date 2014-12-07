@@ -106,18 +106,17 @@ function escape.mysql(input) expects "string"
 	return input
 end
 
-function escape.argument(input) expects "string"
-	input = input:gsub(" ", "\\ ")	
-	input = input:gsub("'", "\\'")
-	input = input:gsub("\"", "\\\"")
-	input = input:gsub("\n", "\\n")
-	input = input:gsub("\r", "\\r")
-	input = input:gsub("\b", "\\b")
-	input = input:gsub("\t", "\\t")
-	input = input:gsub("`", "\\`")
-	input = input:gsub("$", "\\$")
-	
-	return input
+function escape.argument(input, quoteify) expects "string"
+	if quoteify == nil or quoteify then
+		input = input:gsub("`", "\\`")
+		input = input:gsub("$", "\\$")
+		input = input:gsub("\"", "\\\"")
+		
+		return '"' .. input .. '"'
+	else
+		-- prefix with \:  " ' # & ; ` | ! * ? ~ < > ^ ( ) [ ] { } $ \ \x0A \xFF
+		return input:gsub("[ %\"%\'%#%&%;%`%|%!%*%?%~%<%>%^%(%)%[%]%{%}%£%\\%\x0a%\xff]", "\\%1")
+	end
 end
 
 
