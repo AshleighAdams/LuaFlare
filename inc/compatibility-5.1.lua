@@ -30,3 +30,13 @@ function table.pack(...)
 	t.n = max
 	return t
 end
+
+local sep = package.config:sub(1,1)
+function package.searchpath(mod, path)
+    mod = mod:gsub("%.", sep):gsub("%%", "%%%%")
+    for m in path:gmatch("[^;]+") do
+        local nm = m:gsub("%?", mod)
+        local f = io.open(nm, "r")
+        if f then f:close(); return nm end
+    end
+end

@@ -644,19 +644,21 @@ function parser.parse_stat(state)
 	
 	do -- varlist ‘=’ explist |
 		local varlist = parser.parse_varlist(state)
-		if not varlist then goto end_assignment end
+		if varlist then
+			local eq = parser.parse_token(state, "token", "=")
+			if not eq then
+				reset_state()
+			else
+				local explist, err = parser.parse_explist(state)
+				if not explist then return reset_state(nil, err) end
 		
-		local eq = parser.parse_token(state, "token", "=")
-		if not eq then reset_state() goto end_assignment end -- wasn't an assignment to begin with
-		
-		local explist, err = parser.parse_explist(state)
-		if not explist then return reset_state(nil, err) end
-		
-		return {
-			type = "stat", subtype = "assignment",
-			varlist = varlist, eq = eq, explist = explist
-		}
-	end ::end_assignment::
+				return {
+					type = "stat", subtype = "assignment",
+					varlist = varlist, eq = eq, explist = explist
+				}
+			end
+		end
+	end
 	
 	do -- functioncall | 
 		local fc, err = parser.parse_functioncall(state)
@@ -688,242 +690,241 @@ function parser.parse_stat(state)
 	
 	do -- 'goto' Name |
 		local gt = parser.parse_token(state, "keyword", "goto")
-		if not gt then goto end_goto end
+		if gt then
+			local name, err = parser.parse_Name(state)
+			if not name then return reset_state(nil, err) end
 		
-		local name, err = parser.parse_Name(state)
-		if not name then return reset_state(nil, err) end
-		
-		return {type = "stat", subtype = "goto", ["goto"] = gt, name = name}
-	end ::end_goto::
+			return {type = "stat", subtype = "goto", ["goto"] = gt, name = name}
+		end
+	end
 	
 	do -- 'do' block 'end'
 		local do_ = parser.parse_token(state, "keyword", "do")
-		if not do_ then goto end_do end
+		if do_ then
+			local block, err = parser.parse_block(state)
+			if not block then return reset_state(nil, err) end
 		
-		local block, err = parser.parse_block(state)
-		if not block then return reset_state(nil, err) end
+			local end_ = parser.parse_token(state, "keyword", "end")
+			if not end_ then return reset_state(nil, "end expected") end
 		
-		local end_ = parser.parse_token(state, "keyword", "end")
-		if not end_ then return reset_state(nil, "end expected") end
-		
-		return {type = "stat", subtype = "do", ["do"] = do_, ["end"] = end_, block = block}
-	end ::end_do::
+			return {type = "stat", subtype = "do", ["do"] = do_, ["end"] = end_, block = block}
+		end
+	end
 	
 	do -- 'while' exp 'do' block 'end' | 
 		local while_ = parser.parse_token(state, "keyword", "while")
-		if not while_ then goto end_while end
+		if while_ then
+			local exp, err = parser.parse_exp(state)
+			if not exp then return reset_state(nil, err) end
 		
-		local exp, err = parser.parse_exp(state)
-		if not exp then return reset_state(nil, err) end
+			local do_ = parser.parse_token(state, "keyword", "do")
+			if not do_ then return reset_state(nil, "do expected") end
 		
-		local do_ = parser.parse_token(state, "keyword", "do")
-		if not do_ then return reset_state(nil, "do expected") end
+			local block, err = parser.parse_block(state)
+			if not block then return reset_state(nil, err) end
 		
-		local block, err = parser.parse_block(state)
-		if not block then return reset_state(nil, err) end
+			local end_ = parser.parse_token(state, "keyword", "end")
+			if not end_ then return reset_state(nil, "end expected") end
 		
-		local end_ = parser.parse_token(state, "keyword", "end")
-		if not end_ then return reset_state(nil, "end expected") end
-		
-		return {
-			type = "stat", subtype = "while", ["while"] = while_, ["do"] = do_, ["end"] = end_, exp = exp, block = block
-		}
-	end ::end_while::
+			return {
+				type = "stat", subtype = "while", ["while"] = while_, ["do"] = do_, ["end"] = end_, exp = exp, block = block
+			}
+		end
+	end
 	
 	do -- 'repeat' block 'until' exp | 
 		local repeat_ = parser.parse_token(state, "keyword", "repeat")
-		if not repeat_ then goto end_repeat end
+		if repeat_ then
+			local block, err = parser.parse_block(state)
+			if not block then return reset_state(nil, err) end
 		
-		local block, err = parser.parse_block(state)
-		if not block then return reset_state(nil, err) end
+			local until_ = parser.parse_token(state, "keyword", "until")
+			if not until_ then return reset_state(nil, "until expected") end
 		
-		local until_ = parser.parse_token(state, "keyword", "until")
-		if not until_ then return reset_state(nil, "until expected") end
+			local exp, err = parser.parse_exp(state)
+			if not exp then return reset_state(nil, err) end
 		
-		local exp, err = parser.parse_exp(state)
-		if not exp then return reset_state(nil, err) end
-		
-		return {type = "stat", subtype = "repeat", ["repeat"] = repeat_, ["until"] = until_, block = block, exp = exp}
-	end ::end_repeat::
+			return {type = "stat", subtype = "repeat", ["repeat"] = repeat_, ["until"] = until_, block = block, exp = exp}
+		end
+	end
 	
 	do -- 'if' exp 'then' block {'elseif' exp 'then' block} ['else' block] 'end' |
 		local if_ = parser.parse_token(state, "keyword", "if")
-		if not if_ then goto end_if end
+		if if_ then
+			local exp, err = parser.parse_exp(state)
+			if not exp then return reset_state(nil, err) end
 		
-		local exp, err = parser.parse_exp(state)
-		if not exp then return reset_state(nil, err) end
+			local then_ = parser.parse_token(state, "keyword", "then")
+			if not then_ then return reset_state(nil, "then expected") end
 		
-		local then_ = parser.parse_token(state, "keyword", "then")
-		if not then_ then return reset_state(nil, "then expected") end
+			local block, err = parser.parse_block(state)
+			if not block then return reset_state(nil, err) end
 		
-		local block, err = parser.parse_block(state)
-		if not block then return reset_state(nil, err) end
+			local ret = {type = "stat", subtype = "if", ["if"] = if_, ["then"] = then_, exp = exp, block = block}
+			ret.elseifs = {}
 		
-		local ret = {type = "stat", subtype = "if", ["if"] = if_, ["then"] = then_, exp = exp, block = block}
-		ret.elseifs = {}
-		
-		while true do -- read the elseif's
-			local elseif_ = parser.parse_token(state, "keyword", "elseif")
-			if not elseif_ then break end
+			while true do -- read the elseif's
+				local elseif_ = parser.parse_token(state, "keyword", "elseif")
+				if not elseif_ then break end
 			
-			local elseif_exp, err = parser.parse_exp(state)
-			if not elseif_exp then return reset_state(nil, err) end
+				local elseif_exp, err = parser.parse_exp(state)
+				if not elseif_exp then return reset_state(nil, err) end
 			
-			local elseif_then = parser.parse_token(state, "keyword", "then")
-			if not elseif_then then return reset_state(nil, "then expected") end
+				local elseif_then = parser.parse_token(state, "keyword", "then")
+				if not elseif_then then return reset_state(nil, "then expected") end
 			
-			local elseif_block, err = parser.parse_block(state)
-			if not elseif_block then return reset_state(nil, err) end
+				local elseif_block, err = parser.parse_block(state)
+				if not elseif_block then return reset_state(nil, err) end
 			
-			table.insert(ret.elseifs, {
-				type = "elseif", ["elseif"] = elseif_, ["then"] = elseif_then, exp = elseif_exp, block = elseif_block
-			})
+				table.insert(ret.elseifs, {
+					type = "elseif", ["elseif"] = elseif_, ["then"] = elseif_then, exp = elseif_exp, block = elseif_block
+				})
+			end
+		
+			-- read the else
+			local else_ = parser.read_token(state, "keyword", "else")
+			if else_ then
+				local else_block, err = parser.read_block(state)
+				if not else_block then return reset_state(nil, err) end
+			
+				ret["else"] = {type = "else", ["else"] = else_, block = else_block}
+			end
+		
+			local end_ = parser.read_token(state, "keyword", "end")
+			if not end_ then return reset_state(nil, "end expected") end
+		
+			ret["end"] = end_
+			return ret
 		end
-		
-		-- read the else
-		local else_ = parser.read_token(state, "keyword", "else")
-		if else_ then
-			local else_block, err = parser.read_block(state)
-			if not else_block then return reset_state(nil, err) end
-			
-			ret["else"] = {type = "else", ["else"] = else_, block = else_block}
-		end
-		
-		local end_ = parser.read_token(state, "keyword", "end")
-		if not end_ then return reset_state(nil, "end expected") end
-		
-		ret["end"] = end_
-		return ret
-	end ::end_if::
+	end
 	
 	do -- 'for' Name ‘=’ exp ‘,’ exp [‘,’ exp] 'do' block 'end' |
 		local n = state.n
 		
 		local for_ = parser.parse_token(state, "keyword", "for")
-		if not for_ then goto end_for end
+		if for_ then
+			local name, err = parser.parse_Name(state)
+			if not name then return reset_state(nil, err) end
 		
-		local name, err = parser.parse_Name(state)
-		if not name then return reset_state(nil, err) end
+			local eq = parser.parse_token(state, "token", "=")
+			if not eq then -- this is a for namelist in type, reset and continue
+				state.n = n
+			else
+				local exp_from, err = parser.parse_exp(state)
+				if not exp_from then return reset_state(nil, err) end
 		
-		local eq = parser.parse_token(state, "token", "=")
-		if not eq then -- this is a for namelist in type, reset and continue
-			state.n = n
-			goto end_for
+				local post_from_comma = parser.parse_token(state, "token", ",")
+				if not post_from_comma then return reset_state(nil, ", expected") end
+		
+				local exp_to, err = parser.parse_exp(state)
+				if not exp_to then return reset_state(nil, err) end
+		
+				local post_to_comma = parser.parse_token(state, "token", ",")
+				local step
+		
+				if post_to_comma then
+					step, err = parser.parse_exp(state)
+					if not step then return reset_state(nil, err) end
+				end
+		
+				local do_ = parser.parse_token(state, "keyword", "do")
+				if not do_ then return reset_state(nil, "do expected") end
+		
+				local block, err = parser.parse_block(state)
+				if not block then return reset_state(nil, err) end
+		
+				local end_ = parser.parse_token(state, "keyword", "end")
+				if not end_ then return reset_state(nil, "end expected") end
+		
+				return {
+					type = "stat", subtype = "for", ["for"] = for_, name = name,
+					exp_from = exp_from, exp_to = exp_to, exp_step = step,
+					["do"] = do_, block = block, ["end"] = end_
+				}
+			end
 		end
-		
-		local exp_from, err = parser.parse_exp(state)
-		if not exp_from then return reset_state(nil, err) end
-		
-		local post_from_comma = parser.parse_token(state, "token", ",")
-		if not post_from_comma then return reset_state(nil, ", expected") end
-		
-		local exp_to, err = parser.parse_exp(state)
-		if not exp_to then return reset_state(nil, err) end
-		
-		local post_to_comma = parser.parse_token(state, "token", ",")
-		local step
-		
-		if post_to_comma then
-			step, err = parser.parse_exp(state)
-			if not step then return reset_state(nil, err) end
-		end
-		
-		local do_ = parser.parse_token(state, "keyword", "do")
-		if not do_ then return reset_state(nil, "do expected") end
-		
-		local block, err = parser.parse_block(state)
-		if not block then return reset_state(nil, err) end
-		
-		local end_ = parser.parse_token(state, "keyword", "end")
-		if not end_ then return reset_state(nil, "end expected") end
-		
-		return {
-			type = "stat", subtype = "for", ["for"] = for_, name = name,
-			exp_from = exp_from, exp_to = exp_to, exp_step = step,
-			["do"] = do_, block = block, ["end"] = end_
-		}
-	end ::end_for::
+	end
 	
 	do -- 'for' namelist 'in' explist 'do' block 'end' |
 		local for_ = parser.parse_token(state, "keyword", "for")
-		if not for_ then goto end_for2 end
+		if for_ then
+			local namelist, err = parser.parse_namelist(state)
+			if not namelist then return reset_state(nil, err) end
 		
-		local namelist, err = parser.parse_namelist(state)
-		if not namelist then return reset_state(nil, err) end
+			local in_ = parser.parse_token(state, "keyword", "in")
+			if not in_ then return reset_state(nil, "in expected") end
 		
-		local in_ = parser.parse_token(state, "keyword", "in")
-		if not in_ then return reset_state(nil, "in expected") end
+			local explist, err = parser.parse_explist(state)
+			if not explist then return reset_state(nil, err) end
 		
-		local explist, err = parser.parse_explist(state)
-		if not explist then return reset_state(nil, err) end
+			local do_ = parser.parse_token(state, "keyword", "do")
+			if not do_ then return reset_state(nil, "do expected") end
 		
-		local do_ = parser.parse_token(state, "keyword", "do")
-		if not do_ then return reset_state(nil, "do expected") end
+			local block, err = parser.parse_block(state)
+			if not block then return reset_state(nil, err) end
 		
-		local block, err = parser.parse_block(state)
-		if not block then return reset_state(nil, err) end
+			local end_ = parser.parse_token(state, "keyword", "end")
+			if not end_ then return reset_state(nil, "end expected") end
 		
-		local end_ = parser.parse_token(state, "keyword", "end")
-		if not end_ then return reset_state(nil, "end expected") end
-		
-		return {
-			type = "stat", subtype = "for in", ["for"] = for_,
-			namelist = namelist,["in"] = in_, explist = explist, ["do"] = do_,
-			block = block, ["end"] = end_
-		}
-	end ::end_for2::
+			return {
+				type = "stat", subtype = "for in", ["for"] = for_,
+				namelist = namelist,["in"] = in_, explist = explist, ["do"] = do_,
+				block = block, ["end"] = end_
+			}
+		end
+	end
 	
 	do -- 'function' funcname funcbody |
 		local function_ = parser.parse_token(state, "keyword", "function")
-		if not function_ then goto end_function end
+		if function_ then
+			local funcname, err = parser.parse_funcname(state)
+			if not funcname then return reset_state(nil, err) end
 		
-		local funcname, err = parser.parse_funcname(state)
-		if not funcname then return reset_state(nil, err) end
+			local funcbody, err = parser.parse_funcbody(state)
+			if not funcbody then return reset_state(nil, err) end
 		
-		local funcbody, err = parser.parse_funcbody(state)
-		if not funcbody then return reset_state(nil, err) end
-		
-		return {
-			type = "stat", subtype = "function",
-			funcname = funcname, funcbody = funcbody
-		}
-	end ::end_function::
+			return {
+				type = "stat", subtype = "function",
+				funcname = funcname, funcbody = funcbody
+			}
+		end
+	end
 	
 	do -- 'local' 'function' Name funcbody | 'local' namelist [‘=’ explist] 
 		local local_ = parser.parse_token(state, "keyword", "function")
-		if not local_ then goto end_local end
+		if local_ then
+			do -- function Name funcbody |
+				local function_ = parser.parse_token(state, "keyword", "function")
+				if function_ then
+					local name, err = parser.parse_Name(state)
+					if not name then return reset_state(nil, err) end
+			
+					local funcbody, err = parser.parse_funcbody(state)
+					if not funcbody then return reset_state(nil, err) end
+			
+					return {
+						type = "stat", subtype = "local function",
+						name = name, funcbody = funcbody
+					}
+				end
+			end
 		
-		do -- function Name funcbody |
-			local function_ = parser.parse_token(state, "keyword", "function")
-			if not function_ then goto end_function end
-			
-			local name, err = parser.parse_Name(state)
-			if not name then return reset_state(nil, err) end
-			
-			local funcbody, err = parser.parse_funcbody(state)
-			if not funcbody then return reset_state(nil, err) end
-			
+			local namelist, err = parser.parse_namelist(state)
+			if not namelist then return reset_state(nil, err) end
+		
+			local explist
+			local eq = parser.parse_token(state, "token", "=")
+			if eq then
+				explist, err = parser.parse_explist(state)
+				if not explist then return reset_state(nil, err) end
+			end
+		
 			return {
-				type = "stat", subtype = "local function",
-				name = name, funcbody = funcbody
+				type = "stat", subtype = "local",
+				namelist = namelist, eq = eq, explist = explist
 			}
-		end ::end_function::
-		
-		local namelist, err = parser.parse_namelist(state)
-		if not namelist then return reset_state(nil, err) end
-		
-		local explist
-		local eq = parser.parse_token(state, "token", "=")
-		if eq then
-			explist, err = parser.parse_explist(state)
-			if not explist then return reset_state(nil, err) end
 		end
-		
-		return {
-			type = "stat", subtype = "local",
-			namelist = namelist, eq = eq, explist = explist
-		}
-	end ::end_local::
+	end
 	
 	return nil -- no error, just exausted
 end
@@ -1225,15 +1226,15 @@ function parser.parse_args(state)
 	
 	do
 		local lb = parser.parse_token(state, "token", "(")
-		if not lb then goto end_brackets end
+		if lb then
+			local explist = parser.parse_explist(state)
 		
-		local explist = parser.parse_explist(state)
+			local rb = parser.parse_token(state, "token", ")")
+			if not rb then return reset_state(nil, ") expected") end
 		
-		local rb = parser.parse_token(state, "token", ")")
-		if not rb then return reset_state(nil, ") expected") end
-		
-		return {type = "args", subtype = "explist", explist = explist}
-	end ::end_brackets::
+			return {type = "args", subtype = "explist", explist = explist}
+		end
+	end
 	
 	do
 		local tablector = parser.parse_tableconstructor(state)
@@ -1394,14 +1395,12 @@ function parser.parse_field(state) -- field ::= ‘[’ exp ‘]’ ‘=’ exp 
 	local name = parser.parse_Name(state)
 	if name then
 		local eq = parser.parse_token(state, "token", "=")
-		if not eq then goto end_nameeq end -- go and try exp
-		do
+		if eq then
 			local rexp, err = parser.parse_exp(state)
 			if not rexp then return reset_state(nil, err) end
 		
 			return {type = "field", subtype = "name key", name = name, rexp = rexp}
 		end
-		::end_nameeq::
 		state.n = nn
 	end
 	

@@ -144,20 +144,18 @@ local function add_expects(tokens)
 		
 		for i = 1, #types do
 			local default = default_values[i]
-			if not default then goto continue end
+			if default then
+				k = k + 1
+				local arg = default.id.value
+				local exp = default.exp
 			
-			k = k + 1
-			local arg = default.id.value
-			local exp = default.exp
-			
-			local str = string.format(" if %s == nil then %s = %s end", arg, arg, exp)
-			table.insert(tokens, k, {
-				type = "custom",
-				value = str,
-				chunk = str
-			})
-			
-			::continue::
+				local str = string.format(" if %s == nil then %s = %s end", arg, arg, exp)
+				table.insert(tokens, k, {
+					type = "custom",
+					value = str,
+					chunk = str
+				})
+			end
 		end
 		
 		if checktypes then
