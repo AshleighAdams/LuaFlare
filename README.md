@@ -1,4 +1,4 @@
-LuaFlare
+LuaFlare [![Build Status](https://travis-ci.org/KateAdams/LuaFlare.svg?branch=master)](https://travis-ci.org/KateAdams/LuaFlare)
 =========
 
 # Table of Contents
