@@ -156,7 +156,9 @@ elseif arg[1] == "epub" then
 	os.execute[[unzip tmp/docs.epub -d tmp/docs]]
 	os.execute[[sed -i "s/\"-/\"/g" tmp/docs/*.*]]
 	os.execute[[sed -i "s/#-/#/g" tmp/docs/*.*]]
-	os.execute[[cd tmp/docs/ && zip -X ../docs-final.epub mimetype && zip -gr ../docs-final.epub META-INF/ *.*]]
+	os.execute[[cp cover.png tmp/docs/cover.png]]
+	os.execute[[cd tmp/docs/ && zip -X ../docs-final.epub mimetype && zip -grX ../docs-final.epub META-INF/ *.*]]
+	os.execute[[epubcheck tmp/docs-final.epub]]
 else
 	print("unknown format")
 	os.exit(1)
