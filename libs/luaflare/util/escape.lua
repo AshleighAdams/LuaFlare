@@ -78,16 +78,45 @@ function escape.sql(input) expects "string"
 	return input
 end
 
-function escape.argument(input) expects "string"
-	input = input:gsub(" ", "\\ ")	
-	input = input:gsub("'", "\\'")
-	input = input:gsub("\"", "\\\"")
+function escape.mysql(input) expects "string"	
+	--[[
+		 NUL (0x00) --> \0  [This is a zero, not the letter O]
+		 BS  (0x08) --> \b
+		 TAB (0x09) --> \t
+		 LF  (0x0a) --> \n
+		 CR  (0x0d) --> \r
+		 SUB (0x1a) --> \Z
+		 "   (0x22) --> \"
+		 %   (0x25) --> \%
+		 '   (0x27) --> \'
+		 \   (0x5c) --> \\
+		 _   (0x5f) --> \_ 
+		 all other non-alphanumeric characters with ASCII values less than 256  --> \c
+		 where 'c' is the original non-alphanumeric character.
+	]]
+		
+	input = input:gsub("\\", "\\\\")
+	input = input:gsub("\0", "\\0")
 	input = input:gsub("\n", "\\n")
 	input = input:gsub("\r", "\\r")
-	input = input:gsub("\b", "\\b")
-	input = input:gsub("\t", "\\t")
+	input = input:gsub("\'", "\\\'")
+	input = input:gsub("\"", "\\\"")
+	input = input:gsub("\x1a", "\\Z")
 	
 	return input
+end
+
+function escape.argument(input, quoteify) expects "string"
+	if quoteify == nil or quoteify then
+		input = input:gsub("`", "\\`")
+		input = input:gsub("$", "\\$")
+		input = input:gsub("\"", "\\\"")
+		
+		return '"' .. input .. '"'
+	else
+		-- prefix with \:  " ' # & ; ` | ! * ? ~ < > ^ ( ) [ ] { } $ \ \x0A \xFF
+		return input:gsub("[ %\"%\'%#%&%;%`%|%!%*%?%~%<%>%^%(%)%[%]%{%}%£%\\%\x0a%\xff]", "\\%1")
+	end
 end
 
 

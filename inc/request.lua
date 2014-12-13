@@ -250,7 +250,7 @@ function meta::parse_cookies()
 	for _, str in pairs(cookie_str:split(";")) do
 		local pos = string.find(str, "=", 1, true)
 		if pos ~= nil then
-			local key = str:sub(1, pos - 1):Trim()
+			local key = str:sub(1, pos - 1):trim()
 			local val = str:sub(pos + 1):match("(.+);?"):trim()
 			self._cookies[key] = val
 		end
@@ -288,7 +288,7 @@ function read_headers(client, version, url)
 			if not lastheader then
 				return nil, "can't append to last header (absent)"
 			end
-			ret[lastheader] = ret[lastheader] .. " " .. val:Trim() -- i think the space should go here
+			ret[lastheader] = ret[lastheader] .. " " .. val:trim() -- i think the space should go here
 		else -- This isn't a continuation, parse new header
 			local key, val = string.match(s, "([%a%-]-):%s*(.+)")
 			if key ~= nil then

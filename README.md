@@ -1,4 +1,4 @@
-LuaFlare
+LuaFlare [![Build Status](https://travis-ci.org/KateAdams/LuaFlare.svg?branch=master)](https://travis-ci.org/KateAdams/LuaFlare)
 =========
 
 # Table of Contents
@@ -284,6 +284,11 @@ Not implimented.
 	- Should it be provided by the reverse proxy?
 	Could the reverse proxy ever be on a different machine, thus unsafe to
 	transmit data?
+
+To look at:
+
+- inc/request.lua:`read_headers()`: should continuations of headers insert a space, newline, or nothing?
+	- `ret[lastheader] = ret[lastheader] .. " " .. val:trim()`
 
 # Non-generic Name Proposal
 
