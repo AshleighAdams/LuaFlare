@@ -153,6 +153,10 @@ elseif arg[1] == "epub" then
 		--level3-toc="//*[name()='h3']" \
 		-v \
 	]]
+	os.execute[[unzip tmp/docs.epub -d tmp/docs]]
+	os.execute[[sed -i "s/\"-/\"/g" tmp/docs/*.*]]
+	os.execute[[sed -i "s/#-/#/g" tmp/docs/*.*]]
+	os.execute[[cd tmp/docs/ && zip -X ../docs-final.epub mimetype && zip -gr ../docs-final.epub META-INF/ *.*]]
 else
 	print("unknown format")
 	os.exit(1)

@@ -34,25 +34,25 @@ If the passed type is a table, it will ensure the value table contains the same 
 
 ## Examples, along with translations
 
-### 1 - Standard
+### Standard
 
 `function(string a, number b)`
 
 `function(a, b) expects("string", "number")`
 
-### 2 - `self` checking.
+### `self` checking.
 
 `function meta::func()`
 
 `function meta:func() expects(meta)`
 
-### 3 - Metatable
+### Metatable
 
 `function(meta& a)`
 
 `function(a) expects(meta)`
 
-### 4 - Complex
+### Complex
 
 `function meta::dosomething(string arg, meta& other, string message = "hello")`
 
