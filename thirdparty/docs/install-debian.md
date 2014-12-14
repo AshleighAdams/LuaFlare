@@ -14,7 +14,7 @@ Open `/etc/apt/sources.list.d/kateadams.list` as a root, and set it's contents t
 
 ### apt keys
 
-    sudo apt-key adv --keyserver keys.gnupg.net --recv ED672012
+    sudo apt-key adv --keyserver keys.gnupg.net --recv 0B7BD0AD
 
 ### install
 
@@ -70,8 +70,8 @@ If you wish to keep your current Nginx configs, you can merge `/etc/nginx/sites-
 
 ### Old method to import keys from gpg
 
-	gpg --recv-keys ED672012
-	gpg -a --export ED672012 | sudo apt-key add -
+	gpg --recv-keys 0B7BD0AD
+	gpg -a --export 0B7BD0AD | sudo apt-key add -
 
 ### Alternate method to get the keys for apt
 
