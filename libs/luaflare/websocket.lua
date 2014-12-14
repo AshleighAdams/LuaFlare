@@ -180,6 +180,14 @@ meta._metatbl = {__index = meta}
 
 function websocket.register(string path, string protocol = "", _callbacks)
 	websocket.registered[path] = websocket.registered[path] or {}
+	
+	if websocket.registered[path][protocol] ~= nil then
+		-- disconnect anyone already connected
+		for k,v in pairs(websocket.registered[path][protocol]._clients) do
+			v:close()
+		end
+	end
+	
 	websocket.registered[path][protocol] = {} -- TODO:
 	
 	if _callbacks ~= nil then
