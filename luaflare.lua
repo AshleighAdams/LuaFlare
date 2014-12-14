@@ -36,8 +36,11 @@ usage:
 --scheduler-tick-rate=number      The fallback tickrate (Hz) for a schedule that
                                   yields nil. (default 60).
 --max-post-length=number          The maximum length of the post data.
---systemd                         Notify systemd upon startup, and try to heartbeat
+--systemd                         Notify systemd upon startup, and try to
+                                  heartbeat.
 --out-pid                         Write our PID to this file post load.
+--keepalive-time=number           Maximum number of seconds a connection can
+                                  be kept alive (default 2).
 ]])
 end
 
@@ -94,11 +97,12 @@ dofile(luaflare.lib_path .. "/inc/savetotable.lua")
 local port = tonumber(script.options.port) or 8080
 local threads = tonumber(script.options.threads) or 2 -- how many threads to create
 local host = script.options["local"] and "localhost" or "*"
+local keepalive_time = tonumber(script.options["keepalive-time"]) or 2
 host = script.options["host"] or host
 
 function handle_client(client)
 	local time = util.time()
-	while (util.time() - time) < 2 do -- give them 2 seconds
+	while (util.time() - time) <= keepalive_time do -- give them until the specified time limit
 		local request, err = Request(client)
 		if not request and err then warn(err) return end
 		if not request then return end -- probably a keep-alive connection timing out
