@@ -8,23 +8,24 @@ meta._meta = {__index = meta}
 local session_path = luaflare.config_path .. "/sessions/"
 
 session.valid_chars = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789"
+session.valid_pattern = string.format("^[%s]+$", session.valid_chars)
 local function random_string(length)
-	local ret = ""
+	local ret = {}
 	local max = session.valid_chars:len()
 	for i = 1, length do
-		local rand = math.SecureRandom(1, max)
-		ret = ret .. session.valid_chars:sub(rand, rand)
+		local rand = math.secure_random(1, max)
+		table.insert(ret, session.valid_chars:sub(rand, rand))
 	end
 
-	return ret
+	return table.concat(ret)
 end
 
 function session.get(req, res, string session_name = "session")
 	local id = req:get_cookie(session_name)
 
 	if id ~= nil then -- make sure it contains only valid chars!
-		if not id:match(string.format("^[%s]+$", session.valid_chars)) then
-			print(req:peer() .. " sent an invalid session id!")
+		if not id:match(session.valid_pattern) then
+			warn("%s sent an invalid session id!", req:peer())
 			id = nil
 		end
 	end
@@ -35,15 +36,17 @@ function session.get(req, res, string session_name = "session")
 end
 
 function meta:construct(req, res, session_name, id)
-	if id == nil then		
+	if id == nil then
+		-- try to make a unique ID, by generating an ID, and checking it doesn't already exist
 		while true do -- generate one
 			id = random_string(32)
 			if table.load(session_path .. session_name .. "_" .. id) == nil then
 				break
 			end
+			warn("session: generation: collision")
 		end
 
-		print(req:peer() .. " generated a new sesion id: " .. id)
+		print("session: new: " .. req:peer() .. ": " .. id)
 		table.save({}, session_path .. session_name .. "_" .. id)
 		res:set_cookie(session_name, id)
 	end
@@ -53,7 +56,7 @@ function meta:construct(req, res, session_name, id)
 	self._data = table.load(session_path .. session_name .. "_" .. id)
 
 	if self._data == nil then
-		print(req:peer() .. " sent a none-existing (expired?) session id!")
+		warn("%s sent a none-existing (expired?) session id!", req:peer())
 		self:construct(req, res, session_name, nil) -- force the generation of a new session
 	end
 end
