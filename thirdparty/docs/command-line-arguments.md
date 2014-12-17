@@ -108,7 +108,7 @@ The number of bytes to send per coroutine yield (default `131072`).
 
 ### `--scheduler-tick-rate=number`
 
-The tick rate to resort to if the schedule did not specify one (default is 60).
+The tick rate to resort to if the schedule did not specify one (default is `60`).
 
 ### `--max-post-length=number`
 
@@ -122,3 +122,6 @@ Enable systemd facilities, such as the heartbeat and notifying systemd on startu
 
 Upon startup completion, write our PID to `path`.
 
+### `--keepalive-time`
+
+Maximium number of seconds a connection may be kept alive (default is `2`).

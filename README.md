@@ -49,6 +49,7 @@ they may be automatically reloaded too.
 | --max-post-length=\<number\>         | ""            | 0-\*, ""                | The maximum length of the post data.                      |
 | --systemd                            | false         | true, false             | Notify systemd upon startup, and try to heartbeat.        |
 | --out-pid=\<path\>                   | ""            | \*                      | Write our PID to this file post load.                     |
+| --keepalive-time=\<number\>          | 2             | 0-\*                    | Maximium number of seconds a connection may be kept alive.|
 
 ## Handle a Page
 
