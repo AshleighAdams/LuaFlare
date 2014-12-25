@@ -157,14 +157,17 @@ local function set_nginx()
 	if not nginx then return end -- no nginx installed
 	reverse_proxy = "nginx"
 	
-	local proc = io.popen(nginx.." -V 2> /dev/stdout")
-	local output = proc:read("*a")
-	proc:close()
+	local location = find_arg("nginx-dir")
+		if not location then
+		local proc = io.popen(nginx.." -V 2> /dev/stdout")
+		local output = proc:read("*a")
+		proc:close()
 	
-	local location = output:match("%-%-conf%-path=(.-)/nginx%.conf")
-	if not location then
-		print("could not locate nginx's configuration path")
-		os.exit(1)
+		local location = output:match("%-%-conf%-path=(.-)/nginx%.conf")
+		if not location then
+			print("could not locate nginx's configuration path")
+			os.exit(1)
+		end
 	end
 	
 	print("nginx dir: " .. location)
