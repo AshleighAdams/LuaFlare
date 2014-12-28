@@ -14,10 +14,17 @@ end
 
 
 local cmd_args = {}
+local file
 for k,v in pairs({...}) do
-	table.insert(cmd_args, escape_arg(v))
+	if k == 1 then
+		file = v
+	else
+		table.insert(cmd_args, escape_arg(v))
+	end
 end
 
-local f = assert(io.open("log-cmds.txt", "a"))
+assert(file)
+
+local f = assert(io.open(file, "a"))
 f:write(table.concat(cmd_args, " ") .. "\n")
 f:close()

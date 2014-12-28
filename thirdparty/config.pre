@@ -3,7 +3,7 @@ LUA = %LUA
 LUA_DEPENDS = %LUA_DEPENDS
 
 # tools
-PRECMD = %precmd
+PRECMD ?= %precmd
 
 CP = %cp --remove-destination
 _CP = $(PRECMD) $(CP)
