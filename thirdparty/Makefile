@@ -111,5 +111,6 @@ install-nginx-site:
 
 install-bash-completion:
 	$(INSTALL) luaflare.bash-completion.post "$(BASH_COMPLETION_DIR)/luaflare"
+	$(CHMOD) +x "$(BASH_COMPLETION_DIR)/luaflare"
 
 install: check-dependencies install-bin install-extra
