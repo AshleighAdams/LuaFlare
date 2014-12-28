@@ -71,7 +71,6 @@ dofile(luaflare.lib_path .. "/inc/util.lua")
 dofile(luaflare.lib_path .. "/inc/syntax_extensions.lua")
 
 local socket = require("socket")
-local ssl = require("ssl")
 local posix = require("posix")
 local configor = require("configor")
 local lfs = require("lfs")
@@ -97,7 +96,7 @@ dofile(luaflare.lib_path .. "/inc/savetotable.lua")
 local port = tonumber(script.options.port) or 8080
 local threads = tonumber(script.options.threads) or 2 -- how many threads to create
 local host = script.options["local"] and "localhost" or "*"
-local keepalive_time = tonumber(script.options["keepalive-time"]) or 2
+local keepalive_time = tonumber(script.options["keepalive-time"]) or 65
 host = script.options["host"] or host
 
 function handle_client(client)
@@ -122,19 +121,6 @@ function handle_client(client)
 		end
 	end
 end
-
-local https = false
-local params = {
-	mode = "server",
---	protocol = "tlsv1",
-	protocol = "sslv3",
-	key = "keys/key.pem",
-	certificate = "keys/certificate.pem",
---	cafile = "keys/request.pem", -- uncomment these lines if you want to verify the client
---	verify = {"peer", "fail_if_no_peer_cert"},
-	options = {"all", "no_sslv2"},
-	ciphers = "ALL:!ADH:@STRENGTH",
-}
 
 function main()
 	if script.options["unit-test"] then

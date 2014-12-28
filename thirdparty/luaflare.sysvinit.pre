@@ -11,13 +11,13 @@
 
 # Author: Kate Adams <self@kateadams.eu>
 
-USER=_USER
-LUAFLARE=LUAFLARE_BIN_DIR/luaflare
-DIR=LUAFLARE_LIB_DIR
+USER=%USER
+LUAFLARE=%LUAFLARE_BIN_DIR/luaflare
+DIR=%LUAFLARE_LIB_DIR
 
 NAME="luaflare"
 DESC="Lua web server"
-DAEMON="none"
+DAEMON="luaflare"
 PIDFILE="/var/run/luaflare.pid"
 
 do_start_cmd() {

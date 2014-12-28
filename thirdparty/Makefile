@@ -1,4 +1,4 @@
-include config
+include config.post
 
 # Commands prefixed with an underscore (i.e. _SERVICE) are "post installation"
 # commands. When procucing packages, these may be overridden to log the commands
@@ -6,7 +6,18 @@ include config
 
 all:
 
+clean:
+	$(RM) *.post
+
 check-dependencies:
+	@echo -n "checking config version..."
+	@if [ "$(GIT_VERSION)" != "$(CONFIGURE_VERSION)" ]; then \
+		echo -e " fail.\n config is outdated, re-run ./configure"; \
+		exit 1; \
+	else \
+		echo " okay. ($(VERSION))"; \
+	fi
+	
 	@if $(LUA) -v > /dev/null; then \
 		echo "Lua$(LUA_VERSION) found"; \
 	else \
@@ -68,59 +79,32 @@ install-none-service:
 	# do nothing
 
 install-systemd-service:
-	$(MKDIR) "$(SYSTEMD_UNIT_DIR)" && \
-	$(CAT) luaflare.systemd \
-		| $(SED) "s|LUAFLARE_LIB_DIR|$(LUAFLARE_LIB_DIR_STR)|g" \
-		| $(SED) "s|LUAFLARE_CFG_DIR|$(LUAFLARE_CFG_DIR_STR)|g" \
-		| $(SED) "s|LUAFLARE_BIN_DIR|$(LUAFLARE_BIN_DIR_STR)|g" \
-		| $(SED) "s|USER|$(USER)|g" \
-		> $(SYSTEMD_UNIT_DIR)/luaflare.service
+	$(INSTALL) luaflare.systemd.post $(SYSTEMD_UNIT_DIR)/luaflare.service
 	$(_SYSTEMCTL) daemon-reload && \
 	$(_SYSTEMCTL) enable luaflare.service && \
 	$(_SYSTEMCTL) restart luaflare.service
 
 install-sysvinit-service:
-	$(MKDIR) "$(SYSVINIT_DAEMON_DIR)" && \
-	$(CAT) luaflare.sysvinit \
-		| $(SED) "s|LUAFLARE_LIB_DIR|$(LUAFLARE_LIB_DIR_STR)|g" \
-		| $(SED) "s|LUAFLARE_CFG_DIR|$(LUAFLARE_CFG_DIR_STR)|g" \
-		| $(SED) "s|LUAFLARE_BIN_DIR|$(LUAFLARE_BIN_DIR_STR)|g" \
-		| $(SED) "s|_USER|$(USER)|g" \
-		> $(SYSVINIT_DAEMON_DIR)/luaflare && \
-	$(CHMOD) +x $(SYSVINIT_DAEMON_DIR)/luaflare && \
+	$(INSTALL) luaflare.sysvinit.post $(SYSVINIT_DAEMON_DIR)/luaflare && \
+	$(CHMOD) +x $(SYSVINIT_DAEMON_DIR)/luaflare
+	
 	$(_UPDATE_RC_D) luaflare defaults && \
 	$(_SERVICE) luaflare start
 	
 install-upstart-service:
-	$(MKDIR) "$(UPSTART_DAEMON_DIR)" && \
-	$(CAT) luaflare.upstart \
-		| $(SED) "s|LUAFLARE_LIB_DIR|$(LUAFLARE_LIB_DIR_STR)|g" \
-		| $(SED) "s|LUAFLARE_CFG_DIR|$(LUAFLARE_CFG_DIR_STR)|g" \
-		| $(SED) "s|LUAFLARE_BIN_DIR|$(LUAFLARE_BIN_DIR_STR)|g" \
-		| $(SED) "s|USER|$(USER)|g" \
-		> $(UPSTART_DAEMON_DIR)/luaflare.conf && \
+	$(INSTALL) luaflare.upstart.post $(UPSTART_DAEMON_DIR)/luaflare.conf
 	$(_SERVICE) luaflare start
 
 install-nginx-site:
 	$(MKDIR) "$(NGINX_DIR)/sites-available/" && \
 	$(MKDIR) "$(NGINX_DIR)/sites-enabled/" && \
-	$(CAT) luaflare.nginx \
-		| $(SED) "s|NGINX_SITE_HTTP_PORT|$(NGINX_SITE_HTTP_PORT)|g" \
-		| $(SED) "s|NGINX_SITE_HTTPS_PORT|$(NGINX_SITE_HTTPS_PORT)|g" \
-		| $(SED) "s|LUAFLARE_LIB_DIR|$(LUAFLARE_LIB_DIR_STR)|g" \
-		| $(SED) "s|LUAFLARE_CFG_DIR|$(LUAFLARE_CFG_DIR_STR)|g" \
-		| $(SED) "s|LUAFLARE_PORT|$(LUAFLARE_PORT)|g" \
-		> "$(NGINX_DIR)/sites-available/luaflare";
+	$(INSTALL) luaflare.nginx.post "$(NGINX_DIR)/sites-available/luaflare"
 	
 	# Don't enable these by default, they error unless the default site has been removed!
 	#$(_LN) $(NGINX_DIR_STR)/sites-available/luaflare $(NGINX_DIR_STR)/sites-enabled/luaflare
 	#$(_SERVICE) nginx restart # systemd / upstart should impliment this
 
 install-bash-completion:
-	$(MKDIR) "$(BASH_COMPLETION_DIR)" && \
-	$(CAT) luaflare.bash-completion \
-		| $(SED) "s|LUAFLARE_LIB_DIR|$(LUAFLARE_LIB_DIR_STR)|g" \
-		| $(SED) "s|LUAFLARE_CFG_DIR|$(LUAFLARE_CFG_DIR_STR)|g" \
-	> "$(BASH_COMPLETION_DIR)/luaflare"
+	$(INSTALL) luaflare.bash-completion.post "$(BASH_COMPLETION_DIR)/luaflare"
 
 install: check-dependencies install-bin install-extra

@@ -1,64 +1,12 @@
 #!/usr/bin/env lua
 
-local config = [[
-PREFIX = $(DESTDIR)%PREFIX
-LUA = %LUA
-LUA_DEPENDS = %LUA_DEPENDS
-
-# tools
-PRECMD = %precmd
-
-CP = %cp --remove-destination
-_CP = $(PRECMD) $(CP)
-MKDIR = %mkdir -p
-_MKDIR = $(PRECMD) $(MKDIR)
-CAT = %cat
-_CAT = $(PRECMD) $(CAT)
-SED = %sed
-_SED = $(PRECMD) $(SED)
-LN = %ln -sf
-_LN = $(PRECMD) $(LN)
-GIT = %git
-_GIT = $(PRECMD) $(GIT)
-CHMOD = %chmod
-_CHMOD = $(PRECMD) $(CHMOD)
-CHOWN = %chown
-_CHOWN = $(PRECMD) $(CHOWN)
-SYSTEMCTL = %systemctl
-_SYSTEMCTL = $(PRECMD) $(SYSTEMCTL)
-UPDATE_RC_D = %updatercd
-_UPDATE_RC_D = $(PRECMD) $(UPDATE_RC_D)
-SERVICE = %service
-_SERVICE = $(PRECMD) $(SERVICE)
-
-
-USER                    = %USER
-SERVICE_SYSTEM          = %SERVICE
-NGINX_SITE_HTTP_PORT    = %NGINX_HTTP_PORT
-NGINX_SITE_HTTPS_PORT   = %NGINX_HTTPS_PORT
-
-LUAFLARE_PORT          = %LUAFLARE_PORT
-LUAFLARE_POSTINT_OPTS  = %LUAFLARE_POSTINT_OPTS
-LUAFLARE_LIB_DIR       = $(PREFIX)/lib/luaflare
-LUAFLARE_LIB_DIR_STR   = $(subst $(DESTDIR),,$(LUAFLARE_LIB_DIR))
-LUAFLARE_BIN_DIR       = $(PREFIX)/bin
-LUAFLARE_BIN_DIR_STR   = $(subst $(DESTDIR),,$(LUAFLARE_BIN_DIR))
-LUAFLARE_CFG_DIR       = $(DESTDIR)/etc/luaflare
-LUAFLARE_CFG_DIR_STR   = $(subst $(DESTDIR),,$(LUAFLARE_CFG_DIR))
-NGINX_DIR              = $(DESTDIR)%NGINX_DIR
-NGINX_DIR_STR          = $(subst $(DESTDIR),,$(NGINX_DIR))
-BASH_COMPLETION_DIR    = $(DESTDIR)%BASH_COMPLETION_DIR
-SYSTEMD_UNIT_DIR       = $(DESTDIR)%SYSTEMD_UNIT_DIR
-SYSVINIT_DAEMON_DIR    = $(DESTDIR)%SYSVINIT_DAEMON_DIR
-UPSTART_DAEMON_DIR     = $(DESTDIR)%UPSTART_DAEMON_DIR
-
-# auto
-VERSION=`$(GIT) describe --tags --always`
-]]
-
 local vars = {}
 local function set_var(key, value)
 	vars[key] = value
+end
+
+local function get_var(key)
+	return vars[key]
 end
 
 local function escape_pattern(i)
@@ -158,12 +106,12 @@ local function set_nginx()
 	reverse_proxy = "nginx"
 	
 	local location = find_arg("nginx-dir")
-		if not location then
+	if not location then
 		local proc = io.popen(nginx.." -V 2> /dev/stdout")
 		local output = proc:read("*a")
 		proc:close()
 	
-		local location = output:match("%-%-conf%-path=(.-)/nginx%.conf")
+		location = output:match("%-%-conf%-path=(.-)/nginx%.conf")
 		if not location then
 			print("could not locate nginx's configuration path")
 			os.exit(1)
@@ -234,7 +182,6 @@ local function set_system_service()
 		table.insert(tools, "systemctl")
 		table.insert(lua_depends, "systemd.daemon")
 	elseif system_service == "sysvinit" then
-		table.insert(tools, "update-rc.d")
 		set_var("SYSVINIT_DAEMON_DIR", "/etc/init.d")
 	elseif system_service == "upstart" then
 		set_var("UPSTART_DAEMON_DIR", "/etc/init")
@@ -285,10 +232,100 @@ local function set_luaflare_postinst_opts()
 	table.insert(install, "install-luaflare-opts")
 end
 
+local function set_luaflare_vars()
+	set_var("LUA_DEPENDS", table.concat(lua_depends, " "))
+	set_var("INSTALL_EXTRA", table.concat(install, " "))
+
+	--[[
+	USER                    = %USER
+	SERVICE_SYSTEM          = %SERVICE
+	NGINX_SITE_HTTP_PORT    = %NGINX_HTTP_PORT
+	NGINX_SITE_HTTPS_PORT   = %NGINX_HTTPS_PORT
+
+	LUAFLARE_PORT          = %LUAFLARE_PORT
+	LUAFLARE_POSTINT_OPTS  = %LUAFLARE_POSTINT_OPTS
+	LUAFLARE_LIB_DIR       = $(PREFIX)/lib/luaflare
+	LUAFLARE_LIB_DIR_STR   = $(subst $(DESTDIR),,$(LUAFLARE_LIB_DIR))
+	LUAFLARE_BIN_DIR       = $(PREFIX)/bin
+	LUAFLARE_BIN_DIR_STR   = $(subst $(DESTDIR),,$(LUAFLARE_BIN_DIR))
+	LUAFLARE_CFG_DIR       = $(DESTDIR)/etc/luaflare
+	LUAFLARE_CFG_DIR_STR   = $(subst $(DESTDIR),,$(LUAFLARE_CFG_DIR))
+	NGINX_DIR              = $(DESTDIR)%NGINX_DIR
+	NGINX_DIR_STR          = $(subst $(DESTDIR),,$(NGINX_DIR))
+	BASH_COMPLETION_DIR    = $(DESTDIR)%BASH_COMPLETION_DIR
+	SYSTEMD_UNIT_DIR       = $(DESTDIR)%SYSTEMD_UNIT_DIR
+	SYSVINIT_DAEMON_DIR    = $(DESTDIR)%SYSVINIT_DAEMON_DIR
+	UPSTART_DAEMON_DIR     = $(DESTDIR)%UPSTART_DAEMON_DIR
+	]]
+	
+	local prefix = get_var("PREFIX")
+	local etc = find_arg("sysconfig", "/etc")
+	set_var("LUAFLARE_LIB_DIR", prefix .. "/lib/luaflare")
+	set_var("LUAFLARE_BIN_DIR", prefix .. "/bin")
+	set_var("LUAFLARE_CFG_DIR", etc .. "/luaflare")
+	
+	local git = io.popen(get_var("git") .. " describe --tags --always")
+	local git_version = git:read("*l")
+	git:close()
+	
+	local nice_version = git_version:match("[0-9%.%-]+[0-9]"):gsub("%-", ".")
+	
+	set_var("CONFIGURE_VERSION", git_version)
+	set_var("VERSION", nice_version)
+end
+
+local function process_file(file)
+	local out = file:sub(1, -5) .. ".post"
+
+	local f = io.open(file, "r")
+	local of =  io.open(out, "w")
+
+	local contents = f:read("*a")
+	f:close()
+	
+	contents = contents:gsub("%%([A-Za-z_][A-Za-z0-9_]+)", function(name)
+		local ret = vars[name]
+		if not ret then
+			print(file .. ": warning: unusued variable %" .. name)
+			return ""
+		end
+		return ret
+	end)
+	contents = contents:gsub("%%%%", "%%")
+	
+	of:write(contents)
+	of:close()
+end
+
+local function process_files()
+	print("processing files...")
+	local p = io.popen("ls *.pre")
+	while true do
+		local f = p:read("*l")
+		if not f then break end
+		
+		io.stdout:write("processing " .. f .. "...")
+		
+		local oldprint = print
+		local printqueue = {}
+		function print(...)
+			table.insert(printqueue, table.pack(...))
+		end
+		
+		process_file(f)
+		
+		oldprint(" done.")
+		print = oldprint
+		for k,v in ipairs(printqueue) do
+			print(table.unpack(v))
+		end
+	end
+	p:close()
+end
 
 install = {}
-lua_depends = {"bit", "lfs", "md5", "posix", "socket", "ssl"}
-tools = {"cp", "mkdir", "cat", "sed", "ln", "git", "chmod", "chown", "service"}
+lua_depends = {"bit", "lfs", "md5", "posix", "socket"}
+tools = {"cp", "mkdir", "cat", "sed", "ln", "git", "chmod", "chown", "service", "update-rc.d", "install"}
 
 set_prefix()
 set_lua()
@@ -299,21 +336,18 @@ set_system_service()
 set_bash_dir()
 set_luaflare_postinst_opts()
 set_tools()
+set_luaflare_vars()
 
-set_var("LUA_DEPENDS", table.concat(lua_depends, " "))
+process_files()
 
-config = config:gsub("%%([A-Za-z_][A-Za-z0-9_]+)", function(name)
-	local ret = vars[name]
-	if not ret then
-		print("warning: unusued variable " .. name)
-		return ""
-	end
-	return ret
-end)
-config = config .. "\ninstall-extra: " .. table.concat(install, " ") .. "\n"
+print("configuring complete\nvariables:")
 
-local f = assert(io.open("config", "w"))
-f:write(config)
-f:close()
+local vars_sorted = {}
+for k,v in pairs(vars) do
+	table.insert(vars_sorted, {name = k, value = v})
+end
+table.sort(vars_sorted, function(a, b) return a.name < b.name end)
+for k,v in pairs(vars_sorted) do
+	print("", v.name .. " = " .. v.value)
+end
 
-print("configuring complete")

@@ -6,6 +6,8 @@ local hook = require("luaflare.hook")
 routines = routines or {}
 
 -- to take the options 'n stuff from caller, and imports
+local timeout = 65
+
 do
 	local depth = 1
 	while true do
@@ -73,8 +75,7 @@ do
 	end
 	
 	function meta:receive(pat, prefix)
-		local to = rawget(self, "_timeout") or 5 --self.parent:gettimeout()
-		
+		local to = rawget(self, "_timeout") or timeout --self.parent:gettimeout()
 		if pat == "*l" then -- read a line
 			local line, err
 			local t = util.time() + to
@@ -151,17 +152,8 @@ function main_loop()
 	hook.safe_call("ReloadScripts") -- load all of our scritps, before forking anything!
 	
 	local function callback(client)
-		client:settimeout(5) -- 5 seconds until a timeout
-		
-		if https then
-			client, err = ssl.wrap(client, params)
-			assert(client, err)
-			
-			local suc, err = client:dohandshake()
-			if not suc then warn("ssl failed: ", err) end
-		end
-		
 		client = routines.wrap(client)
+		client:settimeout(timeout) -- 5 seconds until a timeout
 		
 		if not handle_client(client) then -- we can close it, otherwise, do not!
 			client:close()
