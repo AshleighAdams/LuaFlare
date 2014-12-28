@@ -19,19 +19,7 @@ Open `/etc/apt/sources.list.d/kateadams.list` as a root, and set it's contents t
 ### install
 
     sudo apt update
-    sudo apt install luaflare luaflare-service luaflare-reverseproxy-nginx
-
-Please continue to [Enable the Nginx site](#enable-the-nginx-site).
-
-### enable service
-
-#### systemd (Debian)
-
-    sudo systemctl enable luaflare
-
-#### upstart or sysvinit (Ubuntu)
-
-    sudo update-rc.d luaflare enable
+    sudo apt install luaflare
 
 ## Or install via git (Makefile)
 
@@ -41,7 +29,7 @@ Bleeding edge, must be updated manually.
 
     sudo apt install git
     sudo apt install nginx-full
-    sudo apt install lua5.2 lua-bitop lua-socket lua-sec lua-posix lua-filesystem lua-md5
+    sudo apt install lua5.2 lua-bitop lua-socket lua-posix lua-filesystem lua-md5
 
 ### Download and install LuaFlare
 
@@ -51,7 +39,7 @@ Bleeding edge, must be updated manually.
     ./configure 
     sudo make install
 
-## Enable the Nginx site
+### Enable the Nginx site
 
 ### Remove nginx's default site
 
