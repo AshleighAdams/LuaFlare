@@ -75,6 +75,7 @@ install-shared-files:
 	# $(CP) -r ../luaflare.cfg $(LUAFLARE_CFG_DIR)/luaflare.cfg
 
 install-shared-ownership:
+	$(CHMOD) -R +x $(LUAFLARE_LIB_DIR)/
 	$(_CHOWN) -R $(USER):$(USER) $(LUAFLARE_LIB_DIR_STR)/
 	$(_CHOWN) -R $(USER):$(USER) $(LUAFLARE_CFG_DIR_STR)/
 

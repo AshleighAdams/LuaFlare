@@ -27,7 +27,7 @@ UPDATE_RC_D = %updatercd
 _UPDATE_RC_D = $(PRECMD) $(UPDATE_RC_D)
 SERVICE = %service
 _SERVICE = $(PRECMD) $(SERVICE)
-INSTALL = %install -D
+INSTALL = %install -D --mode=644
 _INSTALL = $(PRECMD) $(INSTALL)
 TOUCH = %touch
 _TOUCH = $(PRECMD) $(TOUCH)
