@@ -142,9 +142,14 @@ local function set_apache()
 		if not apache then return end
 	end
 	
-	print("apache as a reverse proxy has not been implimented yet")
-	os.exit(1)
+	print("apache dir: " .. location)
+	set_var("APACHE_DIR", location)
 	
+	local http_port = find_arg("apache-http-port", "80")
+	local https_port = find_arg("apache-https-port", "443")
+	
+	set_var("APACHE_HTTP_PORT", http_port)
+	set_var("APACHE_HTTPS_PORT", https_port)	
 	table.insert(install, "install-apache-site")
 	
 	reverse_proxy = reverse_proxy or {}

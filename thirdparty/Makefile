@@ -109,6 +109,12 @@ install-nginx-site:
 	#$(_LN) $(NGINX_DIR_STR)/sites-available/luaflare $(NGINX_DIR_STR)/sites-enabled/luaflare
 	#$(_SERVICE) nginx restart # systemd / upstart should impliment this
 
+install-apache-site:
+	$(MKDIR) "$(APACHE_DIR)/sites-available/" && \
+	$(MKDIR) "$(APACHE_DIR)/sites-enabled/" && \
+	$(INSTALL) luaflare.apache.post "$(APACHE_DIR)/sites-available/luaflare.conf"
+	
+
 install-bash-completion:
 	$(INSTALL) luaflare.bash-completion.post "$(BASH_COMPLETION_DIR)/luaflare"
 	$(CHMOD) +x "$(BASH_COMPLETION_DIR)/luaflare"

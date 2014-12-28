@@ -1,0 +1,10 @@
+<VirtualHost *:%APACHE_HTTP_PORT>
+	ServerName localhost
+	<Location />
+		ProxyPreserveHost On
+		ProxyPass / http://localhost:%LUAFLARE_PORT/
+		ProxyPassReverse / http://localhost:%LUAFLARE_PORT/
+		Order allow,deny
+		Allow from all
+	</Location>
+</VirtualHost>
