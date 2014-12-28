@@ -98,15 +98,14 @@ local function set_user()
 end
 
 local function set_nginx()
-	if reverse_proxy or find_arg("no-nginx") then return end
-	
-	-- make sure they have nginx installed
-	local nginx = find_program("nginx", false)
-	if not nginx then return end -- no nginx installed
-	reverse_proxy = "nginx"
+	if find_arg("no-nginx") then return end
 	
 	local location = find_arg("nginx-dir")
 	if not location then
+		-- make sure they have nginx installed
+		local nginx = find_program("nginx", false)
+		if not nginx then return end -- no nginx installed
+		
 		local proc = io.popen(nginx.." -V 2> /dev/stdout")
 		local output = proc:read("*a")
 		proc:close()
@@ -129,16 +128,27 @@ local function set_nginx()
 	set_var("NGINX_HTTP_PORT", http_port)
 	set_var("NGINX_HTTPS_PORT", https_port)
 	table.insert(install, "install-nginx-site")
+	
+	reverse_proxy = reverse_proxy or {}
+	reverse_proxy.nginx = true
 end
 
 local function set_apache()
-	if reverse_proxy or find_arg("no-apache") then return end
+	if find_arg("no-apache") then return end
 	
-	local apache = find_program("apache", false)
-	if not apache then return end
+	local location = find_arg("apache-dir")
+	if not location then
+		local apache = find_program("apache", false)
+		if not apache then return end
+	end
 	
 	print("apache as a reverse proxy has not been implimented yet")
 	os.exit(1)
+	
+	table.insert(install, "install-apache-site")
+	
+	reverse_proxy = reverse_proxy or {}
+	reverse_proxy.apache = true
 end
 
 local function set_system_service()
@@ -218,9 +228,10 @@ local function set_luaflare_postinst_opts()
 		table.insert(opts, "--reverse-proxy")
 		table.insert(opts, "--local")
 		table.insert(opts, "--trusted-reverse-proxies=localhost,::1")
-		if reverse_proxy == "nginx" then
+		if reverse_proxy.nginx then
 			table.insert(opts, "--x-accel-redirect=/./")
-		elseif reverse_proxy == "apache" then
+		end
+		if reverse_proxy.apache then
 			table.insert(opts, "--x-sendfile")
 		end
 	end
@@ -235,28 +246,6 @@ end
 local function set_luaflare_vars()
 	set_var("LUA_DEPENDS", table.concat(lua_depends, " "))
 	set_var("INSTALL_EXTRA", table.concat(install, " "))
-
-	--[[
-	USER                    = %USER
-	SERVICE_SYSTEM          = %SERVICE
-	NGINX_SITE_HTTP_PORT    = %NGINX_HTTP_PORT
-	NGINX_SITE_HTTPS_PORT   = %NGINX_HTTPS_PORT
-
-	LUAFLARE_PORT          = %LUAFLARE_PORT
-	LUAFLARE_POSTINT_OPTS  = %LUAFLARE_POSTINT_OPTS
-	LUAFLARE_LIB_DIR       = $(PREFIX)/lib/luaflare
-	LUAFLARE_LIB_DIR_STR   = $(subst $(DESTDIR),,$(LUAFLARE_LIB_DIR))
-	LUAFLARE_BIN_DIR       = $(PREFIX)/bin
-	LUAFLARE_BIN_DIR_STR   = $(subst $(DESTDIR),,$(LUAFLARE_BIN_DIR))
-	LUAFLARE_CFG_DIR       = $(DESTDIR)/etc/luaflare
-	LUAFLARE_CFG_DIR_STR   = $(subst $(DESTDIR),,$(LUAFLARE_CFG_DIR))
-	NGINX_DIR              = $(DESTDIR)%NGINX_DIR
-	NGINX_DIR_STR          = $(subst $(DESTDIR),,$(NGINX_DIR))
-	BASH_COMPLETION_DIR    = $(DESTDIR)%BASH_COMPLETION_DIR
-	SYSTEMD_UNIT_DIR       = $(DESTDIR)%SYSTEMD_UNIT_DIR
-	SYSVINIT_DAEMON_DIR    = $(DESTDIR)%SYSVINIT_DAEMON_DIR
-	UPSTART_DAEMON_DIR     = $(DESTDIR)%UPSTART_DAEMON_DIR
-	]]
 	
 	local prefix = get_var("PREFIX")
 	local etc = find_arg("sysconfig", "/etc")
