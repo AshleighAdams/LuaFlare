@@ -29,7 +29,8 @@ SERVICE = %service
 _SERVICE = $(PRECMD) $(SERVICE)
 INSTALL = %install -D
 _INSTALL = $(PRECMD) $(INSTALL)
-
+TOUCH = %touch
+_TOUCH = $(PRECMD) $(TOUCH)
 
 USER                    = %USER
 SERVICE_SYSTEM          = %SERVICE

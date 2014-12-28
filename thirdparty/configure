@@ -314,7 +314,7 @@ end
 
 install = {}
 lua_depends = {"bit", "lfs", "md5", "posix", "socket"}
-tools = {"cp", "mkdir", "cat", "sed", "ln", "git", "chmod", "chown", "service", "update-rc.d", "install"}
+tools = {"cp", "mkdir", "cat", "sed", "ln", "git", "chmod", "chown", "service", "update-rc.d", "install", "touch"}
 
 set_prefix()
 set_lua()

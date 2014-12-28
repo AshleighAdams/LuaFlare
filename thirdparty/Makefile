@@ -59,6 +59,8 @@ install-shared-files:
 	$(CP) -r ../lua    $(LUAFLARE_CFG_DIR)/
 	$(CP) -r ../static $(LUAFLARE_CFG_DIR)/
 	$(CP) -r ../keys   $(LUAFLARE_CFG_DIR)/
+
+	$(TOUCH) $(LUAFLARE_CFG_DIR)/luaflare.cfg
 	
 	# allthough libs/luaflare.lua has already been copied, copy it again, but replace the version number
 	$(CAT) ../libs/luaflare.lua \
