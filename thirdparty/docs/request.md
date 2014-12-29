@@ -42,7 +42,7 @@ Returns the underlying tcpclient.
 
 ## `number request:start_time()`
 
-Returns when the request created.
+Returns when the request was created.
 
 ## `number request:total_time()`
 

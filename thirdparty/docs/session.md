@@ -8,7 +8,7 @@ Provides session information for a request.
 
 ### `session "GetSession" request, response, string name, string id`
 
-Used in session loading.  Replaces the default save function with `save_func`.
+Used to create a session object.
 
 #### `default textfile session`
 

@@ -26,9 +26,13 @@ Used to mark identifieres as keywords in the parser.
 
 A list of chars that "compress" together to form one token.
 
-## `parser.tokenchars_unjoinable`
+## `parser.valid_tokens`
 
-A list of chars that each represent one token.
+A list of valid tokens.
+
+## `parser.operator_precedence`
+
+A table that stores the priority (precedence) of operators.
 
 ## `parser.escapers`
 
