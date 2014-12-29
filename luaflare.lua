@@ -38,7 +38,7 @@ usage:
 --max-post-length=number          The maximum length of the post data.
 --systemd                         Notify systemd upon startup, and try to
                                   heartbeat.
---out-pid                         Write our PID to this file post load.
+--out-pid=file                    Write our PID to this file post load.
 --keepalive-time=number           Maximum number of seconds a connection can
                                   be kept alive (default 2).
 ]])
