@@ -1,0 +1,110 @@
+.TH luaflare 1 "29 Dec 2014" "2.5"
+.SH NAME
+luaflare \- Lua web server
+.SH SYNOPSIS
+.B luaflare
+[
+listen
+|
+mount
+.I path
+.I name
+|
+unmount
+.I name
+]
+.B [\-lthv]
+
+.SH OPTIONS
+
+.TP
+.BR \-\-port=\fInumber\fR
+Port to bind to (default 8080).
+
+.TP
+.BR \-\-threads=\fInumber\fR
+Number of threads to create (default 2).
+
+.TP
+.BR \-\-threads\-model=\fIstring\fR
+Threading mode to use (default coroutine).
+
+.TP
+.BR \-\-host=\fIstring\fR
+The address to bind to (default *).
+
+.TP
+.BR \-l ", " \-\-local
+Equivalent to: \-\-host=localhost
+
+.TP
+.BR \-t ", " \-\-unit\-test
+Perform unit tests and quit.
+
+.TP
+.BR \-h ", " \-\-help
+Show help and exit.
+
+.TP
+.BR \-v ", " \-\-version
+Show the version and exit.
+
+.TP
+.BR \-\-host=\fIstring\fR
+The address to bind to (default *).
+
+.TP
+.BR \-\-no\-reload
+Don't automatically reload ar_*.lua scripts when they've changed.
+
+.TP
+.BR \-\-max\-etag\-size=\fIsize\fR
+Max size to generate etag hashes for. (default 64MiB).
+
+.TP
+.BR \-\-reverse\-proxy
+Require X\-Real\-IP and X\-Forward\-For.
+
+.TP
+.BR \-\-trusted\-reverse\-proxies=\fIstring\\fR
+Comma delimitered list of trusted reverse proxies. Mask notation is supported.
+
+.TP
+.BR \-\-x\-accel\-redirect=\fIpath\fR
+Use Nginx's X\-Accel\-Redirect to send static content; path is the internal location (the example site uses /./)
+
+.TP
+.BR \-\-x\-sendfile
+Use mod_xsendfile to send static content.
+
+.TP
+.BR \-\-chunk\-size=\fIsize\fR
+Number of bytes to send per chunk (default 128KiB (1024*128).
+Lower values means less susceptible to fuzzing attacks, but lower transfer speeds.
+
+.TP
+.BR \-\-display\-all\-vars=\fI_\fR
+On a Lua error, show all variables, not just related.
+
+.TP
+.BR \-\-scheduler\-tick\-rate=\fInumber\fR
+The fallback tickrate (Hz) for a schedule that yields nil. (default 60).
+
+.TP
+.BR \-\-max\-post\-length=\fInumber\fR
+The maximum length of the post data.
+
+.TP
+.BR \-\-systemd
+Notify systemd upon startup, and try to heartbeat.
+
+.TP
+.BR \-\-out\-pid=\fIfile\fR
+
+.TP
+.BR \-\-keepalive\-time=\fIseconds\fR
+Maximum number of seconds a connection can be kept alive (default 2).
+
+.\".TP
+.\".BR \-\-_=\fI_\fR
+.\"
