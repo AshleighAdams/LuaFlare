@@ -1,6 +1,6 @@
 local httpstatus = {}
 
-httpstatus.know_statuses = {
+httpstatus.known_statuses = {
 	-- 1XX
 	[100] = "Continue",
 	[101] = "Switching Protocols",
@@ -83,11 +83,11 @@ httpstatus.know_statuses = {
 }
 
 function httpstatus.tostring(number) expects "number"
-	return httpstatus.know_statuses[number]
+	return httpstatus.known_statuses[number]
 end
 
 httpstatus.reverse_cache = {}
-for status, message in pairs(httpstatus.know_statuses) do
+for status, message in pairs(httpstatus.known_statuses) do
 	message = message:lower()
 	httpstatus.reverse_cache[message:lower():gsub("%s", "")] = status
 end

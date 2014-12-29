@@ -4,7 +4,7 @@ Serves to translate between HTTP status codes and HTTP status messages.
 
 `local httpstatus = require("luaflare.httpstatus")`
 
-## `httpstatus.know_statuses`
+## `httpstatus.known_statuses`
 
 A table in of known HTTP statuses, where the key is the status number, and the value is the canonicalized status message.
 
