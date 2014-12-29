@@ -291,34 +291,6 @@ To look at:
 - inc/request.lua:`read_headers()`: should continuations of headers insert a space, newline, or nothing?
 	- `ret[lastheader] = ret[lastheader] .. " " .. val:trim()`
 
-# Non-generic Name Proposal
-
-	word a: lua, moon
-	word b: beam, ray, shaft, glow, glimmer, glint, flare, emit, scatter
-
-*potential* **like** **_fav_**
-
-- **luabeam**
-- *luaray*
-- luashaft
-- luaglow
-- luaglimmer
-- luaglint
-- **_luaflare_**
-- luaemit
-- luascatter
-- moonbeam
-- moonray
-- moonshaft
-- *moonglow*
-- moonglimmer
-- moonglint
-- **moonflare**
-- moonemit
-- moonscatter
-
-Maybe: Lula
-
 # Packaging concept
 
 	luaflare
