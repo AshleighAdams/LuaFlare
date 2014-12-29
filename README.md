@@ -303,14 +303,7 @@ To look at:
 		Depends: luaflare, apache
 		Provides: luaflare-reverseproxy
 	
-	luaflare-service-systemd: installs luaflare systemd service files
-		Depends: luaflare, systemd
-		Provides: luaflare-service
-	luaflare-service-sysvinit: installs luaflare sysvinit service files
-		Depends: luaflare, sysvinit
-		Provides: luaflare-service
-	luaflare-service-upstart:  installs luaflare upstart service files
-		Depends: luaflare, upstart
-		Provides: luaflare-service
+	luaflare-service: installs luaflare daemons
+		Depends: luaflare, systemd | sysvinit | upstart
 
-
+You can see this packaging concept implimented here: https://github.com/KateAdams/LuaFlare-debian/
