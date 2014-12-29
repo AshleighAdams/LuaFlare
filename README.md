@@ -279,9 +279,9 @@ Not implimented.
 - [ ] Rewrite template generate_html to be cleaner & easier to follow
 - [x] Add the additional command --help
 - [x] Add the additional command --version
-- [ ] Remove other threading methods, only keep coroutines
-- [ ] Apache site installer for acting as a reverse proxy.
-- [ ] Possibly remove SSL support:
+- [~] Remove other threading methods, only keep coroutines
+- [x] Apache site installer for acting as a reverse proxy.
+- [x] Possibly remove SSL support:
 	- Should it be provided by the reverse proxy?
 	Could the reverse proxy ever be on a different machine, thus unsafe to
 	transmit data?
