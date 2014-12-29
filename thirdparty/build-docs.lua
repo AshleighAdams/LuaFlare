@@ -29,7 +29,7 @@ add_page("docs/global.md")
 
 local files = {}
 for file in lfs.dir("docs/") do
-	if file ~= ".." and file ~= "." then
+	if file ~= ".." and file ~= "." and file:sub(-3, -1) == ".md" then
 		file = "docs/" .. file
 		table.insert(files, file)
 	end
@@ -72,13 +72,13 @@ end
 if arg[1] == "tex" then
 	print("generating tex...")
 	
-	os.execute("pandoc -s -t latex tmp/docs.md -o tmp/docs.tex")
+	os.execute("pandoc -s -t latex tmp/docs.md -o tmp/luaflare-documentation.tex")
 
-	local texf = io.open("tmp/docs.tex", "r")
+	local texf = io.open("tmp/luaflare-documentation.tex", "r")
 	local tex = texf:read("*a")
 
 	texf:close()
-	texf = io.open("tmp/docs.tex", "w")
+	texf = io.open("tmp/luaflare-documentation.tex", "w")
 
 	tex = tex:gsub([[\begin{document}]], [[
 
@@ -138,7 +138,7 @@ if arg[1] == "tex" then
 	texf:write(tex)
 elseif arg[1] == "epub" then
 	print("generating epub...")
-	os.execute[[ebook-convert tmp/docs.md tmp/docs.epub \
+	os.execute[[ebook-convert tmp/docs.md tmp/luaflare-documentation.epub \
 		--title="LuaFlare Documentation" \
 		--authors="Kate Adams" \
 		--cover cover.png --preserve-cover-aspect-ratio \
@@ -153,12 +153,12 @@ elseif arg[1] == "epub" then
 		--level3-toc="//*[name()='h3']" \
 		-v \
 	]]
-	os.execute[[unzip tmp/docs.epub -d tmp/docs]]
+	os.execute[[unzip tmp/luaflare-documentation.epub -d tmp/docs]]
 	os.execute[[sed -i "s/\"-/\"/g" tmp/docs/*.*]]
 	os.execute[[sed -i "s/#-/#/g" tmp/docs/*.*]]
 	os.execute[[cp cover.png tmp/docs/cover.png]]
-	os.execute[[cd tmp/docs/ && zip -X ../docs-final.epub mimetype && zip -grX ../docs-final.epub META-INF/ *.*]]
-	os.execute[[epubcheck tmp/docs-final.epub]]
+	os.execute[[cd tmp/docs/ && zip -X ../luaflare-documentation-final.epub mimetype && zip -grX ../luaflare-documentation-final.epub META-INF/ *.*]]
+	os.execute[[epubcheck tmp/luaflare-documentation-final.epub]]
 else
 	print("unknown format")
 	os.exit(1)
