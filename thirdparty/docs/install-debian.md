@@ -1,5 +1,10 @@
 # Install LuaFlare on Debian based distros
-This simple guide will show you how to install LuaFlare on a fresh install of Debian, compatible with Ubuntu/Mint.
+
+This simple guide will show you how to install LuaFlare on a fresh install of Debian 7, compatible with Ubuntu 12.04 and up.
+
+The sysvinit service uses a newer syntax, so if your system uses sysvinit, the dependency `sysvinit-utils (>= 2.88dsf-50)` must be satisfiable;
+in Debian, this is satisfied at 7 (Jessie), and with Ubuntu, 15.04 (Vivid).
+By default, Debian (>= 7) uses systemd by default, and Ubuntu (>= 12.04) uses upstart.
 
 ## Either install via apt-get (my repo @ kateadams.eu)
 
