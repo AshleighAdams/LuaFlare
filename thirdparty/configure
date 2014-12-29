@@ -1,5 +1,7 @@
 #!/usr/bin/env lua
 
+local prefix, sysconf
+
 local vars = {}
 local function set_var(key, value)
 	vars[key] = value
@@ -67,7 +69,7 @@ end
 
 
 local function set_prefix()
-	local prefix = find_arg("prefix", "/usr")
+	prefix = find_arg("prefix", "/usr")
 	print("prefix: " .. prefix)
 	set_var("PREFIX", prefix)
 end
@@ -204,9 +206,7 @@ local function set_system_service()
 end
 
 local function set_bash_dir()
-	local p = io.popen(find_program("locate") .. " bash_completion.d")
-	local path = p:read("*l")
-	p:close()
+	local path = find_arg("bashcompletion-dir", prefix .. "/share/bash-completion/completions/")
 	
 	if not path then
 		return print("bash completion path not found")
