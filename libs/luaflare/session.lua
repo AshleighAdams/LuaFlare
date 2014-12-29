@@ -29,11 +29,22 @@ function session.get(req, res, string session_name = "session")
 			id = nil
 		end
 	end
+	
+	local s = hook.call("GetSession", req, res, session_name, id)
+	
+	if not s then
+		return error("hook GetSession returned nil")
+	end
+	
+	return s
+end
 
-	local ret = setmetatable({}, meta._meta)
-	ret:construct(req, res, session_name, id)
+function session.get_textfile_session(req, res, name, id)
+	ret = setmetatable({}, meta._meta)
+	ret:construct(req, res, name, id)
 	return ret
 end
+hook.add("GetSession", "default textfile session", session.get_textfile_session, 1)
 
 function meta:construct(req, res, session_name, id)
 	if id == nil then

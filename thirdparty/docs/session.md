@@ -6,9 +6,16 @@ Provides session information for a request.
 
 ## Hooks
 
-### `session, function save_func "GetSession" string name, string id`
+### `session "GetSession" string name, string id`
 
 Used in session loading.  Replaces the default save function with `save_func`.
+
+#### `default textfile session`
+
+This is the default handler for this hook; it save to small textfiles in `$configdir/sessions/`.
+
+This hook has a priority of 1.
+To override it, make sure that your hook's priority is less than 1.
 
 ## `session.valid_chars`
 

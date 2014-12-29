@@ -274,7 +274,8 @@ Not implimented.
 
 - [x] Cookie Support
 - [x] Session library
-	- [ ] Allow overriding where sessions are stored
+	- [x] Allow overriding where sessions are stored
+		- Implimented via the hook `GetSession`.
 - [ ] Global table support for sessions
 - [ ] Rewrite template generate_html to be cleaner & easier to follow
 - [x] Add the additional command --help
