@@ -6,7 +6,7 @@ Provides session information for a request.
 
 ## Hooks
 
-### `session "GetSession" string name, string id`
+### `session "GetSession" request, response, string name, string id`
 
 Used in session loading.  Replaces the default save function with `save_func`.
 
