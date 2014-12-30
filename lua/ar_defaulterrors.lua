@@ -15,7 +15,7 @@ local function basic_error(why, req, res)
 	res:clear_content()
 	
 	local errcode = why.type or 500
-	local errstr = string.format("%i %s", errcode, httpstatus.know_statuses[errcode] or "Unknown")
+	local errstr = string.format("%i %s", errcode, httpstatus.tostring(errcode) or "Unknown")
 	local msg = why.message or req:url()
 	
 	template:make(errstr, errstr, msg, nil).to_response(res)
