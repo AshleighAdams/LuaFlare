@@ -6,6 +6,13 @@ The sysvinit service uses a newer syntax, so if your system uses sysvinit, the d
 in Debian, this is satisfied at 7 (Jessie), and with Ubuntu, 15.04 (Vivid).
 By default, Debian (>= 7) uses systemd by default, and Ubuntu (>= 12.04) uses upstart.
 
+In Ubuntu 14.04 and older, luaflare-service is not installable
+as the dependency `init-system-helpers (>= 1.18~)` is not satisfiable
+(this is automatically added via `dh_installinit`).
+You may have to install the service files yourself by checking out the source
+(`apt source luaflare`), running the configure script, and then
+copying `thirdparty/luaflare.upstart.post` to `/etc/init/luaflare.conf`.
+
 ## Either install via apt-get (my repo @ kateadams.eu)
 
 May not be bleeding edge, but is updated via apt-get.
