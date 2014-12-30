@@ -1,55 +1,11 @@
 LuaFlare [![Build Status](https://travis-ci.org/KateAdams/LuaFlare.svg?branch=master)](https://travis-ci.org/KateAdams/LuaFlare)
 =========
-
-# Table of Contents
-
-- [1. Documentation](#documentation)  
-	- [1.1. Command Line Arguments](#command-line-arguments)  
-	- [1.2. Handle a Page](#handle-a-page)  
-	- [1.3. Templating System](#templating-system)  
-		- [1.3.1. Escaping](#escaping)  
-		- [1.3.2. Examples](#examples)  
-			- [1.3.2.1. Example 1 - Simple](#example-1---simple)  
-			- [1.3.2.1. Example 2 - Basic Page](#example-2---basic-page)  
-			- [1.3.2.1. Example 3 - Segmants](#example-3---segmants)  
-			- [1.3.2.1. Example 4 - Unpack](#example-4---unpack)  
-	- [1.4. Overiding Default Handler](#overiding-default-handler)  
-- [2. Reverse Proxy](#reverse-proxy)  
-	- [2.1. Nginx](#nginx)  
-	- [2.2. Apache](#apache)  
-- [3. To Do](#to-do)  
-- [4. Non-generic Name Propsal](#non-generic-name-proposal)
 	
 # Documentation
 
 The files that match the pattern lua/\*/ar_\*.lua will be automatically ran at the start, and when they're modified. Use
 `include(file)` to include files relative to your directory, and to specify files that your script depends on, so that
 they may be automatically reloaded too.
-
-## Command Line Arguments
-
-| Command                              | Default Value | Allowed Values          | Info                                                      |
-| ------------------------------------ | ------------- | ----------------------- | --------------------------------------------------------- |
-| --port=\<number\>                    | 8080          | 0-65535                 | Set the port to run on.                                   |
-| --threads=\<number\>                 | 2             | 0-\*                    | How many threads to create.                               |
-| --threads-model=\<string\>           | coroutine     | coroutine, pyrate       | How will Lua create the threads?                          |
-| --host=\<string\>                    | \*            | \*                      | Bind to this address.                                     |
-| -l, --local                          | false         | true, false             | Set the host to "localhost".                              |
-| -t, --unit-test                      | false         | true, false             | Perform unit tests and quit.                              |
-| -h, --help                           | false         | true, false             | Show the help information then quit.                      |
-| -v, --version                        | false         | true, false             | Show the version information then quit.                   |
-| --no-reload                          | false         | true, false             | Do not automatically reload scripts.                      |
-| --max-etag-size=\<size\>             | 64MiB         | 0-\*                    | Maximium size to generate ETags for.                      |
-| --reverse-proxy                      | false         | true, false             | Require X-Real-IP and X-Forward-For.                      |
-| --trusted-reverse-proxies=\<string\> | localhost     | host1,host2,...,hostn   | Comma delimitered list of trusted hosts. Mask notation supported |
-| --x-accel-redirect=\<path\>          | "" \[/./\]    | \*                      | Serve static content with X-Accel-Redirect (Nginx).       |
-| --x-sendfile                         | false         | true, false             | Serve static content with X-Sendfile (mod_xsendfile).     |
-| --chunk-size=\<number\>              | 131072        | 0-\*                    | Number of bytes to send per chunk.                        |
-| --scheduler-tick-rate=\<number\>     | 60            | 0-\*                    | The fallback tickrate (Hz) for a schedual that yields nil.|
-| --max-post-length=\<number\>         | ""            | 0-\*, ""                | The maximum length of the post data.                      |
-| --systemd                            | false         | true, false             | Notify systemd upon startup, and try to heartbeat.        |
-| --out-pid=\<path\>                   | ""            | \*                      | Write our PID to this file post load.                     |
-| --keepalive-time=\<number\>          | 2             | 0-\*                    | Maximium number of seconds a connection may be kept alive.|
 
 ## Handle a Page
 
@@ -186,7 +142,7 @@ template.to_request(req, 1)
 			This is a test message.
 		</span>
 	</div>
-	<!--- ... --->
+	<!-- ... -->
 	<div class="comment">
 		<span class="author">
 			Anon 5
@@ -232,7 +188,7 @@ print(template.to_html())
 			This is a test message.
 		</span>
 	</div>
-	<!--- ... --->
+	<!-- ... -->
 	<div class="comment">
 		<span class="author">
 			Anon 5
@@ -260,14 +216,12 @@ end)
 LuaFlare by default is expecting to be ran behind a reverse proxy.
 This allows sending files via X-Accel-Redirect or X-Sendfile, and protects LuaFlare against many types of attacks.
 
-## Nginx
+When being configured, if Nginx or Apache has been found,
+then their respective sites will be installed upon `make install`.
 
-Upon `make install`, if nginx is present, then the Nginx site is copied into `/etc/nginx/sites`.
-See `thirdparty/luaflare.nginx` for the site to be installed.
-
-## Apache
-
-Not implimented.
+See `thirdparty/luaflare.nginx.(pre|post)`
+and `thirdparty/luaflare.apache.(pre|post)`
+for the sites themselves (pre and post configure).
 
 # To Do
 <!--- U+2610 (☐, 'BALLOT BOX'), U+2611 (☑, 'BALLOT BOX WITH CHECK'), and U+2612 (☒, 'BALLOT BOX WITH X') --->
@@ -280,7 +234,7 @@ Not implimented.
 - [ ] Rewrite template generate_html to be cleaner & easier to follow
 - [x] Add the additional command --help
 - [x] Add the additional command --version
-- [~] Remove other threading methods, only keep coroutines
+-     Remove other threading methods, only keep coroutines
 - [x] Apache site installer for acting as a reverse proxy.
 - [x] Possibly remove SSL support:
 	- Should it be provided by the reverse proxy?
