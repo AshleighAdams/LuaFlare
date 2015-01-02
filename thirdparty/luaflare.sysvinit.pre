@@ -21,7 +21,7 @@ DAEMON="luaflare"
 PIDFILE="/var/run/luaflare.pid"
 
 # source the default/luaflare file
-. "%SYSCONF/default/luaflare"
+[ -f "%SYSCONF/default/luaflare" ] && . "%SYSCONF/default/luaflare"
 
 do_start_cmd() {
 	if [ -f $PIDFILE ]; then

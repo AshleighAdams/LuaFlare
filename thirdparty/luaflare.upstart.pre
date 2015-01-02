@@ -16,7 +16,7 @@ stop on runlevel [016]
 respawn
 
 script
-	. "%SYSCONF/default/luaflare"
+	[ -f "%SYSCONF/default/luaflare" ] && . "%SYSCONF/default/luaflare"
     cd %LUAFLARE_LIB_DIR
     sudo -u %USER "%LUAFLARE_BIN_DIR/luaflare" listen >> /var/log/luaflare.log 2>&1
 end script
