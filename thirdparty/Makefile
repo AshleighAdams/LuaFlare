@@ -41,8 +41,11 @@ install-bin: install-shared
 	$(MKDIR) $(LUAFLARE_BIN_DIR) && \
 	$(CAT) ../luaflare.lua \
 		| $(SED) "s|#!/usr/bin/env lua|#!/usr/bin/env $(LUA)|" \
-		> $(LUAFLARE_BIN_DIR)/luaflare && \
-	$(CHMOD) +x $(LUAFLARE_BIN_DIR)/luaflare
+		> "$(LUAFLARE_LIB_DIR)/luaflare.lua" && \
+	$(CHMOD) +x "$(LUAFLARE_LIB_DIR)/luaflare.lua"
+	
+	$(INSTALL) luaflare.post "$(LUAFLARE_BIN_DIR)/luaflare"
+	$(CHMOD) +x "$(LUAFLARE_BIN_DIR)/luaflare"
 
 install-luaflare-opts:
 	$(PRECMD) $(LUAFLARE_BIN_DIR_STR)/luaflare $(LUAFLARE_POSTINT_OPTS)
@@ -59,14 +62,14 @@ install-shared-files:
 	$(CP) -r ../lua    $(LUAFLARE_CFG_DIR)/
 	$(CP) -r ../static $(LUAFLARE_CFG_DIR)/
 	$(CP) -r ../keys   $(LUAFLARE_CFG_DIR)/
-
+	
+	$(INSTALL) luaflare.default.post "$(SYSCONF)/default/luaflare"
+	
 	$(TOUCH) $(LUAFLARE_CFG_DIR)/luaflare.cfg
 	
 	# allthough libs/luaflare.lua has already been copied, copy it again, but replace the version number
 	$(CAT) ../libs/luaflare.lua \
 		| $(SED) "s|LuaFlare git|LuaFlare $(VERSION)|g" \
-		| $(SED) "s|\".\", -- config-marker|\"$(LUAFLARE_CFG_DIR_STR)\",|g" \
-		| $(SED) "s|\".\", -- lib-marker|\"$(LUAFLARE_LIB_DIR_STR)\",|g" \
 		> $(LUAFLARE_LIB_DIR)/libs/luaflare.lua
 	
 	$(MKDIR) $(LUAFLARE_CFG_DIR)/sessions

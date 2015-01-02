@@ -20,6 +20,9 @@ DESC="Lua web server"
 DAEMON="luaflare"
 PIDFILE="/var/run/luaflare.pid"
 
+# source the default/luaflare file
+. "%SYSCONF/default/luaflare"
+
 do_start_cmd() {
 	if [ -f $PIDFILE ]; then
 		proc=`cat $PIDFILE`

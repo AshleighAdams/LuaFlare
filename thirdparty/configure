@@ -70,8 +70,11 @@ end
 
 local function set_prefix()
 	prefix = find_arg("prefix", "/usr")
+	sysconf = find_arg("sysconfig", "/etc")
 	print("prefix: " .. prefix)
+	print("sysconf: " .. sysconf)
 	set_var("PREFIX", prefix)
+	set_var("SYSCONF", sysconf)
 end
 
 local function set_lua()
@@ -252,11 +255,9 @@ local function set_luaflare_vars()
 	set_var("LUA_DEPENDS", table.concat(lua_depends, " "))
 	set_var("INSTALL_EXTRA", table.concat(install, " "))
 	
-	local prefix = get_var("PREFIX")
-	local etc = find_arg("sysconfig", "/etc")
 	set_var("LUAFLARE_LIB_DIR", prefix .. "/lib/luaflare")
 	set_var("LUAFLARE_BIN_DIR", prefix .. "/bin")
-	set_var("LUAFLARE_CFG_DIR", etc .. "/luaflare")
+	set_var("LUAFLARE_CFG_DIR", sysconf .. "/luaflare")
 	
 	local git = io.popen(get_var("git") .. " describe --tags --always")
 	local git_version = git:read("*l")

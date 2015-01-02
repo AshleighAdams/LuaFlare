@@ -51,17 +51,25 @@ local luaflare
 do -- for require() to check modules path
 	local tp, tcp = package.path, package.cpath
 	
-	local path = arg[0]:match("(.+)/") or "."
-	if path:sub(-4, -1) == "/bin" then
-		path = path:sub(1, -5) .. "/lib/luaflare"
-	end
+	local path = os.getenv("LUAFLARE_LIB_DIR") or arg[0]:match("(.+)/") or "."
 	
 	package.path = path .. "/libs/?.lua;" .. tp
 	package.cpath = path .. "/libs/?.so;" .. tcp
 	
-	luaflare = require("luaflare")
-	package.path = luaflare.lib_path .. "/libs/?.lua;" .. tp
-	package.cpath = luaflare.lib_path .. "/libs/?.so;" .. tcp
+	local success
+	success, luaflare = pcall(require, "luaflare")
+	
+	if not success then
+		io.stderr:write("error: could not locate luaflare libs; please ensure LUAFLARE_* enviroment variables are set!\n")
+		io.stderr:write(luaflare.."\n")
+		return
+	end
+	
+	print("lib path: " .. luaflare.lib_path)
+	print("cfg path: " .. luaflare.config_path)
+	
+	--package.path = luaflare.lib_path .. "/libs/?.lua;" .. tp
+	--package.cpath = luaflare.lib_path .. "/libs/?.so;" .. tcp
 end
 
 expects = function() end
@@ -134,7 +142,7 @@ function main()
 	
 	if script.arguments[1] == "listen" then
 		local thread_mdl = script.options["threads-model"] or "coroutine"
-		dofile(string.format("inc/threads_%s.lua", thread_mdl))
+		dofile(string.format("%s/inc/threads_%s.lua", luaflare.lib_path, thread_mdl))
 	
 		dofile(luaflare.lib_path .. "/inc/autorun.lua")
 		assert(main_loop, "`main_loop()` is not defined!")
