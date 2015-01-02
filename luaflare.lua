@@ -64,12 +64,6 @@ do -- for require() to check modules path
 		io.stderr:write(luaflare.."\n")
 		return
 	end
-	
-	print("lib path: " .. luaflare.lib_path)
-	print("cfg path: " .. luaflare.config_path)
-	
-	--package.path = luaflare.lib_path .. "/libs/?.lua;" .. tp
-	--package.cpath = luaflare.lib_path .. "/libs/?.so;" .. tcp
 end
 
 expects = function() end
