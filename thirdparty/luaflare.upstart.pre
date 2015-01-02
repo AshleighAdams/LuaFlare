@@ -17,8 +17,8 @@ respawn
 
 script
 	[ -f "%SYSCONF/default/luaflare" ] && . "%SYSCONF/default/luaflare"
-    cd %LUAFLARE_LIB_DIR
-    sudo -u %USER "%LUAFLARE_BIN_DIR/luaflare" listen >> /var/log/luaflare.log 2>&1
+	cd %LUAFLARE_LIB_DIR
+	sudo -u %USER "%LUAFLARE_BIN_DIR/luaflare" listen >> /var/log/luaflare.log 2>&1
 end script
 
 # exec start-stop-daemon --start --make-pidfile --pidfile /var/run/luaflare.pid --chuid %USER --exec "%LUAFLARE_BIN_DIR/luaflare" listen >> /var/log/luaflare.log 2>&1
