@@ -69,8 +69,8 @@ if version:sub(-1) == "." then
 	version = version:sub(1, -2)
 end
 
-if arg[1] == "tex" then
-	print("generating tex...")
+if arg[1] == "pdf" or arg[1] == "tex" then
+	print("generating pdf via LaTeX...")
 	
 	os.execute("pandoc -s -t latex tmp/docs.md -o tmp/luaflare-documentation.tex")
 
@@ -136,6 +136,19 @@ if arg[1] == "tex" then
 	tex = tex:gsub("linkcolor=magenta,", "linkcolor=black,")
 
 	texf:write(tex)
+	
+	if arg[1] == "pdf" then
+		-- os.execute breaks this, idk why
+		local proc = io.popen("cd tmp && TERM=none latexmk --pdf luaflare-documentation.tex")
+	
+		while true do
+			local line = proc:read("*l")
+			if not line then break end
+			print(line)
+		end
+	end
+	
+	proc:close()
 elseif arg[1] == "epub" then
 	print("generating epub...")
 	os.execute[[ebook-convert tmp/docs.md tmp/luaflare-documentation.epub \
