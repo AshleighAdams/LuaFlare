@@ -290,6 +290,8 @@ local function process_file(file)
 	
 	of:write(contents)
 	of:close()
+	
+	os.execute(string.format("chmod --reference \"%s\" \"%s\"", file, out))
 end
 
 local function process_files()
