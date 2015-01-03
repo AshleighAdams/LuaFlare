@@ -41,6 +41,8 @@ usage:
 --out-pid=file                    Write our PID to this file post load.
 --keepalive-time=number           Maximum number of seconds a connection can
                                   be kept alive (default 2).
+--session-tmp-dir=path            Where to store session (textfiles)
+                                  files (default: /tmp/luaflare-sessions-XXXXXX)
 ]])
 end
 

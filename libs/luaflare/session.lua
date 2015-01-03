@@ -1,11 +1,38 @@
 local luaflare = require("luaflare")
+local script = require("luaflare.util.script")
 
 local session = {}
 local posix = require("posix")
 local meta = {}
 meta._meta = {__index = meta}
 
-local session_path = luaflare.config_path .. "/sessions/"
+local session_path
+
+local function set_session_path()
+	local session_basepath = script.options["session-tmp-dir"] or "/tmp/luaflare-sessions-XXXXXX"
+	
+	if session_basepath:sub(-6, -1) == "XXXXXX" then
+		local fd, path = posix.mkdtemp(session_basepath .. "")
+	
+		if not fd then
+			fatal("could not create temp sessions dir: %s\ntextfile sessions will be be unavailible", path or "unknown error")
+			return
+		end
+	
+		-- the return values are inconsistant, sometimes it will return only path,
+		-- while other installs return fd, path
+		session_path = path or fd
+	else
+		session_path = session_basepath
+	end
+	
+	if session_path:sub(-1, -1) ~= "/" then
+		session_path = session_path .. "/"
+	end
+	
+	print("textfile session path: " .. session_path)
+end
+hook.Add("Loaded", "textfile session path", set_session_path)
 
 session.valid_chars = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789"
 session.valid_pattern = string.format("^[%s]+$", session.valid_chars)

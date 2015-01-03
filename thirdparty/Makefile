@@ -71,7 +71,6 @@ install-shared-files:
 		| $(SED) "s|LuaFlare git|LuaFlare $(VERSION)|g" \
 		> $(LUAFLARE_LIB_DIR)/libs/luaflare.lua
 	
-	$(MKDIR) $(LUAFLARE_CFG_DIR)/sessions
 	$(MKDIR) $(LUAFLARE_CFG_DIR)/sites
 	
 	# $(CP) -r ../luaflare.cfg $(LUAFLARE_CFG_DIR)/luaflare.cfg
