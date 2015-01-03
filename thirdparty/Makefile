@@ -7,7 +7,6 @@ include config.post
 all:
 
 %:
-	echo "unknown target $@"
 
 clean:
 	$(RM) *.post
