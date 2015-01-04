@@ -129,3 +129,7 @@ Maximium number of seconds a connection may be kept alive (default is `2`).
 ### `--session-tmp-dir=path`
 
 Where to store session (textfiles) files (default: /tmp/luaflare-sessions-XXXXXX).
+
+### `--disable-expects`
+
+Disable type checking for performance.

@@ -1,6 +1,15 @@
 local hook = require("luaflare.hook")
 local parser = require("luaflare.util.luaparser")
 
+local expects_disabled = false
+local function check_expects_disabled()
+	local script = require("luaflare.util.script")
+	if not script.options["disable-expects"] then return end
+	
+	expects_disabled = true
+end
+hook.add("Loaded", "syntax extensions: --disable-expects", check_expects_disabled)
+
 local function add_expects(tokens)
 	local toinsert = {}
 	
@@ -158,7 +167,7 @@ local function add_expects(tokens)
 			end
 		end
 		
-		if checktypes then
+		if checktypes and not expects_disabled then
 			k = k + 1
 			
 			table.insert(tokens, k, {

@@ -43,6 +43,7 @@ usage:
                                   be kept alive (default 2).
 --session-tmp-dir=path            Where to store session (textfiles)
                                   files (default: /tmp/luaflare-sessions-XXXXXX)
+--disable-expects                 Disable type checking for performance.
 ]])
 end
 

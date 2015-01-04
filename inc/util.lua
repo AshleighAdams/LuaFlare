@@ -4,7 +4,15 @@ local escape = require("luaflare.util.escape")
 local hook = require("luaflare.hook")
 local util
 
--- All extensions to inbuilt libs use ThisCase
+local function check_expects_disabled()
+	local script = require("luaflare.util.script")
+	
+	if not script.options["disable-expects"] then return end
+	
+	expects = function() end
+end
+hook.add("Loaded", "expects: --disable-expects", check_expects_disabled)
+
 expects_types = {}
 expects_types.vector = function(what) -- example
 	if what == nil then return false, "is nil" end
