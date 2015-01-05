@@ -15,7 +15,7 @@ copying `thirdparty/luaflare.upstart.post` to `/etc/init/luaflare.conf`.
 
 ## Either install via apt-get (my repo @ kateadams.eu)
 
-May not be bleeding edge, but is updated via apt-get.
+May not be bleeding edge, but is updated via APT.
 
 ### sources.list
 
