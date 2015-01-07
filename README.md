@@ -240,6 +240,7 @@ for the sites themselves (pre and post configure).
 	- Should it be provided by the reverse proxy?
 	Could the reverse proxy ever be on a different machine, thus unsafe to
 	transmit data?
+- [ ] If a main thread dies, CPU usage goes to full.  Fix this.
 
 To look at:
 
