@@ -97,7 +97,7 @@ local function quick_response(request, err, why)
 end
 
 local function quick_response_client(client, err)
-	local errstr = httpstatus.know_statuses[err] or "Unknown"
+	local errstr = httpstatus.tostring(err) or "Unknown"
 	client:send(string.format("HTTP/1.1 %d %s\r\n", err, errstr))
 	client:send("Server: luaflare\r\n")
 	client:send("Content-Length: 0\r\n")
