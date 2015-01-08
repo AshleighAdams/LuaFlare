@@ -11,6 +11,7 @@ end
 script.instance_names = {}
 script.instance_names_last = 0
 
+-- TODO: impliment this in threads_*.lua, not here.
 function script.instance()
 	local ret = script.instance_names[coroutine.running()]
 	if not ret then
