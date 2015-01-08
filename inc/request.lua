@@ -26,7 +26,6 @@ local function ip_to_base2(ip)
 	local parts = {}
 	local is_v6 = ip:match(":") ~= nil
 	if is_v6 then
-		print(ip)
 		ip:gsub("[^:]+", function(part)
 			table.insert(parts, bits(tonumber(part, 16) or 0, 16))
 		end)
