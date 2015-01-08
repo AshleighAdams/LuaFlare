@@ -1,6 +1,7 @@
 local luaflare = require("luaflare")
 local script = require("luaflare.util.script")
 local escape = require("luaflare.util.escape")
+local slug = require("luaflare.util.slug")
 
 local FAILED = false
 local SUB_FAIL = false
@@ -112,12 +113,21 @@ local function test_util()
 	check(script.options["test-val2"] == "abc")
 end
 
+local function test_slug()
+	check(slug.generate("Test") == "test")
+	check(slug.generate("") == "")
+	check(slug.generate("Hello, world!") == "hello-world")
+	check(slug.generate("blah@def.com") == "blah-at-def-com")
+	--check(slug.generate("áéíóúüñ") == "aeiouun") -- can't put unicode chars inline
+end
+
 function unit_test()
 	test("table.* extensions", test_table)
 	test("string.* extensions", test_string)
 	test("math.* extensions", test_math)
 	test("escape.*", test_escape)
 	test("utility functions", test_util)
+	test("slugs", test_slug)
 	
 	if FAILED then
 		print("one or more unit test failed!")

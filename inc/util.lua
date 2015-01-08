@@ -22,6 +22,13 @@ expects_types.vector = function(what) -- example
 	return true
 end
 
+expects_types.character = function(what)
+	if what == nil then return false, "is nil" end
+	if type(what) ~= "string" then return false, "expected string" end
+	if what:len() ~= 1 then return false, "string not of length 1" end
+	return true
+end
+
 -- duck typing check
 local function metatable_compatible(base, value)
 	if value == nil then return false, "is nil" end
