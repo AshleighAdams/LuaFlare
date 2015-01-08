@@ -89,6 +89,7 @@ local function load_trusted_proxies()
 end
 hook.add("Loaded", "load trusted reverse proxies", load_trusted_proxies)
 
+-- this is to be used when a response object does not yet exist, and we want to halt.
 local function quick_response(request, err, why)
 	local response = Response(request)
 	response:halt(err, why)
@@ -96,6 +97,7 @@ local function quick_response(request, err, why)
 	return why
 end
 
+-- this is to be used when a request object has yet to be constructed, and we want to halt.
 local function quick_response_client(client, err)
 	local errstr = httpstatus.tostring(err) or "Unknown"
 	client:send(string.format("HTTP/1.1 %d %s\r\n", err, errstr))
