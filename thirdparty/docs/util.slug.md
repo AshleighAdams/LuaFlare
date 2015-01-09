@@ -19,3 +19,9 @@ Turns the character `x` into a slug part (excluding spaces).
 ## `string slug.generate(string input)`
 
 Turns the input string into an ID-safe and human-readble string.
+
+### Examples
+
+ - `"Hello, world!" -> `"hello-world"`
+ - `"Abc: does foo & bar cause pootis?"` -> `"abc-does-foo-and-bar-cause-pootis"`
+ - `"10 things for $10"` -> `"10-things-for-usd10"`
