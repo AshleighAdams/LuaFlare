@@ -1,5 +1,3 @@
-include config.post
-
 # Commands prefixed with an underscore (i.e. _SERVICE) are "post installation"
 # commands. When procucing packages, these may be overridden to log the commands
 # needed to be ran.
@@ -10,6 +8,8 @@ all:
 
 clean:
 	$(RM) *.post
+
+include config.post
 
 check-dependencies:
 	@echo -n "checking config version..."
