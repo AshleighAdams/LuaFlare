@@ -99,7 +99,7 @@ local function add_expects(tokens)
 							if brackets_in[nt.value] then
 								depth = depth + 1
 							elseif brackets_out[nt.value] then
-								depth = depth + 1
+								depth = depth - 1
 								if depth < 0 then
 									return parser.problem("too many brackets closed in expression near function " .. table.concat(table_to, ".") .. name)
 								end
