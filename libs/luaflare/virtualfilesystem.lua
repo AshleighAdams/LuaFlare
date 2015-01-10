@@ -35,8 +35,7 @@ end
 function vfs.mount(string path)
 end
 
-function vfs.ls(string path, options)
-	options = options or {}
+function vfs.ls(string path, table options = {})
 	local type = options.type
 	local recursive = options.recursive
 	local f = options.tester
