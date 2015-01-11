@@ -24,6 +24,7 @@ end
 add_page("docs/command-line-arguments.md")
 add_page("docs/install-debian.md")
 add_page("docs/internal-workings.md")
+add_page("docs/bootstrap.md")
 add_page("docs/lua-extensions.md")
 add_page("docs/global.md")
 

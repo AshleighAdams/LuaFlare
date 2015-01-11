@@ -122,6 +122,10 @@ function template.make(req, res, contents, info)
 					line-height:1em;
 					max-height: 7em;
 				}
+				div.log
+				{
+					font-family: monospace;
+				}
 				footer
 				{
 					text-align: center;
@@ -330,6 +334,22 @@ function template.warnings(warnings)
 	end
 	
 	return tags.div
+	{
+		unpack(elms)
+	}
+end
+
+function template.bootstrap_info()
+	local elms = {}
+	
+	for k,log in ipairs(bootstrap.log_buffer) do
+		table.insert(elms, tags.div
+		{
+			string.rep("\t", log.depth) .. log.text
+		})
+	end
+	
+	return tags.div { class = "log" }
 	{
 		unpack(elms)
 	}

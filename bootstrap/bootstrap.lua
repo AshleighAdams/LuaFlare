@@ -43,12 +43,12 @@ bootstrap.log_shallower = function()
 	bootstrap.log_depth = bootstrap.log_depth - 1
 end
 bootstrap.log = function(str, ...)
-	str = ("\t"):rep(bootstrap.log_depth) .. str:format(...)
+	str = str:format(...)
 	table.insert(bootstrap.log_buffer, {text = str, when = os.time(), level = "info", depth = bootstrap.log_depth})
 	
 	local lb = os.getenv("BOOTSTRAP_LOG")
 	if not lb or lb == "" or lb == "0" then return end
-	print("bootstrap: " .. str)
+	print("bootstrap: " ..("\t"):rep(bootstrap.log_depth).. str)
 end
 bootstrap.fatal = function(str, ...)
 	str = ("\t"):rep(bootstrap.log_depth) .. str:format(...)
@@ -177,3 +177,5 @@ do
 	end
 	bootstrap.log_shallower()
 end
+
+bootstrap.log("complete")

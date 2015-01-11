@@ -224,7 +224,10 @@ local function stats(req, res)
 		template.hook_info(),
 		
 		template.section("Warnings"),
-		template.warnings(warn_data)
+		template.warnings(warn_data),
+		
+		template.section("Bootstrap Log"),
+		template.bootstrap_info(),
 	}, {hits_max = hits_max, load_max = load_max, memory_max = memory_max})
 end
 
