@@ -25,7 +25,6 @@ add_page("docs/command-line-arguments.md")
 add_page("docs/install-debian.md")
 add_page("docs/internal-workings.md")
 add_page("docs/bootstrap.md")
-add_page("docs/lua-extensions.md")
 add_page("docs/global.md")
 
 local files = {}
@@ -57,6 +56,7 @@ html = html:gsub("\\", "\\\\") -- escape these for the latex doc
 --print(table.concat(contents, "\n"))
 os.execute("rm -rf tmp/")
 os.execute("mkdir tmp")
+os.execute("cp -r docs/images tmp/")
 
 local f = io.open("tmp/docs.md", "w")
 f:write(html)
@@ -135,6 +135,7 @@ if arg[1] == "pdf" or arg[1] == "tex" then
 	tex = tex:gsub("\\section", "\\newpage\n\\section")
 
 	tex = tex:gsub("linkcolor=magenta,", "linkcolor=black,")
+	--tex = tex:gsub("images/", "../images/")
 
 	texf:write(tex)
 	
@@ -170,7 +171,11 @@ elseif arg[1] == "epub" then
 	os.execute[[unzip tmp/luaflare-documentation.epub -d tmp/docs]]
 	os.execute[[sed -i "s/\"-/\"/g" tmp/docs/*.*]]
 	os.execute[[sed -i "s/#-/#/g" tmp/docs/*.*]]
+	
+	-- images become corrupted with unzip for some reason, so replace them with the originals...
 	os.execute[[cp cover.png tmp/docs/cover.png]]
+	os.execute[[cp docs/images/* tmp/docs/]]
+	
 	os.execute[[cd tmp/docs/ && zip -X ../luaflare-documentation-final.epub mimetype && zip -grX ../luaflare-documentation-final.epub META-INF/ *.*]]
 	os.execute[[epubcheck tmp/luaflare-documentation-final.epub]]
 else
