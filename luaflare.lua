@@ -87,8 +87,8 @@ local shorthands = {
 }
 script.parse_arguments(arg, shorthands)
 
-include("inc/request.lua")
-include("inc/response.lua")
+include(luaflare.lib_path.."/inc/request.lua")
+include(luaflare.lib_path.."/inc/response.lua")
 	
 local port = tonumber(script.options.port) or 8080
 local threads = tonumber(script.options.threads) or 2 -- how many threads to create
