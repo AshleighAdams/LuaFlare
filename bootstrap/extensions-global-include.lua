@@ -136,7 +136,7 @@ local function package_loaded_auto(tokens, module)
 	-- return x
 	
 	local function nope(why)
-		bootstrap.log("automatic circular require: %s: mod table not found (%s)", module, why)
+		bootstrap.log("acr: %s: mod table not found: %s", module, why)
 	end
 	
 	local en, last1, last2 = #tokens
@@ -164,14 +164,14 @@ local function package_loaded_auto(tokens, module)
 		or first4.chunk ~= "{"
 	then
 		--print(first1.chunk,first2.chunk,first3.chunk,first4.chunk)
-		return nope("first tokens != local $modname = {$...}")
+		return nope("first tokens mismatch")
 	end
 	
 	if     last1.chunk ~= "return"
 		or last2.type ~= "identifier"
 		or last2.value ~= first2.value
 	then
-		return nope("last tokens != return $modname")
+		return nope("last tokens != return " .. first2.value)
 	end
 	
 	-- find the end of the { {$...}
@@ -201,7 +201,7 @@ local function package_loaded_auto(tokens, module)
 		end
 	end
 	
-	bootstrap.log("automatic circular require: setting early %s as %s", module, first2.value)
+	bootstrap.log("acr: setting early %s as %s", module, first2.value)
 	
 	-- append our pre-loader onto the chunk!
 	nt.chunk = nt.chunk .."; package.loaded[...] = " .. first2.value
