@@ -3,11 +3,11 @@ env:
 - LUA="lua5.1"
 install:
 - sudo apt-get update
-- sudo apt-get install lua5.1 luarocks libssl1.0.0
+- sudo apt-get install lua5.1 luarocks libssl1.0.0 unaccent
 - sudo luarocks install luasocket
 - sudo luarocks install luasec OPENSSL_LIBDIR=/usr/lib/x86_64-linux-gnu
 - sudo luarocks install luaposix
 - sudo luarocks install luafilesystem
 - sudo luarocks install luabitop
 - sudo luarocks install md5
-script: lua5.1 ./luaflare.lua --unit-test
+script: BOOTSTRAP_LOG=1 lua5.1 ./luaflare.lua --unit-test
