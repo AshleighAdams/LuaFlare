@@ -116,18 +116,22 @@ hook.safe_call = function (name, ...)
 end
 
 hook.Call = function(...)
+	warn("hook.Call renamed to hook.call: %s", debug.traceback())
 	return hook.call(...)
 end
 
 hook.SafeCall = function(...)
+warn("hook.SafeCall renamed to hook.safe_call: %s", debug.traceback())
 	return hook.safe_call(...)
 end
 
 hook.Add = function(...)
+	warn("hook.Add renamed to hook.add: %s", debug.traceback())
 	return hook.add(...)
 end
 
 hook.Remove = function(...)
+	warn("hook.Remove renamed to hook.remove: %s", debug.traceback())
 	return hook.remove(...)
 end
 

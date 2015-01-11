@@ -1,13 +1,12 @@
-
 local v = tonumber(_VERSION:match("%d.%d"))
 if v > 5.2 then
 	return
 end
 
+bootstrap.log("warning: running under 5.2 compatibility layer, please think about moving to a more recent Lua version.")
+
 local hook = require("luaflare.hook")
 local parser = require("luaflare.util.luaparser")
-
-print("warning: running under 5.2 compatibility layer, please think about moving to a more recent Lua version.")
 
 lua53_bitand = assert(bit32.band)
 lua53_bitor = assert(bit32.bor)

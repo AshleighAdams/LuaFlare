@@ -56,11 +56,12 @@ install-shared-files:
 	$(MKDIR) $(LUAFLARE_LIB_DIR)
 	$(MKDIR) $(LUAFLARE_CFG_DIR)
 	# make sure they don't exist, then recursive copy them!
-	$(CP) -r ../inc    $(LUAFLARE_LIB_DIR)/
-	$(CP) -r ../libs   $(LUAFLARE_LIB_DIR)/
-	$(CP) -r ../lua    $(LUAFLARE_CFG_DIR)/
-	$(CP) -r ../static $(LUAFLARE_CFG_DIR)/
-	$(CP) -r ../keys   $(LUAFLARE_CFG_DIR)/
+	$(CP) -r ../bootstrap  $(LUAFLARE_LIB_DIR)/
+	$(CP) -r ../inc        $(LUAFLARE_LIB_DIR)/
+	$(CP) -r ../libs       $(LUAFLARE_LIB_DIR)/
+	$(CP) -r ../lua        $(LUAFLARE_CFG_DIR)/
+	$(CP) -r ../static     $(LUAFLARE_CFG_DIR)/
+	$(CP) -r ../keys       $(LUAFLARE_CFG_DIR)/
 	
 	$(INSTALL) luaflare.default.post "$(SYSCONF)/default/luaflare"
 	

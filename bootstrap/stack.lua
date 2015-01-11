@@ -1,9 +1,7 @@
-local stack
-
 local meta = {}
 meta._meta = {__index = meta}
 
-function stack()
+local function stack()
 	local ret = {_tbl = {}}
 	return setmetatable(ret, meta._meta)
 end

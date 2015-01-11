@@ -9,7 +9,7 @@
 -- License: MIT/X, see http://sputnik.freewisdom.org/en/License
 -----------------------------------------------------------------------------
 
-module(..., package.seeall)
+local M = {}
 
 local iconv_loaded, iconv = pcall(require, "iconv")
 
@@ -36,18 +36,18 @@ local iconv_loaded, iconv = pcall(require, "iconv")
 -- @param text           source text without tags
 -- @return               replacement HTML.
 -----------------------------------------------------------------------------
-REPLACE_TAGS = function(self, tag, message, text)
+M.REPLACE_TAGS = function(self, tag, message, text)
    local buffer = "<code>[HTML tag &lt;"..tag.."&gt; removed"
    if message then
       buffer = buffer..": "..message
    end
    return buffer.."]</code>"
 end
-REMOVE_TAGS = function(self, tag, message, text)
+M.REMOVE_TAGS = function(self, tag, message, text)
    return text
 end
 
-ALLOWED_TAGS = {
+M.ALLOWED_TAGS = {
 
    -- Simple tags allowed without any attributes other than those listed in
    -- GENERIC_ATTRIBUTES
@@ -118,7 +118,7 @@ EXTRA_TAGS = {
 -- Specifies which attributes are allowed for _all_ tags.  This table should
 -- probably be limited to "class", "alt" and "title".
 -----------------------------------------------------------------------------
-GENERIC_ATTRIBUTES = {
+M.GENERIC_ATTRIBUTES = {
  	class = ".",
  	alt = ".",
  	title = ".",
@@ -140,7 +140,7 @@ local XSSFilter_mt = {__metatable = {}, __index = XSSFilter}
 --                       (defaults to GENERIC_ATTRIBUTES).
 -- @return               a new instance of XSSFilter.
 -----------------------------------------------------------------------------      
-function new(allowed_tags, generic_attrs, tags_handler)
+function M.new(allowed_tags, generic_attrs, tags_handler)
    local obj = setmetatable({}, XSSFilter_mt)
    obj:init(allowed_tags)
    if iconv_loaded then
@@ -350,3 +350,5 @@ local function test()
       </methodCall>
    ]])
 end
+
+return M

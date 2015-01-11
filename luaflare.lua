@@ -1,5 +1,24 @@
 #!/usr/bin/env lua
 
+-- try to bootstrap
+do -- for require() to check modules path
+	local tp, tcp = package.path, package.cpath
+	
+	local path = os.getenv("LUAFLARE_LIB_DIR") or arg[0]:match("(.+)/") or "."
+	
+	package.path = path .. "/libs/?.lua;" .. tp
+	package.cpath = path .. "/libs/?.so;" .. tcp
+	
+	local bootstrap, err = loadfile(path.."/bootstrap/bootstrap.lua")
+	if not bootstrap then
+		io.stderr:write("failed to bootstrap: "..tostring(err).."\n")
+		os.exit(1)
+	end
+	bootstrap{path=path}
+end
+
+local luaflare = require("luaflare")
+
 local function usage()
 	print([[
 usage:
@@ -50,31 +69,6 @@ end
 -- so we can exit ASAP, for bash completion speedy-ness
 if arg[1] == "--help" then return usage() end
 
-local luaflare
-do -- for require() to check modules path
-	local tp, tcp = package.path, package.cpath
-	
-	local path = os.getenv("LUAFLARE_LIB_DIR") or arg[0]:match("(.+)/") or "."
-	
-	package.path = path .. "/libs/?.lua;" .. tp
-	package.cpath = path .. "/libs/?.so;" .. tcp
-	
-	local success
-	success, luaflare = pcall(require, "luaflare")
-	
-	if not success then
-		io.stderr:write("error: could not locate luaflare libs; please ensure LUAFLARE_* enviroment variables are set!\n")
-		io.stderr:write(luaflare.."\n")
-		return
-	end
-end
-
-expects = function() end
-dofile(luaflare.lib_path .. "/inc/compatibility-5.1.lua")
-dofile(luaflare.lib_path .. "/inc/compatibility-5.2.lua")
-dofile(luaflare.lib_path .. "/inc/util.lua")
-dofile(luaflare.lib_path .. "/inc/syntax_extensions.lua")
-
 local socket = require("socket")
 local posix = require("posix")
 local configor = require("configor")
@@ -93,10 +87,8 @@ local shorthands = {
 }
 script.parse_arguments(arg, shorthands)
 
-dofile(luaflare.lib_path .. "/inc/request.lua")
-dofile(luaflare.lib_path .. "/inc/response.lua")
-dofile(luaflare.lib_path .. "/inc/savetotable.lua")
-
+include("inc/request.lua")
+include("inc/response.lua")
 	
 local port = tonumber(script.options.port) or 8080
 local threads = tonumber(script.options.threads) or 2 -- how many threads to create
@@ -190,15 +182,6 @@ function main()
 	end
 end
 
--- update task name:
-do
-	local f = io.open("/proc/self/comm", "r")
-	if f then
-		f:close()
-		f = io.open("/proc/self/comm", "w")
-		f:write("luaflare")
-		f:close()
-	end
-end
+
 
 main()

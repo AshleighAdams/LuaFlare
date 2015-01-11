@@ -32,7 +32,7 @@ local function set_session_path()
 	
 	print("textfile session path: " .. session_path)
 end
-hook.Add("Loaded", "textfile session path", set_session_path)
+hook.add("Loaded", "textfile session path", set_session_path)
 
 session.valid_chars = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789"
 session.valid_pattern = string.format("^[%s]+$", session.valid_chars)
