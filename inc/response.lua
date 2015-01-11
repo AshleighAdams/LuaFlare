@@ -1,4 +1,5 @@
 local luaflare = require("luaflare")
+local canon = require("luaflare.util.canonicalize-header")
 local mimetypes = require("luaflare.mimetypes")
 local httpstatus = require("luaflare.httpstatus")
 local script = require("luaflare.util.script")
@@ -166,12 +167,12 @@ function meta::set_file(string path, options)-- expects(meta, "string")
 end
 
 function meta::set_header(string name, any value) -- expects(meta, "string", "*")
-	name = util.canonicalize_header(name)
+	name = canon.get_header(name)
 	self._headers[name] = tostring(value)
 end
 
 function meta::remove_header(string name)
-	name = util.canonicalize_header(name)
+	name = canon.get_header(name)
 	self._headers[name] = nil
 end
 

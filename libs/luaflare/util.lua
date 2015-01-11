@@ -1,7 +1,7 @@
 local util = {}
 package.loaded["luaflare.util"] = util
 
-util.canonicalize_header = require("luaflare.util.canonicalize_header")
+util.cannon_headers      = require("luaflare.util.canonicalize-header")
 util.escape              = require("luaflare.util.escape")
 util.script              = require("luaflare.util.script")
 util.stack               = require("luaflare.util.stack")

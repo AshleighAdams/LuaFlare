@@ -3,6 +3,8 @@ local socket = require("socket")
 local httpstatus = require("luaflare.httpstatus")
 local script = require("luaflare.util.script")
 local hook = require("luaflare.hook")
+local canon = require("luaflare.util.canonicalize-header")
+
 local meta = {}
 meta.__index = meta
 
@@ -293,7 +295,7 @@ function read_headers(client, version, url)
 		else -- This isn't a continuation, parse new header
 			local key, val = string.match(s, "([%a%-]-):%s*(.+)")
 			if key ~= nil then
-				key = util.canonicalize_header(key) -- normalize it!
+				key = canon.get_header(key) -- normalize it!
 				lastheader = key
 				if ret[key] == nil then
 					ret[key] = val

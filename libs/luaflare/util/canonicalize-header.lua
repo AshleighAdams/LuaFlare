@@ -1,6 +1,8 @@
+local canon = {}
+
 local hook = require("luaflare.hook")
 
-local canonical_headers = [[
+canon.canonical_headers_str = [[
 Accept
 Accept-Charset
 Accept-Encoding
@@ -91,22 +93,22 @@ X-Accel-Redirect
 ]]
 
 local function load_canon_headers()
-	local split = canonical_headers:split("\n")
-	canonical_headers = {}
+	local split = canon.canonical_headers_str:split("\n")
+	canon.canonical_headers = {}
 
 	for k, v in pairs(split) do
 		local hdr = v:trim()
 		if hdr ~= "" then
-			canonical_headers[hdr:lower()] = hdr
+			canon.canonical_headers[hdr:lower()] = hdr
 		end
 	end
 end
 
 hook.add("Loaded", "load canonical headers", load_canon_headers)
 
-local function canonicalize_header(header) expects "string"
+function canon.get_header(header) expects "string"
 	local lwr = header:lower()
-	return canonical_headers[lwr] or header
+	return canon.canonical_headers[lwr] or header
 end
 
-return canonicalize_header
+return canon
