@@ -8,7 +8,7 @@ bootstrap = {}
 bootstrap.pack = table.pack
 bootstrap.unpack = table.unpack
 
-if not bootstrap.pack or bootstrap.unpack then
+if not bootstrap.pack or not bootstrap.unpack then
 	function bootstrap.unpack(tbl, i, j)
 		local n = tbl.n or #tbl
 		i = i or 1
