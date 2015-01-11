@@ -132,7 +132,15 @@ expects = function() end
 	-- 5.1 compat can be used early to bring in 5.2 features
 	bootstrap.include("compatibility-5.1.lua")
 	
-	bootstrap.module("luaflare.hook", "hook.lua")
+	local hook = bootstrap.module("luaflare.hook", "hook.lua")
+	
+	-- install our Warning hooks
+	hook.add("Warning", "bootstrap", function(str)
+		bootstrap.log("warning: %s", str)
+	end)
+	
+bootstrap.set_level("hook")
+
 	bootstrap.module("luaflare.util.luaparser.stringreader", "stringreader.lua")
 	bootstrap.module("luaflare.util.luaparser", "luaparser.lua")
 
@@ -180,4 +188,8 @@ do
 	bootstrap.log_shallower()
 end
 
+-- remove the warning hook
+hook.remove("Warning", "bootstrap")
+
 bootstrap.log("complete")
+

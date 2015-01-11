@@ -61,6 +61,7 @@ G.dofile = function(file, ...)
 	return f(...)
 end
 
+
 local stacks = stack()
 local current = stack()
 function G.include(file, ...) expects "string"
@@ -122,6 +123,70 @@ function G.include(file, ...) expects "string"
 	return unpack(ret), deps
 end
 
+local require_dofile = function(module, file)
+	local f, err = loadfile(file)
+	
+	if not f then
+		fatal("failed to loadfile: %s", err)
+		return error(err, -1)
+	end
+	
+	-- set a hook and try to detect the first empty table
+	local a,b,c = debug.gethook()
+	local module, file = module, file -- save it as a local for use in the hook
+	local remove_hook = false
+	local self_path = debug.getinfo(2).short_src
+	
+	local function tester()
+		if remove_hook then -- needs to be at the top, else it segfaults
+			debug.sethook(a, b, c)
+			return
+		end
+	
+		local info = debug.getinfo(2)
+	
+		if info.short_src == self_path then
+			-- this is our hook, let's just ignore it
+			return
+		elseif info.func ~= f then
+			bootstrap.log("warning: while require()ing %s (%s): could not automatically detect module table",
+				module, file)
+			remove_hook = true
+			return
+		end
+	
+		local key, value
+		local i, found = 0, false
+		while true do
+			i = i + 1
+			key, value = debug.getlocal(2, i)
+			if not key then break end
+			local istmp = key == "(*temporary)"
+			if type(value) == "table" and not istmp and table.count(value) == 0 then
+				found = true
+				break
+			--elseif not istmp then
+			--	print(key, value)
+			end
+		end
+	
+		if found then
+			bootstrap.log("automatic circular require: setting early %s as %s", module, key)
+			package.loaded[module] = key
+			remove_hook = true
+		end
+	end
+
+	debug.sethook(tester, "l", 1)
+	
+	local r = f(module)
+	
+	-- reset it if it still didn't...
+	debug.sethook(a,b,c)
+	
+	return r
+end
+
 local real_require = require
 function G.require(mod)
 	if package.loaded[mod] then
@@ -133,7 +198,7 @@ function G.require(mod)
 	local file = package.searchpath(mod, package.path)
 	
 	if file then
-		local m = dofile(file, mod)
+		local m = require_dofile(mod, file, mod)
 		package.loaded[mod] = m ~= nil and m or true -- if a require returns nil, this is set to true instead
 		return m
 	end
