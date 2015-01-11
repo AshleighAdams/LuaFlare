@@ -195,7 +195,7 @@ local function package_loaded_auto(tokens, module)
 				end
 			end
 			
-			if nt.value == "}" then
+			if depth == 0 and nt.value == "}" then
 				break
 			end
 		end
