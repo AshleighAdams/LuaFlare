@@ -1,3 +1,5 @@
+local escape = {}
+
 local url = require("socket.url")
 local xssfilter = require("xssfilter")
 
@@ -6,8 +8,6 @@ local xssfilter = require("xssfilter")
 --# cp /usr/local/share/lua/5.1/xssfilter.lua /usr/local/share/lua/5.2/xssfilter.lua
 
 local xss_filter = xssfilter.new({})
-
-local escape = {}
 
 function escape.pattern(input) expects "string" -- defo do not use string.Replace, else revusion err	
 	return (string.gsub(input, "[%(%)%.%%%+%-%*%?%[%]%^%$]", "%%%1"))
