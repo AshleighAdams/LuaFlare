@@ -2,6 +2,7 @@ local tags = require("luaflare.tags")
 local scheduler = require("luaflare.scheduler")
 local script = require("luaflare.util.script")
 local hook = require("luaflare.hook")
+local slug = require("luaflare.util.slug")
 
 local template = {}
 template.barwidth = 1;
@@ -132,6 +133,11 @@ function template.make(req, res, contents, info)
 					font-size: 0.75em;
 					font-family: monospace;
 					color: gray;
+				}
+				a
+				{
+					text-decoration: none;
+					color: inherit;
 				}]]
 			}
 		},
@@ -194,7 +200,14 @@ function template.graph(title, units, data, argmax)
 end
 
 function template.section(name)
-	return tags.h1 { name }
+	local id = slug.generate(name)
+	return tags.a { href = "#"..id, id = id }
+	{
+		tags.h1
+		{
+			name
+		}
+	}
 end
 
 function template.table(rows)
