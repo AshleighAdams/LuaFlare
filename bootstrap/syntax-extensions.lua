@@ -83,8 +83,8 @@ local function add_expects(tokens)
 					if not parser.assert(prev.type == "identifier", "identifier expected near function " .. table.concat(table_to, ".") .. name) then return end
 					
 					local exp = ""
-					local brackets_in  = { ["{"] = true, ["["] = true, ["("] = true }
-					local brackets_out = { ["}"] = true, ["]"] = true, [")"] = true }
+					local brackets_in  = parser.brackets_create
+					local brackets_out = parser.brackets_destroy
 					local depth = 0
 					-- do NOT allow a new line!
 					local nt, ni = parser.next_token(tokens, k, 1)
