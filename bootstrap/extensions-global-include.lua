@@ -139,7 +139,7 @@ local function package_loaded_auto(tokens, module)
 		bootstrap.log("acr: %s: mod table not found: %s", module, why)
 	end
 	
-	local en, last1, last2 = #tokens
+	local en, last1, last2 = #tokens + 1
 	
 	last2, en = parser.previous_token(tokens, en)
 	last1, en = parser.previous_token(tokens, en)
