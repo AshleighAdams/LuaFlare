@@ -1,4 +1,7 @@
 local string_extension = {}
+local function escape_pattern(input)
+	return (string.gsub(input, "[%(%)%.%%%+%-%*%?%[%]%^%$]", "%%%1"))
+end
 
 function string_extension.begins_with(haystack, needle) expects ("string", "string")
 	return haystack:sub(1, needle:len()) == needle
@@ -12,7 +15,7 @@ string_extension.starts_with = string_extension.begins_with
 string_extension.stops_with = string_extension.ends_with
 
 function string_extension.replace(str, what, with) expects ("string", "string", "string")
-	what = escape.pattern(what)
+	what = escape_pattern(what)
 	with = with:gsub("%%", "%%%%") -- the 2nd arg of gsub only needs %'s to be escaped
 	return str:gsub(what, with)
 end
@@ -45,7 +48,7 @@ function string_extension.trim(str) expects "string"
 end
 
 function string_extension.split(self, delimiter, options) expects("string", "string")
-	delimiter = escape.pattern(delimiter)
+	delimiter = escape_pattern(delimiter)
 	
 	local result = {}
 	local from  = 1
