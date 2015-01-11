@@ -121,7 +121,13 @@ local function test_slug()
 	--check(slug.generate("áéíóúüñ") == "aeiouun") -- can't put unicode chars inline
 end
 
+local function test_recursive_require()
+	local a = require("test.a")
+	check(a.get() == 115)
+end
+
 function unit_test()
+	test("circular require", test_recursive_require)
 	test("table.* extensions", test_table)
 	test("string.* extensions", test_string)
 	test("math.* extensions", test_math)
