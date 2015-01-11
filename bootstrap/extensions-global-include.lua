@@ -2,6 +2,7 @@ local G = {}
 
 local stack = require("luaflare.util.stack")
 local translate_luacode = require("luaflare.util.translate_luacode")
+local parser = require("luaflare.util.luaparser")
 local hook = require("luaflare.hook")
 
 local col_red = "\x1b[31;1m"
@@ -123,7 +124,110 @@ function G.include(file, ...) expects "string"
 	return unpack(ret), deps
 end
 
-local require_dofile = function(module, file)
+local function package_loaded_auto(tokens, module)
+	-- local x = {...}
+	-- ...
+	-- return x
+	
+	-- should be translated to:
+	
+	-- local x = {...}; package.loaded[...] = x
+	-- ...
+	-- return x
+	
+	local function nope(why)
+		bootstrap.log("automatic circular require: %s: mod table not found (%s)", module, why)
+	end
+	
+	local en, last1, last2 = #tokens
+	
+	last2, en = parser.previous_token(tokens, en)
+	last1, en = parser.previous_token(tokens, en)
+	
+	local sn, first1, first2, first3, first4 = 0
+	first1, sn = parser.next_token(tokens, sn)
+	first2, sn = parser.next_token(tokens, sn)
+	first3, sn = parser.next_token(tokens, sn)
+	first4, sn = parser.next_token(tokens, sn)
+	
+	-- now check if the tokens we got are all present and valid
+	if
+		not first1 or not first2 or not first3 or not first4 or
+		not last1 or not last2
+	then
+		return nope("empty-ish file")
+	end
+	
+	if     first1.chunk ~= "local"
+		or first2.type ~= "identifier"
+		or first3.chunk ~= "="
+		or first4.chunk ~= "{"
+	then
+		--print(first1.chunk,first2.chunk,first3.chunk,first4.chunk)
+		return nope("first tokens != local $modname = {$...}")
+	end
+	
+	if     last1.chunk ~= "return"
+		or last2.type ~= "identifier"
+		or last2.value ~= first2.value
+	then
+		return nope("last tokens != return $modname")
+	end
+	
+	-- find the end of the { {$...}
+	local brackets_in  = parser.brackets_create
+	local brackets_out = parser.brackets_destroy
+	local depth = 1
+	local nt
+	while true do
+		nt, sn = parser.next_token(tokens, sn)
+		if not nt then
+			return nope("could not locate end of first table")
+		end
+		
+		if nt.type == "token" then
+			if brackets_in[nt.value] then
+				depth = depth + 1
+			elseif brackets_out[nt.value] then
+				depth = depth - 1
+				if depth < 0 then
+					return parser.problem("too many brackets closed in expression near function " .. table.concat(table_to, ".") .. name)
+				end
+			end
+			
+			if nt.value == "}" then
+				break
+			end
+		end
+	end
+	
+	bootstrap.log("automatic circular require: setting early %s as %s", module, first2.value)
+	
+	-- append our pre-loader onto the chunk!
+	nt.chunk = nt.chunk .."; package.loaded[...] = " .. first2.value
+end
+
+local require_dofile_lexer = function(mod, file)
+	local f = assert(io.open(file, "r"))
+	local code = f:read("*a")
+	f:close()
+	
+	code = translate_luacode(code, {
+		ModifyTokens = function(tk)
+			package_loaded_auto(tk, mod)
+		end
+		})
+	local f, err = loadstring(code, file)
+	
+	if not f then
+		fatal("failed to loadstring: %s", err)
+		return error(err, -1)
+	end
+	
+	return f(mod)
+end
+
+local require_dofile_debug = function(module, file)
 	local f, err = loadfile(file)
 	
 	if not f then
@@ -186,6 +290,8 @@ local require_dofile = function(module, file)
 	
 	return r
 end
+
+local require_dofile = require_dofile_lexer
 
 local real_require = require
 function G.require(mod)

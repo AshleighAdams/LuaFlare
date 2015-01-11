@@ -89,3 +89,11 @@ this ensures that both, the connection is not closed, and no more requests are a
 				is_upgraded, to prevent the connection from
 				being closed
 		return true
+
+## Automatic Circular References for `require()`
+
+	local modname = {}
+	-- ...
+	return modname
+
+TODO: this
