@@ -1,6 +1,9 @@
 local hook = {}
 hook.hooks = {}
 
+local pack = table.pack or bootstrap.pack
+local unpack = table.unpack or bootstrap.unpack
+
 -- rebuilt thee priority table
 function hook.invalidate(hookname)
 	local hooktbl = hook.hooks[hookname]
@@ -44,9 +47,9 @@ hook.call = function (name, ...)
 	end
 	
 	for k, v in ipairs(hooktbl.callorder) do
-		local ret = table.pack(v.func(...))
+		local ret = pack(v.func(...))
 		if #ret ~= 0 then
-			return table.unpack(ret)
+			return unpack(ret)
 		end
 	end
 end

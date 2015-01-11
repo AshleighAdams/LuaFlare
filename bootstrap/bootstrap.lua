@@ -1,5 +1,5 @@
 -- Upgrade from lua to the current
--- all code here must be compatible with all supported Lua versions (currently 5.1 to 5.3)
+-- all code here must be compatible with all supported Lua versions (currently 5.2 to 5.3, 5.1 *works*, but is not supported)
 -- nothing can be dependant on something outside of this directory, it must be self-contained.
 
 -- global bootstrap
@@ -129,6 +129,9 @@ end
 -- dummy expects, will be replaced in future
 expects = function() end
 
+	-- 5.1 compat can be used early to bring in 5.2 features
+	bootstrap.include("compatibility-5.1.lua")
+	
 	bootstrap.module("luaflare.hook", "hook.lua")
 	bootstrap.module("luaflare.util.luaparser.stringreader", "stringreader.lua")
 	bootstrap.module("luaflare.util.luaparser", "luaparser.lua")
@@ -154,7 +157,6 @@ bootstrap.set_level("extensions")
 	
 bootstrap.set_level("translator")
 
-	bootstrap.include("compatibility-5.1.lua")
 	bootstrap.include("compatibility-5.2.lua")
 	bootstrap.include("depricated.lua")
 
