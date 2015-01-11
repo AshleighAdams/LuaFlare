@@ -1,5 +1,4 @@
 local util = {}
-package.loaded["luaflare.util"] = util
 
 util.cannon_headers      = require("luaflare.util.canonicalize-header")
 util.escape              = require("luaflare.util.escape")

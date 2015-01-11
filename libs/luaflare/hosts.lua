@@ -1,10 +1,10 @@
-local hook = require("luaflare.hook")
-
 local hosts = {} -- make require("luaflare.hosts") like
 hosts.hosts = {}
 hosts.upgrades = {}
 hosts.host_meta = {}
 hosts.host_meta.__index = hosts.host_meta
+
+local hook = require("luaflare.hook")
 
 local function generate_host_patern(what) -- TODO: use pattern_escape, can't replace the *
 	local pattern = what

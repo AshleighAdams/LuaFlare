@@ -1,6 +1,6 @@
-local escape = require("luaflare.util.escape")
-
 local tags = {}
+
+local escape = require("luaflare.util.escape")
 
 -- meh, doesn't change view, but it produces nicer code
 local allow_inline = false

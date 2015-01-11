@@ -1,8 +1,8 @@
-local util = require("luaflare.util")
-local script = require("luaflare.util.script")
-
 local scheduler = {}
 scheduler.tasks = {}
+
+local util = require("luaflare.util")
+local script = require("luaflare.util.script")
 
 function scheduler.newtask(string name, function func) -- expects("string", "function")
 	table.insert(scheduler.tasks, {

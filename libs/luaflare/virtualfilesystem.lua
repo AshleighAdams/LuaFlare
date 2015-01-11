@@ -1,6 +1,7 @@
-local luaflare = require("luaflare")
 local vfs = {}
 vfs.mount_points = { "./" }
+
+local luaflare = require("luaflare")
 
 --[[
 LuaFlare file structure:

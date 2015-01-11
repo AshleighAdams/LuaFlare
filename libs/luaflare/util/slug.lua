@@ -1,6 +1,6 @@
-local escape = require("luaflare.util.escape")
-
 local slug = {}
+
+local escape = require("luaflare.util.escape")
 
 slug.seperator = "-"
 

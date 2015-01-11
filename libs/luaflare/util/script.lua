@@ -1,15 +1,14 @@
+local script = {}
+script.instance_names = {}
+script.instance_names_last = 0
+
 local configor = require("configor")
 local util = require("luaflare.util")
 local luaflare = require("luaflare")
 
-local script = {}
-
 function script.pid() -- attempt to locate the PID of the process
 	return posix.getpid("pid")
 end
-
-script.instance_names = {}
-script.instance_names_last = 0
 
 -- TODO: impliment this in threads_*.lua, not here.
 function script.instance()

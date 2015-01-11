@@ -1,6 +1,6 @@
-local hook = require("luaflare.hook")
-
 local mimetypes = {}
+
+local hook = require("luaflare.hook")
 
 mimetypes.types = { -- basic types
 	-- text

@@ -1,7 +1,8 @@
+local session = {}
+
 local luaflare = require("luaflare")
 local script = require("luaflare.util.script")
 
-local session = {}
 local posix = require("posix")
 local meta = {}
 meta._meta = {__index = meta}
