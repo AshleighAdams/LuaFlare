@@ -93,3 +93,47 @@ please use the hook named "Loaded", which will be called after LuaFlare is start
 
 ![](images/non-bootstrapped-acr.png "Circular require in Lua")
 ![](images/bootstrapped-acr.png "Circular require in bootstrapped Lua")
+
+## Bootstrap table
+
+The bootstrap table contains a number of functions that may be used early in the
+LuaFlare boot process.
+
+### `bootstrap.pack`
+
+unpack()
+options={}
+log_buffer={}
+log_depth=0
+log_deeper()
+log_shallower()
+log(str,...)
+fatal(str,...)
+loadfile(path,...)
+module(name,path)
+extend(name, path)
+level_string = ""
+level_cache = {}
+level(name)
+set_level(name)
+
+## Bootstrap Process
+
+at 5.2, make compatible to 5.1
+setup the hook module
+setup the string reader module
+setup the luaparser module
+setup the stack module
+setup global extensions
+setup string extensions
+setup table extensions
+setup math extensions
+setup os extensions
+
+setup translator
+setup global includes/requires and stuff that uses the translator
+setup depreiciated stuff
+set process name
+
+done
+

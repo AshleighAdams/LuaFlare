@@ -158,7 +158,6 @@ bootstrap.set_level("parser")
 bootstrap.set_level("extensions")
 
 	-- must be one of the last
-	bootstrap.module("luaflare.util.stack", "stack.lua")
 	bootstrap.module("luaflare.util.translate_luacode", "translate-luacode.lua")
 	bootstrap.extend("_G", "extensions-global-include.lua")
 	bootstrap.include("syntax-extensions.lua")
