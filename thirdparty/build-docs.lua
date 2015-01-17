@@ -172,6 +172,23 @@ elseif arg[1] == "epub" then
 	os.execute[[sed -i "s/\"-/\"/g" tmp/docs/*.*]]
 	os.execute[[sed -i "s/#-/#/g" tmp/docs/*.*]]
 	
+	-- modify the stylesheet
+	print("fixing stylesheet...")
+	local ss = assert(io.open("tmp/docs/stylesheet.css", "r"))
+	local ss_c = ss:read("*a") ss:close()
+	ss = assert(io.open("tmp/docs/stylesheet.css", "w"))
+	
+	ss:write(ss_c .. [[
+h1, h2, h3, h4, h5, h6 {
+	text-align: left;
+	text-indent: -1em;
+	padding-left: 1em;
+}
+code {
+	text-align: left;
+}
+]])
+	
 	-- images become corrupted with unzip for some reason, so replace them with the originals...
 	os.execute[[cp cover.png tmp/docs/cover.png]]
 	os.execute[[cp docs/images/* tmp/docs/]]
