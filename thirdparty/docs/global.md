@@ -33,7 +33,7 @@ Removes all values from a table.
 
 Returns whether or not the table is empty.
 
-## `boolean table.has_key(table t, any key)
+## `boolean table.has_key(table t, any key)`
 
 Checks to see if `t` has a key-value pair with the key of `key`.
 
