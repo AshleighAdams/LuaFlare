@@ -168,22 +168,22 @@ Report that the level `name` has been reached.
 
 ## Bootstrap Process
 
-0. Ensure compatibility with old versions of Lua.
-0. Install all the modules required by the extensions and/or translator.
-	0. Install `hook.lua` into `luaflare.hook`.
-	0. Install `stringreader.lua` into `luaflare.util.luaparser.stringreader`.
-	0. Install `luaparser.lua` into `luaflare.util.luaparser`.
-	0. Install `stack.lua` into `luaflare.util.stack`.
-0. Extend Lua's default libraries.
-	0. Install global type checking functions.
-	0. Extend `string`.
-	0. Extend `table`.
-	0. Extend `math`.
-	0. Extend `os`.
-0. Setup the translator.
-	0. Install `translate-luacode.lua` into `luaflare.util.translate_luacode`.
-	0. Detour functions that need a translator (i.e. `require()`), and install `include()`.
-0. Ensure forwards Lua compatibility.
-0. Ensure backwards compatibility with old versions of LuaFlare.
-0. Set the process name.
+1. Ensure compatibility with old versions of Lua.
+1. Install all the modules required by the extensions and/or translator.
+	1. Install `hook.lua` into `luaflare.hook`.
+	1. Install `stringreader.lua` into `luaflare.util.luaparser.stringreader`.
+	1. Install `luaparser.lua` into `luaflare.util.luaparser`.
+	1. Install `stack.lua` into `luaflare.util.stack`.
+1. Extend Lua's default libraries.
+	1. Install global type checking functions.
+	1. Extend `string`.
+	1. Extend `table`.
+	1. Extend `math`.
+	1. Extend `os`.
+1. Setup the translator.
+	1. Install `translate-luacode.lua` into `luaflare.util.translate_luacode`.
+	1. Detour functions that need a translator (i.e. `require()`), and install `include()`.
+1. Ensure forwards Lua compatibility.
+1. Ensure backwards compatibility with old versions of LuaFlare.
+1. Set the process name.
 
