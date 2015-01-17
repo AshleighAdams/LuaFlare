@@ -29,7 +29,8 @@ If the session does not exist, it is created, along with setting the response co
 
 ## *`session:construct(request, response, name, id)`*
 
-Loads the data either by an answered `hook.call("GetSession")` **(TODO)**, or from disk using `table.load`.
+Internal function to construct a textfile session.
+Used by the hook "default textfile session" via "GetSession".
 
 ## `session:save()`
 

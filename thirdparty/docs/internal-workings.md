@@ -90,10 +90,3 @@ this ensures that both, the connection is not closed, and no more requests are a
 				being closed
 		return true
 
-## Automatic Circular References for `require()`
-
-	local modname = {}
-	-- ...
-	return modname
-
-TODO: this

@@ -1,6 +1,8 @@
 # Bootstrapping
 
-TODO: Explain how LuaFlare sets it's Lua extensions up.
+LuaFlare provides it's own flavour of Lua,
+coming with type-checking and default values for function arguments.
+To upgrade the current Lua state, some bootstrapping must be done first.
 
 ## Syntax Extensions
 
