@@ -13,7 +13,7 @@ You may have to install the service files yourself by checking out the source
 (`apt source luaflare`), running the configure script, and then
 copying `thirdparty/luaflare.upstart.post` to `/etc/init/luaflare.conf`.
 
-## Either install via apt-get (my repo @ kateadams.eu)
+## Either install via APT (my repo @ kateadams.eu/debian/)
 
 May not be bleeding edge, but is updated via APT.
 
