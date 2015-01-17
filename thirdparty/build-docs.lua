@@ -187,7 +187,12 @@ h1, h2, h3, h4, h5, h6 {
 code {
 	text-align: left;
 }
+p {
+	text-align: justify;
+}
 ]])
+	ss:flush()
+	ss:close()
 	
 	-- images become corrupted with unzip for some reason, so replace them with the originals...
 	os.execute[[cp cover.png tmp/docs/cover.png]]
