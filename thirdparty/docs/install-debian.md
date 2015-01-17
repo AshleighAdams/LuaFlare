@@ -41,7 +41,7 @@ Bleeding edge, must be updated manually.
 
     sudo apt install git
     sudo apt install nginx-full
-    sudo apt install lua5.2 lua-bitop lua-socket lua-posix lua-filesystem lua-md5
+    sudo apt install lua5.2 lua-bitop lua-socket lua-posix lua-filesystem lua-md5 unaccent
 
 ### Download and install LuaFlare
 
