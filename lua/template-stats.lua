@@ -155,6 +155,67 @@ function template.make(req, res, contents, info)
 	}.to_response(res)
 end
 
+function template.make_simple(req, res, contents)
+	tags.html
+	{
+		tags.head
+		{
+			tags.title { "LuaFlare Statistics" },
+			tags.style
+			{
+[[				main
+				{
+					margin: 0 auto;
+					width: 800px;
+					display:block;
+				}
+				td
+				{
+					padding-right: 15px;
+					padding-left: 15px;
+				}
+				div.warning
+				{
+					background-color: #eee;
+					font-family: monospace;
+					overflow-x: auto;
+					white-space: nowrap;
+					height: auto;
+					line-height:1em;
+					max-height: 7em;
+				}
+				div.log
+				{
+					font-family: monospace;
+				}
+				footer
+				{
+					text-align: center;
+					font-size: 0.75em;
+					font-family: monospace;
+					color: gray;
+				}
+				a
+				{
+					text-decoration: none;
+					color: inherit;
+				}]]
+			}
+		},
+		tags.body
+		{
+			tags.main
+			{
+				unpack(contents)
+			},
+			tags.footer
+			{
+				"Instance: " .. script.instance()
+			}
+		}
+	}.to_response(res)
+end
+
 function template.google_graph(title, id)
 	return {
 		tags.h2 { title },
@@ -261,6 +322,7 @@ function template.package_info()
 		else
 			version = tags.i{"Unknown"}
 		end
+		
 		local location = package.searchpath(name, package.path) or package.searchpath(name, package.cpath) or tags.i{"Unknown"}
 		
 		table.insert(rows, {name, version, location})
@@ -270,6 +332,11 @@ function template.package_info()
 	table.sort(rows, function(a,b)
 		return a[1] < b[1]
 	end)
+	
+	for n = 1, #rows do
+		local name = rows[n][1]
+		rows[n][1] = tags.a { href = "stats/module/" .. name } { name }
+	end
 	
 	table.insert(rows, 1, { tags.b{"Name"}, tags.b{"Version"}, tags.b{"Location"} })
 	return template.table(rows)

@@ -3,6 +3,7 @@ local hosts = require("luaflare.hosts")
 local scheduler = require("luaflare.scheduler")
 local script = require("luaflare.util.script")
 local vfs = require("luaflare.virtualfilesystem")
+local tags = require("luaflare.tags")
 
 local template = include("template-stats.lua")
 
@@ -246,7 +247,23 @@ local function stats_mem_csv(req, res)
 	res:set_header("Content-Type", "text/plain")
 end
 
+local function stats_module(req, res, name)
+	local mod = package.loaded[name]
+	if not mod then
+		return res:halt(404)
+	end
+	
+	template.make_simple(req, res, {
+		template.section(name),
+		tags.code
+		{
+			table.to_string(mod)
+		}
+	}, {})
+end
+
 hosts.developer:add("/stats", stats)
 hosts.developer:add("/stats/hits.csv", stats_hits_csv)
 hosts.developer:add("/stats/load.csv", stats_load_csv)
 hosts.developer:add("/stats/mem.csv",  stats_mem_csv)
+hosts.developer:addpattern("/stats/module/(*)", stats_module)
