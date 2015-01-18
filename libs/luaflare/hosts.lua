@@ -22,7 +22,7 @@ local function generate_host_patern(what) -- TODO: use pattern_escape, can't rep
 	return "^" .. pattern .. "$"
 end
 local function generate_resource_patern(string pattern)
-	pattern = string.gsub(pattern, "*", "[%%w%%s!-.:-@%%%%%%]%%[-\xff]-")
+	pattern = string.gsub(pattern, "*", "[%%w%%s!-.:-@%%%%%%]%%[-\xff_]-")
 	return "^" .. pattern .. "$"
 end
 
