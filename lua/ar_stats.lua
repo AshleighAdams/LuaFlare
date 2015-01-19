@@ -253,11 +253,18 @@ local function stats_module(req, res, name)
 		return res:halt(404)
 	end
 	
+	local str
+	if type(mod) == "table" then
+		str = table.to_string(mod)
+	else
+		str = tostring(mod)
+	end
+	
 	template.make_simple(req, res, {
 		template.section(name),
 		tags.code
 		{
-			table.to_string(mod)
+			str
 		}
 	}, {})
 end

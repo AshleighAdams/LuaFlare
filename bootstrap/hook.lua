@@ -1,6 +1,8 @@
 local hook = {}
 hook.hooks = {}
 
+local time = require("socket").gettime
+
 local pack = table.pack or bootstrap.pack
 local unpack = table.unpack or bootstrap.unpack
 
@@ -25,11 +27,11 @@ hook.add = function(hookname, name, func, priority)
 	
 	local hooktbl = hook.hooks[hookname]
 	if hooktbl == nil then
-		hooktbl = {attached = {}, callorder = {}}
+		hooktbl = {attached = {}, callorder = {}, time = 0, calls = 0, safe_calls = 0}
 		hook.hooks[hookname] = hooktbl
 	end
 	
-	hooktbl.attached[name] = {func = func, name = name, priority = priority}
+	hooktbl.attached[name] = {func = func, name = name, priority = priority, time = 0, calls = 0}
 	hook.invalidate(hookname)
 end
 
@@ -40,17 +42,30 @@ hook.remove = function(hookname, name)
 	hook.invalidate(hookname)
 end
 
+local perfcounter = (tonumber(os.getenv("LUAFLARE_HOOK_PERFCOUNT_DISABLE")) or 0) == 0
+
 hook.call = function (name, ...)
 	local hooktbl = hook.hooks[name]
 	if hooktbl == nil then
 		return
 	end
 	
+	local st
+	if perfcounter then
+		st = time()
+		hooktbl.calls = hooktbl.calls + 1
+	end
+	
 	for k, v in ipairs(hooktbl.callorder) do
 		local ret = pack(v.func(...))
-		if #ret ~= 0 then
+		if ret[1] ~= nil then
+			hooktbl.time = hooktbl.time + (time() - st)
 			return unpack(ret)
 		end
+	end
+	
+	if perfcounter then
+		hooktbl.time = hooktbl.time + (time() - st)
 	end
 end
 
@@ -60,8 +75,15 @@ hook.safe_call = function (name, ...)
 		return
 	end
 	
+	local st
+	if perfcounter then
+		st = time()
+		hooktbl.calls = hooktbl.calls + 1
+		hooktbl.safe_calls = hooktbl.safe_calls + 1
+	end
+	
 	for k,v in ipairs(hooktbl.callorder) do
-		local args = {...}
+		local args = pack(...)
 		local func = v.func -- make a reference, so that inside on_error, it always referes to this itteration
 		local bound = function() return func(unpack(args)) end
 		
@@ -112,9 +134,14 @@ hook.safe_call = function (name, ...)
 		else -- if there was a return value, return it, otherwise continue calling the hooks
 			table.remove(ret, 1)
 			if #ret ~= 0 then
+				hooktbl.time = hooktbl.time + (time() - st)
 				return unpack(ret)
 			end
 		end
+	end
+	
+	if perfcounter then
+		hooktbl.time = hooktbl.time + (time() - st)
 	end
 end
 

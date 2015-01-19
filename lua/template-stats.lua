@@ -382,11 +382,26 @@ end
 
 function template.hook_info()
 	local rows = {
-		{ tags.b{"Hook"}, tags.b{"Priority"}, tags.b{"Name"} }
+		{ tags.b{"Hook"}, tags.b{"Priority"}, tags.b{"Name"}, tags.b{"Performance (calls = c)"} }
 	}
 	
-	for k,v in pairs(hook.hooks) do	
-		table.insert(rows, { tags.b{tostring(k)} })
+	local t, c = 0, 0
+	
+	for k,v in pairs(hook.hooks) do
+		t = t + v.time
+		c = c + v.calls
+	end
+	
+	for k,v in pairs(hook.hooks) do
+		local msc = v.calls == 0 and 0 or ( v.time / v.calls * 1000.0 )
+		
+		table.insert(rows, { 
+			tags.b{tostring(k)},
+			"",
+			"",
+			string.format("%.2f%% %.2fs %dc %.1fms/call", v.time / t * 100.0, v.time, v.calls, msc)
+		})
+		
 		for kk,vv in ipairs(v.callorder) do
 			table.insert(rows, { "", tostring(vv.priority), tostring(vv.name) })
 		end
