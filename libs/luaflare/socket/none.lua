@@ -1,7 +1,7 @@
 
 local socket = {}
 socket.backend = "none"
-socket.api_version = "2.7" -- the latest version of the "none" backend, that your backend impliments
+socket.api_version = "0.1"
 
 -- these metatables must be here, as other's may be detouring them
 socket.client = {}
@@ -12,21 +12,32 @@ local client, bound = socket.client, socket.bound
 -- Server side, for bounded sockets
 
 -- returns either (nil, err) or (bound)
-function socket.bind(number port = 0, string to = "*")
+function socket.bind(number port = 0, string address = "*")
+	return nil, "not implimented"
+end
+
+-- host is in the format (host|ipv4|ipv6)[:port]
+function socket.connect(string host, number port)
 	return nil, "not implimented"
 end
 
 -- timeout < 0: forever;
 -- timeout == 0: non-blocking
 -- timeout > 0: seconds to wait
+-- port: 0 = OS assigns
 -- returns (client) or (nil, err_reason)
 function bound::accept(number timeout = -1)
 	error("not imp")
 end
 
--- host is in the format (host|ipv4|ipv6)[:port]
-function socket.connect(string host)
-	return nil, "not implimented"
+-- the port we're listening on, if socket.bind was passed 0, this will be assigned by the OS
+function bound::port()
+	error("not imp")
+end
+
+-- stop listening
+function bound::close()
+	error("not imp")
 end
 
 -- type, backend (i.e, websocket, luaflare; tcp, luasocket; tcp, posix)

@@ -17,5 +17,8 @@ expects_types.socket = function(value)
 end
 
 local backend = script.options["socket-backend"] or "none"
+local imp = require("luaflare.socket." .. backend)
 
-return require("luaflare.socket." .. backend)
+print(string.format("socket backend version: %s (latest %s)", imp.api_version, none.api_version))
+
+return imp
