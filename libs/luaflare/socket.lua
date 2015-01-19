@@ -19,6 +19,12 @@ end
 local backend = script.options["socket-backend"] or "none"
 local imp = require("luaflare.socket." .. backend)
 
-print(string.format("socket backend version: %s (latest %s)", imp.api_version, none.api_version))
+local msg = string.format("socket backend: %s %s (latest %s)", imp.backend, imp.api_version, none.api_version)
+
+if imp.api_version == none.api_version then
+	print(msg)
+else
+	warn("socket backend outdated: %s", msg)
+end
 
 return imp

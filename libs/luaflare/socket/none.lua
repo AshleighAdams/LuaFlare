@@ -42,7 +42,7 @@ end
 
 -- type, backend (i.e, websocket, luaflare; tcp, luasocket; tcp, posix)
 function client::type()
-	return "none", "luaflare"
+	return "none", "luaflare", socket.api_version
 end
 
 function client::ip()
@@ -75,7 +75,10 @@ function client::write(string data)
 	error("not imp")
 end
 
-function client::flush()
+-- TODO: should i do this? (using sendfile())
+-- function client::writefile(string path, number start = 0, number length = -1)
+
+function client::flush(number timeout = -1)
 end
 
 function client::close()

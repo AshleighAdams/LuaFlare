@@ -116,7 +116,7 @@ if arg[1] == "pdf" or arg[1] == "tex" then
 	\title{LuaFlare Documentation}
 	\subtitle{]]..version..[[}
 	\usepackage{graphicx}
-
+	\sloppy %% so that some \texttt's wrap
 	\begin{document}
 
 	\maketitle
