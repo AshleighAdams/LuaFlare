@@ -144,7 +144,7 @@ The following environment variables are recognized by LuaFlare.
 
 ### `BOOTSTRAP_LOG`
 
-Should we write out bootstrap log to stdout?  Defaults to 0.
+Should we write the bootstrap log to stdout?  Defaults to 0.
 
 ### `LUAFLARE_HOOK_PERFCOUNT_DISABLE`
 
