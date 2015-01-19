@@ -263,3 +263,11 @@ To look at:
 		Depends: luaflare, systemd | sysvinit | upstart
 
 You can see this packaging concept implimented here: https://github.com/KateAdams/LuaFlare-debian/
+
+# New CLI Options
+
+When a new command line option is added, make sure you update the following files to match:
+
+ - thirdparty/docs/command-line-arguments.md
+ - thirdparty/docs/luaflare.1
+ - luaflare.lua

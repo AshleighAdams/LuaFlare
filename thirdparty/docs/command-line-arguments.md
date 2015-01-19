@@ -134,6 +134,10 @@ Where to store session (textfiles) files (default: /tmp/luaflare-sessions-XXXXXX
 
 Disable type checking for performance.
 
+### `--socket-backend=string`
+
+The backend to use for sockets (default is "luasocket").
+
 ## Environment Variables
 
 Environment variables may be set either before you call `luaflare` (such as `NAME="value" luaflare ...`),
