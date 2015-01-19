@@ -5,14 +5,14 @@ socket.api_version = "0.1"
 
 -- these metatables must be here, as other's may be detouring them
 socket.client = {}
-socket.bound = {}
+socket.listener = {}
 
-local client, bound = socket.client, socket.bound
+local client, listener = socket.client, socket.listener
 
--- Server side, for bounded sockets
+-- Server side, for listenered sockets
 
--- returns either (nil, err) or (bound)
-function socket.bind(number port = 0, string address = "*")
+-- returns either (nil, err) or (listener)
+function socket.listen(number port = 0, string address = "*")
 	return nil, "not implimented"
 end
 
@@ -26,17 +26,17 @@ end
 -- timeout > 0: seconds to wait
 -- port: 0 = OS assigns
 -- returns (client) or (nil, err_reason)
-function bound::accept(number timeout = -1)
+function listener::accept(number timeout = -1)
 	error("not imp")
 end
 
 -- the port we're listening on, if socket.bind was passed 0, this will be assigned by the OS
-function bound::port()
+function listener::port()
 	error("not imp")
 end
 
 -- stop listening
-function bound::close()
+function listener::close()
 	error("not imp")
 end
 

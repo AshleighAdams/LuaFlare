@@ -1,4 +1,4 @@
-# LuaFlare socket library
+# LuaFlare socket API
 
 LuaFlare itself does not implement sockets directly,
 but instead offers an API that backends can implement.
@@ -34,7 +34,7 @@ This version is taken from the latest LuaFlare version at which these are still 
 The API version can be read in "libs/luaflare/socket/none.lua",
 or by running `print(require("luaflare.socket.none").api_version)`.
 
-### `bound[, err] socket.bind(number port = 0, string address = "*")`
+### `listener[, err] socket.listen(number port = 0, string address = "*")`
 
 Bind to an address (start listening for connections).
 
@@ -51,17 +51,17 @@ The host may be a hostname or an IP address.
 
 Returns client or `nil` plus error string.
 
-## Bound functions
+## Listener functions
 
-### `client[, err] bound:accept(number timeout = -1)`
+### `client[, err] listener:accept(number timeout = -1)`
 
 Accept a client from the queue.
 
-### `number bound:port()`
+### `number listener:port()`
 
 Returns the port number we are/were listening on.
 
-### `bound:close()`
+### `listener:close()`
 
 Stop listening.
 
@@ -75,7 +75,7 @@ Returns the type of connection, the backend name, and the backend API version.
 
 Returns the IP address of the client.
 
-### `port client:port()`
+### `number client:port()`
 
 Gets the port this client is connecting on.
 

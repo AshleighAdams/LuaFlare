@@ -247,6 +247,10 @@ To look at:
 - inc/request.lua:`read_headers()`: should continuations of headers insert a space, newline, or nothing?
 	- `ret[lastheader] = ret[lastheader] .. " " .. val:trim()`
 
+# Host
+
+static over pattern?
+
 # Packaging concept
 
 	luaflare
