@@ -39,7 +39,7 @@ check-dependencies:
 install-bin: install-shared
 	$(MKDIR) $(LUAFLARE_BIN_DIR) && \
 	$(CAT) ../luaflare.lua \
-		| $(SED) "s|#!/usr/bin/env lua|#!/usr/bin/env $(LUA)|" \
+		| $(SED) "s|#!/usr/bin/lua lua|#!/usr/bin/$(LUA)|" \
 		> "$(LUAFLARE_LIB_DIR)/luaflare.lua" && \
 	$(CHMOD) +x "$(LUAFLARE_LIB_DIR)/luaflare.lua"
 	

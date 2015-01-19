@@ -1,4 +1,4 @@
-#!/usr/bin/env lua
+#!/usr/bin/lua
 
 -- try to bootstrap
 do -- for require() to check modules path
