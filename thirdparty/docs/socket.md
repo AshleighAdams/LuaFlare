@@ -5,7 +5,7 @@ but instead offers an API that backends can implement.
 
 `local socket = require("luaflare.socket")`
 
-The socket API version this document targets is 0.1.
+The socket API version this document targets is 0.2.
 
 ## Functions with timeout arguments
 
@@ -34,7 +34,7 @@ This version is taken from the latest LuaFlare version at which these are still 
 The latest API version can be read in "libs/luaflare/socket/none.lua",
 or by running `print(require("luaflare.socket.none").api_version)`.
 
-### `listener[, err] socket.listen(number port = 0, string address = "*")`
+### `listener[, err] socket.listen(string address = "*", number port = 0)`
 
 Bind to an address (start listening for connections).
 
@@ -61,6 +61,10 @@ Accept a client from the queue.
 
 Returns the port number we are/were listening on.
 
+### `string listener:address()`
+
+Returns the address we are/were listening on.
+
 ### `listener:close()`
 
 Stop listening.
@@ -83,19 +87,24 @@ Gets the port this client is connecting on.
 
 Returns whether or not this client is connected.
 
-### `data[, err] client:read(string format = "a", number length = 0, number timeout = -1)`
+### `data[, err, partial] client:read(string format = "a", number limit = 0, number timeout = -1)`
 
-Read up to `length` bytes from the stream (infinite if `length` is 0),
+Read up to `limit` bytes from the stream (infinite if `limit` is 0),
 or until the format condition is met; whichever comes first.
 
 The valid formats are either "a", to the end of the stream; and "l", to the end of the line.
 The formats may be prefixed with an asterisk (*) to maintain API semantics with Lua 5.2 and below;
 this behaviour was deprecated in Lua 5.3 and above.
 
-### `boolean[, err] client:write(string data)`
+If data was read, but broke halfway through (such as a timeout or connection failure),
+then the partial content that was read will be returned after the error.
+
+### `boolean[, err] client:write(string data, number from = 1, number to = -1)`
 
 Write data to the socket; returns `true` if it succeeds,
 or `false` plus an error string if it fails.
+
+The values `from` and `to` work just the same as the `string.sub` function.
 
 ### `boolean[, err] client:flush(number timeout = -1)`
 

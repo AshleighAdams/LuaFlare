@@ -1,7 +1,7 @@
 
 local socket = {}
 socket.backend = "none"
-socket.api_version = "0.1"
+socket.api_version = "0.2"
 
 -- these metatables must be here, as other's may be detouring them
 socket.client = {}
@@ -12,7 +12,7 @@ local client, listener = socket.client, socket.listener
 -- Server side, for listenered sockets
 
 -- returns either (nil, err) or (listener)
-function socket.listen(number port = 0, string address = "*")
+function socket.listen(string address = "*", number port = 0)
 	return nil, "not implimented"
 end
 
@@ -32,6 +32,10 @@ end
 
 -- the port we're listening on, if socket.bind was passed 0, this will be assigned by the OS
 function listener::port()
+	error("not imp")
+end
+
+function listener::address()
 	error("not imp")
 end
 
@@ -71,7 +75,7 @@ function client::read(string format = "a", number length = 0, number timeout = -
 	error("not imp")
 end
 
-function client::write(string data)
+function client::write(string data, number from = 1, number to = -1)
 	error("not imp")
 end
 
