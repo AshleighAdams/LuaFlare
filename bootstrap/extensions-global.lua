@@ -28,7 +28,7 @@ G.expects_types.character = function(what)
 end
 
 -- duck typing check
-local function metatable_compatible(base, value)
+function metatable_compatible(base, value)
 	if value == nil then return false, "is nil" end
 	--if base == getmetatable(value) then return true end
 	
@@ -37,7 +37,7 @@ local function metatable_compatible(base, value)
 		if type(v) == "function" then
 			local func = value[k]
 			if not func or type(func) ~= "function" then
-				return false, string.format("function %s not found", k)
+				return false, string.format("function missing: %s", k)
 			end
 		end
 	end
