@@ -31,7 +31,7 @@ The CLI option [`--socket-backend`](#options) is used to decide which backend to
 The API this backend implements.
 
 This version is taken from the latest LuaFlare version at which these are still compatible.
-The API version can be read in "libs/luaflare/socket/none.lua",
+The latest API version can be read in "libs/luaflare/socket/none.lua",
 or by running `print(require("luaflare.socket.none").api_version)`.
 
 ### `listener[, err] socket.listen(number port = 0, string address = "*")`

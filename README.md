@@ -241,6 +241,10 @@ for the sites themselves (pre and post configure).
 	Could the reverse proxy ever be on a different machine, thus unsafe to
 	transmit data?
 - [ ] If a main thread dies, CPU usage goes to full.  Fix this.
+- [ ] Standard socket API
+ - [ ] LuaSocket backend
+ - [ ] POSIX backend
+ - [ ] LuaFlare code over from LuaSocket to luaflare.socket standard API
 
 To look at:
 
