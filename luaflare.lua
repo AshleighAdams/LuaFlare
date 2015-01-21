@@ -131,6 +131,15 @@ function main()
 		return usage()
 	end
 	
+	-- used to test sockets for now, temporary
+	if script.arguments[1] == "socket" then
+		local socket = require("luaflare.socket")
+		local sock = assert(socket.connect("kateadams.eu", 80))
+		sock:write("GET / HTTP/1.1\nHost: kateadams.eu\nConnection: close\n\n")
+		print((sock:read("a")))
+		return
+	end
+	
 	if script.arguments[1] == "listen" then
 		local thread_mdl = script.options["threads-model"] or "coroutine"
 		dofile(string.format("%s/inc/threads_%s.lua", luaflare.lib_path, thread_mdl))
