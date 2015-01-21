@@ -19,12 +19,20 @@ end
 local backend = script.options["socket-backend"] or "luasocket"
 local imp = require("luaflare.socket." .. backend)
 
-local msg = string.format("socket backend: %s %s (latest %s)", imp.backend, imp.api_version, none.api_version)
+if imp.api_version ~= none.api_version then
+	local msg = string.format("backend = %s %s latest = %s", imp.backend, imp.api_version, none.api_version)
+	warn("socket backend version differs: %s", msg)
+end
 
-if imp.api_version == none.api_version then
-	print(msg)
-else
-	warn("socket backend outdated: %s", msg)
+if not metatable_compatible(none, imp) then
+	local _, err = metatable_compatible(none, imp)
+	error("socket backend not compatible: " .. err)
+elseif not metatable_compatible(none.client, imp.client) then
+	local _, err = metatable_compatible(none.client, imp.client)
+	error("socket client backend not compatible: " .. err)
+elseif not metatable_compatible(none.listener, imp.listener) then
+	local _, err = metatable_compatible(none.listener, imp.listener)
+	error("socket listener backend not compatible: " .. err)
 end
 
 return imp
