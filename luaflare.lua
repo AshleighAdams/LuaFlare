@@ -1,24 +1,5 @@
 #!/usr/bin/lua
 
--- try to bootstrap
-do -- for require() to check modules path
-	local tp, tcp = package.path, package.cpath
-	
-	local path = os.getenv("LUAFLARE_LIB_DIR") or arg[0]:match("(.+)/") or "."
-	
-	package.path = path .. "/libs/?.lua;" .. tp
-	package.cpath = path .. "/libs/?.so;" .. tcp
-	
-	local bootstrap, err = loadfile(path.."/bootstrap/bootstrap.lua")
-	if not bootstrap then
-		io.stderr:write("failed to bootstrap: "..tostring(err).."\n")
-		os.exit(1)
-	end
-	bootstrap{path=path}
-end
-
-local luaflare = require("luaflare")
-
 local function usage()
 	print([[
 usage:
@@ -67,9 +48,27 @@ usage:
                                   "luasocket").
 ]])
 end
-
 -- so we can exit ASAP, for bash completion speedy-ness
 if arg[1] == "--help" then return usage() end
+
+-- try to bootstrap
+do -- for require() to check modules path
+	local tp, tcp = package.path, package.cpath
+	
+	local path = os.getenv("LUAFLARE_LIB_DIR") or arg[0]:match("(.+)/") or "."
+	
+	package.path = path .. "/libs/?.lua;" .. tp
+	package.cpath = path .. "/libs/?.so;" .. tcp
+	
+	local bootstrap, err = loadfile(path.."/bootstrap/bootstrap.lua")
+	if not bootstrap then
+		io.stderr:write("failed to bootstrap: "..tostring(err).."\n")
+		os.exit(1)
+	end
+	bootstrap{path=path}
+end
+
+local luaflare = require("luaflare")
 
 local socket = require("socket")
 local posix = require("posix")
