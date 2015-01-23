@@ -134,9 +134,52 @@ function main()
 	-- used to test sockets for now, temporary
 	if script.arguments[1] == "socket" then
 		local socket = require("luaflare.socket")
-		local sock = assert(socket.connect("kateadams.eu", 80))
-		sock:write("GET / HTTP/1.1\nHost: kateadams.eu\nConnection: close\n\n")
-		print((sock:read("a")))
+		local util = require("luaflare.util")
+		
+		do
+			local sock = assert(socket.connect("kateadams.eu", 80))
+			sock:write("GET / HTTP/1.1\nHost: kateadams.eu\nConnection: close\n\n")
+			print((sock:read("a")))
+		end
+		
+		do
+			local listener = assert(socket.listen("*", 8080))
+			while true do
+				local sock = assert(listener:accept())
+				local st = util.time()
+				
+				local header = sock:read("l")
+				
+				local method, url, version = header:match("([^ ]+) ([^ ]+) HTTP/([^ ]+)")
+				local headers = {}
+				
+				while true do
+					local line = sock:read("l")
+					if line == "" then
+						break
+					else
+						table.insert(headers, line)
+					end
+				end
+				
+				print(method .." ".. url)
+				
+				local response = string.format("method: %s<br>url: %s<br>version: %s<br>generated in: ", method, url, version)
+				response = response .. ((util.time() - st) * 1000) .. " ms"
+				local response_headers = {
+					"HTTP/1.1 200 Okay",
+					"Connection: close",
+					"Content-Type: text/html",
+					"Content-Length: " .. (#response),
+					"",
+					response
+				}
+				
+				sock:write(table.concat(response_headers, "\n"))
+				sock:close()
+			end
+		end
+		
 		return
 	end
 	

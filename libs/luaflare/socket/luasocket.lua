@@ -61,7 +61,13 @@ end
 -- listener funcs
 function listener::accept(number timeout = -1)
 	self._tcp:settimeout(timeout)
-	return self._tcp:accept()
+	
+	local tcp, err = self._tcp:accept()
+	if not tcp then
+		return nil, err
+	end
+	
+	return socket.new_client(tcp)
 end
 
 -- the port we're listening on, if socket.bind was passed 0, this will be assigned by the OS
@@ -166,6 +172,10 @@ end
 
 function client::close()
 	self._tcp:close()
+end
+
+function client::__tostring()
+	return "socket: " .. tostring(self._tcp)
 end
 
 return socket
