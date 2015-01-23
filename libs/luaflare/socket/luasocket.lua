@@ -171,6 +171,7 @@ function client::flush(number timeout = -1)
 end
 
 function client::close()
+	self._connected = false
 	self._tcp:close()
 end
 
