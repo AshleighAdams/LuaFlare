@@ -11,7 +11,7 @@ function hook.invalidate(hookname)
 	local hooktbl = hook.hooks[hookname]
 	if hooktbl == nil then return end
 	
-	local callorder = {__mode = "v"} -- weak values
+	local callorder = setmetatable({}, {__mode = "v"}) -- weak values
 	for k,v in pairs(hooktbl.attached) do
 		table.insert(callorder, v)
 	end
