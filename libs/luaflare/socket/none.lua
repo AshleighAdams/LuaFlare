@@ -65,13 +65,13 @@ end
 --[[ format is:
 	"l", "*l": line,
 	"a", "*a": end of stream
-length:
-	== 0: no length
-	> 0: max length
+limit:
+	== 0: no limit
+	> 0: max bytes
 timeout: same as in accept
-returns: (data) or (nil, err)
+returns: (data) or (nil, err, partial)
 ]]
-function client::read(string format = "a", number length = 0, number timeout = -1)
+function client::read(string format = "a", number limit = 0, number timeout = -1)
 	error("not imp")
 end
 
