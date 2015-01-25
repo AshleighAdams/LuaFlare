@@ -17,6 +17,7 @@ local function add_expects(tokens)
 		local table_to = {}
 		local types, checktypes = {}, false
 		local default_values = {}
+		local arg_names = {}
 		local name = ""
 		
 		while true do
@@ -31,10 +32,12 @@ local function add_expects(tokens)
 				table.insert(table_to, name)
 				name = ""
 				table.insert(types, "nil")
+				table.insert(arg_names, "self")
 			elseif t.type == "token" and t.value == "::" then
 				table.insert(table_to, name)
 				name = ""
 				table.insert(types, table.concat(table_to, "."))
+				table.insert(arg_names, "self")
 				checktypes = true
 				t.chunk = ":" -- convert the chunk value back to : as it should be
 				t.value = ":"
@@ -53,12 +56,15 @@ local function add_expects(tokens)
 			local function check_arg_type()
 				if #ids == 1 then
 					table.insert(types, "nil")
+					table.insert(arg_names, ids[1].value)
 				elseif #ids == 2 then
 					if ids[1].raw then
 						table.insert(types, ids[1].value)
 					else
 						table.insert(types, '"' .. ids[1].value .. '"')
 					end
+					
+					table.insert(arg_names, ids[2].value)
 					
 					tokens[ids[1].index].remove = true -- mark it for removal
 					local i = 1
@@ -176,6 +182,38 @@ local function add_expects(tokens)
 				chunk = " "
 			})
 			k = k + 1
+			
+			local code = {}
+			local arg_n = 0
+			do
+				for i = 1, #types do
+					local t, n = types[i], arg_names[i]
+					
+					arg_n = arg_n + 1
+					if i == 1 and n == "self" then -- special case
+						arg_n = 0
+					end
+					
+					-- expects_check(arg, name, val, i)
+					if t == "nil" then -- don't even need to do anything here
+					else
+						table.insert(code, string.format("expects_check(%s, \"%s\", %s, %i)", t, n, n, arg_n))
+					end
+				end
+			end
+			
+			code = table.concat(code, " ")
+			--code = "--[[" .. code .. "]]"
+			
+			table.insert(tokens, k, {
+				type = "unparsed",
+				value = code,
+				chunk = code
+			})
+			k = k + 1
+			
+			
+			--[[
 			table.insert(tokens, k, {
 				type = "identifier",
 				value = "expects",
@@ -227,11 +265,12 @@ local function add_expects(tokens)
 				chunk = ")"
 			})
 			k = k + 1
+			--]]
 		end
 	end
 	
 	for k,v in pairs(tokens) do
-		if v.type == "keyword" and v.value == "function" then
+		if v.type == "keyword" and not v.remove and v.value == "function" then
 			parse_func(k)
 		end
 	end

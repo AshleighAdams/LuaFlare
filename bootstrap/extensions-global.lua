@@ -59,7 +59,7 @@ function G.expects(...)
 			error("too many arguments to expects", level)
 		end
 		
-		
+		-- i could call expects_check, but let's leave this here as it won't introduce another call depth
 		if arg == nil then -- anything
 		elseif type(arg) == "table" then
 			local valid, reason = metatable_compatible(arg, val)
@@ -81,6 +81,32 @@ function G.expects(...)
 			if type(val) ~= args[i] then
 				error(string.format("argument #%i (%s) expected %s (got %s)", i, name, arg, type(val)), err_level) -- 3 = caller's caller
 			end
+		end
+	end
+end
+
+-- compared to expects(): 70% quicker in lua5.2, luajit: 270% quicker
+function G.expects_check(arg, name, val, i)
+	if arg == nil then -- anything
+	elseif type(arg) == "table" then
+		local valid, reason = metatable_compatible(arg, val)
+		if not valid then
+			error(string.format("argument #%i (%s): incompatible (%s)", i, name, reason), 3)
+		end
+	elseif arg == "*" then
+		error("expects(): \"*\" DEPRICATED!")
+	elseif arg == "any" then -- anything but nil
+		if val == nil then
+			error(string.format("argument #%i (%s) expected a value (got nil)", i, name), 3)
+		end
+	elseif expects_types[arg] then
+		local good, err = expects_types[arg](val)
+		if not good then
+			error(string.format("argument #%i (%s) expected %s (%s)", i, name, arg, err), 3)
+		end
+	else
+		if type(val) ~= arg then
+			error(string.format("argument #%i (%s) expected %s (got %s)", i, name, arg, type(val)), 3) -- 3 = caller's caller
 		end
 	end
 end
