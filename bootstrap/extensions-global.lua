@@ -30,7 +30,9 @@ end
 -- duck typing check
 function metatable_compatible(base, value)
 	if value == nil then return false, "is nil" end
-	--if base == getmetatable(value) then return true end
+	
+	-- if they're the same, all is good
+	if base == getmetatable(value) then return true end
 	
 	-- MAYBE: Ignore ignore __index, __newindex, and __call?
 	for k,v in pairs(base) do
