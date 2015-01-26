@@ -9,7 +9,7 @@ local xssfilter = require("xssfilter")
 
 local xss_filter = xssfilter.new({})
 
-function escape.pattern(input) expects "string" -- defo do not use string.Replace, else revusion err	
+function escape.pattern(string input)
 	return (string.gsub(input, "[%(%)%.%%%+%-%*%?%[%]%^%$]", "%%%1"))
 end
 
@@ -41,8 +41,7 @@ setmetatable(http_replacements, {
 	end
 })
 
-function escape.html(input, strict) expects "string"
-	if strict == nil then strict = true end
+function escape.html(string input, boolean strict = true)
 	input = input:gsub(".", http_replacements)
 	
 	if strict then
@@ -53,11 +52,11 @@ function escape.html(input, strict) expects "string"
 end
 escape.attribute = escape.html
 
-function escape.url(input) expects "string"
+function escape.url(string input)
 	return url.escape(input)
 end
 
-function escape.striptags(input, tbl) expects "string"
+function escape.striptags(string input, tbl)
 	local html, message = xss_filter:filter(input)
 	
 	if html then
@@ -68,14 +67,14 @@ function escape.striptags(input, tbl) expects "string"
 	error("what?")
 end
 
-function escape.sql(input) expects "string"	
+function escape.sql(string input)
 	input = input:gsub("'", "''")
 	input = input:gsub("\"", "\"\"")
 	
 	return input
 end
 
-function escape.mysql(input) expects "string"	
+function escape.mysql(string input)
 	--[[
 		 NUL (0x00) --> \0  [This is a zero, not the letter O]
 		 BS  (0x08) --> \b
@@ -103,8 +102,8 @@ function escape.mysql(input) expects "string"
 	return input
 end
 
-function escape.argument(input, quoteify) expects "string"
-	if quoteify == nil or quoteify then
+function escape.argument(string input, boolean quoteify = true)
+	if quoteify then
 		input = input:gsub("`", "\\`")
 		input = input:gsub("$", "\\$")
 		input = input:gsub("\"", "\\\"")

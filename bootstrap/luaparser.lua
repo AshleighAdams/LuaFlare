@@ -158,8 +158,8 @@ function parser.tokenize(code) expects("string")
 	
 	while not reader:eof() do
 		local mode = reader:peek()
-		
-		if _startpos == 1 and reader:peek(2) == "#!" then
+		local peek2 = reader:peek(2)
+		if _startpos == 1 and peek2 == "#!" then
 			local buff = {}
 			while reader:peek() ~= "\n" and reader:peek(2) ~= "\r\n" do
 				table.insert(buff, reader:read())
@@ -169,7 +169,7 @@ function parser.tokenize(code) expects("string")
 				type = "hashbang",
 				value = table.concat(buff)
 			})
-		elseif reader:peek(2) == "--" then
+		elseif peek2 == "--" then
 			
 			reader:read(2) --
 			local block = reader:peek() == "["
@@ -199,7 +199,7 @@ function parser.tokenize(code) expects("string")
 				value = value
 			})
 			
-		elseif mode == '"' or mode == "'" or reader:peekmatch("%[=*%[") then
+		elseif mode == '"' or mode == "'" or (mode == "[" and reader:peekmatch("%[=*%[")) then
 			
 			local endchar = reader:read()
 			local block = mode == "["
@@ -294,7 +294,7 @@ function parser.tokenize(code) expects("string")
 				})
 			end
 			
-		elseif mode:match("[0-9]") or reader:peekmatch("%.[0-9]") then -- number
+		elseif mode:match("[0-9]") or (mode == "." and reader:peekmatch("%.[0-9]")) then -- number
 			
 			local token = {type = "number", value = ""}
 			local value

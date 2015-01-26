@@ -24,10 +24,9 @@ local header = [=[
 		  rect       { stroke-width: 1; stroke-opacity: 0; }
 		  rect.lua   { fill: rgb(150,150,150); fill-opacity: 0.5; }
 		  rect.c     { fill: rgb(200,150,150); fill-opacity: 0.5; }
+		  rect.tail  { fill: rgb(150,150,200); }
 		  rect.box   { fill: rgb(240,240,240); stroke: rgb(192,192,192); }
-		  line       { stroke: rgb(64,64,64); stroke-width: 1; }
-		  line.start { stroke: rgb(64,255,64); stroke-width: 1; }
-		  line.end   { stroke: rgb(255,64,64); stroke-width: 1; }
+		  line.kb    { stroke: rgb(150,255,150); stroke-width: 2; stroke-opacity: 0.5; }
 		  text       { font-family: Verdana, Helvetica; font-size: 10px; }
 		  text.left  { font-family: Verdana, Helvetica; font-size: 10px; text-anchor: start; }
 		  text.right { font-family: Verdana, Helvetica; font-size: 10px; text-anchor: end; }
@@ -48,6 +47,9 @@ local header = [=[
 	
 	<rect class="lua" x="350px" y="10px" width="$barheight" height="10px"/>
 	<text transform="translate(%d,%d) rotate(0)" class="lua" x="405px" y="19px">Lua</text>
+	
+	<rect class="lua tail" x="350px" y="20px" width="$barheight" height="10px"/>
+	<text transform="translate(%d,%d) rotate(0)" class="lua" x="405px" y="29px">Lua - Tail Call</text>
 	
 	<rect class="c" x="350px" y="30px" width="$barheight" height="10px"/>
 	<text transform="translate(%d,%d) rotate(0)" class="c" x="405px" y="39px">C</text>
@@ -74,13 +76,19 @@ local domains = {
 }
 domain = assert(domains[domain], "unknown domain: " .. domain)
 
+local mem_usage = {}
+local func_times = {}
+
 for line in io.lines(input) do
 	if line == "SECT" then
 	elseif line == "SECT_END" then
 	else
-		local t, why, name, where, args = line:match("([^\t]+).-([+-~]).-([^\t]+).-([^\t]+).-([^\t]-)$")
+		local t, mem, why, name, where, args = line:match("([^\t]+).-([^\t]+).-([+-~]).-([^\t]+).-([^\t]+).-([^\t]-)$")
 		t = t * domain.multi * multi -- us domain
-		
+		mem = tonumber(mem)
+				
+		args = args:gsub("&#(%d+);", "&amp;#%1;")
+				
 		local file, line = where:match("([^/]+)%.lua.-:(%d+)")
 		if file then
 			line = line or ""
@@ -91,6 +99,8 @@ for line in io.lines(input) do
 			start = t
 		end
 		t = t - start
+		
+		table.insert(mem_usage, {t=t,kb=mem})
 		
 		if why == "+" or why == "~" then
 			table.insert(stack, {
@@ -122,6 +132,11 @@ for line in io.lines(input) do
 				local is_c = info.source == "[C]:-1" and where == "[C]:-1"
 				local class = is_c and "c" or "lua"
 				
+				if info.tail then
+					class = class .. " tail"
+				end
+				
+				func_times[name] = (func_times[name] or 0) + h
 				table.insert(content, ([[<rect class="%s" x="%fpx" y="%dpx" width="$barheight" height="%f"/>]]):format(class, x, y, h) )
 				if not is_c or true then
 					lastx = x
@@ -160,6 +175,8 @@ end
 
 print("stack: " .. #stack)
 
+local pre_content = {}
+
 width = width + 401
 height = height + 100
 
@@ -170,12 +187,61 @@ for y = 100, height, 100 do
 	table.insert(content, ([[<text transform="translate(%d,%d) rotate(0)" class="%s" x="0px" y="0px">%s</text>]]):format(x, y, "t", str) )
 end
 
+do
+	local min, max = math.huge, 0
+	for k,v in ipairs(mem_usage) do
+		local t, kb = v.t, v.kb
+		
+		if kb < min then
+			min = kb
+		elseif kb > max then
+			max = kb
+		end
+	end
+	
+	table.insert(pre_content, ([[<text class="left" x="0%%" y="10px">%.2f KB</text>]])
+		:format(min) )
+	table.insert(pre_content, ([[<text class="right" x="100%%" y="10px">%.2f KB</text>]])
+		:format(max) )
+		
+	
+	for k = 1, #mem_usage - 1 do
+		local a = mem_usage[k]
+		local b = mem_usage[k + 1]
+		
+		local kb_a = (a.kb - min) / (max - min) * 100
+		local kb_b = (b.kb - min) / (max - min) * 100
+		
+		local x1 = kb_a
+		local y1 = a.t
+		local x2 = kb_b
+		local y2 = b.t
+		
+		table.insert(pre_content, ([[<line class="kb" x1="%f%%" y1="%fpx" x2="%f%%" y2="%fpx" />]])
+			:format(x1, y1, x2, y2))
+		
+	end
+end
+
+local sorted = {}
+
+for k,v in pairs(func_times) do
+	table.insert(sorted, {name = k, t = v})
+end
+
+table.sort(sorted, function(a, b) return a.t > b .t end)
+
+for k,v in ipairs(sorted) do
+	print(v.name, v.t)
+end
+
 --table.insert(content, ([[<text transform="translate(%d,%d) rotate(0)" class="%s" x="0px" y="0px">%s</text>]]):format(x, y + 5, class, str) )
 
 --do return end
 
 local f = io.open(output, "w")
 f:write( header:gsub("%$width", width):gsub("%$height", height):gsub("$barheight", bar_height) )
+f:write( table.concat(pre_content, "\n"):gsub("$barheight", bar_height) )
 f:write( table.concat(content, "\n"):gsub("$barheight", bar_height) )
 f:write( footer )
 f:close()

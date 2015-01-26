@@ -157,7 +157,8 @@ function hosts.process_request(req, res)
 	local host, err = hosts.match(req:host())
 	if not host then -- conflict between hosts
 		warn(err)
-		return res:halt(409, err)
+		res:halt(409, err)
+		return
 	end
 	
 	local page, args, errcode, errstr = host:match(req:url())
@@ -169,7 +170,8 @@ function hosts.process_request(req, res)
 	
 	if not page then
 		assert(errcode)
-		return res:halt(errcode, errstr)
+		res:halt(errcode, errstr)
+		return
 	end
 	
 	page.callback(req, res, table.unpack(args))

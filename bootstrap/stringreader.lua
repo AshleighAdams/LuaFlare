@@ -3,38 +3,37 @@ stringreader.meta = {}
 stringreader.meta.__index = stringreader.meta
 local meta = stringreader.meta
 
-function meta:read(count) expects(meta)
+function meta:read(count)
 	count = count or 1
-	local from, to = self._position, self._position + (count - 1)
+	
+	local op = self._position
 	self._position = self._position + count
 	
-	return self._data:sub(from,to)
+	return self._data:sub( op, op + (count - 1) )
 end
 
-function meta:peek(count) expects(meta)
+function meta:peek(count)
 	count = count or 1
-	local from, to = self._position, self._position + (count - 1)
-	return self._data:sub(from,to)
+	return self._data:sub( self._position, self._position + (count - 1) )
 end
 
-function meta:peekat(offset, count) expects(meta, "number")
+function meta:peekat(offset, count)
 	count = count or 1
-	local from, to = self._position + offset, self._position + (count - 1)
-	return self._data:sub(from,to)
+	return self._data:sub( self._position + offset, self._position + (count - 1) )
 end
 
-function meta:peekmatch(pattern) expects(meta, "string")
-	return self._data:sub(self._position):match("^" .. pattern) ~= nil
+function meta:peekmatch(pattern)
+	return self._data:match("^" .. pattern, self._position) ~= nil
 end
 
-function meta:readmatch(pattern) expects(meta, "string")
-	local ret = {self._data:sub(self._position):match("^(" .. pattern .. ")()")} -- empty capture = capture position
+function meta:readmatch(pattern)
+	local ret = {self._data:match("^(" .. pattern .. ")()", self._position)} -- empty capture = capture position
 	if #ret == 0 then return end
-	self._position = self._position + (ret[#ret] - 1)
+	self._position = (ret[#ret])
 	return table.unpack(ret)
 end
 
-function meta:eof() expects(meta)
+function meta:eof()
 	return self._position > self._len
 end
 

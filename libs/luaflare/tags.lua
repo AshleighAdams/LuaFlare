@@ -33,15 +33,17 @@ local function generate_html(first, tbl, depth, parent, section, state)
 	--	tabs = ""
 	--end
 	
+	local tbl_type = type(tbl)
 	if type(tbl) == "function" then -- call the empty one
 		tbl = tbl({})
+		tbl_type = type(tbl)
 	end
 	
-	if type(tbl) == "table" and tbl.is_tag and tbl.tag_options.section_marker then
+	if tbl_type == "table" and tbl.is_tag and tbl.tag_options.section_marker then
 		state.current_section = state.current_section + 1
-	elseif type(tbl) == "table" and tbl.is_tag and tbl.tag_options.noescape then
+	elseif tbl_type == "table" and tbl.is_tag and tbl.tag_options.noescape then
 		state.escape_this = false
-	elseif type(tbl) == "table" and  tbl.is_tag then
+	elseif tbl_type == "table" and  tbl.is_tag then
 		if state.escape_this == false then
 			error("Attempting to not escape a tag element (are you sure you have the tags.NOESCAPE in the right place?")
 		end
@@ -93,7 +95,7 @@ local function generate_html(first, tbl, depth, parent, section, state)
 				generated_html = generated_html .. "</" .. tbl.name .. ">" .. "\n"
 			end
 		end
-	elseif type(tbl) == "table" and section == state.current_section then
+	elseif tbl_type == "table" and section == state.current_section then
 		for k,v in pairs(tbl) do
 			generate_html(false, v, depth + 1, parent, section, state)
 		end
