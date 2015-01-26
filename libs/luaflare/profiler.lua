@@ -18,7 +18,7 @@ local function shorten(v)
 	end
 end
 
-function profiler.start(string filename = "profile.log")
+function profiler.start(string filename = "profile.log", boolean gc = false)
 	local _time = util.time
 	local offset = _time()
 	
@@ -36,6 +36,7 @@ function profiler.start(string filename = "profile.log")
 		["return"] = "-"
 	}
 	
+	--collectgarbage()
 	debug.sethook(function(why)
 		local et = _time() -- enter time
 		
@@ -44,7 +45,7 @@ function profiler.start(string filename = "profile.log")
 	
 		local info = debug.getinfo(2, "nSu")
 		local args_str = ""
-	
+				
 		if why == "+" then
 			local args = {}
 			if info.source == "=[C]" then
@@ -98,8 +99,11 @@ function profiler.start(string filename = "profile.log")
 		end
 		
 		-- comment this line out if you don't want to remove the time spent in here
+		
+		if gc then collectgarbage() end
+		local kb = collectgarbage("count")
 		offset = offset + (_time() - et)
-		profiler.output:write(string.format("%f\t%s\t%s\t%s:%d\t%s\n", time(), why, info.name or "", info.short_src, info.linedefined, args_str))
+		profiler.output:write(string.format("%f\t%f\t%s\t%s\t%s:%d\t%s\n", time(), kb, why, info.name or "", info.short_src, info.linedefined, args_str))
 	end, "cr")
 end
 
