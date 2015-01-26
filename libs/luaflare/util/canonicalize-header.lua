@@ -106,7 +106,7 @@ end
 
 hook.add("Loaded", "load canonical headers", load_canon_headers)
 
-function canon.get_header(header) expects "string"
+function canon.get_header(string header)
 	local lwr = header:lower()
 	return canon.canonical_headers[lwr] or header
 end

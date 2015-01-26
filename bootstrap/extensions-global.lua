@@ -8,6 +8,7 @@ local function check_expects_disabled()
 	if not script.options["disable-expects"] then return end
 	
 	expects = function() end
+	expects_check = function() end
 end
 hook.add("Loaded", "expects: --disable-expects", check_expects_disabled)
 
@@ -90,13 +91,6 @@ end
 -- compared to expects(): 70% quicker in lua5.2, luajit: 270% quicker
 function G.expects_check(arg, name, val, i)
 	if arg == nil then -- anything
-	elseif type(arg) == "table" then
-		local valid, reason = metatable_compatible(arg, val)
-		if not valid then
-			error(string.format("argument #%i (%s): incompatible (%s)", i, name, reason), 3)
-		end
-	elseif arg == "*" then
-		error("expects(): \"*\" DEPRICATED!")
 	elseif arg == "any" then -- anything but nil
 		if val == nil then
 			error(string.format("argument #%i (%s) expected a value (got nil)", i, name), 3)
@@ -106,6 +100,13 @@ function G.expects_check(arg, name, val, i)
 		if not good then
 			error(string.format("argument #%i (%s) expected %s (%s)", i, name, arg, err), 3)
 		end
+	elseif type(arg) == "table" then
+		local valid, reason = metatable_compatible(arg, val)
+		if not valid then
+			error(string.format("argument #%i (%s): incompatible (%s)", i, name, reason), 3)
+		end
+	elseif arg == "*" then
+		error("expects(): \"*\" DEPRICATED!")
 	else
 		if type(val) ~= arg then
 			error(string.format("argument #%i (%s) expected %s (got %s)", i, name, arg, type(val)), 3) -- 3 = caller's caller
