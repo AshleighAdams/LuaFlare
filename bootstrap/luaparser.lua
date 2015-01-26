@@ -262,11 +262,7 @@ function parser.tokenize(code) expects("string")
 			
 		elseif mode:match("[A-Za-z_]") then
 			
-			local id = {reader:read()}
-			while reader:peek():match("[A-Za-z0-9_]") do
-				table.insert(id, reader:read())
-			end
-			id = table.concat(id)
+			local id = reader:readmatch("[A-Za-z_][A-Za-z0-9_]*")
 			
 			if parser.keywords[id] then
 				add_token({
