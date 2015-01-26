@@ -227,24 +227,17 @@ for the sites themselves (pre and post configure).
 <!--- U+2610 (☐, 'BALLOT BOX'), U+2611 (☑, 'BALLOT BOX WITH CHECK'), and U+2612 (☒, 'BALLOT BOX WITH X') --->
 
 - [x] Cookie Support
-- [x] Session library
-	- [x] Allow overriding where sessions are stored
-		- Implimented via the hook `GetSession`.
-- [ ] Global table support for sessions
-- [ ] Rewrite template generate_html to be cleaner & easier to follow
-- [x] Add the additional command --help
-- [x] Add the additional command --version
--     Remove other threading methods, only keep coroutines
-- [x] Apache site installer for acting as a reverse proxy.
-- [x] Possibly remove SSL support:
-	- Should it be provided by the reverse proxy?
-	Could the reverse proxy ever be on a different machine, thus unsafe to
-	transmit data?
+ - [ ] Aditional cookie support for timing out, etc...
+- [ ] Global table support for sessions?
+- [ ] Rewrite template generate_html to be cleaner, easier to follow, and quicker.
 - [ ] If a main thread dies, CPU usage goes to full.  Fix this.
 - [X] Standard socket API
  - [X] LuaSocket backend
  - [ ] POSIX backend
  - [ ] LuaFlare code over from LuaSocket to luaflare.socket standard API
+- [ ] Clean up the horrific mess that is the threading model. It should use
+      the require system.
+- [ ] Move script options into the bootstrapper.
 
 To look at:
 
