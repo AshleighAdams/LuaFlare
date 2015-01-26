@@ -248,6 +248,10 @@ To look at:
 
 static over pattern?
 
+For example, the exact resource `/path/file.ext` exists, but a pattern for
+`/path/(*)` exists and will be matched; should we allow the exact match to
+overrule pattern matching?
+
 # Packaging concept
 
 	luaflare
