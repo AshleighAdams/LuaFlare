@@ -18,7 +18,7 @@ local function basic_error(why, req, res)
 	local errstr = string.format("%i %s", errcode, httpstatus.tostring(errcode) or "Unknown")
 	local msg = why.message or req:url()
 	
-	template:make(errstr, errstr, msg, nil).to_response(res)
+	res:append(template:make_fast(errstr, errstr, msg, nil))
 end
 hook.add("Error", "basic error", basic_error)
 

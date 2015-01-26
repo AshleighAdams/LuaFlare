@@ -2,8 +2,16 @@
 
 local input = assert(arg[1])
 local output = assert(arg[2])
-local domain = arg[3] or "us"
-local multi = tonumber(arg[4]) or 1
+local scale = arg[3] or "1us"
+
+local multi, domain = scale:match("([%d%.]+)([^ ]+)")
+
+if not multi then
+	multi = 1
+	domain = scale
+else
+	multi = 1.0 / multi
+end
 
 local header = [=[
 <?xml version="1.0" standalone="no"?>

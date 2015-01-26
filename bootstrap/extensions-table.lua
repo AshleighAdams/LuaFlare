@@ -54,7 +54,7 @@ function to_lua_value(var, notable)
 	return val
 end
 
-local function to_lua_table_key(key)
+function to_lua_table_key(key)
 	if type(key) == "string" then
 		if key:match("[A-z_][A-z_0-9]*") == key then
 			return key
@@ -65,7 +65,7 @@ local function to_lua_table_key(key)
 	end
 end
 
-local function to_lua_table(tbl, depth, done)
+function to_lua_table(tbl, depth, done)
 	if table.is_empty(tbl) then return "{}" end
 	
 	depth = depth or 1
