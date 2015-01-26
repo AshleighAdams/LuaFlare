@@ -244,6 +244,45 @@ To look at:
 - inc/request.lua:`read_headers()`: should continuations of headers insert a space, newline, or nothing?
 	- `ret[lastheader] = ret[lastheader] .. " " .. val:trim()`
 
+# Templating Concept
+
+```lua
+$$ = $
+$(arg, escaper) = escape[escaper](arg)
+$(arg) = $(arg, html)
+
+-- these also can be generated with the tags library
+local body_html = [[
+<html>
+	<head>
+		<title>$(title)</title>
+	</head>
+	<body>
+		$(contents, none)
+	</body>
+</html>
+]]
+
+local content_html = [[
+<h1>Hello, $(url)!</h1>
+<p>You requested $(url)</p>
+]]
+
+local body = templator.generate(body_html)
+local content = templator.generate(content_html)
+
+function test(req, res)
+	local html = body {
+		title = req:url(),
+		contents = content {
+			url = req:url()
+		}
+	}
+	res:append(html)
+end
+host.any:add("/test", test)
+```
+
 # Host
 
 static over pattern?
