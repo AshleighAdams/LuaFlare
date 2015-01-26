@@ -11,18 +11,20 @@ local function generate_host_patern(what) -- TODO: use pattern_escape, can't rep
 	
 	-- TODO: should these even be here? other than the . and * replacement
 	pattern = string.gsub(pattern, "%%", "%%%") -- this must be first...	
-	pattern = string.gsub(pattern, "%.", "%%.") -- escape them
-	pattern = string.gsub(pattern, "%(", "%%(")
-	pattern = string.gsub(pattern, "%)", "%%)")
-	pattern = string.gsub(pattern, "%+", "%%+")
+	pattern = string.gsub(pattern, "(%.%-)", "%%%1") -- escape them
+	--pattern = string.gsub(pattern, "%(", "%%(")
+	--pattern = string.gsub(pattern, "%)", "%%)")
+	--pattern = string.gsub(pattern, "%+", "%%+")
 
 	-- now, allow things like *domain.net, or *.domain.net, *domain.net*
-	pattern = string.gsub(pattern, "*", ".+")
+	pattern = string.gsub(pattern, "*", "[.]*")
+	pattern = string.gsub(pattern, "~", "[.]+")
+	pattern = string.gsub(pattern, "+", "[^%.]+")
 	
 	return "^" .. pattern .. "$"
 end
 local function generate_resource_patern(string pattern)
-	pattern = string.gsub(pattern, "*", "[%%w%%s!-.:-@%%%%%%]%%[-\xff_]-")
+	pattern = string.gsub(pattern, "*", "[^/]*")
 	return "^" .. pattern .. "$"
 end
 
@@ -41,6 +43,10 @@ function hosts.get(string host, options)
 end
 
 function hosts.match(string host)
+	-- so the pattern "*.domain.com" matches "domain.com"
+	-- note that "+.domain.com" does not match "domain.com"
+	host = "." .. host
+	
 	local hits = {}
 	
 	for k,v in pairs(hosts.hosts) do

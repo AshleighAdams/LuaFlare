@@ -14,7 +14,16 @@ The developers site.  It is recommended you disable this in a production envirom
 
 Returns a host with the input pattern.  If it does not already exist, then it will be created, and it's options set.
 
-- `pattern`: A Lua pattern (along with wildcard support) to test incomming connections `Host` header against.
+- The argument `pattern` is in the form:
+	- `"*.xyz.tld"`: subdomains and root domain of "xyz.tld".
+		- `xyz.tld`
+		- `a.xyz.tld`
+		- `b.a.xyz.tld`
+	- `"~.xyz.tld"`: subdomains only of "xyz.tld".
+		- `a.xyz.tld`
+		- `b.a.xyz.tld`
+	- `"+.xyz.tld"`: 2<sup>nd</sup> level subdomains only of "xyz.tld"
+	 	- `a.xyz.tld`
 - `options`: A table of host options.
 	- `no_fallback`: Don't fall back to `hosts.any` if a page could not be matched.
 - returns: The host.
