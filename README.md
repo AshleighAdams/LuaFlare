@@ -283,6 +283,28 @@ end
 host.any:add("/test", test)
 ```
 
+using tags
+
+```lua
+local body_html = tags.html
+{
+	tags.head
+	{
+		tags.title { "$(title)" }
+	},
+	tags.body
+	{
+		"$(contents, none)"
+	}
+}.to_string()
+
+local content_html = tags.div
+{
+	tags.h1 { "Hello, $(url)" },
+	tags.p { "You requested $(url)" }
+}.to_string()
+```
+
 # Host
 
 static over pattern?
