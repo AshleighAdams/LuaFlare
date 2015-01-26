@@ -13,40 +13,37 @@ function escape.pattern(input) expects "string" -- defo do not use string.Replac
 	return (string.gsub(input, "[%(%)%.%%%+%-%*%?%[%]%^%$]", "%%%1"))
 end
 
-local http_safe = {}
 local http_replacements = {}
 
 for i = 32, 126 do
-	http_safe[string.char(i)] = true
+	http_replacements[string.char(i)] = string.char(i)
 end
-http_safe['"'] = nil
-http_safe["'"] = nil
-http_safe["<"] = nil
-http_safe[">"] = nil
-http_safe["&"] = nil
-http_safe["\t"] = true
-http_safe["\n"] = true
-http_safe["\r"] = true
-
 http_replacements["&"] = "&amp;"
 http_replacements['"'] = "&quot;"
 http_replacements["'"] = "&apos;"
 http_replacements["<"] = "&lt;"
 http_replacements[">"] = "&gt;"
+http_replacements["\n"] = "\n"
+http_replacements["\r"] = "\r"
+http_replacements["\t"] = "\t"
 
-local function http_safechar(char)
-	if http_safe[char] then
-		return char
-	elseif http_replacements[char] then
-		return http_replacements[char]
-	else
-		return string.format("&#%d;", string.byte(char))
+setmetatable(http_replacements, {
+	__index = function(self, k)
+		local c = string.format("&#%d;", string.byte(k))
+		http_replacements[k] = c
+		
+		local bc = table.count(http_replacements)
+		
+		if bc > 1024 then
+			warn("escape.html() bucket size: %d", bc)
+		end
+		return c
 	end
-end
+})
 
 function escape.html(input, strict) expects "string"
 	if strict == nil then strict = true end
-	input = input:gsub(".", http_safechar)
+	input = input:gsub(".", http_replacements)
 	
 	if strict then
 		input = input:gsub("\t", "&nbsp;&nbsp;&nbsp;&nbsp;")
