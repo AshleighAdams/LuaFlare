@@ -117,7 +117,7 @@ function Request(client) -- expects("userdata")
 	
 	local parsed_url
 	-- is the host embedded in the GET path? (HTTP 1.2 and up only)
-	if version >= 1.2 and not full_url:StartsWith("/") then
+	if version >= 1.2 and not full_url:starts_with("/") then
 		parsed_url = url.parse(full_url)
 	else
 		-- add a dot at the front of the path to ensure that it is treated as a path, and not a full URL.
@@ -147,7 +147,7 @@ function Request(client) -- expects("userdata")
 		_post_data = nil,
 		_post_string = "",
 		_start_time = util.time(),
-		_peer = client:getpeername():match("^(.+):?%d*$"),
+		_peer = client:getpeername(),
 		_version = version
 	}
 	setmetatable(request, meta)
@@ -278,6 +278,16 @@ function meta::set_upgraded()
 	self.upgraded = true
 end
 
+function meta::__tostring()
+	if self._tostr then
+		return self._tostr
+	else
+		local str = string.format("request: %s %s", self:peer(), self:url())
+		self._tostr = str
+		return str
+	end
+end
+
 function read_headers(client, version, url)
 	local ret = {}
 	local lastheader = nil
@@ -287,13 +297,15 @@ function read_headers(client, version, url)
 		
 		if not s or s == "" then break end
 		
-		if s:sub(1,1) == " " or s:sub(1,1) == "\t" then -- this is a continuation from the previous line
+		local firstchar = s:sub(1,1)
+		
+		if firstchar == " " or firstchar == "\t" then -- this is a continuation from the previous line
 			if not lastheader then
 				return nil, "can't append to last header (absent)"
 			end
 			ret[lastheader] = ret[lastheader] .. " " .. val:trim() -- i think the space should go here
 		else -- This isn't a continuation, parse new header
-			local key, val = string.match(s, "([%a%-]-):%s*(.+)")
+			local key, val = string.match(s, "([^:]+):%s*(.+)")
 			if key ~= nil then
 				key = canon.get_header(key) -- normalize it!
 				lastheader = key

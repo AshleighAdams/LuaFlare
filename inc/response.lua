@@ -271,3 +271,13 @@ function meta::send()
 	self._client = nil -- prevent circular recusion? i duno if not doing this will mem leak
 	self._request = nil -- doesn't harm us not to...
 end
+
+function meta::__tostring()
+	if self._tostr then
+		return self._tostr
+	else
+		local str = string.format("response: %s %s", self:request():peer(), self:request():url())
+		self._tostr = str
+		return str
+	end
+end
