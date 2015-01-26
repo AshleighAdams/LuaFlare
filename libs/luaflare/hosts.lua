@@ -51,7 +51,7 @@ function hosts.match(string host)
 	
 	for k,v in pairs(hosts.hosts) do
 		if k ~= "*" and host:match(v.pattern) then
-			table.insert(hits, v)
+			table.insert(hits, k)
 		end
 	end
 	
