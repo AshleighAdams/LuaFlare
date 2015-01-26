@@ -30,10 +30,17 @@ function profiler.start(string filename = "profile.log")
 	
 	local args_len = {}
 	
+	local why_lookup = {
+		["call"] = "+",
+		["tail call"] = "~",
+		["return"] = "-"
+	}
+	
 	debug.sethook(function(why)
 		local et = _time() -- enter time
 		
-		why = why == "call" and "+" or "-"
+		why = assert(why_lookup[why])
+		
 	
 		local info = debug.getinfo(2, "nSu")
 		local args_str = ""

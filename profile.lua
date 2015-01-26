@@ -78,7 +78,7 @@ for line in io.lines(input) do
 	if line == "SECT" then
 	elseif line == "SECT_END" then
 	else
-		local t, why, name, where, args = line:match("([^\t]+).-([+-]).-([^\t]+).-([^\t]+).-([^\t]-)$")
+		local t, why, name, where, args = line:match("([^\t]+).-([+-~]).-([^\t]+).-([^\t]+).-([^\t]-)$")
 		t = t * domain.multi * multi -- us domain
 		
 		local file, line = where:match("([^/]+)%.lua.-:(%d+)")
@@ -92,19 +92,21 @@ for line in io.lines(input) do
 		end
 		t = t - start
 		
-		if why == "+" then
+		if why == "+" or why == "~" then
 			table.insert(stack, {
 				entered = t,
 				name = name,
 				source = where,
-				args = args
+				args = args,
+				tail = why == "~"
 			})
 			print((" "):rep(#stack)..name, args)
 		elseif why == "-" then
-			local info = table.remove(stack, #stack)
+			-- tail calls don't have their own return, obvsly, so make sure you follow the tail
 			
-			if info then
-				--print(#stack, info.name, name)
+			local function finalize_info(info)
+				if not info then return end
+				
 				local y = info.entered
 				local x = #stack * bar_height
 				local h = (t - info.entered)
@@ -141,6 +143,14 @@ for line in io.lines(input) do
 					end
 				end
 			end
+			
+			
+			while true do
+				local info = table.remove(stack, #stack)
+					finalize_info(info)
+				if not info or not info.tail then break end
+			end
+			
 		else
 			error()
 		end
