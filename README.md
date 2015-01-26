@@ -305,6 +305,9 @@ local content_html = tags.div
 }.to_string()
 ```
 
+if on a new line, with only whitespace preceding the var, then the precending whitespace
+shall be prefixed onto all newlines in the variable
+
 # Host
 
 static over pattern?
