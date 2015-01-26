@@ -19,12 +19,20 @@ local function shorten(v)
 end
 
 function profiler.start(string filename = "profile.log")
-	local time = util.time
+	local _time = util.time
+	local offset = _time()
+	
+	local function time()
+		return _time() - offset
+	end
+	
 	profiler.output = io.open(filename, "w")
 	
 	local args_len = {}
 	
 	debug.sethook(function(why)
+		local et = _time() -- enter time
+		
 		why = why == "call" and "+" or "-"
 	
 		local info = debug.getinfo(2, "nSu")
@@ -81,7 +89,9 @@ function profiler.start(string filename = "profile.log")
 			rets[#rets] = nil -- last one is idk what again
 			args_str = escape.html(table.concat(rets, ", "))
 		end
-	
+		
+		-- comment this line out if you don't want to remove the time spent in here
+		offset = offset + (_time() - et)
 		profiler.output:write(string.format("%f\t%s\t%s\t%s:%d\t%s\n", time(), why, info.name or "", info.short_src, info.linedefined, args_str))
 	end, "cr")
 end

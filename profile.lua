@@ -3,6 +3,7 @@
 local input = assert(arg[1])
 local output = assert(arg[2])
 local domain = arg[3] or "us"
+local multi = tonumber(arg[4]) or 1
 
 local header = [=[
 <?xml version="1.0" standalone="no"?>
@@ -70,7 +71,7 @@ for line in io.lines(input) do
 	elseif line == "SECT_END" then
 	else
 		local t, why, name, where, args = line:match("([^\t]+).-([+-]).-([^\t]+).-([^\t]+).-([^\t]-)$")
-		t = t * domain.multi -- us domain
+		t = t * domain.multi * multi -- us domain
 		
 		local file, line = where:match("([^/]+)%.lua.-:(%d+)")
 		if file then
@@ -101,7 +102,7 @@ for line in io.lines(input) do
 				local h = (t - info.entered)
 				
 				if y + h > height then
-					height = y + bar_height * 2
+					height = y + h --bar_height * 2
 				end
 				
 				if x + bar_height*2 > width then
@@ -142,10 +143,12 @@ end
 print("stack: " .. #stack)
 
 width = width + 401
+height = height + 100
 
 local x = width - bar_height
 for y = 100, height, 100 do
-	local str = string.format("%dus", y / 100)
+	
+	local str = string.format("%s%s", tostring(y / (100 * multi)), domain.units)
 	table.insert(content, ([[<text transform="translate(%d,%d) rotate(0)" class="%s" x="0px" y="0px">%s</text>]]):format(x, y, "t", str) )
 end
 
