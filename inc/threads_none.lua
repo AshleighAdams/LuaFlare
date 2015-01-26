@@ -2,6 +2,7 @@ local threadpool = require("luaflare.threadpool")
 local scheduler = require("luaflare.scheduler")
 local hook = require("luaflare.hook")
 local script = require("luaflare.util.script")
+local escape = require("luaflare.util.escape")
 local reload_time = script.options["reload-time"] or 5
 
 do
@@ -38,19 +39,11 @@ function main_loop()
 	assert(server, err)
 	
 	hook.safe_call("ReloadScripts") -- load all of our scritps, before forking anything!
-	hook.call("Loaded")
 	local next_reloadscripts = util.time()
 	
-	local time = util.time
-	local last = nil
-	local profile = io.open("profile.log", "w")
-	debug.sethook(function()
-		local info = debug.getinfo(2)
-		if info.source == "=[C]" then return end
-		if info.func == last then return end
-		last = info.func
-		profile:write(string.format("%f\t%s\t%s:%d\n", time(), info.name or "", info.short_src, info.linedefined))
-	end, "cr", 1)
+	hook.call("Loaded")
+	
+	local profiler = require("luaflare.profiler")
 	
 	while true do
 		server:settimeout(scheduler.idletime())
@@ -62,11 +55,11 @@ function main_loop()
 		end
 		
 		if client then
-			profile:write("SECT\n")
+			profiler.start()
 			if not handle_client(client) then
 				client:close()
 			end
-			profile:write("SECT_END\n")
+			profiler.stop()
 		end
 		
 		scheduler.run()
