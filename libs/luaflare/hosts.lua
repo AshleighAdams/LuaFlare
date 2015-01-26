@@ -33,6 +33,7 @@ function hosts.get(string host, options)
 	if hosts.hosts[host] then return hosts.hosts[host] end
 	local obj = setmetatable({
 		pattern = generate_host_patern(host),
+		host = host,
 		pages = {},
 		page_patterns = {},
 		options = options
@@ -51,7 +52,7 @@ function hosts.match(string host)
 	
 	for k,v in pairs(hosts.hosts) do
 		if k ~= "*" and host:match(v.pattern) then
-			table.insert(hits, k)
+			table.insert(hits, v)
 		end
 	end
 	
@@ -64,10 +65,15 @@ function hosts.match(string host)
 	else
 		local err
 		
+		local conflicts = {}
+		for k,v in ipairs(hits) do
+			conflicts[k] = v.host
+		end
+		
 		if #hits == 2 then
-			err = "Host conflict between: " .. table.concat(hits, " and ")
+			err = "Host conflict between: " .. table.concat(conflicts, " and ")
 		else
-			err = "Host conflict between: " .. table.concat(hits, ", "):gsub(", (.-)$", ", and %1")
+			err = "Host conflict between: " .. table.concat(conflicts, ", "):gsub(", (.-)$", ", and %1")
 		end
 		
 		return nil, err
