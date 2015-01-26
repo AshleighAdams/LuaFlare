@@ -130,6 +130,39 @@ function main()
 		return usage()
 	end
 	
+	if script.arguments[1] == "templator" then
+		hook.call("Loaded")
+		
+		local templator = require("luaflare.templator")
+		local profiler = require("luaflare.profiler")
+		local html = [[
+<html>
+	<head>
+		<title>$(title)</title>
+	</head>
+	<body>
+		<h1>$(title)</h1>
+		<p>
+			$(body)
+		</p>
+	</body>
+</html>
+]]
+		local gen = templator.generate(html)
+		
+		profiler.start()
+		local final = gen {
+			title = "Hello",
+			body = "Hello world!\n<script>alert('hi');</script>"
+		}
+		profiler.stop()
+		
+		print(table.to_string(gen))
+		print(final)
+		
+		return
+	end
+	
 	-- used to test sockets for now, temporary
 	if script.arguments[1] == "socket" then
 		local socket = require("luaflare.socket")
