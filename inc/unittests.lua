@@ -2,6 +2,8 @@ local luaflare = require("luaflare")
 local script = require("luaflare.util.script")
 local escape = require("luaflare.util.escape")
 local slug = require("luaflare.util.slug")
+local tags = require("luaflare.tags")
+local templator = require("luaflare.templator")
 
 local FAILED = false
 local SUB_FAIL = false
@@ -126,6 +128,29 @@ local function test_recursive_require()
 	check(a.get() == 115)
 end
 
+local function test_tags()
+	check(tags.b{"T"}.to_html():match("<b>%s-T%s-</b>"))
+	check(tags.span{attr="A"}{"T"}.to_html():match("<span%s+attr%s*=\"A\">%s-T%s-</span>"))
+end
+
+local function test_templator()
+	local markerd = [[<div>
+	<h1>$(title)</h1>
+	$(content)
+</div>]]
+
+	local target = [[<div>
+	<h1>Hello</h1>
+	World!<br />
+	Test!
+</div>]]
+
+	local gen = templator.generate(markerd)
+	local html = gen { title = "Hello", content = "World!\nTest!" }
+
+	check(html == target)
+end
+
 function unit_test()
 	test("circular require", test_recursive_require)
 	test("table.* extensions", test_table)
@@ -134,6 +159,8 @@ function unit_test()
 	test("escape.*", test_escape)
 	test("utility functions", test_util)
 	test("slugs", test_slug)
+	test("tags", test_tags)
+	test("templator", test_templator)
 	
 	if FAILED then
 		print("one or more unit test failed!")
