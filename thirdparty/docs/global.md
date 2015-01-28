@@ -63,9 +63,9 @@ Replace the last occurrence of `what` with `with` in `in`.
 
 TODO: remove this
 
-## `string string.trim(string in)`
+## `string string.trim(string in, string chars = " \t\n\r")`
 
-Returns `in` without any white space padding.
+Returns `in`, removing any characters on the edges.
 
 ## `table string.split(string in, string delimiter[, table options])`
 

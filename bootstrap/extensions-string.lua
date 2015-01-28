@@ -43,8 +43,13 @@ function string_extension.replace_last(str, what, with) expects ("string", "stri
 	return firstbit .. with .. lastbit
 end
 
-function string_extension.trim(str) expects "string"
-	return str:match("^%s*(.-)%s*$")
+function string_extension.trim(str, char) expects "string"
+	if not char then
+		char = "%s"
+	else
+		char = char:gsub("%[%]%(%)%.%%%+%-%*%?%[%]%^%$", "%%%1")
+	end
+	return str:match(("^[%s]*(.-)[%s]*$"):format(char, char)) or str
 end
 
 function string_extension.split(self, delimiter, options) expects("string", "string")
