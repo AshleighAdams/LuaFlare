@@ -3,11 +3,16 @@ local profiler = {}
 local util = require("luaflare.util")
 local escape = require("luaflare.util.escape")
 
+local shorten_reps = {
+	["\n"] = "\\n",
+	["\r"] = "\\r",
+	["\t"] = "\\t",
+	["\""] = "\\\"",
+	["\\"] = "\\\\"
+}
+
 local function shorten(v)
-	local shortstr = tostring(v)
-		:gsub("[\n]", "\\n")
-		:gsub("[\r]", "\\r")
-		:gsub("[\t]", "\\t")
+	local shortstr = tostring(v):gsub(".", shorten_reps)
 	if shortstr:len() > 32 then
 		shortstr = shortstr:sub(1, 32 - 3) .. "..."
 	end
