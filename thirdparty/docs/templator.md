@@ -71,3 +71,20 @@ updating relevant indexes with their new escaped values,
 and then concatenating the final results together.
 The above example takes approximately ~10us (~0.01ms) on an i5, under `lua5.2`,
 while the same example with `tags` is usually an order of magnitude slower.
+
+	local gen = templator.generate(tags.html
+	{
+		tags.head
+		{
+			tags.title { "$(title)" }
+		},
+		tags.body
+		{
+			tags.h1 { "$(title)" },
+			"Hello, you requested the URL: $(url)",
+			tags.br,
+			"$(contents)",
+			tags.br,
+			"$(dont_escape, none)"
+		}
+	}.to_html())
