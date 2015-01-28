@@ -2,6 +2,10 @@
 
 `local templator = require("luaflare.templator")`
 
+## `templator.custom_escapers`
+
+Custom escapers to use, this has a higher priority than `luaflare.escape`.
+
 ## `generator templator.generate(string input)`
 
 The input format is in normal HTML (usually), and markers are placed inline in
@@ -88,3 +92,14 @@ while the same example with `tags` is usually an order of magnitude slower.
 			"$(dont_escape, none)"
 		}
 	}.to_html())
+
+## Cascading Style Sheets and JavaScript
+
+To embed CSS and JS contents in their respective `<style>` and `<script>` tags,
+in the escaper argument, pass "striptags", such as:
+
+	<style>
+		$(css, striptags)
+	</style>
+
+See the [escape library](#luaflare-escape-library) for all default available escapers.
