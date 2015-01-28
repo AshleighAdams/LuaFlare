@@ -27,6 +27,7 @@ http_replacements["\n"] = "\n"
 http_replacements["\r"] = "\r"
 http_replacements["\t"] = "\t"
 
+local warn_bucket_size = tonumber(script.options["escape-html-warn-buckets"]) or 1024
 setmetatable(http_replacements, {
 	__index = function(self, k)
 		local c = string.format("&#%d;", string.byte(k))
@@ -34,7 +35,7 @@ setmetatable(http_replacements, {
 		
 		local bc = table.count(http_replacements)
 		
-		if bc > 1024 then
+		if bc >= warn_bucket_size then
 			warn("escape.html() bucket size: %d", bc)
 		end
 		return c

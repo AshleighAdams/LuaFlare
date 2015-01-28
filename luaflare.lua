@@ -46,6 +46,9 @@ usage:
 --disable-expects                 Disable type checking for performance.
 --socket-backend=string           The backend to use for sockets (default is
                                   "luasocket").
+--escape-html-warn-buckets=number Warn when this many buckets exist for escaping
+                                  HTML strings (default 1024).
+                                  
 ]])
 end
 -- so we can exit ASAP, for bash completion speedy-ness
