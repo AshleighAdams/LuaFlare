@@ -73,7 +73,7 @@ function generated::__call(table values)
 			error("values: could not find value " .. marker.name)
 		end
 		
-		str = marker.escape(str)
+		str = marker.escape(tostring(str))
 		
 		if marker.indents then
 			str = str:gsub("\n", "\n"..marker.indents)

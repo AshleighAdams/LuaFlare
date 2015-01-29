@@ -2,6 +2,8 @@ local escape = {}
 
 local url = require("socket.url")
 local xssfilter = require("xssfilter")
+local script = require("luaflare.util.script")
+local hook = require("luaflare.hook")
 
 --# luarocks install xssfilter
 -- And until luarocks supports lua 5.2:
@@ -27,7 +29,12 @@ http_replacements["\n"] = "\n"
 http_replacements["\r"] = "\r"
 http_replacements["\t"] = "\t"
 
-local warn_bucket_size = tonumber(script.options["escape-html-warn-buckets"]) or 1024
+local warn_bucket_size = 1024
+local function set_bucket_size()
+	warn_bucket_size = tonumber(script.options["escape-html-warn-buckets"]) or 1024
+end
+hook.add("Loaded", "--escape-html-warn-buckets", set_bucket_size)
+
 setmetatable(http_replacements, {
 	__index = function(self, k)
 		local c = string.format("&#%d;", string.byte(k))
