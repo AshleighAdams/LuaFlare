@@ -1,5 +1,21 @@
 #!/usr/bin/env lua
 
+--[[
+
+Concept for this:
+
+Title: LuaFlare Documentation
+SubTitle: $(git describe --tags --always | grep -Eo ".+\-[0-9]+" | tr - .)
+Author: 
+Include: docs/command-line-arguments.md
+Include: docs/install-debian.md
+Include: docs/internal-workings.md
+Include: docs/bootstrap.md
+# *'s don't match files inserted in either before or after (via exact matches)
+Include: docs/*.md
+
+]]
+
 local lfs = require("lfs")
 
 local source = {} -- buffer, will be concat'ed

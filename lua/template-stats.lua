@@ -1,4 +1,5 @@
 local tags = require("luaflare.tags")
+local templator = require("luaflare.templator")
 local scheduler = require("luaflare.scheduler")
 local script = require("luaflare.util.script")
 local hook = require("luaflare.hook")
@@ -9,211 +10,150 @@ template.barwidth = 1;
 template.graphwidth = 800;
 template.bars = template.graphwidth / template.barwidth
 
-function template.make(req, res, contents, info)
-	tags.html
+local script = [[
+google.load("visualization", "1", {packages:["corechart"]});
+google.setOnLoadCallback(draw_chart);
+
+function update_chart(url, id, max)
+{
+	$.get(url, function(rawdata)
 	{
-		tags.head
-		{
-			tags.title { "LuaFlare Statistics" },
-			tags.script { src = "//www.google.com/jsapi" },
-			tags.script { src = "//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js" },
-			tags.script { src = "/stats/jquery.csv-0.71.min.js" },
-			tags.script
-			{
-				[[
-				google.load("visualization", "1", {packages:["corechart"]});
-				google.setOnLoadCallback(draw_chart);
-				
-				function update_chart(url, id, max)
-				{
-					$.get(url, function(rawdata)
-					{
-						var array_data = $.csv.toArrays(rawdata, {onParseValue: $.csv.hooks.castToScalar});
-						var data = new google.visualization.arrayToDataTable(array_data);
-						
-						var view = new google.visualization.DataView(data);
-						view.setColumns([{
-							type: 'datetime',
-							label: 'time',
-							calc: function (dt, row) {
-								var ret = new Date(dt.getValue(row, 0)*1000);
-								return {v:ret, f: ret.toString()};
-							}
-						},1]);
-						
-						var options = {
-							title: "",
-							vAxis: {title: data.getColumnLabel(1), viewWindow: {min: 0}, minValue: 0, maxValue: max},
-							hAxis: {format: "HH:mm"},
-							legend: "none",
-							curveType: "function",
-							lineWidth: 0,
-						};
-						
-						var chart = new google.visualization.AreaChart(document.getElementById(id));
-						chart.draw(view, options);
-					})
-				}
-				
-				function draw_chart()
-				{
-					update_chart("/stats/hits.csv", "graph-hits", ]]..info.hits_max..[[);
-					update_chart("/stats/load.csv", "graph-load", ]]..info.load_max..[[);
-					update_chart("/stats/mem.csv", "graph-mem", ]]..info.memory_max..[[);
-					]]..(req:params().update and "setTimeout(draw_chart, 1000 * 60)" or "")..[[
-				}
-				]]
-			},
-			tags.style
-			{
-[[				main
-				{
-					margin: 0 auto;
-					width: 800px;
-					display:block;
-				}
-				div.graph
-				{
-					background-color: #eee;
-					width: ]]..template.graphwidth..[[px;
-					height: 100px;
-					font-size: 0;
-					vertical-align: top;
-					overflow-y: hidden;
-				}
-				div.bar
-				{
-					height: 100%;
-					width: ]]..template.barwidth..[[px;
-					background-color: rgba(0,0,255, 0.1);
-					border-top: 1px solid blue;
-					display: inline-block;
-					vertical-align: bottom;
-				}
-				
-				@-webkit-keyframes flashred {
-					0%   {background-color: rgba(255,0,0, 0.5);}
-					100%  {background-color: rgba(255,0,0, 0.1);}
-				}
-				@keyframes flashred {
-					0%   {background-color: rgba(255,0,0, 0.5);}
-					100%  {background-color: rgba(255,0,0, 0.1);}
-				}
-				
-				div.overflowbar
-				{
-					background-color: rgba(255,0,0, 0.1);
-					border-top-color: red;
-					
-					-webkit-animation: flashred 1s infinite alternate;
-					animation: flashred 1s infinite alternate;
-				}
-				td
-				{
-					padding-right: 15px;
-					padding-left: 15px;
-				}
-				div.warning
-				{
-					background-color: #eee;
-					font-family: monospace;
-					overflow-x: auto;
-					white-space: nowrap;
-					height: auto;
-					line-height:1em;
-					max-height: 7em;
-				}
-				div.log
-				{
-					font-family: monospace;
-				}
-				footer
-				{
-					text-align: center;
-					font-size: 0.75em;
-					font-family: monospace;
-					color: gray;
-				}
-				a
-				{
-					text-decoration: none;
-					color: inherit;
-				}]]
+		var array_data = $.csv.toArrays(rawdata, {onParseValue: $.csv.hooks.castToScalar});
+		var data = new google.visualization.arrayToDataTable(array_data);
+		
+		var view = new google.visualization.DataView(data);
+		view.setColumns([{
+			type: 'datetime',
+			label: 'time',
+			calc: function (dt, row) {
+				var ret = new Date(dt.getValue(row, 0)*1000);
+				return {v:ret, f: ret.toString()};
 			}
+		},1]);
+		
+		var options = {
+			title: "",
+			vAxis: {title: data.getColumnLabel(1), viewWindow: {min: 0}, minValue: 0, maxValue: max},
+			hAxis: {format: "HH:mm"},
+			legend: "none",
+			curveType: "function",
+			lineWidth: 0,
+		};
+		
+		var chart = new google.visualization.AreaChart(document.getElementById(id));
+		chart.draw(view, options);
+	})
+}
+
+function draw_chart()
+{
+	update_chart("/stats/hits.csv", "graph-hits", $(info_hits_max));
+	update_chart("/stats/load.csv", "graph-load", $(info_load_max));
+	update_chart("/stats/mem.csv", "graph-mem", $(info_mem_max));
+	$(timeout, none)
+}
+]]
+
+local css = [[
+main
+{
+	margin: 0 auto;
+	width: 800px;
+	display:block;
+}
+td
+{
+	padding-right: 15px;
+	padding-left: 15px;
+}
+div.warning
+{
+	background-color: #eee;
+	font-family: monospace;
+	overflow-x: auto;
+	white-space: nowrap;
+	height: auto;
+	line-height:1em;
+	max-height: 7em;
+}
+div.log
+{
+	font-family: monospace;
+}
+footer
+{
+	text-align: center;
+	font-size: 0.75em;
+	font-family: monospace;
+	color: gray;
+}
+a
+{
+	text-decoration: none;
+	color: inherit;
+}
+]]
+
+local root_html = tags.html
+{
+	tags.head
+	{
+		tags.title { "$(title)" },
+		tags.script { src = "//www.google.com/jsapi" },
+		tags.script { src = "//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js" },
+		tags.script { src = "/stats/jquery.csv-0.71.min.js" },
+		tags.script
+		{
+			script
 		},
-		tags.body
+		tags.style
 		{
-			tags.main
-			{
-				unpack(contents)
-			},
-			tags.footer
-			{
-				"Instance: " .. script.instance()
-			}
+			css
 		}
-	}.to_response(res)
+	},
+	tags.body
+	{
+		tags.main
+		{
+			"$(contents, none)"
+		},
+		tags.footer
+		{
+			"Instance: $(instance)"
+		}
+	}
+}.to_html()
+local root_generator = templator.generate(root_html)
+
+function template.make(req, res, contents, info)
+	if type(contents) == "table" then
+		local buff = {}
+		for k,v in ipairs(contents) do
+			if type(v) == "table" and v.to_html then
+				table.insert(buff, v.to_html())
+			elseif type(v) == "table" then
+				table.insert(buff, tags.div{ v }.to_html())
+			else
+				table.insert(buff, v)
+			end
+		end
+		contents = table.concat(buff)
+	end
+	
+	res:append(root_generator {
+		title = "LuaFlare Statistics",
+		instance = "n/a",
+		contents = contents,
+		
+		info_hits_max = info.hits_max or 0,
+		info_load_max = info.load_max or 0,
+		info_mem_max = info.memory_max or 0,
+		timeout = req:params().update and "setTimeout(draw_chart, 1000 * 60)" or ""
+	})
 end
 
 function template.make_simple(req, res, contents)
-	tags.html
-	{
-		tags.head
-		{
-			tags.title { "LuaFlare Statistics" },
-			tags.style
-			{
-[[				main
-				{
-					margin: 0 auto;
-					width: 800px;
-					display:block;
-				}
-				td
-				{
-					padding-right: 15px;
-					padding-left: 15px;
-				}
-				div.warning
-				{
-					background-color: #eee;
-					font-family: monospace;
-					overflow-x: auto;
-					white-space: nowrap;
-					height: auto;
-					line-height:1em;
-					max-height: 7em;
-				}
-				div.log
-				{
-					font-family: monospace;
-				}
-				footer
-				{
-					text-align: center;
-					font-size: 0.75em;
-					font-family: monospace;
-					color: gray;
-				}
-				a
-				{
-					text-decoration: none;
-					color: inherit;
-				}]]
-			}
-		},
-		tags.body
-		{
-			tags.main
-			{
-				unpack(contents)
-			},
-			tags.footer
-			{
-				"Instance: " .. script.instance()
-			}
-		}
-	}.to_response(res)
+	return template.make(req, res, contents, {})
 end
 
 function template.google_graph(title, id)
@@ -260,14 +200,13 @@ function template.graph(title, units, data, argmax)
 	}
 end
 
+local section_gen = templator.generate[[
+<a href = "#$(id)" id="$(id)"><h1>$(name)</h1></a>
+]]
 function template.section(name)
-	local id = slug.generate(name)
-	return tags.a { href = "#"..id, id = id }
-	{
-		tags.h1
-		{
-			name
-		}
+	return section_gen {
+		id = slug.generate(name),
+		name = name
 	}
 end
 

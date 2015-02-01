@@ -4,6 +4,7 @@ local scheduler = require("luaflare.scheduler")
 local script = require("luaflare.util.script")
 local vfs = require("luaflare.virtualfilesystem")
 local tags = require("luaflare.tags")
+local templator = require("luaflare.templator")
 
 local template = include("template-stats.lua")
 
