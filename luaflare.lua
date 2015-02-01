@@ -166,15 +166,37 @@ function main()
 		return
 	end
 	
-	-- used to test sockets for now, temporary
+	
 	if script.arguments[1] == "socket" then
-		local socket = require("luaflare.socket")
+		local socket = require("luaflare.socket.posix")
 		local util = require("luaflare.util")
 		
 		do
 			local sock = assert(socket.connect("kateadams.eu", 80))
-			sock:write("GET / HTTP/1.1\nHost: kateadams.eu\nConnection: close\n\n")
-			print((sock:read("a")))
+			sock:write(table.concat({
+				"GET / HTTP/1.1",
+				"Host: kateadams.eu",
+				"Connection: close",
+				"", ""
+			}, "\n"))
+			
+			local length
+			local status = sock:read("l", 512)
+			while true do
+				local line = sock:read("l", 512)
+				print(line)
+				if line == "" then break end
+				local header, contents = line:match("([^:]+):%s*(.+)")
+				if header and header:lower() == "content-length" then
+					length = tonumber(contents)
+				end
+			end
+			
+			print(status)
+			print("length: ", length)
+			local content = sock:read("a", length)
+			print("read:", content:len())
+			print()
 		end
 		
 		do
@@ -182,6 +204,8 @@ function main()
 			while true do
 				local sock = assert(listener:accept())
 				local st = util.time()
+				
+				print(sock)
 				
 				local header = sock:read("l")
 				
