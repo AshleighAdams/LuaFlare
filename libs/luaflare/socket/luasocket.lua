@@ -179,4 +179,9 @@ function client::__tostring()
 	return "socket: " .. tostring(self._tcp)
 end
 
+function client::__gc()
+	self:close()
+	self._tcp = nil
+end
+
 return socket
