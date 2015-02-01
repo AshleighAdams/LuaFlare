@@ -129,7 +129,7 @@ function hosts.host_meta::match(string url)
 		end
 		
 		local lines = table.concat(lines, "\n")
-		warn(lines)
+		warn("%s", lines)
 		
 		return nil, nil, 500, lines
 	end
