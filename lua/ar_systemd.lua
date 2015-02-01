@@ -36,7 +36,7 @@ local function systemd_notify()
 		local function on_warning(msg, opts)
 			opts.silence = true -- don't output this message to stderr!
 			local priority = opts.fatal and journal.LOG.ERROR or journal.LOG.WARNING
-			journal.print(priority, msg)
+			journal.print(priority, "%s", msg)
 		end
 		hook.add("Warning", "warning to journal", on_warning)
 		
