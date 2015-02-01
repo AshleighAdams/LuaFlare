@@ -76,7 +76,7 @@ function hosts.match(string host)
 			err = "Host conflict between: " .. table.concat(conflicts, ", "):gsub(", (.-)$", ", and %1")
 		end
 		
-		return nil, err
+		return nil, 500, err
 	end
 end
 
@@ -131,7 +131,7 @@ function hosts.host_meta::match(string url)
 		local lines = table.concat(lines, "\n")
 		warn(lines)
 		
-		return nil, nil, 409, lines
+		return nil, nil, 500, lines
 	end
 end
 
@@ -160,10 +160,10 @@ function hosts.process_request(req, res)
 	-- check to see if we should upgrade, and if we did, return
 	if hosts.upgrade_request(req, res) then return end
 	
-	local host, err = hosts.match(req:host())
+	local host, errcode, errstr = hosts.match(req:host())
 	if not host then -- conflict between hosts
-		warn(err)
-		res:halt(409, err)
+		warn(errstr)
+		res:halt(errcode, errstr)
 		return
 	end
 	
