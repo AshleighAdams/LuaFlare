@@ -51,6 +51,8 @@ function meta::append(string str)
 	self._reply_cache = nil
 	table.insert(self._reply, str)
 	self._reply_len = self._reply_len + str:len()
+	
+	return self
 end
 
 function meta::reply()
