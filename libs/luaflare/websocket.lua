@@ -266,7 +266,7 @@ end
 function meta:wait()
 	-- halts execution until a client connects
 	while #self._clients == 0 do
-		coroutine.yield(0.25)
+		scheduler.sleep(0.25)
 	end
 end
 

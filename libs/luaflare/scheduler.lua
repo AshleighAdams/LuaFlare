@@ -59,6 +59,11 @@ function scheduler.idletime()
 	return t == nil and -1 or math.max(0, t - util.time())
 end
 
+
+function scheduler.sleep(number seconds)
+	return coroutine.yield(seconds)
+end
+
 function scheduler.done()
 	return #scheduler.tasks == 0
 end

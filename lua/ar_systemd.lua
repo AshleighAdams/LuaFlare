@@ -22,12 +22,12 @@ local function systemd_notify()
 				local delay = interval / 2
 				while true do
 					daemon.kick_dog()
-					coroutine.yield(delay)
+					scheduler.sleep(delay)
 				end
 			end
 		
 			scheduler.newtask("systemd heartbeat", heartbeat)
-			print("systemd heartbeat beating")
+			print("systemd heart beating")
 		end
 	end
 	
