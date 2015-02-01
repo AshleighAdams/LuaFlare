@@ -223,27 +223,6 @@ See `thirdparty/luaflare.nginx.(pre|post)`
 and `thirdparty/luaflare.apache.(pre|post)`
 for the sites themselves (pre and post configure).
 
-# To Do
-<!--- U+2610 (☐, 'BALLOT BOX'), U+2611 (☑, 'BALLOT BOX WITH CHECK'), and U+2612 (☒, 'BALLOT BOX WITH X') --->
-
-- [x] Cookie Support
- - [ ] Aditional cookie support for timing out, etc...
-- [ ] Global table support for sessions?
-- [ ] Rewrite template generate_html to be cleaner, easier to follow, and quicker.
-- [ ] If a main thread dies, CPU usage goes to full.  Fix this.
-- [X] Standard socket API
- - [X] LuaSocket backend
- - [ ] POSIX backend
- - [ ] LuaFlare code over from LuaSocket to luaflare.socket standard API
-- [ ] Clean up the horrific mess that is the threading model. It should use
-      the require system.
-- [ ] Move script options into the bootstrapper.
-
-To look at:
-
-- inc/request.lua:`read_headers()`: should continuations of headers insert a space, newline, or nothing?
-	- `ret[lastheader] = ret[lastheader] .. " " .. val:trim()`
-
 # Templating Concept
 
 ```lua
