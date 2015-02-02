@@ -1,7 +1,17 @@
 server {
 	listen %NGINX_HTTP_PORT;
 	listen [::]:%NGINX_HTTP_PORT ipv6only=on;
-
+	
+	# To enable SSL you must generate/provide your SSL cert; uncomment the commented lines below once you've set your cert up.
+	#listen %NGINX_HTTPS_PORT ssl spdy;
+	#listen [::]:%NGINX_HTTPS_PORT ssl spdy ipv6only=on;
+	#ssl_certificate %LUAFLARE_CFG_DIR/keys/certificate.pem;
+	#ssl_certificate_key %LUAFLARE_CFG_DIR/keys/key.pem;
+	ssl_session_timeout 5m;
+	ssl_protocols SSLv3 TLSv1;
+	ssl_ciphers ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv3:+EXP;
+	ssl_prefer_server_ciphers on;
+	
 	server_name localhost;
 
 	location / {
@@ -19,34 +29,3 @@ server {
 	}
 }
 
-# To enable this, you must generate/provide your SSL cert; uncomment the commented lines below once you've set your cert up.
-server {
-	#listen %NGINX_HTTPS_PORT ssl spdy;
-	#listen [::]:%NGINX_HTTPS_PORT ssl spdy ipv6only=on;
-
-	#ssl_certificate %LUAFLARE_CFG_DIR/keys/certificate.pem;
-	#ssl_certificate_key %LUAFLARE_CFG_DIR/keys/key.pem;
-
-	ssl_session_timeout 5m;
-
-	ssl_protocols SSLv3 TLSv1;
-	ssl_ciphers ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv3:+EXP;
-	ssl_prefer_server_ciphers on;
-
-	server_name localhost;
-
-	location / {
-		include /etc/nginx/proxy_params;
-		# proxy_set_header X-Forwarded-Ssl on;
-		proxy_pass http://localhost:%LUAFLARE_PORT;
-	
-		proxy_http_version 1.1;
-		proxy_set_header Upgrade $http_upgrade;
-		proxy_set_header Connection $http_connection;
-		proxy_read_timeout 100000;
-	}
-	location /./ { # this is for X-Accel-Redirect
-		internal;
-		root %LUAFLARE_CFG_DIR/;
-	}
-}
