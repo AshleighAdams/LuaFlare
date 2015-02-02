@@ -91,13 +91,19 @@ function hosts.host_meta::addpattern(string pattern, function callback, string m
 end
 
 function hosts.host_meta::add(string url, function callback, string method = "GET")
+	local page_root = self.pages[url]
+	if not page_root then
+		page_root = {}
+		self.pages[url] = page_root
+	end
+
 	local page = {
 		url = url,
 		callback = callback,
 		method = method
 	}
 	
-	self.pages[url] = page
+	page_root[method] = page
 end
 
 hosts.method_synoms = {
@@ -110,7 +116,9 @@ function hosts.host_meta::match(string url, string method = "GET")
 	local hits = {}
 	
 	if self.pages[url] then -- should we test against patterns too?
-		table.insert(hits, {page = self.pages[url], args = {url}})
+		for k,v in pairs(self.pages[url]) do
+			table.insert(hits, {page = v, args = {url}})
+		end
 	end
 	
 	for k,page in pairs(self.page_patterns) do
