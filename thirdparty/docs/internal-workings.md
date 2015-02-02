@@ -26,11 +26,14 @@ Once the request and response objects have been constructed, the hook `Request` 
 By default, the `Request` hook is processed by `hosts.process_request`.
 
 The first thing `hosts.process_request()` will attempt is to upgrade the connection (check [Upgrading](#upgrading) for further detail).
-If the request does not want to be upgraded, then we attempt to locate a host for the request via pattern matching against all hosts, falling back to `hosts.any` if none is found;
-if we find more than one host that can take said request, then a `409 Conflict` response is sent.
+If the request does not want to be upgraded, then LuaFlare will attempt to locate a host for the request via pattern matching against all hosts, falling back to `hosts.any` if none is found;
+if we find more than one host that can take said request, then a `500 Internal Server Error` response is sent.
 
-Now that we have a valid host object, we attempt to find the page assigned to it.
-If a page was not found (`404 Not Found`) and `options.no_fallback` is falsy, then an attempt to match against `host.any` is made.
+Now that a valid host object has been obtained, LuaFlare will attempt to locate a page that matches the request's resource.
+During page matching, a list of valid methods (GET, POST, ...), then eliminated from the matches if it wasn't suitable for this request;
+if all pages have been eliminated, but one or more other methods could have feasibly handled the request for this resource, then a `405 Method Not Allowed` is sent, along with the `Allow` header being filled out with the aforementioned valid methods list
+([RFC2616 Sect. 10.4.6](http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.6) and [RFC7231 Sect. 6.5.5](http://tools.ietf.org/html/rfc7231#section-6.5.5))
+If the match failed because of a `404 Not Found` and `options.no_fallback` is falsy, then an attempt to match against `host.any` is made.
 
 If a page has still not been found, then `halt()` is called with the error code and error reason (i.e., a conflict between pages, or a 404);
 otherwise the page callback will be invoked with the arguments `request, response, ...`, where `...` is either, the captures from the page pattern, or the whole URL (no captures).
@@ -67,7 +70,10 @@ this ensures that both, the connection is not closed, and no more requests are a
 						if hosts.upgrade_request(): return -- ie, websockets
 						host = hosts.match(req:hosts())
 						if not host: generate conflict page
-						page = host:match
+						page = host:match(url, method)
+							test static and patterns registered against url
+							test against methods
+							check for conflicts
 						if 404: try the same, but with hosts.any if host.options.no_fallback is not truthy.
 						if still not page: show error
 						
