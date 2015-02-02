@@ -166,6 +166,19 @@ function Request(client) -- expects("userdata")
 	
 	local maxpostlength = tonumber(script.options["max-post-length"])
 	
+	
+	--[[
+		TO DO: impliment a counter
+	Assume PUT with a 1GB file, we don't want to load (at min) 1GB into memory,
+	instead, it should be processed in chunks, so the concept is:
+	
+		:content("a")   -- reads ALL content, loads into the 1GB memory
+		:content(1024)  -- read in 1KB chunks
+	
+	returns: data, start_index, end_index
+	derive bytes read: end_index - start_index OR data:len()
+	derive end of content: end_index == content-length
+	]]
 	-- read the post data
 	if method == "POST" then
 		local len = tonumber(request:headers()["Content-Length"])
