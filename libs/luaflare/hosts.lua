@@ -148,7 +148,7 @@ function hosts.host_meta::match(string url, string method = "GET")
 		
 		if hits_count == 0 then
 			local valid_methods = table.concat(methods, ", ")
-			return nil, nil, 405, string.format("The method %s is not valid for this request.  Valid methods are: %s.", method, valid_methods), {Allow = valid_methods}
+			return nil, nil, 405, string.format("The method %s is not valid for this resource.  Valid methods are: %s.", method, valid_methods), {Allow = valid_methods}
 		end
 	end
 	
