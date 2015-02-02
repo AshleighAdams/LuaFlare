@@ -298,3 +298,8 @@ do
 	end
 	hosts.any:add("/websocket-test", websocket_test)
 end
+
+local function test_post(req, res)
+	res:append("OKAY")
+end
+hosts.any:add("/test-post", test_post, "POST")

@@ -80,24 +80,33 @@ function hosts.match(string host)
 	end
 end
 
-function hosts.host_meta::addpattern(string pattern, function callback)
+function hosts.host_meta::addpattern(string pattern, function callback, string method = "GET")
 	local page = {
 		pattern = generate_resource_patern(pattern),
 		original_pattern = pattern,
-		callback = callback
+		callback = callback,
+		method = method
 	}
 	self.page_patterns[pattern] = page
 end
 
-function hosts.host_meta::add(string url, function callback)
+function hosts.host_meta::add(string url, function callback, string method = "GET")
 	local page = {
 		url = url,
-		callback = callback
+		callback = callback,
+		method = method
 	}
+	
 	self.pages[url] = page
 end
 
-function hosts.host_meta::match(string url)
+hosts.method_synoms = {
+	HEAD = {
+		GET = true
+	}
+}
+
+function hosts.host_meta::match(string url, string method = "GET")
 	local hits = {}
 	
 	if self.pages[url] then -- should we test against patterns too?
@@ -111,9 +120,41 @@ function hosts.host_meta::match(string url)
 		end
 	end
 	
-	if #hits == 0 then
+	local hits_count = #hits
+	
+	-- let's test the methods
+	if hits_count ~= 0 then
+		local methods = {}
+		for i = #hits, 1 do
+			local hit = hits[i]
+			local page = hit.page
+			
+			-- update the list of valid methods
+			if not methods[page.method] then
+				methods[page.method] = true
+				table.insert(methods, page.method)
+			end
+			
+			-- we don't want other methods in the list...
+			if method ~= page.method then
+				local synoms = hosts.method_synoms[method]
+				if not synoms or not synoms[page.method] then
+					table.remove(hits, i)
+				end
+			end
+		end
+		-- update this var, and if we no longer have a match, throw an error
+		hits_count = #hits
+		
+		if hits_count == 0 then
+			local valid_methods = table.concat(methods, ", ")
+			return nil, nil, 405, string.format("The method %s is not valid for this request.  Valid methods are: %s.", method, valid_methods), {Allow = valid_methods}
+		end
+	end
+	
+	if hits_count == 0 then
 		return nil, nil, 404
-	elseif #hits == 1 then
+	elseif hits_count == 1 then
 		return hits[1].page, hits[1].args
 	else
 		local function func_string(func) expects("function")
@@ -167,11 +208,18 @@ function hosts.process_request(req, res)
 		return
 	end
 	
-	local page, args, errcode, errstr = host:match(req:url())
+	local page, args, errcode, errstr, headers = host:match(req:url(), req:method())
 	
 	-- failed, try wildcard
 	if not page and errcode == 404 and (not host.options or not host.options.no_fallback) then
-		page, args, errcode, errstr = hosts.any:match(req:url())
+		page, args, errcode, errstr, headers = hosts.any:match(req:url(), req:method())
+	end
+	
+	
+	if headers then
+		for k,v in pairs(headers) do
+			res:set_header(k, v)
+		end
 	end
 	
 	if not page then

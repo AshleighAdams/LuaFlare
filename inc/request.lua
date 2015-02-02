@@ -167,8 +167,7 @@ function Request(client) -- expects("userdata")
 	local maxpostlength = tonumber(script.options["max-post-length"])
 	
 	-- read the post data
-	if method == "GET" or method == "HEAD" then
-	elseif method == "POST" then
+	if method == "POST" then
 		local len = tonumber(request:headers()["Content-Length"])
 		
 		if len == nil then -- send them a length required
@@ -183,8 +182,6 @@ function Request(client) -- expects("userdata")
 		end
 		
 		request._post_string = post
-	else
-		return nil, quick_response(request, 501, method .. " not supported")
 	end
 	
 	return request
