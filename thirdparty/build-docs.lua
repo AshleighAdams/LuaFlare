@@ -121,6 +121,13 @@ if arg[1] == "pdf" or arg[1] == "tex" then
 		literate={-}{{-}}1,
 	}
 
+	\hypersetup{
+		pdffitwindow=false,
+		pdftitle={LuaFlare Documentation},
+		pdfnewwindow=true,
+		colorlinks=false,
+	}
+
 	\usepackage{titling}
 	\newcommand{\subtitle}[1]{%%
 	  \posttitle{%%
