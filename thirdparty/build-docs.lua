@@ -107,6 +107,7 @@ if arg[1] == "pdf" or arg[1] == "tex" then
 	\titlespacing*{\paragraph}
 	{0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
 
+	\usepackage[UKenglish]{isodate}
 
 	\usepackage{geometry}
 	\geometry{a4paper, margin=1in}
