@@ -18,6 +18,11 @@ listener.__index = listener
 
 warn("The POSIX socket backend does not currently support timeouts!")
 
+local function set_nonblocking(fd)
+	local flags = assert(posix.fcntl(fd, posix.F_GETFL), "fnctl: failed to get flags")
+	assert(posix.fcntl(fd, posix.F_SETFL, flags | posix.O_NONBLOCK), "failed to set O_NONBLOCK")
+end
+
 function socket.listen(string address = "*", number port = 0)
 	local addrs, err = posix.getaddrinfo(address, "", {socktype=posix.SOCK_STREAM, flags=posix.AI_PASSIVE})
 	if not addrs then return nil, err end
@@ -60,6 +65,7 @@ function socket.listen(string address = "*", number port = 0)
 		_address = address
 	}
 	
+	set_nonblocking(fd)
 	return setmetatable(obj, listener)
 end
 
@@ -88,10 +94,7 @@ function socket.new_client(fd, ip, port)
 		_connected = true
 	}
 	
-	-- set the non-blocking behavoir
-	local flags = assert(posix.fcntl(fd, posix.F_GETFL), "fnctl: failed to get flags")
-	assert(posix.fcntl(fd, posix.F_SETFL, flags | posix.O_NONBLOCK), "failed to set O_NONBLOCK")
-	
+	set_nonblocking(fd)
 	return setmetatable(obj, client)
 end
 
