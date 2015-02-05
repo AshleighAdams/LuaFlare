@@ -59,7 +59,7 @@ parser.valid_tokens = {
 	",", ";", "(", ")", "[", "]", "{", "}", "...", ".", ":", "::"
 }
 
-parser.operator_precedence = {
+parser.operator_precedence = { -- BODMAS backwards, higher value = will overrule others
 	["or"] = 1,
 	["and"] = 2,
 	["<"] = 3, [">"] = 3, ["<="] = 3, [">="] = 3, ["~="] = 3, ["=="] = 3,
