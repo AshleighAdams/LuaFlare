@@ -2,7 +2,7 @@
 
 ## Entry point
 
-The entry point of `main_loop` is responsible for loading all the autorun scripts via safely the hook `ReloadScripts`,
+The entry point of `main_loop` is responsible for loading all the autorun scripts safely via the hook `ReloadScripts`,
 once all the autorun files are loaded, the hook `Loaded` is unsafely called.
 The `Loaded` hook is responsible for parsing things such as (in order):
 
@@ -31,8 +31,8 @@ if we find more than one host that can take said request, then a `500 Internal S
 
 Now that a valid host object has been obtained, LuaFlare will attempt to locate a page that matches the request's resource.
 During page matching, a list of valid methods (GET, POST, ...), then eliminated from the matches if it wasn't suitable for this request;
-if all pages have been eliminated, but one or more other methods could have feasibly handled the request for this resource, then a `405 Method Not Allowed` is sent, along with the `Allow` header being filled out with the aforementioned valid methods list
-([RFC2616 Sect. 10.4.6](http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.6) and [RFC7231 Sect. 6.5.5](http://tools.ietf.org/html/rfc7231#section-6.5.5))
+if all pages have been eliminated and one or more other methods could have feasibly handled the request for this resource, then a `405 Method Not Allowed` is sent, along with the `Allow` header being filled out with the aforementioned valid methods list
+([RFC2616 &sect; 10.4.6](http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.6) and [RFC7231 &sect; 6.5.5](http://tools.ietf.org/html/rfc7231#section-6.5.5))
 If the match failed because of a `404 Not Found` and `options.no_fallback` is falsy, then an attempt to match against `host.any` is made.
 
 If a page has still not been found, then `halt()` is called with the error code and error reason (i.e., a conflict between pages, or a 404);
@@ -70,9 +70,9 @@ this ensures that both, the connection is not closed, and no more requests are a
 						if hosts.upgrade_request(): return -- ie, websockets
 						host = hosts.match(req:hosts())
 						if not host: generate conflict page
-						page = host:match(url, method)
+						page = host:match(url, method):
 							test static and patterns registered against url
-							test against methods
+							test against HTTP methods
 							check for conflicts
 						if 404: try the same, but with hosts.any if host.options.no_fallback is not truthy.
 						if still not page: show error
