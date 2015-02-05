@@ -11,6 +11,7 @@ local parser = require("luaflare.util.luaparser")
 lua53_bitand = assert(bit32.band)
 lua53_bitor = assert(bit32.bor)
 lua53_bitxor = assert(bit32.bxor)
+lua53_bitnot = assert(bit32.bnot)
 lua53_bitlshift = assert(bit32.lshift)
 lua53_bitrshift = assert(bit32.rshift)
 lua53_idiv = function(a, b)
@@ -21,13 +22,68 @@ end
 local new_ops_func_map = {
 	["&"]  = "lua53_bitand",
 	["|"]  = "lua53_bitor",
-	["~"]  = "lua53_bitxor",
 	["<<"] = "lua53_bitlshift",
 	[">>"] = "lua53_bitrshift",
 	["//"] = "lua53_idiv"
 }
 
+local new_unops_func_map = {
+	["~"]  = "lua53_bitnot"
+}
+
 -- TODO: the precedence on these is not perfect, but it's sort of okay (does not currently work with unary operators)
+local function add_53_unoperators(tokens)
+	for k,v in pairs(tokens) do
+		if v.type == "token" and new_unops_func_map[v.value] then
+			-- read right until we can't anymore, then place brackets around with func call
+			local replacement_func = new_unops_func_map[v.value]
+			
+			local depth, nn = 0, k
+			while true do
+				local t, n = parser.next_token(tokens, nn, 1)
+				if t.type == "token" then
+					if t.value == ":" or t.value == "." then
+						-- ignore these
+					else -- depth here will go < 0
+						local depthchanged = false
+						if parser.brackets_create[t.value] then
+							depth  = depth + 1
+							depthchanged = true
+						end
+						if parser.brackets_destroy[t.value] then
+							depth = depth - 1
+							depthchanged = true
+						end
+						
+						-- if we were located in brackets, exit
+						-- if other_precedence is set, this is a math operation (usually)
+						local other_precedence = parser.operator_precedence[t.value]
+						
+						if depth < 0 then
+							break
+						elseif depth == 0 and other_precedence then
+							break
+						elseif depth == 0 and not depthchanged then -- end of statement
+							break
+						end
+					end
+				elseif depth == 0 and t.type == "keyword" then
+					break
+				end
+				
+				nn = n
+			end
+			
+			v.type = "identifier"
+			v.value = replacement_func
+			v.chunk = replacement_func
+			table.insert(tokens, nn + 1, {type = "token", value = ")", chunk = ")"})
+			table.insert(tokens,  k + 1, {type = "token", value = "(", chunk = "("})
+		end
+	end
+end
+hook.add("ModifyTokens", "5.2 -> 5.3: new operators (unary)", add_53_unoperators, -0.5)
+
 local function add_53_operators(tokens)
 	for k,v in pairs(tokens) do
 		if v.type == "token" and new_ops_func_map[v.value] then
@@ -133,27 +189,4 @@ local function add_53_operators(tokens)
 	end
 end
 hook.add("ModifyTokens", "5.2 -> 5.3: new operators", add_53_operators)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
