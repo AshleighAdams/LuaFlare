@@ -1,7 +1,7 @@
 
 local socket = {}
 socket.backend = "luasocket"
-socket.api_version = "0.2"
+socket.api_version = "0.3"
 
 local luasocket = require("socket")
 
@@ -34,8 +34,9 @@ function socket.listen(string address = "*", number port = 0)
 	return setmetatable(obj, listener)
 end
 
-function socket.connect(string host, number port)
+function socket.connect(string host, number port, number timeout = -1)
 	local tcp = luasocket.tcp()
+	tcp:settimeout(timeout)
 	local suc, err = tcp:connect(host, port)
 	
 	if not suc then
@@ -161,7 +162,7 @@ function client::read(string format = "a", number limit = 0, number timeout = -1
 	end
 end
 
-function client::write(string data, number from = 1, number to = -1)
+function client::write(string data, number from = 1, number to = -1, number timeout = -1)
 	self._tcp:settimeout(timeout)
 	return self._tcp:send(data, from, to)
 end

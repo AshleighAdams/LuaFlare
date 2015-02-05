@@ -5,7 +5,7 @@ but instead offers an API that backends can implement.
 
 `local socket = require("luaflare.socket")`
 
-The socket API version this document targets is 0.2.
+The socket API version this document targets is 0.3.
 
 ## Functions with timeout arguments
 
@@ -44,7 +44,7 @@ Address is the address to listen from, "*" will listen to all addresses on all l
 
 Returns either the listening object, or `nil` plus an error string.
 
-### `client[, err] socket.connect(string host, number port)`
+### `client[, err] socket.connect(string host, number port, number timeout = -1)`
 
 Connect to a remote host on the specified port.
 The host may be a hostname or an IP address.
@@ -99,7 +99,7 @@ this behaviour was deprecated in Lua 5.3 and above.
 If data was read, but broke halfway through (such as a timeout or connection failure),
 then the partial content that was read will be returned after the error.
 
-### `boolean[, err] client:write(string data, number from = 1, number to = -1)`
+### `boolean[, err] client:write(string data, number from = 1, number to = -1, number timeout = -1)`
 
 Write data to the socket; returns `true` if it succeeds,
 or `false` plus an error string if it fails.

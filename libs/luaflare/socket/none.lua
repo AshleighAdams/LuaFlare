@@ -1,7 +1,7 @@
 
 local socket = {}
 socket.backend = "none"
-socket.api_version = "0.2"
+socket.api_version = "0.3"
 
 -- these metatables must be here, as other's may be detouring them
 socket.client = {}
@@ -17,7 +17,7 @@ function socket.listen(string address = "*", number port = 0)
 end
 
 -- host is in the format (host|ipv4|ipv6)[:port]
-function socket.connect(string host, number port)
+function socket.connect(string host, number port, number timeout = -1)
 	return nil, "not implimented"
 end
 
@@ -75,7 +75,7 @@ function client::read(string format = "a", number limit = 0, number timeout = -1
 	error("not imp")
 end
 
-function client::write(string data, number from = 1, number to = -1)
+function client::write(string data, number from = 1, number to = -1, number timeout = -1)
 	error("not imp")
 end
 
