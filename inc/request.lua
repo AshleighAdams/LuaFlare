@@ -316,7 +316,7 @@ function meta::__tostring()
 	if self._tostr then
 		return self._tostr
 	else
-		local str = string.format("request: %s %s", self:peer(), self:url())
+		local str = string.format("request: %s %s", self:peer(), self:path())
 		self._tostr = str
 		return str
 	end

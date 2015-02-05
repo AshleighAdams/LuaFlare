@@ -7,7 +7,7 @@ local lfs = require("lfs")
 local template = include("template-error.lua")
 
 local function on_error(why, request, response)
-	print(string.format("fail: %s: %s %s", why.type, request:url(), why.message or ""))
+	print(string.format("fail: %s: %s %s", why.type, request:path(), why.message or ""))
 end
 hook.add("Error", "log errors", on_error)
 
@@ -16,7 +16,7 @@ local function basic_error(why, req, res)
 	
 	local errcode = why.type or 500
 	local errstr = string.format("%i %s", errcode, httpstatus.tostring(errcode) or "Unknown")
-	local msg = why.message or req:url()
+	local msg = why.message or req:path()
 	
 	res:append(template:make_fast(errstr, errstr, msg, nil))
 end
@@ -87,8 +87,8 @@ local function default_dir_listing(req, res, dir, options)
 		}
 	}
 	
-	local view_url = options.view_url or req:url()
-	template:make(view_url, view_url, "", content).to_response(res)
+	local view_path = options.view_path or req:path()
+	template:make(view_path, view_path, "", content).to_response(res)
 end
 hook.add("ListDirectory", "default directory listing", default_dir_listing)
 

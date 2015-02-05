@@ -252,9 +252,9 @@ local content = templator.generate(content_html)
 
 function test(req, res)
 	local html = body {
-		title = req:url(),
+		title = req:path(),
 		contents = content {
-			url = req:url()
+			url = req:path()
 		}
 	}
 	res:append(html)

@@ -112,17 +112,17 @@ hosts.method_synoms = {
 	}
 }
 
-function hosts.host_meta::match(string url, string method = "GET")
+function hosts.host_meta::match(string path, string method = "GET")
 	local hits = {}
 	
-	if self.pages[url] then -- should we test against patterns too?
-		for k,v in pairs(self.pages[url]) do
-			table.insert(hits, {page = v, args = {url}})
+	if self.pages[path] then -- should we test against patterns too?
+		for k,v in pairs(self.pages[path]) do
+			table.insert(hits, {page = v, args = {path}})
 		end
 	end
 	
 	for k,page in pairs(self.page_patterns) do
-		local args = table.pack(url:match(page.pattern))
+		local args = table.pack(path:match(page.pattern))
 		if #args ~= 0 then
 			table.insert(hits, {page = page, args = args})
 		end
@@ -216,11 +216,11 @@ function hosts.process_request(req, res)
 		return
 	end
 	
-	local page, args, errcode, errstr, headers = host:match(req:url(), req:method())
+	local page, args, errcode, errstr, headers = host:match(req:path(), req:method())
 	
 	-- failed, try wildcard
 	if not page and errcode == 404 and (not host.options or not host.options.no_fallback) then
-		page, args, errcode, errstr, headers = hosts.any:match(req:url(), req:method())
+		page, args, errcode, errstr, headers = hosts.any:match(req:path(), req:method())
 	end
 	
 	

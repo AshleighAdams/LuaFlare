@@ -121,10 +121,10 @@ local function Upgrade_websocket(request, response)
 		return
 	end
 	
-	local path_tbl = websocket.registered[request:url()]
+	local path_tbl = websocket.registered[request:path()]
 	if not path_tbl then
 		print("WebSocket at path not found")
-		response:halt(404, string.format("A web socket is not listening at %s", request:url()))
+		response:halt(404, string.format("A web socket is not listening at %s", request:path()))
 		response:send()
 		return
 	end
@@ -135,7 +135,7 @@ local function Upgrade_websocket(request, response)
 		
 		response:halt(404, 
 			string.format("A web socket is not listening at %s with the protocol %s",
-				request:url(),
+				request:path(),
 				protocol
 			)
 		)

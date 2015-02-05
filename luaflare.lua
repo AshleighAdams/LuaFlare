@@ -107,7 +107,7 @@ function handle_client(client)
 		if not request and err then warn(err) return end
 		if not request then return end -- probably a keep-alive connection timing out
 		
-		print(request:peer()  .. " " .. request:method()  .. " " .. request:url())
+		print(request:peer()  .. " " .. request:method()  .. " " .. request:path())
 		
 		local response = Response(request)
 			hook.safe_call("Request", request, response) -- okay, lets invoke whatever is hooked

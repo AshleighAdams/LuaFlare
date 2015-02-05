@@ -88,6 +88,10 @@ function socket.new_client(fd, ip, port)
 		_connected = true
 	}
 	
+	-- set the non-blocking behavoir
+	local flags = assert(posix.fcntl(fd, posix.F_GETFL), "fnctl: failed to get flags")
+	assert(posix.fcntl(fd, posix.F_SETFL, flags | posix.O_NONBLOCK), "failed to set O_NONBLOCK")
+	
 	return setmetatable(obj, client)
 end
 

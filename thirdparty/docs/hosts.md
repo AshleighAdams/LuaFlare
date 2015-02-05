@@ -61,7 +61,7 @@ Checks to see if this request should be upgraded.
 
 Add a route that matches `pattern`.  Captures from the pattern are passed to callback after the request and response objects.
 
-- `pattern`: The URL pattern.
+- `pattern`: The path pattern.
 - `callback`: The function; should be in the format `function(request, response, ...)` where `...` are the captures from `pattern`.
 - `method`: The HTTP method that should be used.
 
@@ -72,17 +72,17 @@ Add a route that matches `pattern`.  Captures from the pattern are passed to cal
     end
     hosts.any:addpattern("/hello/(.+)", hello)
 
-## `host:add(string url, function callback, string method = "GET")`
+## `host:add(string path, function callback, string method = "GET")`
 
 Adds a direct link to a function, no pattern matching is done.
 
-- `url`: The URL to add.
-- `callback`: The function; should be in the format `function(request, response, url)`.
+- `path`: The path to add.
+- `callback`: The function; should be in the format `function(request, response, path)`.
 - `method`: The HTTP method that should be used.
 
-## `page, args[, errcode[, errstr[, headers]]] host:match(string url, string method = "GET")`
+## `page, args[, errcode[, errstr[, headers]]] host:match(string path, string method = "GET")`
 
-- `url`: The URL to test against.
+- `path`: The path to test against.
 - `method`: The method to test against.
 - returns:
 	- `page`: The page table.  Is nil on error.
