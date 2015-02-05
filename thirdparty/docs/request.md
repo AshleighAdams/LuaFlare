@@ -24,9 +24,11 @@ Returns the raw post data sent with this request.
 
 Returns a table of headers.
 
-## `string request:url()`
+## `string request:path()`
 
-Returns the URL, without any query string.
+Returns the path, without any query string.
+
+The path returned **must** be absolute, and without any special meanings, such as, "." (current directory) and ".." (parent directory).
 
 ## `string request:full_url()`
 

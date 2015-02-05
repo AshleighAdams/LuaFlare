@@ -53,3 +53,7 @@ Turns strings into their more litteral sense.
 ## `string unescape.sql(string input)`
 
 Unescape an SQL escaped string.
+
+## `string unescape.url(string input)`
+
+Unescape a URL.

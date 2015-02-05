@@ -4,6 +4,7 @@ local httpstatus = require("luaflare.httpstatus")
 local script = require("luaflare.util.script")
 local hook = require("luaflare.hook")
 local canon = require("luaflare.util.canonicalize-header")
+local unescape = require("luaflare.util.unescape")
 
 local meta = {}
 meta.__index = meta
@@ -125,6 +126,25 @@ function Request(client) -- expects("userdata")
 		parsed_url.path = parsed_url.path:sub(2) -- remove the dot we added.
 	end
 	
+	-- turn the path into an absolute path
+	local canon_path
+	do
+		local parts = parsed_url.path:split("/\\")
+		local curr = {}
+		
+		for _, part in ipairs(parts) do
+			if part == "." then
+			elseif part == ".." then
+				curr[#curr] = nil
+			else
+				curr[#curr + 1] = part
+			end
+		end
+		canon_path = table.concat(curr, "/")
+	end
+	
+	--path
+	
 	if method == nil or full_url == nil or version == nil then
 		quick_response_client(client, 400) 
 		return nil, "invalid request: failed to parse method, url, or version"
@@ -139,7 +159,7 @@ function Request(client) -- expects("userdata")
 	local request = {
 		_client = client,
 		_method = method,
-		_url = url.unescape(parsed_url.path),
+		_path = unescape.url(canon_path),
 		_full_url = full_url,
 		_parsed_url = parsed_url,
 		_headers = headers,
@@ -224,7 +244,11 @@ function meta::headers()
 end
 
 function meta::url()
-	return self._url
+	warn("request:url() has been deprecated; use :path()")
+	return self:path()
+end
+function meta::path()
+	return self._path
 end
 
 function meta::full_url()
