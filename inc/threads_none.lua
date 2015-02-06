@@ -41,7 +41,7 @@ function main_loop()
 	hook.safe_call("ReloadScripts") -- load all of our scritps, before forking anything!
 	local next_reloadscripts = util.time()
 	
-	hook.call("Loaded")
+	hook.call("Load")
 	
 	local profiler = require("luaflare.profiler")
 	

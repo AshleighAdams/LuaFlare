@@ -59,4 +59,4 @@ local function systemd_notify()
 end
 
 -- priority is 2, therefore
-hook.add("Loaded", "notify systemd", systemd_notify, 2)
+hook.add("Load", "notify systemd", systemd_notify, 2)

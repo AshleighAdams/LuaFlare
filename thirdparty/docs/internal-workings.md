@@ -3,8 +3,8 @@
 ## Entry point
 
 The entry point of `main_loop` is responsible for loading all the autorun scripts safely via the hook `ReloadScripts`,
-once all the autorun files are loaded, the hook `Loaded` is unsafely called.
-The `Loaded` hook is responsible for parsing things such as (in order):
+once all the autorun files are loaded, the hook `Load` is unsafely called.
+The `Load` hook is responsible for parsing things such as (in order):
 
  - Parse reverse proxies, mime types, etc...
  - Notify the daemon manager by outputting the PID (`--out-pid=file`), or reporting to systemd (`--systemd`).
@@ -54,7 +54,7 @@ this ensures that both, the connection is not closed, and no more requests are a
 
 	main_loop():
 		safehook ReloadScripts
-		hook Loaded
+		hook Load
 		while true:
 			if threadpool_isdone:
 				wait til the next scheduled task is to be ran

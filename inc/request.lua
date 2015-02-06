@@ -89,7 +89,7 @@ local function load_trusted_proxies()
 		end
 	end
 end
-hook.add("Loaded", "load trusted reverse proxies", load_trusted_proxies)
+hook.add("Load", "load trusted reverse proxies", load_trusted_proxies)
 
 -- this is to be used when a response object does not yet exist, and we want to halt.
 local function quick_response(request, err, why)

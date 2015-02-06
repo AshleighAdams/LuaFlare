@@ -165,7 +165,7 @@ function main_loop()
 	local tp = threadpool.create(threads, callback)
 	
 	-- loaded now, call the hook
-	hook.call("Loaded")
+	hook.call("Load")
 	local next_reloadscripts = util.time()
 	
 	while true do

@@ -51,7 +51,7 @@ function mimetypes.load()
 	
 	print(string.format("loaded %i mime types", table.count(mimetypes.types)))
 end
-hook.add("Loaded", "load /etc/mime.types", mimetypes.load)
+hook.add("Load", "load /etc/mime.types", mimetypes.load)
 
 function mimetypes.guess(string path)
 	local ext = path:match("^.*%.(.-)$") or ""

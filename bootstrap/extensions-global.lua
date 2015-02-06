@@ -10,7 +10,7 @@ local function check_expects_disabled()
 	expects = function() end
 	expects_check = function() end
 end
-hook.add("Loaded", "expects: --disable-expects", check_expects_disabled)
+hook.add("Load", "expects: --disable-expects", check_expects_disabled)
 
 G.expects_types = {}
 G.expects_types.vector = function(what) -- example

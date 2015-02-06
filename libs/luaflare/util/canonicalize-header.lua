@@ -104,7 +104,7 @@ local function load_canon_headers()
 	end
 end
 
-hook.add("Loaded", "load canonical headers", load_canon_headers)
+hook.add("Load", "load canonical headers", load_canon_headers)
 
 function canon.get_header(string header)
 	local lwr = header:lower()

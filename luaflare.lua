@@ -134,7 +134,7 @@ function main()
 	end
 	
 	if script.arguments[1] == "templator" then
-		hook.call("Loaded")
+		hook.call("Load")
 		
 		local templator = require("luaflare.templator")
 		local profiler = require("luaflare.profiler")

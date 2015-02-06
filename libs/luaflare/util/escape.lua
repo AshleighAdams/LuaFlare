@@ -33,7 +33,7 @@ local warn_bucket_size = 1024
 local function set_bucket_size()
 	warn_bucket_size = tonumber(script.options["escape-html-warn-buckets"]) or 1024
 end
-hook.add("Loaded", "--escape-html-warn-buckets", set_bucket_size)
+hook.add("Load", "--escape-html-warn-buckets", set_bucket_size)
 
 setmetatable(http_replacements, {
 	__index = function(self, k)

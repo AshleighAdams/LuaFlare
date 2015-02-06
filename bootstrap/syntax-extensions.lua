@@ -8,7 +8,7 @@ local function check_expects_disabled()
 	
 	expects_disabled = true
 end
-hook.add("Loaded", "syntax extensions: --disable-expects", check_expects_disabled)
+hook.add("Load", "syntax extensions: --disable-expects", check_expects_disabled)
 
 local function add_expects(tokens)
 	local toinsert = {}

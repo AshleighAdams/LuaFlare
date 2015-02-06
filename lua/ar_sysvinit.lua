@@ -10,4 +10,4 @@ local function out_pid()
 	end
 end
 
-hook.add("Loaded", "output pid", out_pid, 2)
+hook.add("Load", "output pid", out_pid, 2)

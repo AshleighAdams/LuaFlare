@@ -184,7 +184,7 @@ This works because nearly all modules will only use the required modules after t
 In other words, the main 'file function' only populates the module table, loads & saves references to other modules,
 and then returns.  The actual modules needed are often only called once everything has been populated.
 For these reasons, it is discouraged to use the 'population' function as a means to do work.  If you need to do work on load,
-please use the hook named "Loaded", which will be called after LuaFlare is started up.
+please use the hook named "Load", which will be called after LuaFlare is started up.
 
 ![Circular require in Lua](images/non-bootstrapped-acr.png)
 
