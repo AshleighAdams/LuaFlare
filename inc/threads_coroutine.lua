@@ -167,11 +167,12 @@ function main_loop()
 	-- loaded now, call the hook
 	hook.call("Load")
 	local next_reloadscripts = util.time()
+	local max_wait = 0.5
 	
 	while true do
 		if tp:done() then
 			-- we can block on accept() for this long...
-			server:settimeout(scheduler.idletime())
+			server:settimeout(math.min(max_wait, scheduler.idletime()))
 		else
 			server:settimeout(0)
 		end

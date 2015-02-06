@@ -295,6 +295,13 @@ function main()
 	end
 end
 
+local function signal_shutdown()
+	print("Unloading...")
+	hook.call("Unload")
+	os.exit(0)
+end
 
+posix.signal(posix.SIGHUP, signal_shutdown)
+posix.signal(posix.SIGINT, signal_shutdown)
 
 main()

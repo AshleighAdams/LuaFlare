@@ -48,6 +48,7 @@ function main_loop()
 	assert(server, err)
 	
 	hook.safe_call("ReloadScripts") -- load all of our scritps, before forking anything!
+	hook.call("Load")
 	
 	print("creating threads")
 	assert(threads > 0)

@@ -44,9 +44,10 @@ function main_loop()
 	hook.call("Load")
 	
 	local profiler = require("luaflare.profiler")
+	local max_wait = 0.5
 	
 	while true do
-		server:settimeout(scheduler.idletime())
+		server:settimeout(math.min(max_wait, scheduler.idletime()))
 		local client = server:accept()
 		
 		if not script.options["no-reload"] and util.time() > next_reloadscripts then
