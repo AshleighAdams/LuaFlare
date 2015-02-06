@@ -1,7 +1,7 @@
 
 local socket = {}
 socket.backend = "posix"
-socket.api_version = "0.2"
+socket.api_version = "0.3"
 
 local block_size = 1500 -- set to the normal MTU
 local backlog_size = 32
@@ -16,11 +16,46 @@ local client, listener = socket.client, socket.listener
 client.__index = client
 listener.__index = listener
 
-warn("The POSIX socket backend does not currently support timeouts!")
-
 local function set_nonblocking(fd)
 	local flags = assert(posix.fcntl(fd, posix.F_GETFL), "fnctl: failed to get flags")
 	assert(posix.fcntl(fd, posix.F_SETFL, flags | posix.O_NONBLOCK), "failed to set O_NONBLOCK")
+end
+
+local function set_blocking(fd)
+	local flags = assert(posix.fcntl(fd, posix.F_GETFL), "fnctl: failed to get flags")
+	assert(posix.fcntl(fd, posix.F_SETFL, flags & ~posix.O_NONBLOCK), "failed to unset O_NONBLOCK")
+end
+
+local function set_read_timeout(fd, timeout)
+	local s, us
+	if timeout < 0 then
+		set_blocking(fd)
+		s, us = 0, 0
+	elseif timeout == 0 then
+		set_nonblocking(fd)
+		s, us = 0, 0
+	else
+		set_blocking(fd)
+		s = math.floor(timeout)
+		us = (timeout - s) * 1000 --[[ms]] * 1000 --[[us]]
+	end
+	assert(posix.setsockopt(fd, posix.SOL_SOCKET, posix.SO_RCVTIMEO, s, us))
+end
+
+local function set_write_timeout(fd, timeout)
+	local s, us
+	if timeout < 0 then
+		set_blocking(fd)
+		s, us = 0, 0
+	elseif timeout == 0 then
+		set_nonblocking(fd)
+		s, us = 0, 0
+	else
+		set_blocking(fd)
+		s = math.floor(timeout)
+		us = (timeout - s) * 1000 --[[ms]] * 1000 --[[us]]
+	end
+	assert(posix.setsockopt(fd, posix.SOL_SOCKET, posix.SO_SNDTIMEO, s, us))
 end
 
 function socket.listen(string address = "*", number port = 0)
@@ -54,7 +89,7 @@ function socket.listen(string address = "*", number port = 0)
 	end
 	if not fd then return nil, string.format("failed to bind: %s", err) end
 	
-	print("bound to: " .. addr.addr)
+	--print("bound to: " .. addr.addr)
 		
 	local okay, err = posix.listen(fd, backlog_size)
 	if not okay then return nil, string.format("failed to listen: %s", err) end
@@ -65,11 +100,10 @@ function socket.listen(string address = "*", number port = 0)
 		_address = address
 	}
 	
-	set_nonblocking(fd)
 	return setmetatable(obj, listener)
 end
 
-function socket.connect(string host, number port)
+function socket.connect(string host, number port, number timeout = -1)
 	local ips, err = posix.getaddrinfo(host, "", {socktype = posix.SOCK_STREAM})
 	if not ips then return nil, string.format("dns: %s: %s", host, err) end
 	
@@ -80,8 +114,36 @@ function socket.connect(string host, number port)
 	local fd = posix.socket(dns.family, dns.socktype, 0)
 	if not fd then return nil, "failed to create socket" end
 	
-	local okay, err, e = posix.connect(fd, dns)
-	if not okay then return nil, string.format("%s (%s) %d: %s", host, dns.addr, dns.port, err) end
+	set_nonblocking(fd)
+	do
+		local okay, err, e = posix.connect(fd, dns)
+		if not okay then
+			posix.close(fd)
+			return nil, string.format("%s (%s) %d: %s", host, dns.addr, dns.port, err)
+		end
+	
+		if timeout > 0 then
+			timeout = timeout * 1000
+		end
+		
+		local pollres = {
+			[fd] = { events = {OUT=true,IN=true} }
+		}
+		local poll = posix.poll(pollres, timeout)
+		
+		if poll == 0 then
+			posix.close(fd)
+			return nil, "timeout"
+		end
+		
+		-- TODO: get reason some how
+		if pollres[fd].revents.ERR then
+			return nil, "failed to connect"
+		end
+	end
+	set_blocking(fd)
+	
+	-- if the rpoll didn't time out, the connection still may be failed, so let's check
 	
 	return socket.new_client(fd, dns.addr, dns.port)
 end
@@ -93,8 +155,6 @@ function socket.new_client(fd, ip, port)
 		_port = port,
 		_connected = true
 	}
-	
-	set_nonblocking(fd)
 	return setmetatable(obj, client)
 end
 
@@ -102,8 +162,13 @@ end
 function listener::accept(number timeout = -1)
 	if not self._fd then return nil, "listener closed" end
 	
-	local nfd, addr = posix.accept(self._fd)
-	if not nfd then return nil, addr end
+	set_read_timeout(self._fd, timeout)
+	
+	local nfd, addr, err = posix.accept(self._fd)
+
+	if not nfd then
+		return nil, err == 11 and "timeout" or addr
+	end
 	
 	return socket.new_client(nfd, addr.addr, addr.port)
 end
@@ -170,26 +235,57 @@ function client::read(string format = "a", number limit = 0, number timeout = -1
 	
 	if not fd then return nil, "connection closed" end
 	
+	local to = util.time() + timeout
+	local checktimeout = timeout >= 0
+	local to_only_inactive = true
+	if checktimeout then
+		set_nonblocking(fd)
+	else
+		set_blocking(fd)
+	end
+	
 	if limit == 0 then
 		if is_all then
 			while true do
-				local data, a, b = recv(fd, block_size)
+				local data = recv(fd, block_size)
 				if not data then
-					break
+					if not checktimeout then
+						break
+					end
+					data = ""
 				elseif data:len() > 0 then
 					table.insert(buffer, data)
+				end
+				if checktimeout then
+					if to_only_inactive and data:len() ~= 0 then
+						to = to + timeout
+					end
+					if util.time() > to then
+						return nil, "timeout", table.concat(buffer) -- return the partial data too
+					end
 				end
 			end
 		else -- a line
 			while true do
 				local data = recv(fd, 1)
 				if not data then
-					break
+					if not checktimeout then
+						break
+					end
+					data = ""
 				elseif data == "\n" then
 					break
 				elseif data == "\r" then -- do nothing, this char is ignored
 				elseif data:len() > 0 then
 					table.insert(buffer, data)
+				end
+				if checktimeout then
+					if to_only_inactive and data:len() ~= 0 then
+						to = util.time() + timeout
+					end
+					if util.time() > to then
+						return nil, "timeout", table.concat(buffer) -- return the partial data too
+					end
 				end
 			end
 		end
@@ -198,17 +294,31 @@ function client::read(string format = "a", number limit = 0, number timeout = -1
 			while limit > 0 do
 				local data, err = recv(fd, limit)
 				if not data then
-					break
+					if not checktimeout then
+						break
+					end
+					data = ""
 				elseif data:len() > 0 then
 					table.insert(buffer, data)
 					limit = limit - data:len()
+				end
+				if checktimeout then
+					if to_only_inactive and data:len() ~= 0 then
+						to = to + timeout
+					end
+					if util.time() > to then
+						return nil, "timeout", table.concat(buffer) -- return the partial data too
+					end
 				end
 			end
 		else
 			while limit > 0 do
 				local data, err = recv(fd, 1)
 				if not data then
-					break
+					if not checktimeout then
+						break
+					end
+					data = ""
 				elseif data:len() > 0 then
 					if data == "\r" then
 					elseif data == "\n" then
@@ -218,6 +328,14 @@ function client::read(string format = "a", number limit = 0, number timeout = -1
 					end
 					limit = limit - data:len()
 				end
+				if checktimeout then
+					if to_only_inactive and data:len() ~= 0 then
+						to = to + timeout
+					end
+					if util.time() > to then
+						return nil, "timeout", table.concat(buffer) -- return the partial data too
+					end
+				end
 			end
 		end
 	end
@@ -225,12 +343,13 @@ function client::read(string format = "a", number limit = 0, number timeout = -1
 	return table.concat(buffer)
 end
 
-function client::write(string data, number from = 1, number to = -1)
+function client::write(string data, number from = 1, number to = -1, number timeout = -1)
 	if not (from == 1 and to == -1) then
 		data = data:sub(from, to)
 	end
 	local len = data:len()
 	
+	set_write_timeout(self._fd, timeout)
 	local sent, err, errcode = posix.send(self._fd, data)
 	if not sent then
 		self:close()
