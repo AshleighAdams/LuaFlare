@@ -6,22 +6,27 @@ local hook = require("luaflare.hook")
 local util = require("luaflare.util")
 local script = require("luaflare.util.script")
 
-local socket = require("socket")
+local socket = require("luaflare.socket")
 
 function model.listen(table options)
-	local server, err = assert(socket.bind(options.host, options.port))
+	local server, err = assert(socket.listen(options.host, options.port))
 	local next_reloadscripts = util.time() + options.reload_time
+	local running = true
 	
 	hook.call("Load")
 	
-	while true do
+	hook.add("Unoad", "stop close listener", function()
+		running = false
+		server:close()
+	end)
+	
+	while running do
 		local to = math.min(options.max_wait, scheduler.idletime())
 		if to < 0 then
 			to = options.max_wait
 		end
-		server:settimeout(to)
 		
-		local client = server:accept()
+		local client = server:accept(to)
 		
 		if not options.no_reload and util.time() > next_reloadscripts then
 			hook.safe_call("ReloadScripts")

@@ -60,7 +60,7 @@ function scheduler.idletime()
 end
 
 
-function scheduler.sleep(number seconds)
+function scheduler.sleep(seconds)
 	return coroutine.yield(seconds)
 end
 

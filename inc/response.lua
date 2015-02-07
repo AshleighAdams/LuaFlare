@@ -19,7 +19,7 @@ function Response(request)
 		_reply_len = 0,
 		_headers = {},
 		_request = request,
-		_client = request:client()
+		_socket = request:socket()
 	}
 	setmetatable(ret, meta)
 	
@@ -35,7 +35,10 @@ function meta::request()
 end
 
 function meta::client()
-	return self._client
+	error(":client() deprecated, use :socket()", 2)
+end
+function meta::socket()
+	return self._socket
 end
 
 function meta::set_status(number what)
@@ -269,12 +272,10 @@ function meta::send()
 	end
 	tosend = tosend .. "\r\n" .. self:reply()
 	
-	local client = self:client()
-	client:settimeout(-1)
+	local socket = self:socket()
+	socket:write(tosend)
 	
-	client:send(tosend)
-	
-	self._client = nil -- prevent circular recusion? i duno if not doing this will mem leak
+	self._socket = nil -- prevent circular recusion? i duno if not doing this will mem leak
 	self._request = nil -- doesn't harm us not to...
 end
 

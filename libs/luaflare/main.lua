@@ -105,11 +105,11 @@ function main.handle_socket(sock)
 			-- we no longer own the socket; the connection is likley to not be
 			-- HTTP anymore too, so let's "forget" about it (not close it).
 			
-			print(string.format("%s %s %s", request:peer(), request:method(), request:path(), "disowned"))
+			print(string.format("%s %s %s", request:ip(), request:method(), request:path(), "disowned"))
 			return
 		end
 		
-		print(string.format("%s %s %s: %d", request:peer(), request:method(), request:path(), response:status()))
+		print(string.format("%s %s %s: %d", request:ip(), request:method(), request:path(), response:status()))
 		response:send()
 		
 		local connection = request:headers().Connection 

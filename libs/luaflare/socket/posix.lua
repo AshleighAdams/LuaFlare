@@ -155,6 +155,10 @@ function socket.new_client(fd, ip, port)
 		_port = port,
 		_connected = true
 	}
+	
+	posix.setsockopt(fd, posix.IPPROTO_TCP, posix.TCP_NODELAY, 1)
+	posix.setsockopt(fd, posix.SOL_SOCKET, posix.SO_LINGER, 1, 1)
+	
 	return setmetatable(obj, client)
 end
 
@@ -344,19 +348,22 @@ function client::read(string format = "a", number limit = 0, number timeout = -1
 end
 
 function client::write(string data, number from = 1, number to = -1, number timeout = -1)
+	local fd = self._fd
+	if not fd then return nil, "closed" end
 	if not (from == 1 and to == -1) then
 		data = data:sub(from, to)
 	end
 	local len = data:len()
 	
 	set_write_timeout(self._fd, timeout)
-	local sent, err, errcode = posix.send(self._fd, data)
+	
+	local sent, err, errcode = posix.write(self._fd, data)
+	
 	if not sent then
 		self:close()
 		return false, err
 	end
 	
-	assert(sent == len)
 	return true
 end
 
@@ -367,6 +374,7 @@ end
 function client::close()
 	if not self._fd then return end
 	self._connected = false
+	posix.shutdown(self._fd, posix.SHUT_WR)
 	posix.close(self._fd)
 	self._fd = nil
 end

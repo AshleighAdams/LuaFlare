@@ -42,7 +42,7 @@ local function send_message(client, payload)
 	end
 	
 	header = string.char(unpack(header))
-	client:send(header .. payload)
+	client:write(header .. payload)
 	-- this little shit below, IT TOOK ME THREE FUCKING HOURS TO FIND THIS BUG
 	-- (that string.format is a binding to the C function, which does NOT like null-bytes!)
 	--string.format("%s%s", header, payload))
@@ -50,12 +50,21 @@ end
 
 local function read_message(client)
 	local function receive(count)
-		local ret, err = client:receive(count)
-		if ret == nil then
-			error(err)
+		while true do
+			local ret, err = client:read("a", count, 0)
+		
+			if not ret then
+				if err == "timeout" then
+					scheduler.sleep()
+				else
+					error(err or "ukn")
+				end
+			else
+				return ret
+			end
 		end
-		return ret
 	end
+	
 	
 	local opcode = string.byte(receive(1))
 	local typ = bit.band(opcode, 15)
@@ -108,7 +117,7 @@ local function read_message(client)
 end
 
 local function Upgrade_websocket(request, response)
-	local client = request:client()
+	local client = request:socket()
 	
 	local key      = request:headers()["Sec-WebSocket-Key"]
 	local protocol = request:headers()["Sec-WebSocket-Protocol"] or ""
@@ -159,8 +168,7 @@ local function Upgrade_websocket(request, response)
 	response:send()
 	
 	-- client now should be a websocket protocol
-	client:settimeout(0)
-	client.peer = request:peer()
+	client.peer = request:ip()
 	client.request = request -- so we can take cookies and stuffs
 	
 	proto.newclient(client)
@@ -228,8 +236,8 @@ function websocket.register(string path, string protocol = "", _callbacks)
 			end
 			
 			while true do
-				local suc, msg = pcall(read_message, client)
-				if not suc then break end -- client disconnected
+				local okay, msg = pcall(read_message, client)
+				if not okay then break end -- client disconnected
 				
 				if obj.on_message then
 					obj:on_message(client, msg)
@@ -240,7 +248,7 @@ function websocket.register(string path, string protocol = "", _callbacks)
 				obj:on_disconnect(client)
 			end
 			table.remove_value(obj._clients, client) -- nil-ify them
-			--obj._client_threads[client] = nil
+			--obj._client_threads[socket] = nil
 		end
 		
 		scheduler.newtask(string.format("ws://%s%s (%s)", client.peer, path, protocol), thread)
@@ -253,7 +261,7 @@ function websocket.register(string path, string protocol = "", _callbacks)
 	return setmetatable(obj, meta._metatbl)
 end
 
-function meta:send(message, client) expects(meta._meta, "string")
+function meta::send(string message, client)
 	if client == nil then --send to all the clients
 		for k,cl in pairs(self._clients) do
 			send_message(cl, message)

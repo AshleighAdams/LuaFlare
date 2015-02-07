@@ -14,6 +14,7 @@ listener.__index = listener
 
 function socket.listen(string address = "*", number port = 0)
 	local tcp = luasocket.tcp()
+	tcp:setoption("reuseaddr", true)
 	
 	local suc, err = tcp:bind(address, port)
 	if not suc then
@@ -47,7 +48,7 @@ function socket.connect(string host, number port, number timeout = -1)
 end
 
 function socket.new_client(tcp)
-	local ip, port = tcp:getpeername():match("(.+):(.+)")
+	local ip = tcp:getpeername()
 	
 	local obj = {
 		_tcp = tcp,

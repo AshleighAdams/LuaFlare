@@ -101,20 +101,28 @@ local function quick_response(request, err, why)
 end
 
 -- this is to be used when a request object has yet to be constructed, and we want to halt.
-local function quick_response_client(client, err)
+local function quick_response_socket(socket, err)
 	local errstr = httpstatus.tostring(err) or "Unknown"
-	client:send(string.format("HTTP/1.1 %d %s\r\n", err, errstr))
-	client:send("Server: luaflare\r\n")
-	client:send("Content-Length: 0\r\n")
-	client:send("\r\n")
+	socket:write(string.format("HTTP/1.1 %d %s\r\n", err, errstr))
+	socket:write("Server: luaflare\r\n")
+	socket:write("Content-Length: 0\r\n")
+	socket:write("\r\n")
 end
 
 -- TODO: replace error messages with something meaningful
-function Request(client) -- expects("userdata")
-	local action, err = client:receive("*l")
+local line_max_length = 1024 + 1
+local line_timeout = 1
+local max_headers = 32
+
+function Request(socket socket) -- expects("userdata")
+	local action, err = socket:read("l", line_max_length, line_timeout)
 	if not action then return nil end -- just timed out
+	if action:len() >= line_max_length then
+		quick_response_socket(socket, 414)
+		return nil, "URI too long"
+	end
 	
-	local method, full_url, version = string.match(action, "(%w+) (.+) HTTP/([%d.]+)")
+	local method, full_url, version = string.match(action, "([^ ]+) ([^ ]+) HTTP/([%d.]+)")
 	version = tonumber(version)
 	
 	local parsed_url
@@ -147,18 +155,18 @@ function Request(client) -- expects("userdata")
 	--path
 	
 	if method == nil or full_url == nil or version == nil then
-		quick_response_client(client, 400) 
+		quick_response_socket(socket, 400) 
 		return nil, "invalid request: failed to parse method, url, or version"
 	end
 	
-	local headers, err = read_headers(client, version, parsed_url)
+	local headers, err = read_headers(socket, version, parsed_url)
 	if not headers then
-		quick_response_client(client, 400)
+		quick_response_socket(socket, 400)
 		return nil, "invalid request: failed to parse headers: " .. err
 	end
 	
 	local request = {
-		_client = client,
+		_socket = socket,
 		_method = method,
 		_path = unescape.url(canon_path),
 		_full_url = full_url,
@@ -168,22 +176,21 @@ function Request(client) -- expects("userdata")
 		_post_data = nil,
 		_post_string = "",
 		_start_time = util.time(),
-		_peer = client:getpeername(),
+		_ip = socket:ip(),
 		_version = version
 	}
 	setmetatable(request, meta)
 	
 	-- update peer
 	if script.options["reverse-proxy"] then
-		if not is_trusted_proxy(request._peer) then
-			return nil, quick_response(request, 403, "reverse-proxy: " .. request._peer .. " is not trusted!")
+		if not is_trusted_proxy(request._ip) then
+			return nil, quick_response(request, 403, "reverse-proxy: " .. request._ip .. " is not trusted!")
 		end
 		
-		local peer = headers["X-Real-IP"]
-		if not peer then return nil, quick_response(request, 400, "X-Real-IP not set!") end
-		request._peer = peer
+		local ip = headers["X-Real-IP"]
+		if not ip then return nil, quick_response(request, 400, "X-Real-IP not set!") end
+		request._ip = ip
 	end
-	
 	
 	local maxpostlength = tonumber(script.options["max-post-length"])
 	
@@ -210,9 +217,11 @@ function Request(client) -- expects("userdata")
 			return nil, quick_response(request, 413, "Maximum post data length exceeded")
 		end
 		
-		local post, err = client:receive(tonumber(len))
-		if post == nil then
+		local post, err = socket:read("a", len)
+		if not post then
 			return nil, quick_response(request, 400, "Failed to read post data (" .. len .. " bytes): " .. err)
+		elseif post:len() ~= len then
+			return nil, quick_response(request, 400, string.format("POST: got %d (expected %d)", post:len(), len))
 		end
 		
 		request._post_string = post
@@ -260,8 +269,12 @@ function meta::parsed_url()
 	return self._parsed_url
 end
 
+-- this can't return the socket, as it was a luasocket return value, not a luaflare socket
 function meta::client()
-	return self._client
+	error("client() deprecated, use :socket()", 2)
+end
+function meta::socket()
+	return self._socket
 end
 
 function meta::start_time()
@@ -273,7 +286,12 @@ function meta::total_time()
 end
 
 function meta::peer()
-	return self._peer
+	warn("request:peer() deprecated, use request:ip().")
+	return self._ip
+end
+
+function meta::ip()
+	return self._ip
 end
 
 function meta::host()
@@ -332,14 +350,24 @@ function meta::__tostring()
 	end
 end
 
-function read_headers(client, version, url)
+function read_headers(socket, version, url)
 	local ret = {}
 	local lastheader = nil
 	
+	local i = 0
 	while true do
-		local s, err = client:receive("*l")
+		i = i + 1
+		if i > max_headers then
+			return nil, string.format("headers limit execed (%d)", max_headers)
+		end
 		
-		if not s or s == "" then break end
+		local s, err = socket:read("l", line_max_length, line_timeout)
+		
+		if not s then
+			return nil, err
+		elseif s == "" then
+			break
+		end
 		
 		local firstchar = s:sub(1,1)
 		
