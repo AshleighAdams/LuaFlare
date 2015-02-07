@@ -1,6 +1,6 @@
 # LuaFlare request object
 
-`local request = _G.Request(client)`
+`local request = _G.Request(socket)`
 
 The object that represents a request.
 
@@ -38,9 +38,9 @@ Returns the URL, including the query string.
 
 Returns all the parts of the URL in a table.
 
-## `tcpclient request:client()`
+## `socket request:socket()`
 
-Returns the underlying tcpclient.
+Returns the underlying socket.
 
 ## `number request:start_time()`
 

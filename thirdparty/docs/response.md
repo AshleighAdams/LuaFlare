@@ -20,9 +20,9 @@ The function is expected to write to the response.
 
 Returns the request we're responding to.
 
-## `tcpclient response:client()`
+## `socket response:socket()`
 
-Returns the underlying tcpclient.
+Returns the underlying socket.
 
 ## `response:set_status(number what)`
 
