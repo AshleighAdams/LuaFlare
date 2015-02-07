@@ -5,21 +5,14 @@ hosts.host_meta = {}
 hosts.host_meta.__index = hosts.host_meta
 
 local hook = require("luaflare.hook")
+local escape = require("luaflare.util.escape")
 
 local function generate_host_patern(what) -- TODO: use pattern_escape, can't replace the *
-	local pattern = what
+	local pattern = escape.pattern(what)
 	
-	-- TODO: should these even be here? other than the . and * replacement
-	pattern = string.gsub(pattern, "%%", "%%%") -- this must be first...	
-	pattern = string.gsub(pattern, "(%.%-)", "%%%1") -- escape them
-	--pattern = string.gsub(pattern, "%(", "%%(")
-	--pattern = string.gsub(pattern, "%)", "%%)")
-	--pattern = string.gsub(pattern, "%+", "%%+")
-
-	-- now, allow things like *domain.net, or *.domain.net, *domain.net*
-	pattern = string.gsub(pattern, "*", "[.]*")
-	pattern = string.gsub(pattern, "~", "[.]+")
-	pattern = string.gsub(pattern, "+", "[^%.]+")
+	pattern = string.gsub(pattern, "%%%*", ".*")
+	pattern = string.gsub(pattern, "%%%~", ".+")
+	pattern = string.gsub(pattern, "%%%+", "[^%%.]+")
 	
 	return "^" .. pattern .. "$"
 end

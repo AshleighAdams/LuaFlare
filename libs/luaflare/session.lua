@@ -2,6 +2,7 @@ local session = {}
 
 local luaflare = require("luaflare")
 local script = require("luaflare.util.script")
+local hook = require("luaflare.hook")
 
 local posix = require("posix")
 local meta = {}

@@ -1,4 +1,6 @@
 local lfs = require("lfs")
+
+local luaflare = require("luaflare")
 local mimetypes = require("luaflare.mimetypes")
 local escape = require("luaflare.util.escape")
 local hosts = require("luaflare.hosts")

@@ -28,6 +28,10 @@ Returns the underlying tcpclient.
 
 Sets the HTTP status to `what`.
 
+## `number response:status()`
+
+Gets the HTTP status code.
+
 ## `response:set_reply(string reply)`
 
 Sets the response buffer, clearing it, if it wasn't already empty.

@@ -1,8 +1,10 @@
 local luaflare = require("luaflare")
-local canon = require("luaflare.util.canonicalize-header")
+local hook = require("luaflare.hook")
 local mimetypes = require("luaflare.mimetypes")
 local httpstatus = require("luaflare.httpstatus")
 local script = require("luaflare.util.script")
+local canon = require("luaflare.util.canonicalize-header")
+
 local md5 = require("md5")
 local lfs = require("lfs")
 
@@ -37,8 +39,11 @@ function meta::client()
 end
 
 function meta::set_status(number what)
-	assert(self and what)
 	self._status = what
+end
+
+function meta::status()
+	return self._status
 end
 
 function meta::set_reply(string str)
@@ -141,7 +146,6 @@ function meta::set_file(string path, options)-- expects(meta, "string")
 				local from, to = string.match(headers.Range, "bytes=(%d+)-(%d*)")
 				local len = reply:len()
 				
-				print("client wants range " .. from .. " to " .. tostring(to))
 				from = tonumber(from) or 0
 				to = tonumber(to) or len - 1
 				

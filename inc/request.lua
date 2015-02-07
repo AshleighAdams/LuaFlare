@@ -1,8 +1,9 @@
 local url = require("socket.url")
 local socket = require("socket")
 local httpstatus = require("luaflare.httpstatus")
-local script = require("luaflare.util.script")
 local hook = require("luaflare.hook")
+local util = require("luaflare.util")
+local script = require("luaflare.util.script")
 local canon = require("luaflare.util.canonicalize-header")
 local unescape = require("luaflare.util.unescape")
 
@@ -310,6 +311,15 @@ end
 
 function meta::set_upgraded()
 	self.upgraded = true
+	self:disown_socket()
+end
+
+function meta::owns_socket()
+	return not self.is_disowned
+end
+
+function meta::disown_socket()
+	self.is_disowned = true
 end
 
 function meta::__tostring()

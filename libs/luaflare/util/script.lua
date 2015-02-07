@@ -6,6 +6,8 @@ local configor = require("configor")
 local util = require("luaflare.util")
 local luaflare = require("luaflare")
 
+local posix = require("posix")
+
 function script.pid() -- attempt to locate the PID of the process
 	return posix.getpid("pid")
 end

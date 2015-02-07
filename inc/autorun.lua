@@ -1,7 +1,8 @@
 local lfs = require("lfs")
-local util = require("luaflare.util")
-local hook = require("luaflare.hook")
 local luaflare = require("luaflare")
+local hook = require("luaflare.hook")
+local script = require("luaflare.util.script")
+local util = require("luaflare.util")
 
 local reload_time = script.options["reload-time"] or 5 -- default to every 5 seconds
 

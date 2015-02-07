@@ -4,6 +4,7 @@ local scheduler = require("luaflare.scheduler")
 local script = require("luaflare.util.script")
 local hook = require("luaflare.hook")
 local slug = require("luaflare.util.slug")
+local util = require("luaflare.util")
 
 local template = {}
 template.barwidth = 1;

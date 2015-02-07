@@ -35,7 +35,7 @@ _luaflare()
 	#opts="--help --version --port= --threads= --threads-model= --host= --local --unit-test --no-reload --max-etag-size= --reverse-proxy --trusted-reverse-proxies= --x-accel-redirect= --x-sendfile --chunk-size= --scheduler-tick-rate= --max-post-length= --systemd"
 	opts=`luaflare --help | egrep -o "\\-\\-[A-Za-z\\-]+=?" | tr "\n" " "`
 	shortopts="-l -t -h -v"
-	actions="listen mount unmount"
+	actions="listen mount unmount unit-test"
 	
 	if [[ "$cur" == "--"* ]]; then
 		COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )

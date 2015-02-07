@@ -10,4 +10,4 @@ install:
 - sudo luarocks install luafilesystem
 - sudo luarocks install luabitop
 - sudo luarocks install md5
-script: BOOTSTRAP_LOG=1 lua5.1 ./luaflare.lua --unit-test
+script: BOOTSTRAP_LOG=1 lua5.1 ./luaflare.lua unit-test
