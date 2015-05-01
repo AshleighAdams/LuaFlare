@@ -36,7 +36,25 @@ function hosts.get(string host, options)
 	return obj
 end
 
-function hosts.match(string host)
+function hosts.match(string hosts_list) -- takes a comma-delimitered list of hosts, will return the first match (any if none)
+	local split = hosts_list:split(",")
+	
+	for k,host in pairs(split) do
+		local site, err, reason = hosts.match_single(hosts_list)
+		if site == nil then
+			return site, err, reason
+		elseif site == hosts.any then
+			-- continue
+		else
+			--success!
+			return site, err, reason
+		end
+	end
+	
+	return hosts.any
+end
+
+function hosts.match_single(string host) -- takes a single host
 	-- so the pattern "*.domain.com" matches "domain.com"
 	-- note that "+.domain.com" does not match "domain.com"
 	host = "." .. host
