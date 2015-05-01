@@ -39,8 +39,8 @@ end
 function hosts.match(string hosts_list) -- takes a comma-delimitered list of hosts, will return the first match (any if none)
 	local split = hosts_list:split(",")
 	
-	for k,host in pairs(split) do
-		local site, err, reason = hosts.match_single(hosts_list)
+	for k, host in pairs(split) do
+		local site, err, reason = hosts.match_single(host:trim())
 		if site == nil then
 			return site, err, reason
 		elseif site == hosts.any then
