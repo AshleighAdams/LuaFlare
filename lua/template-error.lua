@@ -26,7 +26,7 @@ div.mountains {
 div.atmosphere
 {
 	width: 100%; /* rgba(150,50,0,1) */
-	background: radial-gradient(1000px 800px at bottom, rgba(50,255,255,0.5), rgba(0,0,255,0.10) );
+	background: radial-gradient(1000px 800px at bottom, rgba(255,155,255,0.5), rgba(0,0,255,0.10) );
 	z-index:-1;
 }
 div.space
